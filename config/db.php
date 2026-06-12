@@ -8,7 +8,16 @@
  * As credenciais podem vir de variáveis de ambiente (úteis ao hospedar em um
  * servidor/host) e caem para os padrões de desenvolvimento local se ausentes.
  * Em produção, defina DB_HOST/DB_NAME/DB_USER/DB_PASS no ambiente do servidor.
+ *
+ * Em hospedagens onde não há controle do ambiente (painel/FTP sem SSH), crie um
+ * arquivo "config/db.local.php" (fora do git) que chama putenv() para cada
+ * variável. Ele é carregado aqui automaticamente, antes dos defaults abaixo.
  */
+$overrideLocal = __DIR__ . '/db.local.php';
+if (is_file($overrideLocal)) {
+    require $overrideLocal;
+}
+
 define('DB_HOST', getenv('DB_HOST') ?: '127.0.0.1');
 define('DB_NAME', getenv('DB_NAME') ?: 'algorithmia');
 define('DB_USER', getenv('DB_USER') ?: 'root');
