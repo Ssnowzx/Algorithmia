@@ -8,13 +8,12 @@
 USE algorithmia;
 
 -- ------------------------------------------------------------
--- USUÁRIOS (1 = mestre/admin, 2 = jogador de demonstração)
--- Senhas: mestre123 / jogador123
+-- USUÁRIOS
 -- ------------------------------------------------------------
--- INSERT IGNORE: não recria/duplica contas que já existem (preserva dados).
-INSERT IGNORE INTO usuarios (nome, email, senha_hash, papel) VALUES
-('Willen (Mestre)', 'willen@algorithmia.dev', '$2y$12$vaIPa2fXQvku37lNxSm3g.D.MBNZnjMjGYXNmHYkajCRUJWCsqRYm', 'mestre'),
-('Aprendiz Demo',   'demo@algorithmia.dev',   '$2y$12$/D.OOB9fqNQLDk3UaDS8B.9QDVw2NQZ1jLKWVRDgG4qL/Gj7fnYH.', 'jogador');
+-- Sem contas pré-criadas: cada jogador se registra pelo próprio jogo
+-- (papel 'jogador'). Para liberar o Painel do Mestre (admin), promova
+-- a conta no MySQL:
+--   UPDATE usuarios SET papel = 'mestre' WHERE email = 'seu@email.com';
 
 -- ------------------------------------------------------------
 -- MESTRES (ordem = número do capítulo)

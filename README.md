@@ -140,18 +140,18 @@ O projeto é PHP puro, sem dependências externas (não usa Composer), então ro
 4. **Apache**: o `.htaccess` na raiz já faz o rewrite para o front controller. Em **Nginx**, direcione as requisições não-encontradas para `index.php`. O `BASE_URL` é detectado automaticamente, então funciona inclusive em subpastas.
 5. **HTTPS**: recomendado em produção (a sessão e o login se beneficiam de cookies seguros).
 
-> **Antes de abrir ao público**, troque/remova as contas de demonstração abaixo (ou ao menos altere a senha do mestre `willen@algorithmia.dev`), já que elas vêm com senhas conhecidas.
-
 ---
 
-## 👤 Contas de Demonstração
+## 👤 Acesso e Painel do Mestre
 
-| Papel | E-mail | Senha | Acesso |
-|---|---|---|---|
-| **Mestre (admin)** | `willen@algorithmia.dev` | `mestre123` | Painel do Mestre (CRUD) |
-| Jogador | `demo@algorithmia.dev` | `jogador123` | Jogo (crie um personagem) |
+Não há contas pré-criadas — **crie a sua** em *Criar conta* e forje seu herói.
 
-Ou crie sua própria conta em **Criar conta** e forje seu herói.
+- **Jogador:** o registro cria uma conta comum (papel `jogador`).
+- **Admin (Painel do Mestre):** para liberar o CRUD de fases, desafios e itens,
+  promova sua conta a `mestre` direto no banco:
+  ```sql
+  UPDATE usuarios SET papel = 'mestre' WHERE email = 'seu@email.com';
+  ```
 
 ---
 
@@ -160,7 +160,7 @@ Ou crie sua própria conta em **Criar conta** e forje seu herói.
 2. No **mapa**, jogue *Os Primeiros Passos* e derrote *O Bug Primordial*.
 3. Avance ao **Porto da Sintaxe** (Mestre Willen): teste os 6 tipos de desafio, use uma **poção**, o **especial** e o **Fragmento da IA** (veja a reputação cair e os diálogos mudarem).
 4. Visite **Loja**, **Inventário**, **Perfil**, **Ranking**.
-5. Entre como **Mestre** e crie/edite/exclua um desafio no **Painel** — a mudança aparece na fase.
+5. Promova sua conta a **Mestre** (veja *Acesso e Painel do Mestre*) e crie/edite/exclua um desafio no **Painel** — a mudança aparece na fase.
 
 ---
 
@@ -172,7 +172,7 @@ Ou crie sua própria conta em **Criar conta** e forje seu herói.
 - **Validação das respostas sempre no servidor** — o gabarito nunca é enviado ao cliente.
 - **Sessões resilientes**: sessões órfãs (ex.: usuário removido do banco) são encerradas com elegância, sem derrubar a página.
 - **Banco persistente**: a migração padrão preserva contas e progresso; apenas `--reset` apaga dados.
-- ⚠️ **Em produção**: altere/remova as contas de demonstração (senhas conhecidas) antes de publicar.
+- **Sem credenciais embutidas**: nenhuma conta vem pré-criada no banco; o acesso de admin é concedido manualmente (promover a conta a `mestre`).
 
 ## 🎨 Créditos de arte
 Todos os **72 assets** em `public/img/` são **pixel art autoral**, gerados por scripts próprios em `tools/` (Python/Pillow): mestres e heróis de **corpo inteiro**, 24 inimigos/criaturas, 19 itens, 13 ícones de UI e 8 cenários 16:9. Os cinco mestres foram estilizados a partir das fotos de referência em `imagensprofessores/`. Para regenerar/ajustar, rode `python3 tools/<arquivo>.py`.
