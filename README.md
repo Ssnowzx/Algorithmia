@@ -34,6 +34,27 @@ Cada uso do **Fragmento da IA Ancestral** (que acerta um desafio automaticamente
 
 ---
 
+## 🖼️ Galeria (pixel art autoral)
+
+Toda a arte foi criada em **pixel art** por scripts próprios (`tools/`), sem IA.
+
+### 👥 Personagens — os 5 Mestres e as 3 classes jogáveis
+![Personagens](docs/galeria/personagens.png)
+
+### 👹 Inimigos & Chefes — o bestiário (inclui Lorde Segfault e a IA Ancestral)
+![Inimigos](docs/galeria/inimigos.png)
+
+### ⚔️ Itens — armas, escudos, poções e relíquias
+![Itens](docs/galeria/itens.png)
+
+### 🏞️ Cenários — as regiões do mundo
+![Cenários](docs/galeria/cenarios.png)
+
+> 📖 A **história completa** (lore, mestres, vilão e os três finais) está em
+> [`historia.html`](historia.html) — uma página ilustrada; abra no navegador.
+
+---
+
 ## 🗂️ Arquitetura (MVC)
 
 ```
