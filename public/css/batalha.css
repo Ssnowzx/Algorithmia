@@ -1,0 +1,135 @@
+/* ============================================================
+   Algorithmia — Arena de batalha
+   ============================================================ */
+
+.arena { max-width: 900px; margin: 0 auto; }
+
+.campo-batalha {
+    position: relative; border-radius: 18px; border: 1px solid var(--borda-luz);
+    background:
+        radial-gradient(620px 260px at 78% 8%, rgba(255,93,108,.16), transparent 70%),
+        radial-gradient(520px 240px at 18% 12%, rgba(124,92,255,.16), transparent 72%),
+        linear-gradient(180deg, rgba(22,26,54,.55), rgba(10,12,28,.80)),
+        url(../img/fundos/fundo-batalha.png) center/cover,
+        linear-gradient(180deg, #161a36 0%, #0e1124 62%, #0a0c1c 100%);
+    image-rendering: pixelated;
+    padding: 1.2rem; display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; min-height: 260px;
+    overflow: hidden; box-shadow: inset 0 0 80px rgba(0,0,0,.5);
+}
+/* Chão da arena com leve perspectiva. */
+.campo-batalha::before {
+    content: ""; position: absolute; left: -10%; right: -10%; bottom: 0; height: 64px;
+    background: linear-gradient(180deg, transparent, rgba(124,92,255,.10));
+    border-top: 1px solid rgba(124,92,255,.25);
+    transform: perspective(300px) rotateX(58deg); transform-origin: bottom; pointer-events: none;
+}
+/* "VS" central discreto. */
+.campo-batalha::after {
+    content: "VS"; position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+    font-family: var(--titulo); font-weight: 900; font-size: 1.1rem; color: rgba(255,255,255,.18);
+    letter-spacing: 2px; pointer-events: none;
+}
+
+.combatente { text-align: center; width: 46%; }
+.combatente .sprite { width: 150px; height: 150px; margin: 0 auto; transition: transform .12s; }
+.combatente .sprite svg, .combatente .sprite img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(0 8px 16px rgba(0,0,0,.5)); }
+.combatente .nome-combatente { font-weight: 800; margin-bottom: .3rem; }
+.combatente .barra { height: 16px; }
+.combatente.heroi .sprite { transform: scaleX(-1); }
+
+/* Respiração idle no sprite interno (não conflita com investida/tremor no contêiner). */
+.combatente .sprite svg, .combatente .sprite img { animation: flutua 3s ease-in-out infinite; }
+@keyframes flutua { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+
+/* Tremor + flash vermelho ao levar dano. */
+.combatente .sprite.tremer { animation: tremer .4s; }
+.combatente.heroi .sprite.tremer { animation: tremerH .4s; }
+@keyframes tremer { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
+@keyframes tremerH { 0%,100%{transform:scaleX(-1) translateX(0)} 25%{transform:scaleX(-1) translateX(-9px)} 50%{transform:scaleX(-1) translateX(9px)} 75%{transform:scaleX(-1) translateX(-6px)} }
+.combatente .sprite.tremer svg, .combatente .sprite.tremer img { animation: flutua 3s ease-in-out infinite, flashDano .4s; }
+@keyframes flashDano { 0%,100%{filter:drop-shadow(0 8px 16px rgba(0,0,0,.5))} 30%{filter:brightness(1.9) drop-shadow(0 0 12px #ff5d6c)} }
+
+/* Investida ao atacar (lança o sprite em direção ao oponente). */
+.combatente .sprite.atacando { animation: investida .4s ease; }
+.combatente.heroi .sprite.atacando { animation: investidaH .4s ease; }
+@keyframes investida { 0%,100%{transform:translateX(0)} 45%{transform:translateX(26px) scale(1.08)} }
+@keyframes investidaH { 0%,100%{transform:scaleX(-1) translateX(0)} 45%{transform:scaleX(-1) translateX(26px) scale(1.08)} }
+@media (prefers-reduced-motion: reduce) {
+    .combatente .sprite svg, .combatente .sprite img, .combatente .sprite.atacando, .combatente .sprite.tremer { animation: none; }
+}
+
+.flutuante { position: absolute; font-weight: 900; font-size: 1.6rem; pointer-events: none; animation: sobe 1s ease-out forwards; text-shadow: 0 2px 4px rgba(0,0,0,.8); }
+.flutuante.dano { color: var(--hp); }
+.flutuante.cura { color: var(--sucesso); }
+.flutuante.combo { color: var(--xp); }
+@keyframes sobe { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-60px); opacity: 0; } }
+
+.combo-indicador { position: absolute; top: 38px; left: 50%; transform: translateX(-50%); font-weight: 900; color: var(--xp); font-size: 1.15rem; text-shadow: 0 2px 6px rgba(0,0,0,.7); font-family: var(--titulo); z-index: 3; }
+
+/* ---------- Painel do desafio ---------- */
+.painel-desafio { margin-top: 1.2rem; background: var(--painel); border: 1px solid var(--borda); border-radius: 16px; padding: 1.3rem; }
+.desafio-meta { display: flex; gap: .6rem; align-items: center; margin-bottom: .8rem; flex-wrap: wrap; }
+.badge-assunto { font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; padding: .2rem .55rem; border-radius: 6px; background: rgba(124,92,255,.2); color: var(--primaria-2); }
+.badge-tipo { font-size: .72rem; color: var(--texto-fraco); }
+.dificuldade-pontos { margin-left: auto; color: var(--xp); letter-spacing: 2px; }
+.pergunta-texto { font-size: 1.15rem; font-weight: 600; margin-bottom: .8rem; line-height: 1.4; }
+.codigo-bloco { background: #0a0b18; border: 1px solid var(--borda); border-left: 3px solid var(--primaria); border-radius: 10px; padding: .9rem 1.1rem; font-family: var(--pixel); font-size: .95rem; white-space: pre-wrap; overflow-x: auto; margin-bottom: 1rem; color: #d6e0ff; }
+
+/* Opções de múltipla escolha / V-F / erro */
+.opcoes-lista { display: grid; gap: .6rem; }
+.opcao {
+    text-align: left; padding: .8rem 1rem; border-radius: 11px; cursor: pointer;
+    background: var(--bg-2); border: 2px solid var(--borda); color: var(--texto);
+    font-size: 1rem; font-family: var(--fonte); transition: .12s; display: flex; gap: .6rem; align-items: center;
+}
+.opcao:hover { border-color: var(--primaria-2); transform: translateX(3px); }
+.opcao .letra { width: 26px; height: 26px; flex-shrink: 0; border-radius: 6px; background: var(--painel-2); display: grid; place-items: center; font-weight: 800; font-size: .85rem; }
+.opcao.correta { border-color: var(--sucesso); background: rgba(46,204,113,.15); }
+.opcao.errada { border-color: var(--erro); background: rgba(255,107,107,.15); }
+.opcao:disabled { cursor: default; }
+
+/* Completar código */
+.completar-campo { display: flex; gap: .6rem; flex-wrap: wrap; }
+.completar-campo input { flex: 1; min-width: 200px; padding: .8rem; border-radius: 10px; background: var(--bg-2); border: 2px solid var(--borda); color: var(--texto); font-family: var(--pixel); font-size: 1rem; }
+
+/* Ordenar / Arrastar */
+.tokens-area { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .8rem; }
+.token {
+    padding: .6rem .9rem; border-radius: 10px; background: var(--painel-2);
+    border: 2px solid var(--borda); cursor: grab; font-family: var(--pixel); user-select: none; transition: .12s;
+}
+.token:hover { border-color: var(--primaria-2); }
+.token.arrastando { opacity: .4; }
+.ordenar-lista { display: flex; flex-direction: column; gap: .5rem; margin-bottom: .8rem; }
+.ordenar-lista .token { cursor: grab; display: flex; align-items: center; gap: .6rem; }
+.ordenar-lista .token .puxador { color: var(--texto-fraco); }
+.ordenar-lista .token .pos { width: 24px; height: 24px; border-radius: 6px; background: var(--primaria); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: .8rem; }
+
+/* Feedback e ações */
+.feedback { margin-top: 1rem; padding: .9rem 1.1rem; border-radius: 12px; display: none; }
+.feedback.mostrar { display: block; }
+.feedback.ok { background: rgba(46,204,113,.12); border: 1px solid rgba(46,204,113,.5); }
+.feedback.nao { background: rgba(255,107,107,.12); border: 1px solid rgba(255,107,107,.5); }
+.feedback .titulo-fb { font-weight: 800; margin-bottom: .3rem; }
+.feedback .explicacao-fb { color: #d6dcf5; line-height: 1.5; font-size: .95rem; }
+
+.acoes-batalha { display: flex; gap: .6rem; margin-top: 1rem; flex-wrap: wrap; }
+.acoes-batalha .botao { flex: 0 0 auto; }
+.barra-acoes-secundarias { display: flex; gap: .5rem; margin-top: .8rem; flex-wrap: wrap; }
+.btn-ia { background: linear-gradient(180deg, #3a3450, #221c35); border: 1px solid #6b4bff; color: #c4b0ff; box-shadow: 0 0 14px rgba(124,92,255,.4); }
+
+/* Resultado */
+.tela-resultado { text-align: center; max-width: 560px; margin: 1rem auto; }
+.tela-resultado .selo { font-size: 4rem; }
+.tela-resultado.vitoria h1 { color: var(--sucesso); }
+.tela-resultado.derrota h1 { color: var(--hp); }
+.recompensas { display: flex; justify-content: center; gap: 1.4rem; margin: 1rem 0; flex-wrap: wrap; }
+.recompensa { font-weight: 800; }
+.estrelas-resultado { font-size: 2.4rem; letter-spacing: 6px; color: var(--xp); margin: .6rem 0; }
+.conquista-popup { background: rgba(255,206,71,.12); border: 1px solid var(--xp); border-radius: 12px; padding: .7rem 1rem; margin: .6rem 0; display: flex; gap: .6rem; align-items: center; justify-content: center; }
+.conquista-popup svg { width: 34px; height: 34px; }
+
+@media (max-width: 600px) {
+    .combatente .sprite { width: 100px; height: 100px; }
+    .campo-batalha { min-height: 170px; }
+}

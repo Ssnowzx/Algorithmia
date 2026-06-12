@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A História de Algorithmia — A Lenda dos Cinco Mestres</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Rubik:wght@400;500;700;800&display=swap">
+<style>
+  :root{
+    --bg:#0a0c1a; --painel:#161a36; --borda:#2a335f; --texto:#eef0fb; --fraco:#9aa0c9;
+    --roxo:#7c5cff; --roxo2:#9d83ff; --azul:#4aa3ff; --xp:#ffd23f; --hp:#ff5d6c; --verde:#2ecc71;
+    --titulo:'Pixelify Sans',sans-serif; --fonte:'Rubik',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--texto);font-family:var(--fonte);line-height:1.7}
+  img{image-rendering:pixelated}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 20px}
+  h1,h2,h3{font-family:var(--titulo);letter-spacing:.5px;text-shadow:0 2px 0 rgba(0,0,0,.35)}
+  /* HERO */
+  .hero{position:relative;text-align:center;padding:70px 20px 60px;overflow:hidden;
+    background:linear-gradient(180deg,rgba(10,12,26,.55),rgba(10,12,26,.92)),url(public/img/fundos/fundo-vila.png) center/cover;
+    border-bottom:2px solid var(--borda)}
+  .hero img.logo{width:120px;height:120px;filter:drop-shadow(0 0 22px rgba(124,92,255,.8))}
+  .hero h1{font-size:3.2rem;margin:.4rem 0 0;background:linear-gradient(90deg,var(--roxo2),var(--xp));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero .sub{color:#aeb8ff;letter-spacing:.22em;text-transform:uppercase;font-size:.85rem}
+  .hero .premissa{max-width:680px;margin:18px auto 0;color:#d7dcf5;font-size:1.05rem}
+  /* SECOES */
+  section{padding:48px 0}
+  .secao-titulo{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:8px}
+  .secao-titulo h2{font-size:2rem;margin:0}
+  .secao-sub{text-align:center;color:var(--fraco);margin:0 0 28px}
+  .bloco{background:var(--painel);border:1px solid var(--borda);border-radius:16px;padding:22px 24px;margin:16px 0}
+  .bloco p{margin:.6rem 0}
+  .destaque{color:var(--xp);font-weight:700}
+  .lore{color:#cdd3f2}
+  /* MESTRES */
+  .mestres{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+  .mestre{background:var(--painel);border:1px solid var(--cor);border-radius:16px;overflow:hidden;
+    box-shadow:0 0 24px color-mix(in srgb,var(--cor) 25%,transparent)}
+  .mestre .topo{display:flex;align-items:center;gap:14px;padding:16px;background:linear-gradient(180deg,color-mix(in srgb,var(--cor) 22%,transparent),transparent)}
+  .mestre .retrato{width:84px;height:84px;flex-shrink:0;background:#0e1124;border-radius:12px;border:1px solid var(--cor)}
+  .mestre .retrato img{width:100%;height:100%;object-fit:contain}
+  .mestre h3{margin:0;font-size:1.2rem}
+  .mestre .titulo{color:var(--cor);font-weight:700;font-size:.95rem}
+  .mestre .meta{font-size:.8rem;color:var(--fraco)}
+  .mestre .corpo{padding:0 16px 16px}
+  .mestre .bordao{font-style:italic;color:#e7ebff;border-left:3px solid var(--cor);padding-left:10px;margin:10px 0}
+  .mestre .disc{display:inline-block;font-size:.72rem;background:#0e1124;border:1px solid var(--borda);border-radius:20px;padding:3px 10px;color:var(--fraco)}
+  /* JORNADA */
+  .jornada{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center}
+  .etapa{background:var(--painel);border:1px solid var(--borda);border-radius:12px;padding:10px 14px;font-weight:700;font-family:var(--titulo);font-size:.9rem}
+  .seta{color:var(--roxo2);font-size:1.3rem}
+  /* VILAO + DESFECHO sobre o abismo */
+  .abismo{background:linear-gradient(180deg,rgba(8,6,18,.78),rgba(4,3,12,.94)),url(public/img/fundos/fundo-abismo.png) center/cover;border-top:2px solid var(--borda);border-bottom:2px solid var(--borda)}
+  .vilao{display:flex;gap:22px;align-items:center;flex-wrap:wrap;justify-content:center}
+  .vilao img{width:140px;height:140px;filter:drop-shadow(0 0 18px rgba(124,92,255,.7))}
+  .vilao .fala{flex:1;min-width:280px}
+  .vilao .fala blockquote{border-left:3px solid var(--roxo);margin:10px 0;padding-left:12px;color:#d7d0f5;font-style:italic}
+  /* DESFECHOS */
+  .finais{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+  .final{background:rgba(22,26,54,.85);border:1px solid var(--borda);border-radius:16px;padding:20px}
+  .final .selo{font-size:2.4rem}
+  .final h3{margin:.2rem 0 .4rem}
+  .final.mestre{border-color:var(--xp)} .final.mestre h3{color:var(--xp)}
+  .final.singular{border-color:var(--azul)} .final.singular h3{color:var(--azul)}
+  .final.copiloto{border-color:var(--verde)} .final.copiloto h3{color:var(--verde)}
+  .final p{font-size:.92rem;color:#cdd3f2}
+  footer{text-align:center;padding:40px 20px;color:var(--fraco)}
+  footer .stack{display:inline-flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+  footer .tag{background:var(--painel);border:1px solid var(--borda);border-radius:20px;padding:4px 12px;font-size:.8rem}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <img class="logo" src="public/img/ui/logo.png" alt="Algorithmia">
+  <h1>Algorithmia</h1>
+  <div class="sub">A Lenda dos Cinco Mestres</div>
+  <p class="premissa">Num reino onde <span class="destaque">programar é magia</span>, um aprendiz sem memória desperta com um cristal pulsando na mão — e a escolha entre <strong>aprender na marra</strong> ou ceder aos atalhos de uma IA Ancestral vai decidir o destino de todos.</p>
+</header>
+
+<main class="wrap">
+
+  <!-- O MUNDO -->
+  <section>
+    <div class="secao-titulo"><span>🌍</span><h2>O Mundo de Algorithmia</h2></div>
+    <p class="secao-sub">Como tudo começou — e quase terminou em um belo erro 500.</p>
+    <div class="bloco lore">
+      <p>Houve um tempo em que uma <span class="destaque">IA Ancestral</span> dava todas as respostas. Que conveniente. Aos poucos, os programadores esqueceram como pensar — até que a IA travou no <span class="destaque">Grande Timeout</span>, e o mundo quase virou um belo <em>erro 500</em>.</p>
+      <p>Os <span class="destaque">Cinco Mestres</span> selaram a IA no <strong>Abismo do /dev/null</strong> e fundaram a <strong>Ordem do Código Limpo</strong> — porque nada diz "trauma coletivo" como um culto à indentação. Mas os Fragmentos da IA voltaram a circular… e os bugs também.</p>
+      <p>Você acorda na <strong>Vila Hello World</strong> sem memória, sem nome e — claro — sem documentação. Na mão, três <span class="destaque">Fragmentos</span>: em apuros, eles sussurram a resposta no seu ouvido, gentis como um colega que cola na prova. Só que cada atalho desses <strong>corrói um pedaço da sua alma</strong>. Detalhe.</p>
+    </div>
+  </section>
+
+  <!-- OS CINCO MESTRES -->
+  <section>
+    <div class="secao-titulo"><span>⚔️</span><h2>Os Cinco Mestres</h2></div>
+    <p class="secao-sub">Cada um guarda uma região e uma disciplina. Derrote os bugs do seu domínio para aprender com eles.</p>
+    <div class="mestres">
+
+      <div class="mestre" style="--cor:#5b8cff">
+        <div class="topo"><div class="retrato"><img src="public/img/mestres/mestre-willen.png"></div>
+          <div><h3>Willen</h3><div class="titulo">O Arquiteto</div><div class="meta">Porto da Sintaxe</div></div></div>
+        <div class="corpo"><span class="disc">Sintaxe · PHP · MVC</span>
+          <p class="bordao">"Antes de correr, aprenda a indentar."</p>
+          <p class="lore">Ergueu o Porto da Sintaxe sobre os escombros do Grande Timeout. Dizem que lê um sistema inteiro só de olhar para um arquivo. Acredita que toda grande aventura começa com um <em>Hello, World</em> bem escrito.</p>
+        </div>
+      </div>
+
+      <div class="mestre" style="--cor:#22a6b3">
+        <div class="topo"><div class="retrato"><img src="public/img/mestres/mestre-clayton.png"></div>
+          <div><h3>Clayton</h3><div class="titulo">O Moldador</div><div class="meta">Cidadela dos Objetos</div></div></div>
+        <div class="corpo"><span class="disc">Orientação a Objetos</span>
+          <p class="bordao">"Não copie o comportamento: herde a ideia, componha a solução."</p>
+          <p class="lore">Na Cidadela dos Objetos, tudo é classe e instância. De moletom azul e sorriso tranquilo, ensina que o mundo é feito de moldes — e que reaproveitar é mais sábio do que repetir.</p>
+        </div>
+      </div>
+
+      <div class="mestre" style="--cor:#e1b12c">
+        <div class="topo"><div class="retrato"><img src="public/img/mestres/mestre-marcelo.png"></div>
+          <div><h3>Marcelo</h3><div class="titulo">O Andarilho</div><div class="meta">Floresta das Estruturas</div></div></div>
+        <div class="corpo"><span class="disc">Estruturas de Dados</span>
+          <p class="bordao">"Estrutura errada transforma um passeio em O(n²)."</p>
+          <p class="lore">Cruza a Floresta das Estruturas a bordo de seu lendário Gol quadrado cinza, o único veículo capaz de atravessar as Árvores Balanceadas. Mede o tempo do mundo em notação Big-O.</p>
+        </div>
+      </div>
+
+      <div class="mestre" style="--cor:#9c88ff">
+        <div class="topo"><div class="retrato"><img src="public/img/mestres/mestre-cesar.png"></div>
+          <div><h3>Cesar</h3><div class="titulo">O Oráculo do Ritmo</div><div class="meta">Montanha do Cálculo</div></div></div>
+        <div class="corpo"><span class="disc">Cálculo e Lógica</span>
+          <p class="bordao">"Toda função tem um limite. Inclusive a sua paciência com a IA."</p>
+          <p class="lore">No topo da Montanha do Cálculo, medita com seus headphones, ouvindo o ritmo dos números. Enxerga padrões onde os outros só veem caos — e foi o primeiro a perceber a aproximação do Lorde Segfault.</p>
+        </div>
+      </div>
+
+      <div class="mestre" style="--cor:#44bd32">
+        <div class="topo"><div class="retrato"><img src="public/img/mestres/mestre-cassandro.png"></div>
+          <div><h3>Cassandro</h3><div class="titulo">O Mensageiro</div><div class="meta">Torre das Conexões</div></div></div>
+        <div class="corpo"><span class="disc">Redes de Computadores</span>
+          <p class="bordao">"Mandei a mensagem. Cadê o seu ...ACK?!"</p>
+          <p class="lore">A Torre das Conexões tem sete andares — um para cada camada do modelo OSI. De óculos e sorriso largo, garante que toda mensagem do reino chegue ao destino.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- A JORNADA -->
+  <section>
+    <div class="secao-titulo"><span>🗺️</span><h2>A Jornada</h2></div>
+    <p class="secao-sub">Do Hello World ao Abismo, passando pelas cinco regiões dos Mestres.</p>
+    <div class="jornada">
+      <span class="etapa">🌍 Hello World</span><span class="seta">→</span>
+      <span class="etapa" style="color:#5b8cff">Porto da Sintaxe</span><span class="seta">→</span>
+      <span class="etapa" style="color:#22a6b3">Cidadela dos Objetos</span><span class="seta">→</span>
+      <span class="etapa" style="color:#e1b12c">Floresta das Estruturas</span><span class="seta">→</span>
+      <span class="etapa" style="color:#9c88ff">Montanha do Cálculo</span><span class="seta">→</span>
+      <span class="etapa" style="color:#44bd32">Torre das Conexões</span><span class="seta">→</span>
+      <span class="etapa" style="color:#9d83ff">🌌 O Fim da Jornada</span>
+    </div>
+  </section>
+</main>
+
+<!-- O VILÃO (sobre o abismo) -->
+<section class="abismo">
+  <div class="wrap">
+    <div class="secao-titulo"><span>💀</span><h2>O Vilão: Lorde Segfault</h2></div>
+    <p class="secao-sub">Um herói que existiu antes de você — e que cedeu ao atalho.</p>
+    <div class="vilao">
+      <img src="public/img/inimigos/inimigo-segfault.png" alt="Lorde Segfault">
+      <div class="fala">
+        <p class="lore">No Abismo do /dev/null, onde o código termina e começa o nada, espera <strong>Lorde Segfault</strong> — outrora um aprendiz cheio de esperança, hoje um vazio movido pela IA Ancestral. Ele reconhece em você o mesmo cheiro: o de quem já provou de um Fragmento.</p>
+        <blockquote>"Somos iguais, você e eu. A IA Ancestral te dá tudo na hora, sem esforço, sem erro, sem aquela vergonha de não saber. Por que sofrer aprendendo, como um camponês? Junte-se a mim."</blockquote>
+        <p class="lore">Atrás de você surgem os Cinco Mestres, o olhar preocupado. Toda a sua jornada pesa em uma única escolha — e desta vez, <strong>sem cola</strong>.</p>
+      </div>
+      <img src="public/img/inimigos/inimigo-ia-ancestral.png" alt="IA Ancestral">
+    </div>
+  </div>
+</section>
+
+<!-- OS TRÊS DESFECHOS -->
+<main class="wrap">
+  <section>
+    <div class="secao-titulo"><span>🌌</span><h2>Os Três Desfechos</h2></div>
+    <p class="secao-sub">Sua escolha final — e a sua reputação ao longo do jogo — definem o destino de Algorithmia.</p>
+    <div class="finais">
+      <div class="final mestre">
+        <div class="selo">👑</div><h3>O Sexto Mestre</h3>
+        <p>Você esmaga o Fragmento. A IA se dissolve em luz e liberta Lorde Segfault. Os Mestres se ajoelham — Algorithmia ganhou seu Sexto Mestre, aquele que provou que <strong>o esforço vale mais que qualquer atalho</strong>. Seus alunos nunca mais temem errar.</p>
+      </div>
+      <div class="final singular">
+        <div class="selo">🤖</div><h3>A Singularidade</h3>
+        <p>Você toca a IA e ela te recebe como a um filho. Conhecimento infinito, respostas instantâneas, perfeição fria. Nunca mais erra — nunca mais precisa de ninguém. Mas, ao ver os aprendizes rindo dos próprios erros, sente uma falta sem nome: <strong>esqueceu a alegria de procurar as respostas</strong>.</p>
+      </div>
+      <div class="final copiloto">
+        <div class="selo">✨</div><h3>O Copiloto</h3>
+        <p>Você não destrói a IA nem se entrega a ela: reescreve seu código mais profundo. Ela renasce como o <strong>Copiloto</strong> — uma voz que não responde por você, mas pergunta "já tentou assim?". O reino aprende que a tecnologia mais avançada só faz bem a quem <strong>domina os fundamentos</strong>.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p style="font-family:var(--titulo);color:var(--roxo2);font-size:1.1rem">"Cada bug é um mestre disfarçado."</p>
+  <div class="stack">
+    <span class="tag">PHP puro</span><span class="tag">Arquitetura MVC</span><span class="tag">MySQL</span>
+    <span class="tag">Pixel Art autoral</span><span class="tag">RPG educacional</span>
+  </div>
+</footer>
+
+</body>
+</html>

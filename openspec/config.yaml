@@ -1,0 +1,41 @@
+schema: spec-driven
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+context: |
+  Projeto: Algorithmia — A Lenda dos Cinco Mestres (trabalho acadêmico).
+  Um jogo web de RPG/narrativa que ensina lógica e algoritmos.
+
+  Tech stack: PHP puro (sem framework), MySQL, HTML/CSS/JS vanilla.
+  Sem Composer/dependências externas no runtime PHP.
+
+  Arquitetura: MVC com padrão Front Controller.
+    - index.php = ponto de entrada único. Rotas via index.php?url=controller/metodo/param.
+    - app/core/    = núcleo (Router, Controller, Model, Auth, helpers).
+    - app/models/  = modelos de dados (1 classe por entidade do domínio).
+    - app/controllers/ = controladores (1 por área: Auth, Batalha, Historia, Mapa,
+      Inventario, Loja, Ranking, Perfil, Mestre, Home).
+    - app/services/ = regras de negócio (Batalha, Conquista, Progressao, Reputacao).
+    - app/views/   = templates PHP organizados por área + layout/ (header, footer).
+    - config/      = config.php e db.php (conexão MySQL).
+    - database/    = schema.sql, seeds.sql, migrate.php.
+    - public/      = assets estáticos (css, js, img — arte em pixel art PNG).
+
+  Convenções de código:
+    - declare(strict_types=1) em todo PHP.
+    - Autoload manual via spl_autoload_register (core, models, services).
+    - Nomes de domínio em português (Mestre, Desafio, Personagem, Inventario...).
+    - Texto de sabor/UI do jogo tem tom sarcástico e ácido; explicações dos
+      desafios de lógica permanecem corretas e didáticas.
+    - Commits no padrão Conventional Commits, mensagens no imperativo em português.
+
+# Regras por artefato — valem para Claude e Codex ao gerar propostas.
+rules:
+  proposal:
+    - Manter PHP puro + MVC + MySQL; sem framework nem dependências de runtime.
+    - Respeitar as regras em docs/REGRAS-DO-JOGO.md (ex.: a batalha só é vencida derrotando o inimigo).
+    - Incluir uma seção "Fora de escopo".
+  design:
+    - Indicar em qual camada MVC a mudança entra (model / service / controller / view).
+  tasks:
+    - Tarefas pequenas e verificáveis; citar o arquivo/camada de cada passo.

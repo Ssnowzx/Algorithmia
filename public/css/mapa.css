@@ -1,0 +1,144 @@
+/* ============================================================
+   Algorithmia — Mapa-múndi (trilha estilo Duolingo)
+   ============================================================ */
+
+.mapa-wrap { max-width: 760px; margin: 0 auto; }
+.mapa-cabecalho { text-align: center; margin-bottom: 1.4rem; }
+.mapa-cabecalho h1 { margin: .2rem 0; }
+.mapa-progresso-geral { color: var(--texto-fraco); font-size: .9rem; }
+
+/* Cada região (capítulo) recebe um bioma colorido. */
+.regiao {
+    position: relative; margin: 0 0 1.5rem; padding: 1.2rem 1rem 2rem;
+    border-radius: 22px; border: 1px solid var(--borda);
+    background: linear-gradient(180deg, rgba(255,255,255,.03), transparent);
+}
+.regiao-cabecalho { display: flex; align-items: center; gap: .8rem; margin-bottom: 1rem; }
+.regiao-cabecalho .retrato-mestre { width: 56px; height: 56px; border-radius: 12px; overflow: hidden; background: var(--bg-2); display: grid; place-items: center; flex-shrink: 0; }
+.regiao-cabecalho .retrato-mestre svg { width: 52px; height: 52px; }
+.regiao-cabecalho h2 { margin: 0; font-size: 1.2rem; }
+.regiao-cabecalho .mestre-nome { font-size: .82rem; color: var(--texto-fraco); }
+
+/* Trilha sinuosa: nós alternam para a esquerda e a direita. */
+.trilha { display: flex; flex-direction: column; align-items: center; gap: .2rem; position: relative; }
+.no-fase { position: relative; display: flex; flex-direction: column; align-items: center; width: 130px; padding: .3rem 0; }
+.no-fase:nth-child(odd) { transform: translateX(-72px); }
+.no-fase:nth-child(even) { transform: translateX(72px); }
+
+.no-bolha {
+    width: 74px; height: 74px; border-radius: 50%;
+    display: grid; place-items: center; cursor: pointer;
+    border: 4px solid var(--borda); background: var(--painel-2);
+    box-shadow: 0 6px 0 rgba(0,0,0,.35); transition: .15s; position: relative;
+    text-decoration: none;
+}
+.no-bolha:hover { transform: translateY(-3px); }
+.no-bolha svg { width: 42px; height: 42px; }
+.no-bolha .emoji { font-size: 1.8rem; }
+
+.no-fase.concluida .no-bolha { border-color: var(--sucesso); background: linear-gradient(180deg, #2f5e44, #234a36); }
+.no-fase.atual .no-bolha { border-color: var(--xp); background: linear-gradient(180deg, #4a4326, #3a3420); animation: pulsa 1.6s infinite; }
+.no-fase.bloqueada .no-bolha { filter: grayscale(.7) brightness(.6); cursor: not-allowed; box-shadow: 0 4px 0 rgba(0,0,0,.3); }
+.no-fase.bloqueada .no-bolha:hover { transform: none; }
+
+.no-tipo-chefe .no-bolha, .no-tipo-chefe_final .no-bolha { width: 92px; height: 92px; border-width: 5px; }
+.no-tipo-chefe .no-bolha svg { width: 56px; height: 56px; }
+.no-tipo-historia .no-bolha { border-style: dashed; }
+
+.no-rotulo { font-size: .74rem; text-align: center; margin-top: .4rem; max-width: 120px; color: var(--texto-fraco); line-height: 1.2; }
+.no-estrelas { font-size: .8rem; letter-spacing: 1px; height: 1rem; color: var(--xp); }
+
+@keyframes pulsa { 0%,100% { box-shadow: 0 6px 0 rgba(0,0,0,.35), 0 0 0 0 rgba(255,210,63,.5); } 50% { box-shadow: 0 6px 0 rgba(0,0,0,.35), 0 0 0 12px rgba(255,210,63,0); } }
+
+/* ---------- Tela de diálogo ---------- */
+.cena-dialogo { max-width: 800px; margin: 0 auto; }
+.palco {
+    min-height: 320px; border-radius: 18px; border: 1px solid var(--borda);
+    background: linear-gradient(180deg, #1a1d38, #0f1124);
+    display: flex; align-items: flex-end; justify-content: center; padding: 1.5rem; position: relative; overflow: hidden;
+}
+.palco .ator { width: 200px; height: 200px; transition: .3s; }
+.palco .ator svg { width: 100%; height: 100%; filter: drop-shadow(0 10px 20px rgba(0,0,0,.5)); }
+
+/* ---- Vida na cena: cenário pixel art + partículas mágicas + brilho ---- */
+.palco-cena {
+    background-size: cover; background-position: center; image-rendering: pixelated;
+    border-color: color-mix(in srgb, var(--cor-cena, #7c5cff) 55%, #2a2f55);
+    box-shadow: inset 0 0 70px rgba(0,0,0,.55),
+                0 0 26px color-mix(in srgb, var(--cor-cena, #7c5cff) 35%, transparent);
+}
+.palco-cena::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background:
+        radial-gradient(72% 55% at 50% 80%, color-mix(in srgb, var(--cor-cena, #7c5cff) 32%, transparent), transparent 70%),
+        radial-gradient(130% 90% at 50% 122%, rgba(0,0,0,.5), transparent 60%);
+}
+.palco-cena::after {
+    content: ""; position: absolute; inset: -25%; pointer-events: none; z-index: 0; opacity: .85;
+    background-image:
+        radial-gradient(2px 2px at 18% 32%, rgba(255,255,255,.9), transparent),
+        radial-gradient(2px 2px at 68% 58%, rgba(157,180,255,.85), transparent),
+        radial-gradient(1px 1px at 42% 80%, rgba(255,255,255,.6), transparent),
+        radial-gradient(2px 2px at 84% 24%, rgba(255,210,63,.8), transparent),
+        radial-gradient(1px 1px at 55% 14%, rgba(255,255,255,.7), transparent),
+        radial-gradient(2px 2px at 12% 68%, rgba(126,166,255,.85), transparent),
+        radial-gradient(1px 1px at 90% 70%, rgba(255,255,255,.6), transparent);
+    background-repeat: no-repeat;
+    animation: palcoParticulas 7s linear infinite;
+}
+@keyframes palcoParticulas { from { transform: translateY(10px); } to { transform: translateY(-34px); } }
+.palco-cena .ator { position: relative; z-index: 1; animation: atorFlutua 3.2s ease-in-out infinite alternate; }
+.palco-cena .ator::after {
+    content: ""; position: absolute; left: 50%; bottom: -4px; width: 130px; height: 22px;
+    transform: translateX(-50%); z-index: -1; filter: blur(3px);
+    background: radial-gradient(ellipse, color-mix(in srgb, var(--cor-cena, #7c5cff) 75%, transparent), transparent 70%);
+}
+@keyframes atorFlutua { from { transform: translateY(0); } to { transform: translateY(-12px); } }
+@media (prefers-reduced-motion: reduce) {
+    .palco-cena::after, .palco-cena .ator { animation: none; }
+}
+
+.caixa-fala {
+    margin-top: -1px; background: var(--painel); border: 2px solid var(--primaria);
+    border-radius: 0 0 18px 18px; padding: 1.2rem 1.4rem; min-height: 120px;
+}
+.caixa-fala .falante { color: var(--xp); font-weight: 800; margin-bottom: .4rem; }
+.caixa-fala .texto-fala { font-size: 1.08rem; line-height: 1.55; min-height: 3.2em; }
+.dialogo-controles { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
+.dialogo-dica { color: var(--texto-fraco); font-size: .82rem; }
+
+/* ---------- Telas de final ---------- */
+.tela-final { max-width: 760px; margin: 0 auto; text-align: center; position: relative; }
+/* Cenário do Abismo do /dev/null como pano de fundo das telas finais. */
+.tela-final::before {
+    content: ""; position: fixed; inset: 0; z-index: -1;
+    background:
+        linear-gradient(rgba(8,6,18,.82), rgba(4,3,12,.92)),
+        url(../img/fundos/fundo-abismo.png) center/cover;
+    image-rendering: pixelated;
+}
+.tela-final .selo-final { font-size: 4rem; }
+.tela-final h1 { font-size: 2.2rem; }
+.final-mestre h1 { color: var(--xp); }
+.final-singularidade h1 { color: var(--mp); }
+.final-equilibrio h1 { color: var(--sucesso); }
+.tela-final .epilogo { line-height: 1.8; color: #cfd3f0; text-align: left; margin: 1.4rem 0; }
+
+/* ---------- Vida no mapa: nós interativos + retrato do mestre ---------- */
+.no-bolha { transition: transform .18s ease, box-shadow .18s ease, filter .18s ease; }
+.no-fase:not(.bloqueada) .no-bolha:hover { transform: scale(1.16) translateY(-2px); filter: brightness(1.12); cursor: pointer; }
+.no-fase.atual .no-bolha {
+    animation: pulsoNo 1.5s ease-in-out infinite;
+    box-shadow: 0 0 14px color-mix(in srgb, var(--cor-regiao, #7c5cff) 60%, transparent);
+}
+@keyframes pulsoNo {
+    0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--cor-regiao, #7c5cff) 60%, transparent); }
+    70% { box-shadow: 0 0 0 13px transparent; }
+}
+.no-fase.atual .no-bolha .emoji { animation: balanca 1.6s ease-in-out infinite; display: inline-block; }
+@keyframes balanca { 0%,100%{transform:rotate(-6deg)} 50%{transform:rotate(6deg)} }
+.regiao-cabecalho .retrato-mestre { animation: retratoFlutua 3.4s ease-in-out infinite; }
+@keyframes retratoFlutua { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+@media (prefers-reduced-motion: reduce) {
+    .no-fase.atual .no-bolha, .no-fase.atual .no-bolha .emoji, .regiao-cabecalho .retrato-mestre { animation: none; }
+}

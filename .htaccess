@@ -1,0 +1,9 @@
+# Roteia tudo para o front controller quando rodar sob Apache.
+# (Com o servidor embutido `php -S localhost:8001` isto é ignorado e o
+#  acesso direto a index.php?url=... funciona normalmente.)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>
