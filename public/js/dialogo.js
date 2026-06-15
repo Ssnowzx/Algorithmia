@@ -23,7 +23,10 @@
         elTexto.textContent = '';
         var i = 0;
         var timer = setInterval(function () {
-            elTexto.textContent += texto.charAt(i);
+            var ch = texto.charAt(i);
+            elTexto.textContent += ch;
+            // Tic sonoro só em caracteres "de verdade" (pula espaço/pontuação).
+            if (window.SOM && i % 2 === 0 && /[^\s.,!?;:]/.test(ch)) { SOM.tic(); }
             i++;
             if (i >= texto.length) {
                 clearInterval(timer);

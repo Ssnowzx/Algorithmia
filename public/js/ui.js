@@ -45,16 +45,20 @@
         });
     }
 
+    function som(nome) { if (window.SOM && SOM[nome]) { SOM[nome](); } }
+
     function abrir() {
         montar();
         overlay.classList.add('aberto');
         overlay.setAttribute('aria-hidden', 'false');
+        som('modalAbrir');
     }
 
     function fechar() {
         if (!overlay) { return; }
         overlay.classList.remove('aberto');
         overlay.setAttribute('aria-hidden', 'true');
+        som('modalFechar');
     }
 
     function decidir(valor) {

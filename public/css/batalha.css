@@ -6,11 +6,12 @@
 
 .campo-batalha {
     position: relative; border-radius: 18px; border: 1px solid var(--borda-luz);
+    /* O fundo do bioma vem por variável (definida na view); fallback p/ fundo-batalha. */
     background:
         radial-gradient(620px 260px at 78% 8%, rgba(255,93,108,.16), transparent 70%),
         radial-gradient(520px 240px at 18% 12%, rgba(124,92,255,.16), transparent 72%),
         linear-gradient(180deg, rgba(22,26,54,.55), rgba(10,12,28,.80)),
-        url(../img/fundos/fundo-batalha.png) center/cover,
+        var(--fundo-bioma, url(../img/fundos/fundo-batalha.png)) center/cover,
         linear-gradient(180deg, #161a36 0%, #0e1124 62%, #0a0c1c 100%);
     image-rendering: pixelated;
     padding: 1.2rem; display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; min-height: 260px;
@@ -58,11 +59,46 @@
     .combatente .sprite svg, .combatente .sprite img, .combatente .sprite.atacando, .combatente .sprite.tremer { animation: none; }
 }
 
-.flutuante { position: absolute; font-weight: 900; font-size: 1.6rem; pointer-events: none; animation: sobe 1s ease-out forwards; text-shadow: 0 2px 4px rgba(0,0,0,.8); }
-.flutuante.dano { color: var(--hp); }
-.flutuante.cura { color: var(--sucesso); }
-.flutuante.combo { color: var(--xp); }
-@keyframes sobe { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-60px); opacity: 0; } }
+/* Número flutuante: wrapper faz a deriva lateral (arco); o filho sobe + pop. */
+.flutuante {
+    position: absolute; pointer-events: none; will-change: transform, opacity;
+    --drift: 0px;
+    animation: flutuaDeriva .85s cubic-bezier(.22,1,.36,1) forwards;
+}
+.flutuante .num {
+    display: inline-block; font-weight: 900; font-size: 1.6rem; line-height: 1;
+    text-shadow: 0 2px 0 rgba(0,0,0,.85), 0 0 6px rgba(0,0,0,.6);
+    animation: flutuaSobe .85s cubic-bezier(.22,1,.36,1) forwards,
+               flutuaPop .22s cubic-bezier(.34,1.56,.64,1) both;
+}
+.flutuante.dano .num  { color: var(--hp); }
+.flutuante.cura .num  { color: var(--sucesso); }
+.flutuante.combo .num { color: var(--xp); }
+.flutuante.critico .num { font-size: 2.6rem; color: var(--aviso); }
+.flutuante.critico { animation-duration: 1.1s; }
+.flutuante.critico .num { animation-duration: 1.1s, .26s; }
+@keyframes flutuaDeriva { from { transform: translateX(0); } to { transform: translateX(var(--drift)); } }
+@keyframes flutuaSobe   { 0% { transform: translateY(0); opacity: 1; } 62% { opacity: 1; } 100% { transform: translateY(-58px); opacity: 0; } }
+@keyframes flutuaPop    { 0% { transform: scale(.4); } 55% { transform: scale(1.25); } 100% { transform: scale(1); } }
+
+/* Camada de partículas sobre a arena (não intercepta cliques). */
+.juice-canvas { position: absolute; inset: 0; pointer-events: none; z-index: 2; image-rendering: pixelated; }
+
+/* Brilho do Especial no sprite do herói. */
+.combatente .sprite.especial-glow { animation: especialGlow .7s ease-out; }
+@keyframes especialGlow {
+    0%   { filter: drop-shadow(0 8px 16px rgba(0,0,0,.5)); }
+    35%  { filter: brightness(1.5) drop-shadow(0 0 22px var(--primaria-2)); }
+    100% { filter: drop-shadow(0 8px 16px rgba(0,0,0,.5)); }
+}
+.combatente.heroi .sprite.especial-glow { animation: especialGlow .7s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+    .flutuante { animation: flutuaFade .7s linear forwards; }
+    .flutuante .num { animation: none; }
+    .combatente .sprite.especial-glow { animation: none; }
+    @keyframes flutuaFade { 0% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; } }
+}
 
 .combo-indicador { position: absolute; top: 38px; left: 50%; transform: translateX(-50%); font-weight: 900; color: var(--xp); font-size: 1.15rem; text-shadow: 0 2px 6px rgba(0,0,0,.7); font-family: var(--titulo); z-index: 3; }
 

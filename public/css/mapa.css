@@ -12,6 +12,26 @@
     position: relative; margin: 0 0 1.5rem; padding: 1.2rem 1rem 2rem;
     border-radius: 22px; border: 1px solid var(--borda);
     background: linear-gradient(180deg, rgba(255,255,255,.03), transparent);
+    overflow: hidden; /* contém as partículas ambientais nos cantos arredondados */
+}
+/* Cena vetorial por bioma como fundo do card (atrás do conteúdo). */
+.regiao > .cena-bioma {
+    position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0;
+    pointer-events: none; border-radius: inherit;
+}
+/* Luzes/vaga-lumes do bioma cintilando suavemente. */
+.cena-bioma .bioma-luzes { animation: biomaLuzes 4.5s ease-in-out infinite alternate; }
+@keyframes biomaLuzes { from { opacity: .55; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .cena-bioma .bioma-luzes { animation: none; } }
+
+/* Transição de entrada (só aplicada por JS quando há movimento + observer). */
+.regiao.pre-revelar { opacity: 0; transform: translateY(22px); }
+.regiao.pre-revelar.revelada {
+    opacity: 1; transform: none;
+    transition: opacity .5s ease, transform .55s cubic-bezier(.2,.8,.3,1);
+}
+@media (prefers-reduced-motion: reduce) {
+    .regiao::before { animation: none; }
 }
 .regiao-cabecalho { display: flex; align-items: center; gap: .8rem; margin-bottom: 1rem; }
 .regiao-cabecalho .retrato-mestre { width: 56px; height: 56px; border-radius: 12px; overflow: hidden; background: var(--bg-2); display: grid; place-items: center; flex-shrink: 0; }

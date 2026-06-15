@@ -51,16 +51,24 @@
         setTimeout(function () { el.classList.remove('atacando'); }, 400);
     }
 
-    function flutuar(lado, texto, classe) {
+    function flutuar(lado, texto, classe, critico) {
         var alvo = document.getElementById(lado);
         var span = document.createElement('span');
-        span.className = 'flutuante ' + classe;
-        span.textContent = texto;
+        span.className = 'flutuante ' + classe + (critico ? ' critico' : '');
+        span.style.setProperty('--drift', (Math.random() * 44 - 22).toFixed(0) + 'px');
         span.style.left = (40 + Math.random() * 20) + '%';
         span.style.top = '30%';
+        var num = document.createElement('span');
+        num.className = 'num';
+        num.textContent = texto;
+        span.appendChild(num);
         alvo.appendChild(span);
-        setTimeout(function () { span.remove(); }, 1000);
+        span.addEventListener('animationend', function () { span.remove(); });
+        setTimeout(function () { if (span.parentNode) { span.remove(); } }, 1400);
     }
+
+    var J = window.JUICE;
+    function som(nome, arg) { if (window.SOM && SOM[nome]) { SOM[nome](arg); } }
 
     // ---------- renderização dos desafios ----------
     function renderDesafio(d) {
@@ -193,16 +201,33 @@
         respondendo = false;
         if (r.erro) { window.UI.alerta(r.erro, { tipo: 'erro' }); return; }
 
+        // Som imediato do desfecho da resposta.
+        if (r.via_ia) { som('fragmento'); }
+        else if (r.correto) { som('acerto'); }
+        else { som('erro'); }
+
         // Animações de ataque + dano: o atacante investe e o alvo reage logo depois.
         if (r.dano_inimigo) {
+            var critIni = r.dano_inimigo >= 25;
             atacar('spriteHeroi');
-            setTimeout(function () { tremer('spriteInimigo'); flutuar('ladoInimigo', '-' + r.dano_inimigo, 'dano'); }, 170);
+            setTimeout(function () {
+                tremer('spriteInimigo');
+                flutuar('ladoInimigo', '-' + r.dano_inimigo, 'dano', critIni);
+                som('danoInimigo');
+                if (J) { J.faiscas('spriteInimigo', 'inimigo'); J.shake(critIni ? 0.5 : 0.3); }
+            }, 170);
         }
         if (r.dano_heroi) {
+            var critHer = r.dano_heroi >= 20;
             atacar('spriteInimigo');
-            setTimeout(function () { tremer('spriteHeroi'); flutuar('ladoHeroi', '-' + r.dano_heroi, 'dano'); }, 170);
+            setTimeout(function () {
+                tremer('spriteHeroi');
+                flutuar('ladoHeroi', '-' + r.dano_heroi, 'dano', critHer);
+                som('danoHeroi');
+                if (J) { J.faiscas('spriteHeroi', 'heroi'); J.shake(critHer ? 0.5 : 0.35); }
+            }, 170);
         }
-        if (r.combo && r.combo > 1) { flutuar('ladoInimigo', 'x' + r.combo, 'combo'); }
+        if (r.combo && r.combo > 1) { flutuar('ladoInimigo', 'x' + r.combo, 'combo'); som('combo', r.combo); }
 
         atualizarBarras(r.estado);
         marcarOpcao(elemento, r.correto);
@@ -246,6 +271,10 @@
             if (r.erro) { flutuar('ladoHeroi', r.erro, 'cura'); return; }
             atualizarBarras(r.estado);
             flutuar('ladoHeroi', '✦ Especial!', 'combo');
+            som('especial');
+            var sp = document.getElementById('spriteHeroi');
+            if (sp) { sp.classList.add('especial-glow'); setTimeout(function () { sp.classList.remove('especial-glow'); }, 700); }
+            if (J) { J.especial(); }
         });
     });
 
@@ -258,6 +287,8 @@
                     atualizarBarras(r.estado);
                     var cura = (r.efeito && (r.efeito.cura_hp || r.efeito.cura_mp)) || '';
                     flutuar('ladoHeroi', '+' + cura, 'cura');
+                    som('pocao');
+                    if (J) { J.cura(); }
                     consumirBotao(btn);
                 });
             } else if (acao === 'fragmento') {
@@ -300,6 +331,23 @@
     function mostrarResultado(r) {
         var rec = r.recompensa || {};
         var venceu = r.resultado === 'vitoria';
+
+        // Som + juice do desfecho. Adia a troca de tela para a explosão/shake
+        // serem vistos na arena antes dela sumir (sem juice, revela na hora).
+        var atraso = 0;
+        if (venceu) {
+            som('vitoria');
+            if (J && J.movimento) { J.explosao('spriteInimigo'); J.shake(0.9); atraso = 700; }
+            setTimeout(function () { if (rec.ouro && J) { J.ouro(); som('ouro'); } }, 360);
+            if (rec.niveis > 0) { setTimeout(function () { som('nivel'); }, 720); }
+        } else {
+            som('derrota');
+            if (J && J.movimento) { J.shake(0.8); atraso = 500; }
+        }
+
+        setTimeout(revelar, atraso);
+        function revelar() {
+
         var el = document.getElementById('telaResultado');
         document.querySelector('.arena').style.display = 'none';
 
@@ -334,6 +382,7 @@
         el.innerHTML = html;
         el.style.display = 'block';
         window.scrollTo(0, 0);
+        } // fim revelar
     }
 
     // ---------- helpers ----------

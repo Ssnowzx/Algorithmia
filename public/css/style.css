@@ -116,6 +116,20 @@ code, pre { font-family: var(--pixel); }
 .recurso .ico { width: 18px; height: 18px; }
 .recurso.ouro { color: var(--ouro); }
 
+/* ---------- Controle de som (mute/volume) no topo ---------- */
+.som-controle { display: inline-flex; align-items: center; gap: .4rem; }
+.btn-som {
+    display: inline-grid; place-items: center; width: 38px; height: 38px;
+    border-radius: 10px; border: 1px solid var(--borda); background: var(--painel);
+    color: var(--texto); cursor: pointer; font-size: 1.1rem; line-height: 1; transition: .15s;
+}
+.btn-som:hover { border-color: var(--borda-luz); background: var(--painel-2); }
+.btn-som.mudo { color: var(--texto-fraco); opacity: .8; }
+.som-volume {
+    width: 78px; accent-color: var(--primaria); cursor: pointer;
+}
+@media (max-width: 760px) { .som-volume { display: none; } }
+
 .navegacao { margin-left: auto; display: flex; gap: .35rem; flex-wrap: wrap; }
 .navegacao a {
     padding: .45rem .8rem; border-radius: 9px; color: var(--texto-fraco);
@@ -348,6 +362,102 @@ textarea { min-height: 90px; resize: vertical; }
     .grid-2 { grid-template-columns: 1fr; }
     .hud { order: 3; width: 100%; }
     .navegacao { order: 2; }
+}
+
+/* ============================================================
+   Cenários ambientais por bioma (compartilhado: mapa + arena)
+   Camada decorativa atrás do conteúdo. Tudo em CSS declarativo,
+   animando só transform/opacity (sem rAF, barato na GPU).
+   ============================================================ */
+.cena-ambiente {
+    position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    overflow: hidden; border-radius: inherit;
+}
+.cena-ambiente::before, .cena-ambiente::after {
+    content: ""; position: absolute; inset: -20%; background-repeat: no-repeat;
+}
+
+/* Floresta das Estruturas — folhas caindo + balanço. */
+.bioma-floresta .cena-ambiente::before {
+    background-image:
+        radial-gradient(3px 3px at 15% 10%, color-mix(in srgb, var(--sucesso) 80%, #fff), transparent),
+        radial-gradient(2px 2px at 45% 5%, color-mix(in srgb, var(--sucesso) 65%, transparent), transparent),
+        radial-gradient(3px 3px at 72% 8%, color-mix(in srgb, var(--xp) 55%, var(--sucesso)), transparent),
+        radial-gradient(2px 2px at 88% 12%, color-mix(in srgb, var(--sucesso) 70%, #fff), transparent);
+    background-size: 100% 100%; opacity: .55;
+    animation: ambFolhas 9s linear infinite;
+}
+@keyframes ambFolhas { from { transform: translateY(-12%) translateX(0); } to { transform: translateY(120%) translateX(18px); } }
+
+/* Montanha do Cálculo — brasas subindo. */
+.bioma-montanha .cena-ambiente::before {
+    background-image:
+        radial-gradient(2px 2px at 20% 90%, color-mix(in srgb, var(--aviso) 85%, #fff), transparent),
+        radial-gradient(3px 3px at 50% 95%, color-mix(in srgb, var(--hp) 70%, var(--aviso)), transparent),
+        radial-gradient(2px 2px at 76% 88%, color-mix(in srgb, var(--aviso) 80%, transparent), transparent),
+        radial-gradient(2px 2px at 90% 92%, color-mix(in srgb, var(--xp) 60%, var(--hp)), transparent);
+    opacity: .6; animation: ambBrasas 6s linear infinite;
+}
+@keyframes ambBrasas { from { transform: translateY(20%); opacity: .65; } to { transform: translateY(-120%); opacity: 0; } }
+
+/* Torre das Conexões — pacotes/luz de rede subindo + linhas. */
+.bioma-torre .cena-ambiente::before {
+    background-image:
+        radial-gradient(2px 2px at 25% 80%, color-mix(in srgb, var(--mp) 85%, #fff), transparent),
+        radial-gradient(3px 3px at 55% 70%, color-mix(in srgb, var(--mp) 70%, transparent), transparent),
+        radial-gradient(2px 2px at 80% 85%, color-mix(in srgb, var(--primaria-2) 70%, var(--mp)), transparent);
+    opacity: .6; animation: ambPacotes 5s linear infinite;
+}
+.bioma-torre .cena-ambiente::after {
+    background-image: repeating-linear-gradient(90deg, transparent 0 38px, color-mix(in srgb, var(--mp) 22%, transparent) 38px 39px);
+    opacity: .18; animation: ambRede 8s linear infinite;
+}
+@keyframes ambPacotes { from { transform: translateY(15%); opacity: .7; } to { transform: translateY(-120%); opacity: 0; } }
+@keyframes ambRede { from { transform: translateX(0); } to { transform: translateX(39px); } }
+
+/* Porto da Sintaxe — maresia/respingo deslizando. */
+.bioma-porto .cena-ambiente::before {
+    background-image:
+        radial-gradient(2px 2px at 10% 60%, color-mix(in srgb, var(--mp) 60%, #fff), transparent),
+        radial-gradient(2px 2px at 50% 75%, color-mix(in srgb, var(--mp) 45%, transparent), transparent),
+        radial-gradient(3px 3px at 85% 65%, color-mix(in srgb, #fff 70%, var(--mp)), transparent);
+    opacity: .45; animation: ambMaresia 11s linear infinite;
+}
+@keyframes ambMaresia { from { transform: translateX(-8%) translateY(0); } to { transform: translateX(8%) translateY(-10px); } }
+
+/* Cidadela dos Objetos — runas/motas arcanas flutuando. */
+.bioma-cidadela .cena-ambiente::before {
+    background-image:
+        radial-gradient(2px 2px at 18% 70%, color-mix(in srgb, var(--primaria-2) 85%, #fff), transparent),
+        radial-gradient(3px 3px at 52% 60%, color-mix(in srgb, var(--primaria-2) 65%, transparent), transparent),
+        radial-gradient(2px 2px at 82% 75%, color-mix(in srgb, var(--xp) 50%, var(--primaria-2)), transparent);
+    opacity: .5; animation: ambRunas 8s ease-in-out infinite alternate;
+}
+@keyframes ambRunas { from { transform: translateY(6%); opacity: .4; } to { transform: translateY(-8%); opacity: .6; } }
+
+/* Vila / Abismo / batalha genérica — motas suaves neutras. */
+.bioma-vila .cena-ambiente::before, .bioma-batalha .cena-ambiente::before, .bioma-abismo .cena-ambiente::before {
+    background-image:
+        radial-gradient(2px 2px at 22% 65%, color-mix(in srgb, var(--primaria-2) 60%, #fff), transparent),
+        radial-gradient(2px 2px at 70% 72%, color-mix(in srgb, var(--xp) 40%, transparent), transparent);
+    opacity: .35; animation: ambRunas 10s ease-in-out infinite alternate;
+}
+
+/* Conteúdo da região/arena acima da camada ambiental. */
+.regiao > .regiao-cabecalho, .regiao > .trilha { position: relative; z-index: 1; }
+.campo-batalha .cena-ambiente { z-index: 1; }
+.campo-batalha .combatente { position: relative; z-index: 2; }
+
+@media (prefers-reduced-motion: reduce) {
+    .cena-ambiente::before, .cena-ambiente::after { animation: none !important; opacity: .25; }
+}
+
+/* ---------- Acessibilidade: movimento reduzido (global) ---------- */
+/* Desliga só movimento ambiente/decorativo; o feedback essencial (cor/opacity)
+   é preservado nas regras específicas de cada componente. */
+@media (prefers-reduced-motion: reduce) {
+    body::before { animation: none; }       /* deriva de estrelas */
+    .toast { transition: opacity .2s; }     /* sem deslize, só fade */
 }
 
 /* ---------- Pixel art (PNG) substituindo SVGs inline ---------- */

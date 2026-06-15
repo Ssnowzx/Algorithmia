@@ -3,8 +3,11 @@
 $heroi = Auth::personagem();
 $heroiSvg = CLASSES[$heroi['classe']]['svg'] ?? 'heroi-ranger';
 ?>
+<?php $fundoBatalha = asset('img/fundos/' . ($fundoBioma ?? 'fundo-batalha') . '.png'); ?>
 <div class="arena">
-    <div class="campo-batalha" id="campo">
+    <div class="campo-batalha bioma-<?= e($bioma ?? 'batalha') ?>" id="campo"
+         style="--fundo-bioma: url('<?= e($fundoBatalha) ?>')">
+        <div class="cena-ambiente" aria-hidden="true"></div>
         <div class="combo-indicador" id="comboInd"></div>
 
         <div class="combatente inimigo" id="ladoInimigo">
@@ -59,4 +62,5 @@ window.BATALHA = {
     }
 };
 </script>
+<script src="<?= asset('js/juice.js') ?>"></script>
 <script src="<?= asset('js/batalha.js') ?>"></script>

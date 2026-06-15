@@ -15,6 +15,7 @@ unset($_SESSION['flash']);
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Rubik:wght@400;500;700;800&display=swap">
     <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/cena.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/mapa.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/batalha.css') ?>">
 </head>
@@ -54,6 +55,10 @@ unset($_SESSION['flash']);
     <?php endif; ?>
 
     <nav class="navegacao">
+        <span class="som-controle">
+            <button type="button" id="btnSom" class="btn-som" aria-label="Ligar ou desligar o som" title="Som">🔊</button>
+            <input type="range" id="volSom" class="som-volume" min="0" max="1" step="0.05" value="0.6" aria-label="Volume do som">
+        </span>
         <?php if ($heroi): ?>
             <a href="<?= url('mapa') ?>">Mapa</a>
             <a href="<?= url('inventario') ?>">Inventário</a>

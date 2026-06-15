@@ -38,11 +38,23 @@ class BatalhaController extends Controller
         // Poções e Fragmentos disponíveis para usar em combate.
         $itensUsaveis = $this->itensDeBatalha((int) $heroi['id']);
 
+        // Cenário por bioma: o fundo da arena reflete a região da fase.
+        $fundoBioma = 'fundo-batalha';
+        if (!empty($fase['mestre_id'])) {
+            $mestre = (new Mestre())->findById((int) $fase['mestre_id']);
+            if ($mestre && !empty($mestre['svg_slug'])) {
+                $fundoBioma = fundoRegiao($mestre['svg_slug']);
+            }
+        }
+        $bioma = str_replace('fundo-', '', $fundoBioma); // ex.: 'montanha', 'torre'
+
         $this->view('batalha/arena', [
             'pageTitle'    => $fase['nome'],
             'fase'         => $fase,
             'estado'       => $this->batalha->estadoPublico($estado),
             'itensUsaveis' => $itensUsaveis,
+            'fundoBioma'   => $fundoBioma,
+            'bioma'        => $bioma,
         ]);
     }
 

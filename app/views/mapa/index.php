@@ -8,6 +8,7 @@ $iconePorTipo = [
     'chefe_final' => '💀',
 ];
 ?>
+<?php require __DIR__ . '/../layout/svg-defs.php'; ?>
 <div class="mapa-wrap">
     <div class="mapa-cabecalho">
         <h1>🗺️ Mapa de Algorithmia</h1>
@@ -18,8 +19,12 @@ $iconePorTipo = [
     </div>
 
     <?php foreach ($regioes as $regiao): ?>
-        <?php $fundoReg = asset('img/fundos/' . ($regiao['fundo'] ?? fundoRegiao($regiao['svg_slug'] ?? null)) . '.png'); ?>
-        <section class="regiao" style="--cor-regiao: <?= e($regiao['cor']) ?>; border-color: <?= e($regiao['cor']) ?>55; background-image: linear-gradient(180deg, rgba(13,16,38,.86), rgba(13,16,38,.94)), url('<?= e($fundoReg) ?>'); background-size: cover; background-position: center; image-rendering: pixelated;">
+        <?php
+            $fundoBase = $regiao['fundo'] ?? fundoRegiao($regiao['svg_slug'] ?? null);
+            $biomaReg = str_replace('fundo-', '', $fundoBase); // ex.: 'floresta', 'torre'
+        ?>
+        <section class="regiao bioma-<?= e($biomaReg) ?>" style="--cor-regiao: <?= e($regiao['cor']) ?>; border-color: <?= e($regiao['cor']) ?>55;">
+            <?php $bioma = $biomaReg; require __DIR__ . '/../layout/cena-bioma.php'; ?>
             <div class="regiao-cabecalho">
                 <?php if (!empty($regiao['svg_slug'])): ?>
                     <div class="retrato-mestre"><?= svg('mestres/' . $regiao['svg_slug']) ?></div>
