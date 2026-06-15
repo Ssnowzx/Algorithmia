@@ -24,7 +24,16 @@ $iconePorTipo = [
             $biomaReg = str_replace('fundo-', '', $fundoBase); // ex.: 'floresta', 'torre'
         ?>
         <section class="regiao bioma-<?= e($biomaReg) ?>" style="--cor-regiao: <?= e($regiao['cor']) ?>; border-color: <?= e($regiao['cor']) ?>55;">
-            <?php $bioma = $biomaReg; require __DIR__ . '/../layout/cena-bioma.php'; ?>
+            <?php
+                // Cenário da região: usa a arte (PNG) se existir; senão, a cena vetorial.
+                $temFundoImg = is_file(__DIR__ . '/../../../public/img/fundos/' . $fundoBase . '.png');
+            ?>
+            <?php if ($temFundoImg): ?>
+                <div class="cena-bioma cena-bioma-img" aria-hidden="true"
+                     style="background-image:url('<?= e(asset('img/fundos/' . $fundoBase . '.png')) ?>')"></div>
+            <?php else: ?>
+                <?php $bioma = $biomaReg; require __DIR__ . '/../layout/cena-bioma.php'; ?>
+            <?php endif; ?>
             <div class="regiao-cabecalho">
                 <?php if (!empty($regiao['svg_slug'])): ?>
                     <div class="retrato-mestre"><?= svg('mestres/' . $regiao['svg_slug']) ?></div>
