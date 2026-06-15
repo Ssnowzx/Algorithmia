@@ -33,8 +33,22 @@
 @media (prefers-reduced-motion: reduce) {
     .regiao::before { animation: none; }
 }
-.regiao-cabecalho { display: flex; align-items: center; gap: .8rem; margin-bottom: 1rem; }
-.regiao-cabecalho .retrato-mestre { width: 56px; height: 56px; border-radius: 12px; overflow: hidden; background: var(--bg-2); display: grid; place-items: center; flex-shrink: 0; }
+.regiao-cabecalho { display: flex; align-items: center; gap: 1.1rem; margin-bottom: 1rem; }
+/* Retrato do mestre: arte ilustrada (não pixel art), grande e SEM card —
+   as bordas se fundem ao cenário do bioma renderizado atrás.
+   Só vira pôster quando há imagem; o fallback (emoji) fica num quadradinho. */
+.regiao .regiao-cabecalho .retrato-mestre:has(img) {
+    width: 116px; aspect-ratio: 2 / 3; height: auto; flex-shrink: 0;
+    background: none; border: 0; border-radius: 0; overflow: visible;
+    display: block;
+    filter: drop-shadow(0 10px 22px rgba(0,0,0,.55));
+}
+.regiao .regiao-cabecalho .retrato-mestre img {
+    width: 100%; height: 100%; object-fit: cover;
+    image-rendering: auto; border-radius: 16px;
+    -webkit-mask-image: radial-gradient(130% 118% at 50% 38%, #000 56%, transparent 100%);
+    mask-image: radial-gradient(130% 118% at 50% 38%, #000 56%, transparent 100%);
+}
 .regiao-cabecalho .retrato-mestre svg { width: 52px; height: 52px; }
 .regiao-cabecalho h2 { margin: 0; font-size: 1.2rem; }
 .regiao-cabecalho .mestre-nome { font-size: .82rem; color: var(--texto-fraco); }

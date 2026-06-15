@@ -289,7 +289,7 @@ textarea { min-height: 90px; resize: vertical; }
     padding: 1.1rem; text-align: center; transition: .2s;
 }
 .mestre-card:hover { transform: translateY(-4px); border-color: var(--primaria); }
-.mestre-card .retrato { width: 88px; height: 88px; margin: 0 auto .6rem; border-radius: 12px; overflow: hidden; background: var(--bg-2); display: grid; place-items: center; }
+.mestre-card .retrato { width: 100%; aspect-ratio: 2 / 3; height: auto; margin: 0 auto .7rem; border-radius: 12px; overflow: hidden; background: var(--bg-2); display: block; }
 .mestre-card .retrato svg { width: 84px; height: 84px; }
 .mestre-card h3 { margin: .3rem 0 .1rem; font-size: 1rem; }
 .mestre-card .titulo-m { color: var(--primaria-2); font-size: .82rem; font-weight: 700; }
@@ -478,7 +478,7 @@ textarea { min-height: 90px; resize: vertical; }
 .conquista-popup img { width: 34px; height: 34px; }
 .auth-logo img { width: 64px; height: 64px; }
 .hero-logo img { width: 96px; height: 96px; }
-.mestre-card .retrato img { width: 84px; height: 84px; }
+.mestre-card .retrato img { width: 100%; height: 100%; object-fit: cover; image-rendering: auto; }
 .classe-card .corpo img { width: 80px; height: 80px; }
 .item-card .icone-item img { width: 50px; height: 50px; }
 .conquista .medalha img { width: 48px; height: 48px; }
