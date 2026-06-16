@@ -252,11 +252,13 @@ code, pre { font-family: var(--pixel); }
 /* Quando há ficha-fundo, a arte cobre o CARD inteiro (não só o topo). */
 .ficha-com-fundo { background-size: cover; background-position: center; background-repeat: no-repeat; }
 .ficha-banner {
-    position: relative; aspect-ratio: 16 / 10; flex-shrink: 0;
+    position: relative; flex-shrink: 0;
     display: grid; place-items: center;
+    padding: 1.1rem 1.1rem .4rem;
 }
-.ficha-retrato { width: 58%; aspect-ratio: 3 / 4; }
-.ficha-retrato img { width: 100%; height: 100%; object-fit: contain; image-rendering: auto; filter: drop-shadow(0 8px 20px rgba(0,0,0,.55)); }
+/* Mostra a carta no formato natural (reta e cheia), sem espremer. */
+.ficha-retrato { width: 84%; max-width: 320px; }
+.ficha-retrato img { width: 100%; height: auto; display: block; object-fit: contain; image-rendering: auto; filter: drop-shadow(0 10px 24px rgba(0,0,0,.6)); }
 .ficha-nivel {
     position: absolute; top: .6rem; right: .6rem;
     font-family: var(--titulo); font-size: .8rem; font-weight: 700; letter-spacing: .03em;

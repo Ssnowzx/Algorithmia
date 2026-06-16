@@ -88,6 +88,10 @@ unset($_SESSION['flash']);
 <?php
     // Ficha do herói (popup ao clicar no status). Imagem de fundo opcional do GPT.
     $fichaFundo = is_file(__DIR__ . '/../../../public/img/ui/ficha-fundo.png') ? srcImagem('ui/ficha-fundo') : '';
+    // Carta do herói no popup: usa herois/card-<classe> se existir; senão a carta hud-*.
+    $cardHeroi = is_file(__DIR__ . '/../../../public/img/herois/card-' . $heroi['classe'] . '.png')
+        ? 'herois/card-' . $heroi['classe']
+        : retratoHud($heroi['classe']);
     $xpNivelAtual = xpParaNivel((int) $heroi['nivel']);
     $xpNivelProx  = xpParaNivel((int) $heroi['nivel'] + 1);
 ?>
@@ -96,7 +100,7 @@ unset($_SESSION['flash']);
          style="--hud-cor: <?= e($cfgClasse['cor']) ?><?= $fichaFundo ? '; background-image: linear-gradient(180deg, rgba(8,8,20,.28), rgba(8,8,20,.78) 58%, rgba(10,8,22,.93)), url(\'' . e($fichaFundo) . '\')' : '' ?>">
         <button type="button" class="ficha-modal-fechar" aria-label="Fechar">✕</button>
         <div class="ficha-banner">
-            <div class="ficha-retrato"><?= svg(retratoHud($heroi['classe'])) ?></div>
+            <div class="ficha-retrato"><?= svg($cardHeroi) ?></div>
             <span class="ficha-nivel">Nível <?= (int) $heroi['nivel'] ?></span>
         </div>
         <div class="ficha-corpo">
