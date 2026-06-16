@@ -31,7 +31,8 @@ unset($_SESSION['flash']);
     <?php $cfgClasse = CLASSES[$heroi['classe']] ?? CLASSES['ranger']; ?>
     <div class="hud hud-heroi hud-classe-<?= e($heroi['classe']) ?>"
          style="--hud-cor: <?= e($cfgClasse['cor']) ?>">
-        <div class="hud-placa">
+        <div class="hud-placa hud-placa-click" id="hudPlaca" role="button" tabindex="0"
+             aria-haspopup="dialog" title="Ver ficha do herói">
             <div class="hud-avatar">
                 <?= svg(retratoHud($heroi['classe']), 'hud-retrato') ?>
                 <span class="hud-nivel-badge">Nv <?= (int) $heroi['nivel'] ?></span>
@@ -81,6 +82,50 @@ unset($_SESSION['flash']);
         <?php endif; ?>
     </nav>
 </header>
+
+<?php if ($heroi): ?>
+<?php
+    // Ficha do herói (popup ao clicar no status). Imagem de fundo opcional do GPT.
+    $fichaFundo = is_file(__DIR__ . '/../../../public/img/ui/ficha-fundo.png') ? srcImagem('ui/ficha-fundo') : '';
+    $xpNivelAtual = xpParaNivel((int) $heroi['nivel']);
+    $xpNivelProx  = xpParaNivel((int) $heroi['nivel'] + 1);
+?>
+<div id="fichaModal" class="ficha-modal-overlay" aria-hidden="true">
+    <div class="ficha-modal-card" role="dialog" aria-modal="true" aria-labelledby="fichaNome" style="--hud-cor: <?= e($cfgClasse['cor']) ?>">
+        <button type="button" class="ficha-modal-fechar" aria-label="Fechar">✕</button>
+        <div class="ficha-banner"<?= $fichaFundo ? ' style="background-image:url(\'' . e($fichaFundo) . '\')"' : '' ?>>
+            <div class="ficha-retrato"><?= svg(retratoHud($heroi['classe'])) ?></div>
+            <span class="ficha-nivel">Nível <?= (int) $heroi['nivel'] ?></span>
+        </div>
+        <div class="ficha-corpo">
+            <h3 id="fichaNome"><?= e($heroi['nome']) ?></h3>
+            <div class="ficha-classe-linha"><?= e($cfgClasse['nome']) ?> · <?= e($cfgClasse['especie'] ?? '') ?></div>
+            <div class="ficha-stats">
+                <div class="ficha-stat"><span>❤ Vida</span><strong><?= (int) $heroi['hp_atual'] ?> / <?= (int) $heroi['hp_max'] ?></strong></div>
+                <div class="ficha-stat"><span>✦ Mana</span><strong><?= (int) $heroi['mp_atual'] ?> / <?= (int) $heroi['mp_max'] ?></strong></div>
+                <div class="ficha-stat"><span>★ XP</span><strong><?= max(0, (int) $heroi['xp'] - $xpNivelAtual) ?> / <?= max(1, $xpNivelProx - $xpNivelAtual) ?></strong></div>
+                <div class="ficha-stat"><span><?= svg('ui/icone-ouro', 'ico') ?> Ouro</span><strong><?= (int) $heroi['ouro'] ?></strong></div>
+                <div class="ficha-stat ficha-stat-larga"><span><?= (int) $heroi['reputacao'] >= 0 ? '⚖️' : '🤖' ?> Reputação</span><strong><?= e(rotuloReputacao((int) $heroi['reputacao'])) ?> (<?= (int) $heroi['reputacao'] ?>)</strong></div>
+            </div>
+            <a class="botao ficha-perfil-link" href="<?= url('perfil') ?>">Ver perfil completo →</a>
+        </div>
+    </div>
+</div>
+<script>
+(function () {
+    var modal = document.getElementById('fichaModal');
+    var abre = document.getElementById('hudPlaca');
+    if (!modal || !abre) { return; }
+    function abrir() { modal.classList.add('aberto'); modal.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden'; }
+    function fechar() { modal.classList.remove('aberto'); modal.setAttribute('aria-hidden', 'true'); document.body.style.overflow = ''; }
+    abre.addEventListener('click', abrir);
+    abre.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrir(); } });
+    modal.addEventListener('click', function (e) { if (e.target === modal) { fechar(); } });
+    modal.querySelector('.ficha-modal-fechar').addEventListener('click', fechar);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && modal.classList.contains('aberto')) { fechar(); } });
+})();
+</script>
+<?php endif; ?>
 
 <?php if ($flash): ?>
 <div class="flash flash-<?= e($flash['tipo']) ?>"><?= e($flash['mensagem']) ?></div>
