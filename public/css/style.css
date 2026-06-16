@@ -534,24 +534,37 @@ textarea { min-height: 90px; resize: vertical; }
         inset 0 1px 0 rgba(255,255,255,.08);
 }
 .painel-selecao-classes .campo-nome-heroi {
-    max-width: 620px;
-    margin: 0 auto 1.6rem;
+    max-width: 560px;
+    margin: 0 auto 1.9rem;
+    text-align: center;
 }
 .painel-selecao-classes .campo-nome-heroi input {
     padding: .62rem .85rem;
     font-size: .94rem;
     border-radius: 10px;
+    text-align: center;
 }
 .painel-selecao-classes .campo-nome-heroi label {
-    color: #dfe8ff;
-    font-size: .88rem;
-    margin-bottom: .32rem;
-    text-shadow: 0 0 10px rgba(124,221,255,.28);
+    font-family: var(--titulo);
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: .03em;
+    color: #eaf2ff;
+    margin-bottom: .55rem;
+    text-shadow: 0 0 12px rgba(124,221,255,.42), 0 2px 6px rgba(0,0,0,.6);
 }
-.painel-selecao-classes > label {
-    display: inline-block;
-    margin: .3rem 0 .35rem;
-    text-shadow: 0 0 10px rgba(124,221,255,.18);
+/* "Escolha sua classe": título de seção com a fonte do game, centralizado. */
+.titulo-escolha-classe {
+    display: block;
+    width: 100%;
+    text-align: center;
+    font-family: var(--titulo);
+    font-size: 1.7rem;
+    font-weight: 700;
+    letter-spacing: .03em;
+    color: #fff;
+    margin: 1.7rem 0 .2rem;
+    text-shadow: 0 0 16px rgba(124,92,255,.5), 0 2px 8px rgba(0,0,0,.65);
 }
 .painel-selecao-classes .botao {
     border: 1px solid rgba(255,255,255,.14);

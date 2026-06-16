@@ -28,7 +28,7 @@
                 <input type="text" id="nome" name="nome" required autofocus placeholder="Ex.: Ada, Linus, Grace...">
             </div>
 
-            <label style="font-weight:600;color:var(--texto-fraco)">Escolha sua classe</label>
+            <label class="titulo-escolha-classe">Escolha sua classe</label>
             <div class="classes-grid">
                 <?php $primeiro = true; foreach ($classes as $chave => $c): ?>
                     <label class="classe-card">
