@@ -21,9 +21,7 @@ unset($_SESSION['flash']);
     <link rel="stylesheet" href="<?= assetV('css/batalha.css') ?>">
 </head>
 <body class="<?= e($bodyClass ?? '') ?>">
-<?php // Moldura da barra só com arte de PROPORÇÃO de barra (bordas finas/uniformes).
-      // A moldura-barra (banner, laterais grossas) não cabe numa barra larga.
-      $temMolduraBarra = is_file(__DIR__ . '/../../../public/img/ui/moldura-barra-fina.png'); ?>
+<?php $temMolduraBarra = is_file(__DIR__ . '/../../../public/img/ui/moldura-barra.png'); ?>
 <header class="topo topo-jogo<?= $temMolduraBarra ? ' topo-moldurado' : '' ?>">
     <a class="marca" href="<?= url('mapa') ?>" aria-label="<?= NOME_JOGO ?> — ir para o mapa">
         <?= marcaHtml('header') ?>

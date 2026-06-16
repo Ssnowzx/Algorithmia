@@ -108,14 +108,17 @@ code, pre { font-family: var(--pixel); }
 .topo-jogo { isolation: isolate; }
 /* Barra emoldurada (moldura-barra.webp) via border-image 9-slice: cantos nítidos,
    bordas esticadas, miolo transparente. Slice/largura ajustáveis vendo a arte. */
-.topo-moldurado {
-    border-style: solid;
-    /* moldura-barra-fina: borda fina e UNIFORME (gemas nos 4 cantos). */
-    border-width: 16px;
-    border-image: url("../img/ui/moldura-barra-fina.webp") 50 / 16px / 0 stretch;
-    padding: .5rem 1.6rem;
-}
+/* Conteúdo recuado para não encostar nos ornamentos laterais da moldura. */
+.topo-moldurado { padding: .55rem 2.4rem; }
 .topo-moldurado::before { display: none; } /* sem o trilho de luz duplicado */
+/* Moldura ornamentada SOBRE a barra (overlay no topo, não atrás). pointer-events:none
+   deixa os cliques passarem para o conteúdo abaixo. */
+.topo-moldurado::after {
+    content: ""; position: absolute; inset: 0; z-index: 5; pointer-events: none;
+    border-style: solid;
+    border-width: 15px 34px 9px 34px;
+    border-image: url("../img/ui/moldura-barra.webp") 53 124 23 124 / 15px 34px 9px 34px / 0 stretch;
+}
 .marca {
     display: inline-flex; align-items: center;
     color: var(--texto); text-decoration: none; line-height: 0; flex-shrink: 0;
