@@ -63,7 +63,7 @@
             </div>
 
             <button type="submit" class="botao-sofrimento" aria-label="Que comece o sofrimento">
-                <img src="<?= asset('img/ui/botao-que-comece-sofrimento.png') ?>" alt="Que comece o sofrimento">
+                <img src="<?= e(srcImagem('ui/botao-que-comece-sofrimento')) ?>" alt="Que comece o sofrimento">
             </button>
         </div>
     </form>

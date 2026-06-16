@@ -3,7 +3,7 @@
 $heroi = Auth::personagem();
 $heroiSvg = CLASSES[$heroi['classe']]['svg'] ?? 'heroi-ranger';
 ?>
-<?php $fundoBatalha = asset('img/fundos/' . ($fundoBioma ?? 'fundo-batalha') . '.png'); ?>
+<?php $fundoBatalha = srcImagem('fundos/' . ($fundoBioma ?? 'fundo-batalha')) ?? asset('img/fundos/' . ($fundoBioma ?? 'fundo-batalha') . '.png'); ?>
 <div class="arena">
     <div class="campo-batalha bioma-<?= e($bioma ?? 'batalha') ?>" id="campo"
          style="--fundo-bioma: url('<?= e($fundoBatalha) ?>')">

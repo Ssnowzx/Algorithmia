@@ -31,7 +31,7 @@ $corCena = $mestre['cor_tema'] ?? '#7c5cff';
 $fundoCena = ($fase['tipo'] ?? '') === 'chefe_final'
     ? 'fundo-abismo'
     : (($ehCombate && empty($mestre)) ? 'fundo-batalha' : fundoRegiao($mestre['svg_slug'] ?? null));
-$fundoCenaUrl = asset('img/fundos/' . $fundoCena . '.png');
+$fundoCenaUrl = srcImagem('fundos/' . $fundoCena) ?? asset('img/fundos/' . $fundoCena . '.png');
 $stylePalco = '--cor-cena: ' . e($corCena)
     . '; background-image: linear-gradient(180deg, rgba(10,12,28,.28), rgba(10,12,28,.68)), url(' . e($fundoCenaUrl) . ')';
 ?>

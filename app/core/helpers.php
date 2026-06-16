@@ -37,16 +37,39 @@ function asset(string $caminho): string
  * @param string $attrs  Atributos HTML extras opcionais.
  * @return string Tag <img>, ou um marcador "▢" se o asset não existir.
  */
+/**
+ * Resolve a melhor URL para um asset de imagem por slug (sem extensão),
+ * preferindo o .webp otimizado e caindo para o .png de origem. Versiona pela
+ * data de modificação (?v=) para cache eterno seguro. Memoiza por requisição
+ * para evitar repetir stat()/filemtime() do disco a cada render.
+ *
+ * @return string|null URL versionada, ou null se o asset não existir.
+ */
+function srcImagem(string $slug): ?string
+{
+    static $cache = [];
+    if (array_key_exists($slug, $cache)) {
+        return $cache[$slug];
+    }
+    $dir = __DIR__ . '/../../public/img/';
+    foreach (['webp', 'png'] as $ext) {
+        $arquivo = $dir . $slug . '.' . $ext;
+        if (is_file($arquivo)) {
+            return $cache[$slug] = asset('img/' . $slug . '.' . $ext) . '?v=' . filemtime($arquivo);
+        }
+    }
+    return $cache[$slug] = null;
+}
+
 function svg(string $slug, string $classe = '', string $attrs = ''): string
 {
-    $png = __DIR__ . '/../../public/img/' . $slug . '.png';
-    if (!is_file($png)) {
+    $src = srcImagem($slug);
+    if ($src === null) {
         // Marcador visível para slugs ainda não desenhados.
         return '<span class="svg-faltando" title="' . e($slug) . '">▢</span>';
     }
     $classeAttr = $classe !== '' ? ' class="' . e($classe) . '"' : '';
     $extra = $attrs !== '' ? ' ' . $attrs : '';
-    $src = asset('img/' . $slug . '.png') . '?v=' . filemtime($png);
     return '<img src="' . $src . '"'
         . $classeAttr . $extra . ' alt="' . e($slug) . '" loading="lazy">';
 }
@@ -72,11 +95,10 @@ function marcaHtml(string $variante = 'header'): string
         'hero'   => 'logo-marca-ilustrado.png',
     ];
     $arquivo = $arquivos[$variante] ?? 'logo-header.png';
-    $png = __DIR__ . '/../../public/img/ui/' . $arquivo;
-    if (!is_file($png)) {
+    $src = srcImagem('ui/' . pathinfo($arquivo, PATHINFO_FILENAME));
+    if ($src === null) {
         return '<span class="svg-faltando" title="ui/' . e($arquivo) . '">▢</span>';
     }
-    $src = asset('img/ui/' . $arquivo) . '?v=' . filemtime($png);
     $lazy = $variante === 'splash' ? 'eager' : 'lazy';
     return '<img src="' . $src . '" class="' . e($classe) . '" alt="' . e(NOME_JOGO) . '" loading="' . $lazy . '">';
 }

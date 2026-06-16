@@ -38,7 +38,7 @@ $iconePorTipo = [
                     $fmtFundo = in_array($fundoBase, $fundosRetrato, true) ? 'retrato' : 'paisagem';
                 ?>
                 <div class="cena-bioma cena-bioma-img-wrap cena-bioma-<?= e($fmtFundo) ?>" aria-hidden="true">
-                    <img class="cena-bioma-img" src="<?= e(asset('img/fundos/' . $fundoBase . '.png')) ?>" alt="" loading="eager" decoding="async">
+                    <img class="cena-bioma-img" src="<?= e(srcImagem('fundos/' . $fundoBase) ?? '') ?>" alt="" loading="eager" decoding="async">
                 </div>
             <?php else: ?>
                 <?php $bioma = $biomaReg; require __DIR__ . '/../layout/cena-bioma.php'; ?>

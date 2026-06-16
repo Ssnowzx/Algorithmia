@@ -17,7 +17,7 @@ $splashEntrarUrl = $heroiSplash ? url('mapa') : url('auth/registro');
 ?>
 <div id="splash-inicio" class="splash-inicio">
     <div class="splash-cena-wrap" aria-hidden="true">
-        <img class="splash-cena-img" src="<?= asset('img/ui/splash-cena.png') ?>" alt="" decoding="async">
+        <img class="splash-cena-img" src="<?= e(srcImagem('ui/splash-cena')) ?>" alt="" decoding="async">
         <div class="splash-cena-overlay"></div>
         <div class="splash-particulas"></div>
     </div>
@@ -25,7 +25,7 @@ $splashEntrarUrl = $heroiSplash ? url('mapa') : url('auth/registro');
         <?= marcaHtml('splash') ?>
         <p class="splash-sub"><?= SUBTITULO_JOGO ?></p>
         <a id="splash-entrar" class="splash-entrar" href="<?= e($splashEntrarUrl) ?>">
-            <img src="<?= asset('img/ui/botao-entrar-mundo.png') ?>"
+            <img src="<?= e(srcImagem('ui/botao-entrar-mundo')) ?>"
                  alt="Entrar no mundo" class="splash-entrar-img" loading="eager">
         </a>
     </div>
