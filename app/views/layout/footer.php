@@ -8,8 +8,8 @@
         <span class="rodape-fraco">Projeto MVC em PHP puro</span>
     </div>
 </footer>
-<script src="<?= asset('js/som.js') ?>"></script>
-<script src="<?= asset('js/ui.js') ?>"></script>
-<script src="<?= asset('js/app.js') ?>"></script>
+<script src="<?= assetV('js/som.js') ?>"></script>
+<script src="<?= assetV('js/ui.js') ?>"></script>
+<script src="<?= assetV('js/app.js') ?>"></script>
 </body>
 </html>

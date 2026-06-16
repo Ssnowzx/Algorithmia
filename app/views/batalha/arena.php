@@ -62,5 +62,5 @@ window.BATALHA = {
     }
 };
 </script>
-<script src="<?= asset('js/juice.js') ?>"></script>
-<script src="<?= asset('js/batalha.js') ?>"></script>
+<script src="<?= assetV('js/juice.js') ?>"></script>
+<script src="<?= assetV('js/batalha.js') ?>"></script>

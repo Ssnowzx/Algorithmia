@@ -28,6 +28,21 @@ function asset(string $caminho): string
 }
 
 /**
+ * Asset estático com cache-busting por data de modificação (?v=filemtime).
+ * Use para CSS/JS: garante que o navegador busque a versão nova após uma
+ * mudança, mesmo com cache de longa duração (Expires) ativo no servidor.
+ */
+function assetV(string $caminho): string
+{
+    $url = asset($caminho);
+    $arquivo = __DIR__ . '/../../public/' . ltrim($caminho, '/');
+    if (is_file($arquivo)) {
+        $url .= (strpos($url, '?') === false ? '?' : '&') . 'v=' . filemtime($arquivo);
+    }
+    return $url;
+}
+
+/**
  * Insere arte PNG de public/img/{slug}.png como <img>.
  * Ilustrações (mestres, fundos, mapas/): image-rendering auto via CSS específico.
  * Pixel art (heróis, inimigos, itens): image-rendering pixelated em style.css.

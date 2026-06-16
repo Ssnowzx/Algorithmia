@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>404 — Caminho Perdido | Algorithmia</title>
-    <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
+    <link rel="stylesheet" href="<?= assetV('css/style.css') ?>">
 </head>
 <body class="tela-erro">
     <div class="erro-box">

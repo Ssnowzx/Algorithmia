@@ -73,4 +73,4 @@ window.DIALOGO = {
     textoFallback: <?= json_encode(empty($linhas) ? ($fase['descricao'] ?? '') : '', JSON_UNESCAPED_UNICODE) ?>
 };
 </script>
-<script src="<?= asset('js/dialogo.js') ?>"></script>
+<script src="<?= assetV('js/dialogo.js') ?>"></script>

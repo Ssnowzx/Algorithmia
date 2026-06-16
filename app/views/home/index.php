@@ -8,8 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Rubik:wght@400;500;700;800&display=swap">
-    <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
-    <link rel="stylesheet" href="<?= asset('css/cena.css') ?>">
+    <link rel="stylesheet" href="<?= assetV('css/style.css') ?>">
+    <link rel="stylesheet" href="<?= assetV('css/cena.css') ?>">
 </head>
 <body class="pagina-home">
 <section class="home-entrada">
@@ -66,8 +66,8 @@
         <span class="rodape-fraco">Projeto MVC em PHP puro</span>
     </div>
 </footer>
-<script src="<?= asset('js/som.js') ?>"></script>
-<script src="<?= asset('js/ui.js') ?>"></script>
+<script src="<?= assetV('js/som.js') ?>"></script>
+<script src="<?= assetV('js/ui.js') ?>"></script>
 <script>
 (function () {
     // Apenas efeitos de clique nos botões de entrada (sem trilha de fundo).
