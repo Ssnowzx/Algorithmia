@@ -30,7 +30,13 @@
     Require all denied
 </FilesMatch>
 
-# 5. Cache de longa duração para assets (versionados via ?v=filemtime).
+# 5. Garante o MIME do WebP (hosts antigos servem como octet-stream, o que
+#    impede o uso como background-image em CSS).
+<IfModule mod_mime.c>
+    AddType image/webp .webp
+</IfModule>
+
+# 6. Cache de longa duração para assets (versionados via ?v=filemtime).
 <IfModule mod_expires.c>
     ExpiresActive On
     ExpiresByType image/png        "access plus 1 year"

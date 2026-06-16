@@ -15,6 +15,7 @@
 <?php require __DIR__ . '/../layout/splash.php'; ?>
 
 <section class="home-entrada">
+    <img class="home-entrada-bg" src="<?= e(srcImagem('ui/splash-cena') ?? '') ?>" alt="" aria-hidden="true" decoding="async">
     <div class="home-entrada-overlay"></div>
     <div class="splash-particulas" aria-hidden="true"></div>
     <div class="home-entrada-conteudo">
@@ -71,17 +72,7 @@
 <script src="<?= asset('js/ui.js') ?>"></script>
 <script>
 (function () {
-    // Pad ambiente + som de entrada: só após o 1º gesto (política de áudio).
-    var armado = false;
-    function destravar() {
-        if (armado) { return; }
-        armado = true;
-        if (window.SOM) { window.SOM.ambienteIniciar(); }
-        ['pointerdown', 'keydown', 'touchstart'].forEach(function (e) { document.removeEventListener(e, destravar); });
-    }
-    ['pointerdown', 'keydown', 'touchstart'].forEach(function (e) { document.addEventListener(e, destravar, { passive: true }); });
-
-    // Som nos botões de entrada.
+    // Apenas efeitos de clique nos botões de entrada (sem trilha de fundo).
     document.querySelectorAll('.home-entrada-botao, .home-login-link').forEach(function (b) {
         b.addEventListener('mouseenter', function () { if (window.SOM) { window.SOM.clique(); } });
         b.addEventListener('click', function () { if (window.SOM) { window.SOM.pressStart(); } });
