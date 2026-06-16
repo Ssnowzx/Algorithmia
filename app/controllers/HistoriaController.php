@@ -27,7 +27,7 @@ class HistoriaController extends Controller
         $variante = (new ReputacaoService())->variante($heroi);
         $dialogos = (new Dialogo())->paraMomento((int) $fase['id'], 'antes', $variante);
 
-        $ehCombate = in_array($fase['tipo'], ['licao', 'chefe', 'chefe_final', 'secundaria'], true);
+        $ehCombate = faseEhCombate($fase);
 
         // Mestre da região: define o cenário de fundo e a cor de destaque da cena.
         $mestre = !empty($fase['mestre_id']) ? (new Mestre())->findById((int) $fase['mestre_id']) : null;
