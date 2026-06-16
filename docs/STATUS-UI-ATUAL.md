@@ -14,18 +14,21 @@ Este documento registra o estado atual das telas e assets visuais aprovados dura
 | Elemento | Arquivo |
 |---|---|
 | View da home | `app/views/home/index.php` |
-| Splash reutilizável | `app/views/layout/splash.php` |
-| CSS global/home/splash | `public/css/style.css` |
-| Fundo ilustrado | `public/img/ui/splash-cena.png` |
+| CSS global/home | `public/css/style.css` |
+| Cena de fundo (`<img>`) | `public/img/ui/splash-cena.png` (servida em `.webp`) |
 | Botão de entrada | `public/img/ui/botao-entrar-mundo.png` |
 | Logo grande | `public/img/ui/logo-marca-ilustrado.png` |
 | Logo compacta do header | `public/img/ui/logo-header.png` |
 
 ### Regras
-- `marcaHtml('splash')`, `marcaHtml('hero')` e `marcaHtml('auth')` usam `logo-marca-ilustrado.png` para evitar blur.
-- `marcaHtml('header')` e `marcaHtml('rodape')` usam `logo-header.png` por serem espaços compactos.
-- O logout força a splash nova com `?splash=1`; o script remove `sessionStorage.splashVisto` quando esse parâmetro existe.
-- A home (`body.pagina-home`) deve usar **uma única imagem de fundo**, sem duplicar a imagem no topo e no conteúdo.
+- `marcaHtml('hero')` e `marcaHtml('auth')` usam `logo-marca-ilustrado.png` (evita blur);
+  `marcaHtml('header')`/`marcaHtml('rodape')` usam `logo-header.png` (espaços compactos).
+- **Tela de início única:** não há mais overlay de splash (`splash.php` foi removido). A
+  `home-entrada` é a única entrada — logo, botão, link de login e a grade dos 5 mestres. O
+  **logout volta para a home limpa** (sem `?splash=1`). Ver a change OpenSpec `entrada-e-selecao-ux`.
+- A cena de fundo vem de um `<img class="home-entrada-bg">` (não `background-image`), e
+  `body.pagina-home` tem **cor de fundo sólida** (`var(--bg)`) — a home nunca fica branca.
+- A entrada **não toca trilha de fundo**; apenas efeitos de clique.
 
 ---
 
@@ -51,10 +54,13 @@ Este documento registra o estado atual das telas e assets visuais aprovados dura
 | `.conteudo-criar-heroi` | Largura máxima da página de criação |
 | `.painel-selecao-classes` | Moldura grande do painel inteiro |
 | `.campo-nome-heroi` | Campo compacto e destacado para nome do herói |
-| `.classes-grid` | Grid das 6 cartas |
+| `.classes-grid` | Grid das 6 cartas (responsivo: `auto-fit` — 1/2/3 colunas) |
 | `.classe-card .corpo` | Corpo de cada carta |
 | `.classe-retrato-wrap` / `.classe-retrato` | Área da imagem do personagem |
 | `.classe-info` / `.classe-texto` | Área textual integrada à carta |
+| `.titulo-escolha-classe` | Título "Escolha sua classe" (fonte do jogo) |
+| `.classe-lore-btn` | Botão que abre o popup de lore |
+| `.lore-modal-card` | Carta do popup de lore (retrato + espécie + lore) |
 | `.botao-sofrimento` | Botão ornamental final |
 
 ### Regras de layout
@@ -63,6 +69,9 @@ Este documento registra o estado atual das telas e assets visuais aprovados dura
 - O campo de nome deve ser visível e opaco, não transparente demais.
 - O botão final deve parecer clicável: grande, centralizado, com brilho/pulso.
 - Não usar botão roxo padrão nessa tela; usar `botao-que-comece-sofrimento.png`.
+- Os títulos "Nome do herói" e "Escolha sua classe" usam a **fonte do jogo** (`var(--titulo)`), centralizados.
+- "Origem do povo" abre um **popup** (`.lore-modal-*`) com o retrato `hud-*` — não expande inline. Não voltar ao `<details>` (esticava/desalinhava os cards).
+- O grid (`.classes-grid`) é **responsivo** via `auto-fit`: 1 card no celular, 2 no tablet, 3 no desktop. Testar nos três tamanhos.
 
 ---
 
@@ -127,6 +136,11 @@ mysql -u SEU_USUARIO -p algorithmia < database/migrations/20250616-novas-classes
 - `public/img/herois/hud-elfo.png`
 - `public/img/herois/hud-draconato.png`
 
+> **Formato servido:** as ilustrações (ui, mestres, fundos, atores, `hud-*`) são entregues em
+> **WebP** otimizado por `tools/otimizar-imagens.sh`; os PNG acima são a fonte/fallback. A
+> pixel art de batalha (`heroi-*`, `inimigos/`, `itens/`) permanece em PNG. O helper
+> `srcImagem()` prefere o `.webp` quando existe.
+
 ---
 
 ## 6. Cuidados para próximas alterações
@@ -135,4 +149,6 @@ mysql -u SEU_USUARIO -p algorithmia < database/migrations/20250616-novas-classes
 - Não esticar logo pequena na splash; usar sempre a marca grande.
 - Não duplicar o fundo da home em duas camadas visíveis.
 - Não trocar a moldura externa por um painel opaco simples.
-- Ao mexer na seleção de personagem, testar visualmente em 3 colunas e em mobile.
+- Ao mexer na seleção de personagem, testar em **desktop (3 colunas), tablet (2) e celular (1 card por linha)**.
+- Não reintroduzir o overlay de splash; a `home-entrada` é a única tela de início.
+- Não voltar a lore para `<details>` inline — usar o popup `.lore-modal-*`.
