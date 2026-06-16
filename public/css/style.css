@@ -893,11 +893,9 @@ textarea { min-height: 90px; resize: vertical; }
     50%      { box-shadow: inset 0 0 0 1px rgba(255, 206, 71, .7),  0 0 22px rgba(255, 206, 71, .5); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-    .item-card, .item-card:hover { transform: none; }
-    .item-card:hover .icone-item img, .item-card:hover .icone-item svg,
-    .item-rar-lendario .icone-item, .tag-equipado { animation: none; }
-}
+/* Itens: animações sutis (hover, pulinho, brilho de raridade) tocam mesmo com
+   prefers-reduced-motion — são leves e disparadas por interação. As animações
+   fortes (shake/partículas de batalha, parallax de cena) seguem desligadas. */
 
 /* ---------- Tabelas ---------- */
 .tabela { width: 100%; border-collapse: collapse; }

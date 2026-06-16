@@ -438,9 +438,10 @@ body.pagina-mapa .regiao > .trilha {
     to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 .palco-cena .ator-svg.entrando { animation: atorEntra .5s cubic-bezier(.2, .8, .3, 1.12) both; }
+/* Entrada/aura/float do personagem são sutis e tocam mesmo com reduzir movimento.
+   Só a deriva de partículas (::after) segue desligada, por ser movimento ambiente. */
 @media (prefers-reduced-motion: reduce) {
-    .palco-cena::after, .palco-cena .ator,
-    .palco-cena .ator-svg::before, .palco-cena .ator-svg.entrando { animation: none; }
+    .palco-cena::after { animation: none; }
 }
 
 .caixa-fala {
@@ -493,7 +494,6 @@ body.pagina-mapa .regiao > .trilha {
     animation: dialogoDica 1.6s ease-in-out infinite;
 }
 @keyframes dialogoDica { 0%, 100% { opacity: .5; } 50% { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .dialogo-dica { animation: none; opacity: .85; } }
 
 /* ---------- Telas de final ---------- */
 .tela-final { max-width: 760px; margin: 0 auto; text-align: center; position: relative; }
