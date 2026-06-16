@@ -257,9 +257,15 @@ code, pre { font-family: var(--pixel); }
 /* ---------- Conteúdo e cartões ---------- */
 .conteudo { max-width: 1100px; width: 100%; margin: 0 auto; padding: 1.6rem 1.2rem 3rem; flex: 1 0 auto; }
 .pagina-home {
+    /* var(--bg) ao final garante COR de fundo: o shorthand 'background' zera
+       background-color para transparent, então sem isto a página ficava BRANCA
+       quando a imagem não pintava. Sem 'fixed' porque background-attachment:fixed
+       não renderiza em mobile (iSafari/Chrome Android) — dava cinza no load e
+       branco ao voltar. WebP em vez do PNG de ~3 MB. */
     background:
         linear-gradient(180deg, rgba(4,6,16,.10) 0%, rgba(4,6,16,.46) 48%, rgba(4,6,16,.82) 100%),
-        url("../img/ui/splash-cena.png") center top / cover fixed no-repeat;
+        url("../img/ui/splash-cena.webp") center top / cover no-repeat,
+        var(--bg);
 }
 .pagina-home::before { display: none; }
 .pagina-home > * {

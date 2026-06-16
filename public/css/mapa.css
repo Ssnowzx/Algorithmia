@@ -19,7 +19,7 @@ body.pagina-mapa {
     inset: 0;
     z-index: -2;
     pointer-events: none;
-    background: url(../img/fundos/fundo-mapa.png) center top / cover no-repeat;
+    background: url(../img/fundos/fundo-mapa.webp) center top / cover no-repeat var(--bg);
     transform: translateZ(0);
 }
 body.pagina-mapa::before { display: none; }
