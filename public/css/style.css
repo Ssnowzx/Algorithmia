@@ -110,12 +110,12 @@ code, pre { font-family: var(--pixel); }
    bordas esticadas, miolo transparente. Slice/largura ajustáveis vendo a arte. */
 .topo-moldurado {
     border-style: solid;
-    /* slice = espessura real da arte (topo 53 / dir 124 / base 23 / esq 124);
-       largura ~0.28x do slice = proporcional, sem distorcer os cantos. */
-    border-width: 15px 34px 7px 34px;
-    border-image: url("../img/ui/moldura-barra.webp") 53 124 23 124 / 15px 34px 7px 34px / 0 stretch;
-    padding-top: .35rem;
-    padding-bottom: .35rem;
+    /* slice = espessura real da arte (topo 53 / dir 124 / base 23 / esq 124). */
+    border-width: 14px 26px 7px 26px;
+    border-image: url("../img/ui/moldura-barra.webp") 53 124 23 124 / 14px 26px 7px 26px / 0 stretch;
+    /* Respiro: conteúdo fica claramente DENTRO do quadro, sem encostar nos
+       ornamentos laterais/superiores. */
+    padding: .55rem 1.6rem;
 }
 .topo-moldurado::before { display: none; } /* sem o trilho de luz duplicado */
 .marca {
