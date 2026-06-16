@@ -603,16 +603,16 @@ textarea { min-height: 90px; resize: vertical; }
 }
 .classes-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 2rem;
+    /* Auto-responsivo: 1 coluna no celular, 2 no tablet, 3 no desktop.
+       min(100%, 270px) evita estouro horizontal em telas estreitas. */
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
+    gap: clamp(1rem, 3vw, 2rem);
     margin: 1.65rem 0;
 }
 @media (max-width: 920px) {
-    .classes-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .painel-selecao-classes { padding: 6.4rem 4.6rem 4rem; }
 }
 @media (max-width: 560px) {
-    .classes-grid { grid-template-columns: 1fr; }
     .painel-selecao-classes { padding: 5.1rem 2.25rem 2.6rem; border-radius: 24px; }
     .botao-sofrimento img { width: min(100%, 420px); }
 }
