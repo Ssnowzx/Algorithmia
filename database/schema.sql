@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS personagens (
     id           INT AUTO_INCREMENT PRIMARY KEY,
     usuario_id   INT NOT NULL UNIQUE,
     nome         VARCHAR(80) NOT NULL,
-    classe       ENUM('mago','guerreiro','ranger') NOT NULL,
+    classe       ENUM('mago','guerreiro','ranger','xeno','elfo','draconato') NOT NULL,
     nivel        INT NOT NULL DEFAULT 1,
     xp           INT NOT NULL DEFAULT 0,
     hp_max       INT NOT NULL DEFAULT 100,

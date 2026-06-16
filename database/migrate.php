@@ -131,6 +131,54 @@ function executarArquivo(PDO $pdo, string $caminho): int
     return $contador;
 }
 
+/**
+ * Aplica migrações incrementais de database/migrations/*.sql, cada uma uma única
+ * vez, registrando as já aplicadas em `migracoes_aplicadas`. Permite evoluir o
+ * schema de bancos que JÁ TÊM dados (ex.: novas colunas/ENUMs), sem --reset.
+ */
+function aplicarMigracoes(PDO $pdo): int
+{
+    $pdo->exec(
+        'CREATE TABLE IF NOT EXISTS migracoes_aplicadas (
+            arquivo     VARCHAR(255) PRIMARY KEY,
+            aplicada_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
+    );
+
+    $dir = __DIR__ . '/migrations';
+    if (!is_dir($dir)) {
+        return 0;
+    }
+    $arquivos = glob($dir . '/*.sql') ?: [];
+    sort($arquivos); // ordem por nome — use prefixo de data (AAAAMMDD-...).
+
+    $jaAplicadas = $pdo->query('SELECT arquivo FROM migracoes_aplicadas')->fetchAll(PDO::FETCH_COLUMN);
+    $aplicadas = 0;
+    foreach ($arquivos as $caminho) {
+        $nome = basename($caminho);
+        if (in_array($nome, $jaAplicadas, true)) {
+            continue;
+        }
+        echo "   🧩 {$nome}\n";
+        $sql = (string) file_get_contents($caminho);
+        foreach (dividirSql($sql) as $instrucao) {
+            $limpa = limparComentarios($instrucao);
+            if ($limpa === '') {
+                continue;
+            }
+            try {
+                $pdo->exec($limpa);
+            } catch (PDOException $e) {
+                fwrite(STDERR, "Erro na migração {$nome}:\n" . substr($limpa, 0, 200) . "...\n→ " . $e->getMessage() . "\n");
+                exit(1);
+            }
+        }
+        $pdo->prepare('INSERT INTO migracoes_aplicadas (arquivo) VALUES (?)')->execute([$nome]);
+        $aplicadas++;
+    }
+    return $aplicadas;
+}
+
 // ---- Execução ----------------------------------------------------------
 //
 // Por padrão a migração é NÃO-DESTRUTIVA: cria o que falta e preserva contas,
@@ -158,6 +206,10 @@ echo "   {$n} instruções aplicadas.\n";
 
 $pdoBanco = getConnection();
 
+echo "🧩 Aplicando migrações incrementais (migrations/)...\n";
+$migs = aplicarMigracoes($pdoBanco);
+echo $migs === 0 ? "   nenhuma pendente.\n" : "   {$migs} migração(ões) aplicada(s).\n";
+
 if (!$apenasSchema) {
     // Só semeia o conteúdo se o banco estiver vazio (ou em --reset). Assim,
     // rodar a migração de novo nunca apaga as contas dos jogadores.
@@ -183,4 +235,9 @@ foreach (['usuarios', 'mestres', 'fases', 'desafios', 'itens', 'conquistas', 'di
         // tabela ausente: ignora no relatório
     }
 }
+if (!$apenasSchema) {
+    echo "\n🎮 Conta demo (mestre, mapa liberado)...\n";
+    require __DIR__ . '/seed-conta-demo.php';
+}
+
 echo "\nInicie o jogo com:  php -S localhost:8001\n";
