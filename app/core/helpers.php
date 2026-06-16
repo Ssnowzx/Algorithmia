@@ -175,6 +175,14 @@ function caminhoAtor(string $slug): string
     if (strpos($slug, '/') !== false) {
         return $slug;
     }
+    // O Fragmento da IA aparece SÓ em diálogos (nunca como sprite de batalha):
+    // se houver retrato ilustrado em atores/npc-fragmento, usa-o; senão mantém
+    // o sprite pixel legado (inimigos/inimigo-ia-ancestral). Troca automática
+    // assim que o PNG ilustrado for adicionado.
+    if ($slug === 'inimigo-ia-ancestral'
+        && is_file(__DIR__ . '/../../public/img/atores/npc-fragmento.png')) {
+        return 'atores/npc-fragmento';
+    }
     if (str_starts_with($slug, 'fase-')) {
         return 'atores/' . $slug;
     }
