@@ -108,16 +108,15 @@ code, pre { font-family: var(--pixel); }
 .topo-jogo { isolation: isolate; }
 /* Barra emoldurada (moldura-barra.webp) via border-image 9-slice: cantos nítidos,
    bordas esticadas, miolo transparente. Slice/largura ajustáveis vendo a arte. */
-/* Conteúdo recuado para não encostar nos ornamentos laterais da moldura. */
-.topo-moldurado { padding: .55rem 2.4rem; }
+.topo-moldurado { padding: .55rem 1.7rem; }
 .topo-moldurado::before { display: none; } /* sem o trilho de luz duplicado */
-/* Moldura ornamentada SOBRE a barra (overlay no topo, não atrás). pointer-events:none
-   deixa os cliques passarem para o conteúdo abaixo. */
+/* Moldura UNIFORME e fina SOBRE a barra (overlay no topo, não atrás).
+   pointer-events:none deixa os cliques passarem para o conteúdo. */
 .topo-moldurado::after {
     content: ""; position: absolute; inset: 0; z-index: 5; pointer-events: none;
     border-style: solid;
-    border-width: 15px 34px 9px 34px;
-    border-image: url("../img/ui/moldura-barra.webp") 53 124 23 124 / 15px 34px 9px 34px / 0 stretch;
+    border-width: 13px;
+    border-image: url("../img/ui/moldura-barra-fina.webp") 50 / 13px / 0 stretch;
 }
 .marca {
     display: inline-flex; align-items: center;
