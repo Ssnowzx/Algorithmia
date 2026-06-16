@@ -60,11 +60,6 @@ body.pagina-mapa .conteudo { padding-top: 1.2rem; }
 .mapa-cabecalho h1 {
     display: inline-flex; align-items: center; justify-content: center;
     gap: .55rem; margin: .4rem 0;
-    /* Só as tampas ornamentais NAS PONTAS (laterais), sem moldura em cima/baixo —
-       assim não há faixa escura atrás do texto. Texto limpo sobre o céu. */
-    border-style: solid;
-    border-width: 0 60px;
-    border-image: url("../img/ui/moldura-barra.webp") 0 124 0 124 / 0 60px / 0 stretch;
     padding: 1rem 1.2rem;
 }
 .mapa-cabecalho h1 .icone-mapa-titulo {
