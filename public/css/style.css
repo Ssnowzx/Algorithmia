@@ -110,11 +110,10 @@ code, pre { font-family: var(--pixel); }
    bordas esticadas, miolo transparente. Slice/largura ajustáveis vendo a arte. */
 .topo-moldurado {
     border-style: solid;
-    /* slice = espessura real da arte (topo 53 / dir 124 / base 23 / esq 124). */
-    border-width: 14px 26px 7px 26px;
-    border-image: url("../img/ui/moldura-barra.webp") 53 124 23 124 / 14px 26px 7px 26px / 0 stretch;
-    /* Respiro: conteúdo fica claramente DENTRO do quadro, sem encostar nos
-       ornamentos laterais/superiores. */
+    /* Para a moldura de PROPORÇÃO de barra (bordas finas/uniformes). O slice
+       será afinado quando a arte moldura-barra-fina chegar. */
+    border-width: 12px;
+    border-image: url("../img/ui/moldura-barra-fina.webp") 28 / 12px / 0 stretch;
     padding: .55rem 1.6rem;
 }
 .topo-moldurado::before { display: none; } /* sem o trilho de luz duplicado */
@@ -250,12 +249,11 @@ code, pre { font-family: var(--pixel); }
         0 0 42px color-mix(in srgb, var(--hud-cor, var(--primaria)) 30%, transparent);
     animation: lorePop .24s cubic-bezier(.2,.8,.3,1.2) both;
 }
+/* Quando há ficha-fundo, a arte cobre o CARD inteiro (não só o topo). */
+.ficha-com-fundo { background-size: cover; background-position: center; background-repeat: no-repeat; }
 .ficha-banner {
     position: relative; aspect-ratio: 16 / 10; flex-shrink: 0;
-    display: grid; place-items: center; overflow: hidden;
-    background: radial-gradient(circle at 50% 28%, color-mix(in srgb, var(--hud-cor, var(--primaria)) 30%, #0f1228), #0a0c1d);
-    background-size: cover; background-position: center;
-    border-bottom: 1px solid color-mix(in srgb, var(--hud-cor, var(--primaria)) 30%, rgba(255,255,255,.1));
+    display: grid; place-items: center;
 }
 .ficha-retrato { width: 58%; aspect-ratio: 3 / 4; }
 .ficha-retrato img { width: 100%; height: 100%; object-fit: contain; image-rendering: auto; filter: drop-shadow(0 8px 20px rgba(0,0,0,.55)); }

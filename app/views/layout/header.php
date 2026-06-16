@@ -21,7 +21,8 @@ unset($_SESSION['flash']);
     <link rel="stylesheet" href="<?= assetV('css/batalha.css') ?>">
 </head>
 <body class="<?= e($bodyClass ?? '') ?>">
-<?php $temMolduraBarra = is_file(__DIR__ . '/../../../public/img/ui/moldura-barra.png'); ?>
+<?php // Barra emoldurada só com a arte de PROPORÇÃO de barra (bordas finas/uniformes).
+      $temMolduraBarra = is_file(__DIR__ . '/../../../public/img/ui/moldura-barra-fina.png'); ?>
 <header class="topo topo-jogo<?= $temMolduraBarra ? ' topo-moldurado' : '' ?>">
     <a class="marca" href="<?= url('mapa') ?>" aria-label="<?= NOME_JOGO ?> — ir para o mapa">
         <?= marcaHtml('header') ?>
@@ -91,9 +92,10 @@ unset($_SESSION['flash']);
     $xpNivelProx  = xpParaNivel((int) $heroi['nivel'] + 1);
 ?>
 <div id="fichaModal" class="ficha-modal-overlay" aria-hidden="true">
-    <div class="ficha-modal-card" role="dialog" aria-modal="true" aria-labelledby="fichaNome" style="--hud-cor: <?= e($cfgClasse['cor']) ?>">
+    <div class="ficha-modal-card<?= $fichaFundo ? ' ficha-com-fundo' : '' ?>" role="dialog" aria-modal="true" aria-labelledby="fichaNome"
+         style="--hud-cor: <?= e($cfgClasse['cor']) ?><?= $fichaFundo ? '; background-image: linear-gradient(180deg, rgba(8,8,20,.28), rgba(8,8,20,.78) 58%, rgba(10,8,22,.93)), url(\'' . e($fichaFundo) . '\')' : '' ?>">
         <button type="button" class="ficha-modal-fechar" aria-label="Fechar">✕</button>
-        <div class="ficha-banner"<?= $fichaFundo ? ' style="background-image:url(\'' . e($fichaFundo) . '\')"' : '' ?>>
+        <div class="ficha-banner">
             <div class="ficha-retrato"><?= svg(retratoHud($heroi['classe'])) ?></div>
             <span class="ficha-nivel">Nível <?= (int) $heroi['nivel'] ?></span>
         </div>
