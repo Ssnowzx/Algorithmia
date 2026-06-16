@@ -32,11 +32,10 @@ $fundoCena = ($fase['tipo'] ?? '') === 'chefe_final'
     ? 'fundo-abismo'
     : (($ehCombate && empty($mestre)) ? 'fundo-batalha' : fundoRegiao($mestre['svg_slug'] ?? null));
 $fundoCenaUrl = srcImagem('fundos/' . $fundoCena) ?? asset('img/fundos/' . $fundoCena . '.png');
-$stylePalco = '--cor-cena: ' . e($corCena)
-    . '; background-image: linear-gradient(180deg, rgba(10,12,28,.28), rgba(10,12,28,.68)), url(' . e($fundoCenaUrl) . ')';
+$styleFundo = 'background-image: linear-gradient(180deg, rgba(10,12,28,.28), rgba(10,12,28,.68)), url(' . e($fundoCenaUrl) . ')';
 ?>
-<div class="cena-dialogo">
-    <div class="palco palco-cena" style="<?= $stylePalco ?>">
+<div class="cena-dialogo" style="--cor-cena: <?= e($corCena) ?>">
+    <div class="palco palco-cena" style="<?= $styleFundo ?>">
         <!-- Reserva de atores: JS mostra o do falante atual. -->
         <div class="ator" id="ator">
             <?php if ($slugsUnicos): ?>
