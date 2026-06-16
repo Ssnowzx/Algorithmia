@@ -1,6 +1,7 @@
 <?php
 /**
- * Cria ou atualiza a conta demo com mapa desbloqueado e papel mestre.
+ * Cria ou atualiza a conta mestre de administração (Painel do Mestre).
+ * Progresso normal — sem desbloquear fases automaticamente.
  *
  * Uso:
  *   php database/seed-conta-demo.php
@@ -42,10 +43,6 @@ if ($usuarioId) {
 
 $classe = 'ranger';
 $base = CLASSES[$classe];
-$nivel = 15;
-$xp = xpParaNivel($nivel);
-$hpMax = $base['hp'] + ($nivel - 1) * 15;
-$mpMax = $base['mp'] + ($nivel - 1) * 8;
 
 $stmt = $pdo->prepare('SELECT id FROM personagens WHERE usuario_id = ?');
 $stmt->execute([$usuarioId]);
@@ -54,15 +51,15 @@ $personagemId = $stmt->fetchColumn();
 $dadosPers = [
     'nome'       => DEMO_NOME_HEROI,
     'classe'     => $classe,
-    'nivel'      => $nivel,
-    'xp'         => $xp,
-    'hp_max'     => $hpMax,
-    'hp_atual'   => $hpMax,
-    'mp_max'     => $mpMax,
-    'mp_atual'   => $mpMax,
-    'ouro'       => 99999,
+    'nivel'      => 1,
+    'xp'         => 0,
+    'hp_max'     => $base['hp'],
+    'hp_atual'   => $base['hp'],
+    'mp_max'     => $base['mp'],
+    'mp_atual'   => $base['mp'],
+    'ouro'       => 50,
     'reputacao'  => 0,
-    'capitulo'   => 5,
+    'capitulo'   => 0,
 ];
 
 if ($personagemId) {
@@ -80,49 +77,25 @@ if ($personagemId) {
     $personagemId = (int) $pdo->lastInsertId();
 }
 
-$faseIds = $pdo->query('SELECT id FROM fases ORDER BY ordem_global')->fetchAll(PDO::FETCH_COLUMN);
-
 $pdo->prepare('DELETE FROM progresso_fases WHERE personagem_id = ?')->execute([$personagemId]);
-
-$insProg = $pdo->prepare(
-    'INSERT INTO progresso_fases (personagem_id, fase_id, estrelas, acertos, erros, usou_ia)
-     VALUES (?, ?, 3, 10, 0, 0)'
-);
-foreach ($faseIds as $fid) {
-    $insProg->execute([$personagemId, (int) $fid]);
-}
-
 $pdo->prepare('DELETE FROM inventario WHERE personagem_id = ?')->execute([$personagemId]);
-
-$insInv = $pdo->prepare(
-    'INSERT INTO inventario (personagem_id, item_id, quantidade, equipado) VALUES (?, ?, ?, ?)'
-);
-foreach ($pdo->query('SELECT id, tipo FROM itens')->fetchAll() as $row) {
-    $qtd = match ($row['tipo']) {
-        'pocao'    => 10,
-        'especial' => 5,
-        default    => 1,
-    };
-    $equip = in_array($row['tipo'], ['arma', 'escudo', 'acessorio'], true) ? 1 : 0;
-    $insInv->execute([$personagemId, (int) $row['id'], $qtd, $equip]);
-}
-
 $pdo->prepare('DELETE FROM conquistas_personagem WHERE personagem_id = ?')->execute([$personagemId]);
-
-$insConq = $pdo->prepare(
-    'INSERT IGNORE INTO conquistas_personagem (personagem_id, conquista_id) VALUES (?, ?)'
-);
-foreach (
-    $pdo->query("SELECT id FROM conquistas WHERE codigo NOT IN ('final_mestre','final_singularidade','final_equilibrio')")->fetchAll(PDO::FETCH_COLUMN) as $cid
-) {
-    $insConq->execute([$personagemId, (int) $cid]);
-}
-
 $pdo->prepare('DELETE FROM escolhas WHERE personagem_id = ?')->execute([$personagemId]);
 
-echo "Conta demo pronta.\n";
+$insInv = $pdo->prepare(
+    'INSERT INTO inventario (personagem_id, item_id, quantidade, equipado) VALUES (?, ?, ?, 0)'
+);
+$fragmento = $pdo->query("SELECT id FROM itens WHERE svg_slug = 'item-fragmento-ia'")->fetchColumn();
+if ($fragmento) {
+    $insInv->execute([$personagemId, (int) $fragmento, 3]);
+}
+$pocao = $pdo->query("SELECT id FROM itens WHERE svg_slug = 'item-pocao-hp'")->fetchColumn();
+if ($pocao) {
+    $insInv->execute([$personagemId, (int) $pocao, 2]);
+}
+
+echo "Conta mestre pronta.\n";
 echo "  E-mail: " . DEMO_EMAIL . "\n";
 echo "  Senha:  " . DEMO_SENHA . "\n";
 echo "  Papel:  mestre — Painel em /mestre\n";
-echo "  Fases:  " . count($faseIds) . " concluidas (3 estrelas)\n";
-echo "  Final:  acesse /historia/final para testar os 3 epilogos\n";
+echo "  Jogo:   progresso zerado (só o Prólogo liberado)\n";

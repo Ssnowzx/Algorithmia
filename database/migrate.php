@@ -236,7 +236,7 @@ foreach (['usuarios', 'mestres', 'fases', 'desafios', 'itens', 'conquistas', 'di
     }
 }
 if (!$apenasSchema) {
-    echo "\n🎮 Conta demo (mestre, mapa liberado)...\n";
+    echo "\n🎮 Conta mestre admin (sem progresso automático)...\n";
     require __DIR__ . '/seed-conta-demo.php';
 }
 

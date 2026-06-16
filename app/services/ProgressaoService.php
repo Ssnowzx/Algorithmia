@@ -50,14 +50,10 @@ class ProgressaoService
 
     /**
      * Uma fase está liberada se não tem pré-requisito ou se o pré-requisito
-     * já foi concluído pelo personagem. Contas mestre ignoram a trava (preview).
+     * já foi concluído pelo personagem.
      */
     public function faseLiberada(array $fase, array $mapaProgresso): bool
     {
-        if (Auth::ehMestre()) {
-            return true;
-        }
-
         $requisito = $fase['requisito_fase_id'];
         if ($requisito === null || $requisito === '') {
             return true;
