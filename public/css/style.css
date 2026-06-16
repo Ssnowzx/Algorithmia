@@ -110,10 +110,10 @@ code, pre { font-family: var(--pixel); }
    bordas esticadas, miolo transparente. Slice/largura ajustáveis vendo a arte. */
 .topo-moldurado {
     border-style: solid;
-    /* slice = espessura real da arte (topo 53 / dir 124 / base 23 / esq 124). */
-    border-width: 14px 30px 8px 30px;
-    border-image: url("../img/ui/moldura-barra.webp") 53 124 23 124 / 14px 30px 8px 30px / 0 stretch;
-    padding: .55rem 1.7rem;
+    /* moldura-barra-fina: borda fina e UNIFORME (gemas nos 4 cantos). */
+    border-width: 16px;
+    border-image: url("../img/ui/moldura-barra-fina.webp") 50 / 16px / 0 stretch;
+    padding: .5rem 1.6rem;
 }
 .topo-moldurado::before { display: none; } /* sem o trilho de luz duplicado */
 .marca {
