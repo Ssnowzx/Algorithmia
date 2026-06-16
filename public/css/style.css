@@ -110,11 +110,10 @@ code, pre { font-family: var(--pixel); }
    bordas esticadas, miolo transparente. Slice/largura ajustáveis vendo a arte. */
 .topo-moldurado {
     border-style: solid;
-    /* Para a moldura de PROPORÇÃO de barra (bordas finas/uniformes). O slice
-       será afinado quando a arte moldura-barra-fina chegar. */
-    border-width: 12px;
-    border-image: url("../img/ui/moldura-barra-fina.webp") 28 / 12px / 0 stretch;
-    padding: .55rem 1.6rem;
+    /* slice = espessura real da arte (topo 53 / dir 124 / base 23 / esq 124). */
+    border-width: 14px 30px 8px 30px;
+    border-image: url("../img/ui/moldura-barra.webp") 53 124 23 124 / 14px 30px 8px 30px / 0 stretch;
+    padding: .55rem 1.7rem;
 }
 .topo-moldurado::before { display: none; } /* sem o trilho de luz duplicado */
 .marca {
@@ -1010,6 +1009,45 @@ textarea { min-height: 90px; resize: vertical; }
 .barra-stat .topo-stat { display: flex; justify-content: space-between; font-size: .85rem; margin-bottom: .25rem; }
 .barra-stat .trilha { height: 10px; background: #0c0d1c; border-radius: 6px; overflow: hidden; }
 .barra-stat .preenche { height: 100%; background: linear-gradient(90deg, var(--primaria-2), var(--xp)); }
+
+/* ---------- Vitrine do herói no Perfil (moldura-status) ---------- */
+.perfil-vitrine {
+    position: relative;
+    width: 100%; max-width: 680px; margin: 0 auto 1.7rem;
+    aspect-ratio: 1512 / 872;
+    background-size: 100% 100%; background-repeat: no-repeat;
+    container-type: inline-size;
+    filter: drop-shadow(0 14px 34px rgba(0,0,0,.5));
+}
+.perfil-vitrine > * { position: absolute; }
+/* Avatar no círculo esquerdo (10.5%, 49.8%). */
+.vitrine-avatar {
+    left: 10.5%; top: 49.8%; transform: translate(-50%, -50%);
+    width: 10.5%; aspect-ratio: 1; border-radius: 50%; overflow: hidden;
+}
+.vitrine-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center 16%; }
+/* Nome + classe + barras no miolo central (52%, 50%). */
+.vitrine-centro {
+    left: 51.9%; top: 49.8%; transform: translate(-50%, -50%);
+    width: 60%; display: flex; flex-direction: column; align-items: center; gap: 2cqw;
+    text-align: center;
+}
+.vitrine-nome { font-family: var(--titulo); font-weight: 700; font-size: 5cqw; line-height: 1; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,.75); }
+.vitrine-classe { font-size: 2.6cqw; color: color-mix(in srgb, var(--hud-cor, var(--primaria-2)) 72%, #fff); font-weight: 700; }
+.vitrine-barras { width: 96%; display: flex; flex-direction: column; gap: 1.2cqw; }
+.vitrine-barras .barra { height: 3.4cqw; border-radius: 2cqw; }
+.vitrine-barras .barra-label { font-size: 1.9cqw; }
+/* Recursos nos 2 círculos da direita (90.7%, 37.2% e 62.2%). */
+.vitrine-recurso {
+    display: flex; flex-direction: column; align-items: center; gap: .2cqw;
+    font-family: var(--hud); font-weight: 700; font-size: 2.4cqw; line-height: 1;
+    text-shadow: 0 1px 3px rgba(0,0,0,.8);
+}
+.vitrine-recurso .ico { width: 3.4cqw; height: 3.4cqw; }
+.vitrine-recurso .emoji { font-size: 3cqw; }
+.vitrine-ouro { left: 90.7%; top: 37.2%; transform: translate(-50%, -50%); color: var(--ouro); }
+.vitrine-rep  { left: 90.7%; top: 62.2%; transform: translate(-50%, -50%); color: #fff; }
+@media (max-width: 520px) { .perfil-vitrine { display: none; } }
 
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
 @media (max-width: 760px) {

@@ -4,6 +4,26 @@ $classe = CLASSES[$heroi['classe']] ?? [];
 ?>
 <h1 class="titulo-secao">📊 Perfil de <?= e($heroi['nome']) ?></h1>
 
+<?php if (is_file(__DIR__ . '/../../../public/img/ui/moldura-status.png')): ?>
+<?php $xaV = xpParaNivel((int) $heroi['nivel']); $xpV = xpParaNivel((int) $heroi['nivel'] + 1); ?>
+<div class="perfil-vitrine" style="--hud-cor: <?= e($classe['cor'] ?? '#7c5cff') ?>; background-image: url('<?= e(srcImagem('ui/moldura-status')) ?>')">
+    <div class="vitrine-avatar"><?= svg(retratoHud($heroi['classe']), 'hud-retrato') ?></div>
+    <div class="vitrine-centro">
+        <div class="vitrine-nome"><?= e($heroi['nome']) ?></div>
+        <div class="vitrine-classe"><?= e($classe['nome'] ?? '') ?> · Nível <?= (int) $heroi['nivel'] ?></div>
+        <div class="vitrine-barras">
+            <?= barra((int) $heroi['hp_atual'], (int) $heroi['hp_max'], 'hp') ?>
+            <?= barra((int) $heroi['mp_atual'], (int) $heroi['mp_max'], 'mp') ?>
+            <?= barra((int) $heroi['xp'] - $xaV, max(1, $xpV - $xaV), 'xp') ?>
+        </div>
+    </div>
+    <div class="vitrine-recurso vitrine-ouro" title="Ouro"><?= svg('ui/icone-ouro', 'ico') ?><span><?= (int) $heroi['ouro'] ?></span></div>
+    <div class="vitrine-recurso vitrine-rep" title="Reputação: <?= e(rotuloReputacao((int) $heroi['reputacao'])) ?>">
+        <span class="emoji"><?= (int) $heroi['reputacao'] >= 0 ? '⚖️' : '🤖' ?></span><span><?= (int) $heroi['reputacao'] ?></span>
+    </div>
+</div>
+<?php endif; ?>
+
 <div class="grid-2">
     <div class="painel">
         <div style="display:flex;gap:1rem;align-items:center">
