@@ -108,6 +108,17 @@ const REPUTACAO_USO_IA = -10;
 const REPUTACAO_MIN    = -100;
 const REPUTACAO_MAX    = 100;
 
+// Fonte única das regiões governadas por um mestre, chaveada pelo svg_slug do
+// mestre (estável, vindo do banco). Liga cada região ao seu cenário de fundo e
+// ao código da conquista de "discípulo". Evita mapas duplicados espalhados.
+const REGIOES_MESTRE = [
+    'mestre-willen'    => ['fundo' => 'fundo-porto',    'conquista' => 'mestre_willen'],
+    'mestre-clayton'   => ['fundo' => 'fundo-cidadela', 'conquista' => 'mestre_clayton'],
+    'mestre-marcelo'   => ['fundo' => 'fundo-floresta', 'conquista' => 'mestre_marcelo'],
+    'mestre-cesar'     => ['fundo' => 'fundo-montanha', 'conquista' => 'mestre_cesar'],
+    'mestre-cassandro' => ['fundo' => 'fundo-torre',    'conquista' => 'mestre_cassandro'],
+];
+
 // Assuntos das matérias (rótulos amigáveis).
 const ASSUNTOS = [
     'php'        => 'PHP',

@@ -212,14 +212,8 @@ class BatalhaController extends Controller
         if (!$mestre) {
             return;
         }
-        $mapaCodigos = [
-            'Porto da Sintaxe'        => 'mestre_willen',
-            'Cidadela dos Objetos'    => 'mestre_clayton',
-            'Floresta das Estruturas' => 'mestre_marcelo',
-            'Montanha do Cálculo'     => 'mestre_cesar',
-            'Torre das Conexões'      => 'mestre_cassandro',
-        ];
-        $codigo = $mapaCodigos[$mestre['regiao']] ?? null;
+        // Chaveia pelo svg_slug (estável) em vez do nome de exibição da região.
+        $codigo = REGIOES_MESTRE[$mestre['svg_slug'] ?? '']['conquista'] ?? null;
         if ($codigo) {
             $nova = (new ConquistaService())->conceder((int) $heroi['id'], $codigo);
             if ($nova) {

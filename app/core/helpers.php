@@ -148,14 +148,7 @@ function svgSlug(string $slug, string $classe = ''): string
  */
 function fundoRegiao(?string $mestreSlug): string
 {
-    $mapa = [
-        'mestre-willen'    => 'fundo-porto',     // Porto da Sintaxe
-        'mestre-clayton'   => 'fundo-cidadela',  // Cidadela dos Objetos
-        'mestre-marcelo'   => 'fundo-floresta',  // Floresta das Estruturas
-        'mestre-cesar'     => 'fundo-montanha',  // Montanha do Cálculo
-        'mestre-cassandro' => 'fundo-torre',     // Torre das Conexões
-    ];
-    return $mapa[$mestreSlug ?? ''] ?? 'fundo-vila';
+    return REGIOES_MESTRE[$mestreSlug ?? '']['fundo'] ?? 'fundo-vila';
 }
 
 /**
