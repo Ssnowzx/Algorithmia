@@ -50,10 +50,7 @@
                                         <span class="s-atk">⚔ <?= $c['ataque'] ?></span>
                                     </div>
                                     <?php if (!empty($c['lore'])): ?>
-                                        <details class="classe-lore">
-                                            <summary>📖 Origem do povo</summary>
-                                            <p><?= e($c['lore']) ?></p>
-                                        </details>
+                                        <button type="button" class="classe-lore-btn" data-lore-classe="<?= e($chave) ?>">📖 Origem do povo ▸</button>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -68,6 +65,77 @@
         </div>
     </form>
 </div>
+
+<?php
+// Dados de lore para o popup (uma carta por classe; reaproveita o retrato ilustrado).
+$loreData = [];
+foreach ($classes as $chave => $c) {
+    $loreData[$chave] = [
+        'nome'    => $c['nome'],
+        'especie' => $c['especie'] ?? '',
+        'lore'    => $c['lore'] ?? '',
+        'cor'     => $c['cor'] ?? '#7c5cff',
+        'img'     => srcImagem(retratoHud($chave)) ?? '',
+    ];
+}
+?>
+<div id="loreModal" class="lore-modal-overlay" aria-hidden="true">
+    <div class="lore-modal-card" role="dialog" aria-modal="true" aria-labelledby="loreModalNome">
+        <button type="button" class="lore-modal-fechar" aria-label="Fechar">✕</button>
+        <div class="lore-modal-retrato"><img id="loreModalImg" src="" alt="" decoding="async"></div>
+        <div class="lore-modal-corpo">
+            <h3 id="loreModalNome"></h3>
+            <span id="loreModalEspecie" class="classe-especie"></span>
+            <p id="loreModalTexto"></p>
+        </div>
+    </div>
+</div>
+<script>
+window.LORE_CLASSES = <?= json_encode($loreData, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+(function () {
+    var modal = document.getElementById('loreModal');
+    if (!modal) { return; }
+    var card    = modal.querySelector('.lore-modal-card');
+    var img     = document.getElementById('loreModalImg');
+    var nome    = document.getElementById('loreModalNome');
+    var especie = document.getElementById('loreModalEspecie');
+    var texto   = document.getElementById('loreModalTexto');
+    var dados   = window.LORE_CLASSES || {};
+
+    function abrir(chave) {
+        var d = dados[chave];
+        if (!d) { return; }
+        card.style.setProperty('--classe-cor', d.cor || '#7c5cff');
+        if (d.img) { img.src = d.img; img.alt = d.nome; img.style.display = ''; }
+        else { img.removeAttribute('src'); img.style.display = 'none'; }
+        nome.textContent = d.nome;
+        especie.textContent = d.especie;
+        especie.style.display = d.especie ? '' : 'none';
+        texto.textContent = d.lore;
+        modal.classList.add('aberto');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+    function fechar() {
+        modal.classList.remove('aberto');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    }
+
+    document.querySelectorAll('.classe-lore-btn').forEach(function (b) {
+        b.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            abrir(b.getAttribute('data-lore-classe'));
+        });
+    });
+    modal.addEventListener('click', function (e) { if (e.target === modal) { fechar(); } });
+    modal.querySelector('.lore-modal-fechar').addEventListener('click', fechar);
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal.classList.contains('aberto')) { fechar(); }
+    });
+})();
+</script>
 <script src="<?= asset('js/app.js') ?>"></script>
 </body>
 </html>

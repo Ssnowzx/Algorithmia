@@ -744,29 +744,91 @@ textarea { min-height: 90px; resize: vertical; }
 .classe-card .stats .s-hp { color: var(--hp); }
 .classe-card .stats .s-mp { color: var(--mp); }
 .classe-card .stats .s-atk { color: var(--xp); }
-.classe-lore {
-    margin-top: .6rem;
-    text-align: left;
-    border-top: 1px dashed color-mix(in srgb, var(--classe-cor, var(--primaria)) 30%, rgba(255,255,255,.1));
-    padding-top: .5rem;
-}
-.classe-lore summary {
+/* Botão que abre o popup de lore (substitui o <details> que esticava o card). */
+.classe-lore-btn {
+    margin-top: .7rem;
+    padding: .34rem .8rem;
+    font: inherit;
+    font-size: .66rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+    color: color-mix(in srgb, var(--classe-cor, var(--primaria-2)) 82%, #fff);
+    background: color-mix(in srgb, var(--classe-cor, var(--primaria)) 14%, rgba(0,0,0,.32));
+    border: 1px solid color-mix(in srgb, var(--classe-cor, var(--primaria)) 36%, rgba(255,255,255,.1));
+    border-radius: 999px;
     cursor: pointer;
-    list-style: none;
-    font-size: .68rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
-    color: color-mix(in srgb, var(--classe-cor, var(--primaria-2)) 80%, #fff);
-    user-select: none;
+    transition: .15s;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
 }
-.classe-lore summary::-webkit-details-marker { display: none; }
-.classe-lore summary::after { content: " ▸"; opacity: .7; }
-.classe-lore[open] summary::after { content: " ▾"; }
-.classe-lore p {
-    margin: .45rem 0 0;
-    font-size: .72rem;
-    line-height: 1.4;
-    color: color-mix(in srgb, var(--texto-fraco) 88%, #fff);
-    text-shadow: 0 1px 5px rgba(0,0,0,.78);
+.classe-lore-btn:hover {
+    transform: translateY(-1px);
+    background: color-mix(in srgb, var(--classe-cor, var(--primaria)) 28%, rgba(0,0,0,.32));
+    box-shadow: 0 0 14px color-mix(in srgb, var(--classe-cor, var(--primaria)) 40%, transparent);
 }
+
+/* ---------- Popup de lore (origem do povo) ---------- */
+.lore-modal-overlay {
+    position: fixed; inset: 0; z-index: 1200;
+    display: none; place-items: center;
+    padding: 1.2rem;
+    background: rgba(4, 6, 16, .74);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+}
+.lore-modal-overlay.aberto { display: grid; animation: loreFade .2s ease both; }
+@keyframes loreFade { from { opacity: 0; } to { opacity: 1; } }
+.lore-modal-card {
+    position: relative;
+    width: min(94vw, 460px);
+    max-height: 88vh;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    background: linear-gradient(180deg, #12152c 0%, #171a36 100%);
+    border: 2px solid color-mix(in srgb, var(--classe-cor, var(--primaria)) 55%, var(--ouro));
+    border-radius: 18px;
+    box-shadow:
+        0 0 0 3px color-mix(in srgb, var(--classe-cor, var(--primaria)) 26%, transparent),
+        0 24px 64px rgba(0, 0, 0, .6),
+        0 0 42px color-mix(in srgb, var(--classe-cor, var(--primaria)) 30%, transparent);
+    animation: lorePop .24s cubic-bezier(.2, .8, .3, 1.2) both;
+}
+@keyframes lorePop { from { transform: scale(.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.lore-modal-retrato {
+    aspect-ratio: 16 / 10;
+    flex-shrink: 0;
+    overflow: hidden;
+    background: #0f1228;
+    border-bottom: 1px solid color-mix(in srgb, var(--classe-cor, var(--primaria)) 30%, rgba(255,255,255,.1));
+}
+.lore-modal-retrato img {
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: center top;
+    display: block; image-rendering: auto;
+}
+.lore-modal-corpo {
+    padding: 1.05rem 1.35rem 1.4rem;
+    overflow-y: auto;
+    text-align: center;
+}
+.lore-modal-corpo h3 {
+    margin: 0 0 .45rem;
+    font-size: 1.18rem; color: #fff;
+    text-shadow: 0 2px 8px rgba(0,0,0,.82), 0 0 12px color-mix(in srgb, var(--classe-cor, var(--primaria)) 34%, transparent);
+}
+.lore-modal-corpo p {
+    margin: .75rem 0 0;
+    text-align: left;
+    font-size: .86rem; line-height: 1.58;
+    color: color-mix(in srgb, var(--texto-fraco) 90%, #fff);
+}
+.lore-modal-fechar {
+    position: absolute; top: .55rem; right: .55rem; z-index: 2;
+    width: 2rem; height: 2rem; border-radius: 50%;
+    display: grid; place-items: center;
+    background: rgba(0, 0, 0, .55);
+    border: 1px solid rgba(255, 255, 255, .22);
+    color: #fff; font-size: .95rem; line-height: 1; cursor: pointer;
+    transition: .15s;
+}
+.lore-modal-fechar:hover { background: rgba(0, 0, 0, .82); transform: scale(1.08); }
 
 /* ---------- Grades genéricas (itens, conquistas) ---------- */
 .grade-itens { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
