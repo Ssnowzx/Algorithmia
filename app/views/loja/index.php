@@ -17,7 +17,7 @@ foreach ($inventario as $i) { $possui[(int) $i['item_id']] = (int) $i['quantidad
             $efeito = $it['efeito'] ? json_decode($it['efeito'], true) : [];
             $temOuro = (int) $heroi['ouro'] >= (int) $it['preco'];
         ?>
-        <div class="item-card">
+        <div class="item-card item-rar-<?= e($it['raridade']) ?>">
             <div class="icone-item"><?= svgSlug($it['svg_slug']) ?></div>
             <div style="flex:1">
                 <h4><?= e($it['nome']) ?></h4>

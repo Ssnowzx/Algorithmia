@@ -848,9 +848,27 @@ textarea { min-height: 90px; resize: vertical; }
 .item-card {
     background: var(--painel); border: 1px solid var(--borda); border-radius: 14px;
     padding: 1rem; display: flex; gap: .8rem; align-items: flex-start;
+    position: relative;
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease;
 }
-.item-card .icone-item { width: 56px; height: 56px; flex-shrink: 0; background: var(--bg-2); border-radius: 10px; display: grid; place-items: center; }
+.item-card:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--primaria) 50%, var(--borda));
+    background: var(--bg-2);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, .42), 0 0 22px rgba(124, 92, 255, .2);
+}
+.item-card .icone-item {
+    width: 56px; height: 56px; flex-shrink: 0; background: var(--bg-2); border-radius: 10px;
+    display: grid; place-items: center; position: relative;
+    border: 1px solid rgba(255, 255, 255, .07);
+    transition: box-shadow .2s ease;
+}
 .item-card .icone-item svg { width: 50px; height: 50px; }
+.item-card:hover .icone-item { box-shadow: 0 0 16px rgba(124, 221, 255, .3); }
+/* "Pulinho" do ícone no hover — só translate (a pixel art não borra). */
+.item-card:hover .icone-item img,
+.item-card:hover .icone-item svg { animation: itemPulo .45s ease; }
+@keyframes itemPulo { 0% { transform: translateY(0); } 45% { transform: translateY(-7px); } 100% { transform: translateY(0); } }
 .item-card h4 { margin: 0 0 .2rem; font-size: .98rem; }
 .item-card .desc-item { font-size: .8rem; color: var(--texto-fraco); margin: 0 0 .5rem; }
 .raridade { font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; padding: .1rem .4rem; border-radius: 5px; }
@@ -858,7 +876,28 @@ textarea { min-height: 90px; resize: vertical; }
 .raridade-raro { background: rgba(74,163,255,.2); color: #8cc6ff; }
 .raridade-epico { background: rgba(157,131,255,.22); color: #c4b0ff; }
 .raridade-lendario { background: rgba(255,206,71,.2); color: var(--xp); }
-.tag-equipado { font-size: .68rem; font-weight: 800; color: var(--sucesso); }
+.tag-equipado { font-size: .68rem; font-weight: 800; color: var(--sucesso); animation: equipadoPulsa 1.8s ease-in-out infinite; }
+@keyframes equipadoPulsa { 0%, 100% { opacity: .65; } 50% { opacity: 1; } }
+
+/* Aura por raridade: itens valiosos se destacam (épico violeta, lendário dourado). */
+.item-rar-epico .icone-item {
+    border-color: rgba(157, 131, 255, .45);
+    box-shadow: inset 0 0 0 1px rgba(157, 131, 255, .35), 0 0 14px rgba(157, 131, 255, .28);
+}
+.item-rar-lendario .icone-item {
+    border-color: rgba(255, 206, 71, .5);
+    animation: itemLendario 2.2s ease-in-out infinite;
+}
+@keyframes itemLendario {
+    0%, 100% { box-shadow: inset 0 0 0 1px rgba(255, 206, 71, .45), 0 0 12px rgba(255, 206, 71, .22); }
+    50%      { box-shadow: inset 0 0 0 1px rgba(255, 206, 71, .7),  0 0 22px rgba(255, 206, 71, .5); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .item-card, .item-card:hover { transform: none; }
+    .item-card:hover .icone-item img, .item-card:hover .icone-item svg,
+    .item-rar-lendario .icone-item, .tag-equipado { animation: none; }
+}
 
 /* ---------- Tabelas ---------- */
 .tabela { width: 100%; border-collapse: collapse; }

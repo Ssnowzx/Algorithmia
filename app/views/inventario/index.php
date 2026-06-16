@@ -17,7 +17,7 @@ foreach ($itens as $it) { $grupos[$it['tipo']][] = $it; }
     <div class="grade-itens">
         <?php foreach ($grupos[$tipo] as $it): ?>
             <?php $efeito = $it['efeito'] ? json_decode($it['efeito'], true) : []; ?>
-            <div class="item-card">
+            <div class="item-card item-rar-<?= e($it['raridade']) ?>">
                 <div class="icone-item"><?= svgSlug($it['svg_slug']) ?></div>
                 <div style="flex:1">
                     <h4><?= e($it['nome']) ?>
