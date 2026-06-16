@@ -26,13 +26,31 @@ class Router
             return;
         }
 
-        $controller = new $nomeController();
-        if (!method_exists($controller, $metodo) || str_starts_with($metodo, '_')) {
+        // Só roteia para métodos PÚBLICOS de instância do próprio controller.
+        // method_exists() sozinho deixava chamar métodos protected herdados de
+        // Controller (view/redirect/json/...), causando erro fatal exposto.
+        if (str_starts_with($metodo, '_') || !$this->metodoRoteavel($nomeController, $metodo)) {
             $this->naoEncontrado();
             return;
         }
 
+        $controller = new $nomeController();
         $controller->$metodo(...$params);
+    }
+
+    /**
+     * Verdadeiro só para métodos públicos, não estáticos e não herdados da
+     * classe base Controller (que são utilidades internas, não rotas).
+     */
+    private function metodoRoteavel(string $classe, string $metodo): bool
+    {
+        if (!method_exists($classe, $metodo)) {
+            return false;
+        }
+        $ref = new ReflectionMethod($classe, $metodo);
+        return $ref->isPublic()
+            && !$ref->isStatic()
+            && $ref->getDeclaringClass()->getName() !== Controller::class;
     }
 
     private function naoEncontrado(): void
