@@ -2,7 +2,10 @@
 
 Um **RPG educativo** estilo *Duolingo + JRPG*, desenvolvido em **PHP puro** com arquitetura **MVC**, onde **programar é magia**. O jogador evolui um herói, vive uma história com múltiplos finais e aprende **PHP, MVC, SQL, POO, Estruturas de Dados, Cálculo e Redes** enfrentando bugs em batalhas por turnos.
 
-> Projeto acadêmico (Laboratório de Programação II). Sistema novo, construído sobre o mesmo servidor MySQL do projeto anterior, sem frameworks — apenas PHP, PDO, HTML, CSS e JavaScript vanilla, com **arte pixel art autoral**.
+> Projeto acadêmico (Laboratório de Programação II). Sistema novo, construído sobre o mesmo servidor MySQL do projeto anterior, sem frameworks — apenas PHP, PDO, HTML, CSS e JavaScript vanilla. Arte em **duas camadas**: ilustração cyber-fantasia (mestres, fundos, ícones do mapa) + **pixel art** legado (heróis, inimigos, itens em batalha).
+
+> **Design system (estética, assets, CSS):** [`docs/PROMPT-EVOLUCAO-VISUAL.md`](docs/PROMPT-EVOLUCAO-VISUAL.md)  
+> **Status visual atual (splash, home, seleção de personagens):** [`docs/STATUS-UI-ATUAL.md`](docs/STATUS-UI-ATUAL.md)
 
 ---
 
@@ -23,7 +26,7 @@ Cada uso do **Fragmento da IA Ancestral** (que acerta um desafio automaticamente
 | 5 | Torre das Conexões | **Cassandro Albino Devenz** — *o Mensageiro* | Redes de Computadores |
 
 ### Mecânicas
-- **3 classes**: Mago do Backend, Guerreiro do Frontend, Ranger Fullstack.
+- **6 classes**: Mago do Backend, Guerreiro do Frontend, Ranger Fullstack, Xeno do DevOps, Elfo da UX e Draconato do Kernel.
 - **Batalha por turnos**: acertar causa dano (com **combo** e **ataque especial**); errar custa HP e mostra uma **explicação pedagógica**.
 - **6 tipos de desafio**: múltipla escolha, verdadeiro/falso, completar código, encontrar o erro, ordenar trechos e arrastar tokens.
 - **Progressão**: XP, níveis, HP/MP, ouro, **mapa-múndi** com fases que se destravam em sequência e estrelas (1–3).
@@ -34,20 +37,26 @@ Cada uso do **Fragmento da IA Ancestral** (que acerta um desafio automaticamente
 
 ---
 
-## 🖼️ Galeria (pixel art autoral)
+## 🖼️ Arte e design system
 
-Toda a arte foi criada em **pixel art** por scripts próprios (`tools/`), sem IA.
+| Camada | Onde | Estilo |
+|--------|------|--------|
+| Mestres, fundos de região, ícones de fase | `public/img/mestres/`, `fundos/`, `mapas/` | Ilustração cyber-fantasia |
+| Splash/home e seleção de personagens | `public/img/ui/`, `public/img/herois/hud-*.png` | Cartas ilustradas fantasy-tech — ver `docs/STATUS-UI-ATUAL.md` |
+| Batalha/inventário/loja | `public/img/herois/heroi-*.png`, `inimigos/`, `itens/` | Pixel art legado (`tools/`) |
 
-### 👥 Personagens — os 5 Mestres e as 3 classes jogáveis
+Documentação completa: **[`docs/PROMPT-EVOLUCAO-VISUAL.md`](docs/PROMPT-EVOLUCAO-VISUAL.md)** (paleta, tamanhos, CSS, checklist para IA).
+
+### 👥 Personagens — os 5 Mestres (ilustrados) e 6 classes jogáveis
 ![Personagens](docs/galeria/personagens.png)
 
-### 👹 Inimigos & Chefes — o bestiário (inclui Lorde Segfault e a IA Ancestral)
+### 👹 Inimigos & Chefes — bestiário pixel art
 ![Inimigos](docs/galeria/inimigos.png)
 
 ### ⚔️ Itens — armas, escudos, poções e relíquias
 ![Itens](docs/galeria/itens.png)
 
-### 🏞️ Cenários — as regiões do mundo
+### 🏞️ Cenários — fundos ilustrados das regiões
 ![Cenários](docs/galeria/cenarios.png)
 
 > 📖 A **história completa** (lore, mestres, vilão e os três finais) está em
@@ -76,14 +85,15 @@ TrabalhoWillen2/
 ├── public/
 │   ├── css/                  # style.css, mapa.css, batalha.css (tema JRPG, responsivo)
 │   ├── js/                   # ui.js, app.js, dialogo.js, batalha.js (vanilla)
-│   └── img/                  # 72 assets em pixel art PNG (mestres, heróis, inimigos, itens, ícones, cenários)
-├── tools/                    # geradores de pixel art (Python/Pillow): pixelart, bestiario, itens, ui, cenarios
+  │   └── img/                  # ui/ mestres/ fundos/ mapas/ herois/ inimigos/ itens/
+├── tools/                    # geradores pixel art (Python/Pillow): pixelart, bestiario, itens, cenarios
 ├── docs/
+│   ├── PROMPT-EVOLUCAO-VISUAL.md  # ★ design system (estética, assets, CSS do mapa §5.1)
 │   ├── REGRAS-DO-JOGO.md     # regras e balanceamento do jogo
 │   └── FLUXO-OPENSPEC.md     # fluxo de desenvolvimento spec-driven (Claude + Codex)
+├── .cursor/rules/            # regras para agentes (ex.: mapa-pagina-aprovada.mdc)
 ├── openspec/                 # specs e propostas de mudança (spec-driven)
-├── historia.html             # página da lore/história do jogo
-└── imagensprofessores/       # fotos de referência usadas como base dos mestres
+└── historia.html             # página da lore/história do jogo
 ```
 
 **Camadas**
@@ -175,10 +185,11 @@ Não há contas pré-criadas — **crie a sua** em *Criar conta* e forje seu her
 - **Sem credenciais embutidas**: nenhuma conta vem pré-criada no banco; o acesso de admin é concedido manualmente (promover a conta a `mestre`).
 
 ## 🎨 Créditos de arte
-Todos os **72 assets** em `public/img/` são **pixel art autoral**, gerados por scripts próprios em `tools/` (Python/Pillow): mestres e heróis de **corpo inteiro**, 24 inimigos/criaturas, 19 itens, 13 ícones de UI e 8 cenários 16:9. Os cinco mestres foram estilizados a partir das fotos de referência em `imagensprofessores/`. Para regenerar/ajustar, rode `python3 tools/<arquivo>.py`.
+A arte atual mistura **ilustração cyber-fantasia** (splash/home, mapa, mestres, cartas de personagem e UI ornamental) com **pixel art legado** para batalha, inimigos, itens e sprites funcionais. Os scripts em `tools/` continuam responsáveis pelos sprites pixel art (`tools/pixelart.py`, `tools/bestiario.py`, etc.). O estado visual atual está documentado em [`docs/STATUS-UI-ATUAL.md`](docs/STATUS-UI-ATUAL.md).
 
 ## 🖥️ Camada visual / UX
 - Tipografia de game: **Pixelify Sans** (títulos e HUD) + **Rubik** (corpo); **fundo estelar animado**, cenários por região e animações (investida na batalha, partículas, nós do mapa pulsando) para imersão.
+- Splash/home usam `splash-cena.png`, logo grande e botão ornamental; a seleção de personagem usa cartas com moldura integrada e painel externo ornamentado.
 - **Modal temático próprio** substitui os diálogos `confirm()`/`alert()` nativos do navegador (ver `public/js/ui.js`).
 - **Rodapé fixado** ao fundo (sticky footer) e arena de batalha com profundidade (chão em perspectiva, brilho arcano).
 - CSS em `public/css/` (`style.css`, `mapa.css`, `batalha.css`); JS vanilla em `public/js/` (`ui.js`, `app.js`, `dialogo.js`, `batalha.js`).

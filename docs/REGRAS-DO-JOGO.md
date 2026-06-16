@@ -14,11 +14,17 @@ final + a reputação acumulada determinam um dos três desfechos.
 ## 2. Classes jogáveis
 Definidas em `config/config.php` (`CLASSES`). Cada uma altera os atributos-base:
 
-| Classe | HP | MP | Ataque | Defesa | Estilo |
-|---|---|---|---|---|---|
-| 🧙 Mago do Backend | 80 | 60 | 12 | 4 | Muita mana, pouca vida |
-| 🛡️ Guerreiro do Frontend | 130 | 25 | 10 | 9 | Muita vida e defesa |
-| 🏹 Ranger Fullstack | 100 | 40 | 11 | 6 | Equilibrado, +faro p/ ouro |
+| Classe | Espécie | HP | MP | Ataque | Defesa | Estilo |
+|---|---|---:|---:|---:|---:|---|
+| 🧙 Mago do Backend | Humano | 80 | 60 | 12 | 4 | Muita mana, pouca vida |
+| 🛡️ Guerreiro do Frontend | Humano | 130 | 25 | 10 | 9 | Muita vida e defesa |
+| 🏹 Ranger Fullstack | Humano | 100 | 40 | 11 | 6 | Equilibrado, +20% ouro |
+| 👽 Xeno do DevOps | Xenoíde Insectoide | 90 | 50 | 10 | 5 | Mana sólida, perfil técnico |
+| 🧝 Elfo da UX | Elfo | 75 | 55 | 9 | 4 | Alta mana, baixa vida |
+| 🐉 Draconato do Kernel | Draconato | 115 | 35 | 12 | 7 | Tanque ofensivo |
+
+As cartas/retratos da tela de criação usam `public/img/herois/hud-*.png`.
+Os sprites de batalha usam `public/img/herois/heroi-*.png` e continuam na camada pixel art.
 
 ## 3. Progressão de fases
 - Cada fase tem um `requisito_fase_id`. **A fase só libera quando a fase-requisito
