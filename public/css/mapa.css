@@ -59,13 +59,13 @@ body.pagina-mapa .conteudo { padding-top: 1.2rem; }
 .mapa-cabecalho { text-align: center; margin-bottom: 1.4rem; }
 .mapa-cabecalho h1 {
     display: inline-flex; align-items: center; justify-content: center;
-    gap: .55rem; margin: .2rem 0;
-    /* Moldura ornamentada (a banner do GPT) ao redor do título — aqui a proporção
-       casa com a arte (laterais grossas viram tampas ornamentais nas pontas). */
+    gap: .55rem; margin: .4rem 0;
+    /* Só as tampas ornamentais NAS PONTAS (laterais), sem moldura em cima/baixo —
+       assim não há faixa escura atrás do texto. Texto limpo sobre o céu. */
     border-style: solid;
-    border-width: 22px 52px 12px 52px;
-    border-image: url("../img/ui/moldura-barra.webp") 53 124 23 124 / 22px 52px 12px 52px / 0 stretch;
-    padding: .15rem 1.1rem;
+    border-width: 0 60px;
+    border-image: url("../img/ui/moldura-barra.webp") 0 124 0 124 / 0 60px / 0 stretch;
+    padding: 1rem 1.2rem;
 }
 .mapa-cabecalho h1 .icone-mapa-titulo {
     width: 52px; height: 52px; object-fit: contain; flex-shrink: 0;
