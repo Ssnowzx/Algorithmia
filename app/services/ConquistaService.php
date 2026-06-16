@@ -57,6 +57,21 @@ class ConquistaService
             $this->coletar($novas, $this->conceder($id, 'tentacao'));
         }
 
+        // Recuperou todos os Logs do Zero: concluiu as 4 fases secundárias.
+        $secundarias = [8, 14, 20, 32];
+        if (in_array((int) $fase['id'], $secundarias, true)) {
+            $todasConcluidas = true;
+            foreach ($secundarias as $faseId) {
+                if (!$this->progresso->concluiu($id, $faseId)) {
+                    $todasConcluidas = false;
+                    break;
+                }
+            }
+            if ($todasConcluidas) {
+                $this->coletar($novas, $this->conceder($id, 'arquivista_do_vazio'));
+            }
+        }
+
         // Atingiu nível 5 / 10.
         if ((int) $personagem['nivel'] >= 5) {
             $this->coletar($novas, $this->conceder($id, 'aprendiz_veterano'));

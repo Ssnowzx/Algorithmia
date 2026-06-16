@@ -180,6 +180,7 @@ class BatalhaController extends Controller
             'erros' => $erros, 'usou_ia' => $usouIa,
         ]);
         $this->concederConquistaDeRegiao($heroiAtual, $fase, $conquistas);
+        $this->concederPuroDeCoracao($heroiAtual, $fase, $conquistas);
 
         // Sobe reputação ao vencer sem usar a IA (recompensa a disciplina).
         if (!$usouIa) {
@@ -224,6 +225,34 @@ class BatalhaController extends Controller
             if ($nova) {
                 $conquistas[] = $nova;
             }
+        }
+    }
+
+    /**
+     * Concede "Puro de Coração" ao concluir um capítulo (região) inteiro sem nunca
+     * recorrer ao Fragmento da IA. Dispara ao derrotar o chefe da região; checa
+     * todas as fases principais (lição + chefe) daquela região. As secundárias
+     * opcionais não bloqueiam a conquista.
+     */
+    private function concederPuroDeCoracao(array $heroi, array $fase, array &$conquistas): void
+    {
+        if ($fase['tipo'] !== 'chefe' || empty($fase['mestre_id'])) {
+            return;
+        }
+        $fasesRegiao = (new Fase())->doMestre((int) $fase['mestre_id']);
+        $mapa = (new ProgressoFase())->mapaDoPersonagem((int) $heroi['id']);
+        foreach ($fasesRegiao as $f) {
+            if (!in_array($f['tipo'], ['licao', 'chefe'], true)) {
+                continue; // secundárias opcionais não contam
+            }
+            $prog = $mapa[(int) $f['id']] ?? null;
+            if ($prog === null || (int) $prog['usou_ia'] === 1) {
+                return; // capítulo incompleto ou houve cola em alguma fase
+            }
+        }
+        $nova = (new ConquistaService())->conceder((int) $heroi['id'], 'puro_de_coracao');
+        if ($nova) {
+            $conquistas[] = $nova;
         }
     }
 
