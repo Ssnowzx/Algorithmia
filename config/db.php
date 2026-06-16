@@ -49,10 +49,18 @@ function getConnection(bool $semBanco = false): PDO
     try {
         $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
     } catch (PDOException $e) {
+        // Detalhe sempre no log; na tela, só mostra o erro cru em desenvolvimento
+        // (a mensagem revela host/usuário/estrutura — não pode vazar em produção).
+        error_log('[DB] ' . $e->getMessage());
+        $ehDev = (getenv('APP_ENV') ?: 'dev') === 'dev';
+        http_response_code(500);
+        $detalhe = $ehDev
+            ? '<p>' . htmlspecialchars($e->getMessage(), ENT_QUOTES) . '</p>
+               <p style="color:#9aa;">Verifique se o MySQL está rodando e execute <code>php database/migrate.php</code> para criar o banco <code>algorithmia</code>.</p>'
+            : '<p>O serviço está temporariamente indisponível. Tente novamente em instantes.</p>';
         die('<div style="background:#13132b;color:#ff6b6b;padding:2rem;font-family:monospace;border-radius:12px;margin:2rem;max-width:640px;">
             <h2>⚠️ Erro de Conexão com o Banco de Dados</h2>
-            <p>' . htmlspecialchars($e->getMessage(), ENT_QUOTES) . '</p>
-            <p style="color:#9aa;">Verifique se o MySQL está rodando e execute <code>php database/migrate.php</code> para criar o banco <code>algorithmia</code>.</p>
+            ' . $detalhe . '
         </div>');
     }
 
