@@ -20,7 +20,7 @@
         <?= marcaHtml('hero') ?>
         <p class="home-entrada-sub"><?= SUBTITULO_JOGO ?> — onde <strong>programar é magia</strong> e aprender é na marra.</p>
         <a class="home-entrada-botao" href="<?= url('auth/registro') ?>">
-            <img src="<?= e(srcImagem('ui/botao-entrar-mundo')) ?>" alt="Entrar no mundo" loading="eager">
+            <img src="<?= e(srcImagem('ui/botoes/botao-entrar-mundo')) ?>" alt="Entrar no mundo" loading="eager">
         </a>
         <a class="home-login-link" href="<?= url('auth/login') ?>">Já vendi minha alma aqui</a>
         <a class="seta-rolar" href="#saibaMais" aria-label="Rolar para saber mais">▾</a>

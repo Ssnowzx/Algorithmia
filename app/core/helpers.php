@@ -110,9 +110,9 @@ function marcaHtml(string $variante = 'header'): string
         'hero'   => 'logo-marca-ilustrado.png',
     ];
     $arquivo = $arquivos[$variante] ?? 'logo-header.png';
-    $src = srcImagem('ui/' . pathinfo($arquivo, PATHINFO_FILENAME));
+    $src = srcImagem('ui/logos/' . pathinfo($arquivo, PATHINFO_FILENAME));
     if ($src === null) {
-        return '<span class="svg-faltando" title="ui/' . e($arquivo) . '">▢</span>';
+        return '<span class="svg-faltando" title="ui/logos/' . e($arquivo) . '">▢</span>';
     }
     $lazy = $variante === 'splash' ? 'eager' : 'lazy';
     return '<img src="' . $src . '" class="' . e($classe) . '" alt="' . e(NOME_JOGO) . '" loading="' . $lazy . '">';
@@ -137,9 +137,9 @@ function caminhoSvg(string $slug): string
         'heroi-'     => 'herois/',
         'item-'      => 'itens/',
         'npc-'       => 'inimigos/',
-        'icone-'     => 'ui/',
-        'troxeu-'    => 'ui/',
-        'conquista-' => 'ui/',
+        'icone-'     => 'ui/icones/',
+        'troxeu-'    => 'ui/trofeus/',
+        'conquista-' => 'ui/trofeus/',
     ];
     foreach ($mapa as $prefixo => $pasta) {
         if (str_starts_with($slug, $prefixo)) {

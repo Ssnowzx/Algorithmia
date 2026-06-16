@@ -184,7 +184,7 @@ O código **não gera nem recorta** arte. Só usa o arquivo se você colocar em 
 | Camada | Asset | Onde |
 |--------|-------|------|
 | **Fundo da página** | `public/img/fundos/fundo-mapa.png` | `body.pagina-mapa` — void escuro, ilhas, trilha dourada, vórtice `/dev/null` |
-| **Ícone do título** | `public/img/ui/icone-mapa.png` | Cabeçalho `<h1>` — pergaminho mágico cyber-fantasia (**não** emoji 🗺️) |
+| **Ícone do título** | `public/img/ui/icones/icone-mapa.png` | Cabeçalho `<h1>` — pergaminho mágico cyber-fantasia (**não** emoji 🗺️) |
 | **Arte dentro de cada card** | `fundo-vila.png`, `fundo-porto.png`, … | `.cena-bioma-img-wrap` por região — independente do pano |
 
 ### Contrato de código
@@ -192,7 +192,7 @@ O código **não gera nem recorta** arte. Só usa o arquivo se você colocar em 
 | O quê | Arquivo |
 |-------|---------|
 | `bodyClass: 'pagina-mapa'` | `app/controllers/MapaController.php` |
-| `svg('ui/icone-mapa', 'icone-mapa-titulo')` no `<h1>` | `app/views/mapa/index.php` |
+| `svg('ui/icones/icone-mapa', 'icone-mapa-titulo')` no `<h1>` | `app/views/mapa/index.php` |
 | Fundo fixo + cards translúcidos | `public/css/mapa.css` (blocos `body.pagina-mapa`) |
 
 ### Cards translúcidos (`.pagina-mapa .regiao`)
@@ -232,17 +232,17 @@ Som: ver specs em `openspec/changes/som-e-juice-batalha/` (Web Audio procedural)
 
 ### Splash / Home
 - Fundo aprovado: `public/img/ui/splash-cena.png`.
-- Botão de entrada: `public/img/ui/botao-entrar-mundo.png`.
-- Logo grande: `public/img/ui/logo-marca-ilustrado.png`; não esticar `logo-header.png` na splash.
+- Botão de entrada: `public/img/ui/botoes/botao-entrar-mundo.png`.
+- Logo grande: `public/img/ui/logos/logo-marca-ilustrado.png`; não esticar `logo-header.png` na splash.
 - Logout força `?splash=1` para exibir a splash novamente e limpar `sessionStorage.splashVisto`.
 - A home usa `body.pagina-home`; evitar duas imagens de fundo visíveis ao mesmo tempo.
 
 ### Seleção de personagens
 - View: `app/views/auth/criar-personagem.php`.
 - CSS: bloco “Seleção de classe” em `public/css/style.css`.
-- Painel externo: `public/img/ui/moldura-selecao-classes.png`.
-- Fundo da placa de texto: `public/img/ui/card-texto-bg.png`.
-- Botão final: `public/img/ui/botao-que-comece-sofrimento.png`.
+- Painel externo: `public/img/ui/molduras/moldura-selecao-classes.png`.
+- Fundo da placa de texto: `public/img/ui/molduras/card-texto-bg.png`.
+- Botão final: `public/img/ui/botoes/botao-que-comece-sofrimento.png`.
 - Retratos/cartas: `public/img/herois/hud-*.png`.
 - Sprites de batalha: `public/img/herois/heroi-*.png`.
 
@@ -291,8 +291,8 @@ Som: ver specs em `openspec/changes/som-e-juice-batalha/` (Web Audio procedural)
 | Cards, fundos, nós | `public/css/mapa.css` |
 | View do mapa | `app/views/mapa/index.php` |
 | Slugs de fundo/ícone | `app/core/helpers.php` |
-| UI página mapa (§5.1) | `MapaController.php`, `mapa.css` (`body.pagina-mapa`), `ui/icone-mapa.png`, `fundos/fundo-mapa.png` |
+| UI página mapa (§5.1) | `MapaController.php`, `mapa.css` (`body.pagina-mapa`), `ui/icones/icone-mapa.png`, `fundos/fundo-mapa.png` |
 | Status visual atual | `docs/STATUS-UI-ATUAL.md` |
-| Seleção de personagem | `app/views/auth/criar-personagem.php`, `public/css/style.css`, `public/img/ui/moldura-selecao-classes.png`, `public/img/herois/hud-*.png` |
+| Seleção de personagem | `app/views/auth/criar-personagem.php`, `public/css/style.css`, `public/img/ui/molduras/moldura-selecao-classes.png`, `public/img/herois/hud-*.png` |
 | Geradores pixel art legado | `tools/pixelart.py`, `tools/cenarios.py` |
 | Regras de jogo | `docs/REGRAS-DO-JOGO.md` |

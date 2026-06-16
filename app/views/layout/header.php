@@ -30,7 +30,7 @@ if ($heroi) {
     <link rel="stylesheet" href="<?= assetV('css/batalha.css') ?>">
 </head>
 <body class="<?= e($bodyClass ?? '') ?>">
-<?php $temMolduraBarra = is_file(__DIR__ . '/../../../public/img/ui/moldura-barra-fina.png'); ?>
+<?php $temMolduraBarra = is_file(__DIR__ . '/../../../public/img/ui/molduras/moldura-barra-fina.png'); ?>
 <header class="topo topo-jogo<?= $temMolduraBarra ? ' topo-moldurado' : '' ?>">
     <a class="marca" href="<?= url('mapa') ?>" aria-label="<?= NOME_JOGO ?> — ir para o mapa">
         <?= marcaHtml('header') ?>
@@ -62,7 +62,7 @@ if ($heroi) {
                 </div>
             </div>
             <div class="hud-recursos">
-                <span class="recurso ouro"><?= svg('ui/icone-ouro', 'ico') ?> <?= (int) $heroi['ouro'] ?></span>
+                <span class="recurso ouro"><?= svg('ui/icones/icone-ouro', 'ico') ?> <?= (int) $heroi['ouro'] ?></span>
                 <span class="recurso rep" title="Reputação: <?= rotuloReputacao((int) $heroi['reputacao']) ?>">
                     <?= (int) $heroi['reputacao'] >= 0 ? '⚖️' : '🤖' ?> <?= (int) $heroi['reputacao'] ?>
                 </span>
@@ -94,8 +94,8 @@ if ($heroi) {
 
 <?php if ($heroi): ?>
 <?php
-    $fichaFundo = is_file(__DIR__ . '/../../../public/img/ui/ficha-fundo.png') ? srcImagem('ui/ficha-fundo') : '';
-    $temCardStatus = is_file(__DIR__ . '/../../../public/img/ui/card-status-heroi.png');
+    $fichaFundo = is_file(__DIR__ . '/../../../public/img/ui/molduras/ficha-fundo.png') ? srcImagem('ui/molduras/ficha-fundo') : '';
+    $temCardStatus = is_file(__DIR__ . '/../../../public/img/ui/molduras/card-status-heroi.png');
     // $cardHeroi já definido no topo (mesma carta do avatar da barra).
     $xpNivelAtual = xpParaNivel((int) $heroi['nivel']);
     $xpNivelProx  = xpParaNivel((int) $heroi['nivel'] + 1);
@@ -105,14 +105,14 @@ if ($heroi) {
 <?php if ($temCardStatus): ?>
     <div class="fcs-wrap">
         <div class="ficha-card-status" role="dialog" aria-modal="true" aria-labelledby="fichaNome"
-             style="--hud-cor: <?= e($cfgClasse['cor']) ?>; background-image: url('<?= e(srcImagem('ui/card-status-heroi')) ?>')">
+             style="--hud-cor: <?= e($cfgClasse['cor']) ?>; background-image: url('<?= e(srcImagem('ui/molduras/card-status-heroi')) ?>')">
             <button type="button" class="ficha-modal-fechar" aria-label="Fechar">✕</button>
             <div class="fcs-personagem"><?= svg($cardHeroi) ?></div>
             <div class="fcs-nome" id="fichaNome"><?= e($heroi['nome']) ?> <span class="fcs-nivel">Nv <?= (int) $heroi['nivel'] ?></span></div>
             <div class="fcs-slot fcs-hp"><span class="ic">❤</span><b><?= (int) $heroi['hp_atual'] ?>/<?= (int) $heroi['hp_max'] ?></b></div>
             <div class="fcs-slot fcs-mp"><span class="ic">✦</span><b><?= (int) $heroi['mp_atual'] ?>/<?= (int) $heroi['mp_max'] ?></b></div>
             <div class="fcs-slot fcs-xp"><span class="ic">★</span><b><?= max(0, (int) $heroi['xp'] - $xpNivelAtual) ?>/<?= max(1, $xpNivelProx - $xpNivelAtual) ?></b></div>
-            <div class="fcs-slot fcs-ouro"><span class="ic"><?= svg('ui/icone-ouro', 'ico') ?></span><b><?= (int) $heroi['ouro'] ?></b></div>
+            <div class="fcs-slot fcs-ouro"><span class="ic"><?= svg('ui/icones/icone-ouro', 'ico') ?></span><b><?= (int) $heroi['ouro'] ?></b></div>
             <div class="fcs-slot fcs-rep"><span class="ic"><?= $repVal >= 0 ? '⚖️' : '🤖' ?></span><b><?= e(rotuloReputacao($repVal)) ?> (<?= $repVal ?>)</b></div>
         </div>
         <a class="botao ficha-perfil-link" href="<?= url('perfil') ?>">Ver perfil completo →</a>
@@ -132,7 +132,7 @@ if ($heroi) {
                 <div class="ficha-stat"><span>❤ Vida</span><strong><?= (int) $heroi['hp_atual'] ?> / <?= (int) $heroi['hp_max'] ?></strong></div>
                 <div class="ficha-stat"><span>✦ Mana</span><strong><?= (int) $heroi['mp_atual'] ?> / <?= (int) $heroi['mp_max'] ?></strong></div>
                 <div class="ficha-stat"><span>★ XP</span><strong><?= max(0, (int) $heroi['xp'] - $xpNivelAtual) ?> / <?= max(1, $xpNivelProx - $xpNivelAtual) ?></strong></div>
-                <div class="ficha-stat"><span><?= svg('ui/icone-ouro', 'ico') ?> Ouro</span><strong><?= (int) $heroi['ouro'] ?></strong></div>
+                <div class="ficha-stat"><span><?= svg('ui/icones/icone-ouro', 'ico') ?> Ouro</span><strong><?= (int) $heroi['ouro'] ?></strong></div>
                 <div class="ficha-stat ficha-stat-larga"><span><?= $repVal >= 0 ? '⚖️' : '🤖' ?> Reputação</span><strong><?= e(rotuloReputacao($repVal)) ?> (<?= $repVal ?>)</strong></div>
             </div>
             <a class="botao ficha-perfil-link" href="<?= url('perfil') ?>">Ver perfil completo →</a>

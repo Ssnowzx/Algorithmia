@@ -16,9 +16,9 @@ Este documento registra o estado atual das telas e assets visuais aprovados dura
 | View da home | `app/views/home/index.php` |
 | CSS global/home | `public/css/style.css` |
 | Cena de fundo (`<img>`) | `public/img/ui/splash-cena.png` (servida em `.webp`) |
-| Botão de entrada | `public/img/ui/botao-entrar-mundo.png` |
-| Logo grande | `public/img/ui/logo-marca-ilustrado.png` |
-| Logo compacta do header | `public/img/ui/logo-header.png` |
+| Botão de entrada | `public/img/ui/botoes/botao-entrar-mundo.png` |
+| Logo grande | `public/img/ui/logos/logo-marca-ilustrado.png` |
+| Logo compacta do header | `public/img/ui/logos/logo-header.png` |
 
 ### Regras
 - `marcaHtml('hero')` e `marcaHtml('auth')` usam `logo-marca-ilustrado.png` (evita blur);
@@ -44,9 +44,9 @@ Este documento registra o estado atual das telas e assets visuais aprovados dura
 |---|---|
 | View da página | `app/views/auth/criar-personagem.php` |
 | CSS dos cards/painel | `public/css/style.css` |
-| Moldura do painel inteiro | `public/img/ui/moldura-selecao-classes.png` |
-| Fundo da placa de texto | `public/img/ui/card-texto-bg.png` |
-| Botão final | `public/img/ui/botao-que-comece-sofrimento.png` |
+| Moldura do painel inteiro | `public/img/ui/molduras/moldura-selecao-classes.png` |
+| Fundo da placa de texto | `public/img/ui/molduras/card-texto-bg.png` |
+| Botão final | `public/img/ui/botoes/botao-que-comece-sofrimento.png` |
 
 ### Classes CSS importantes
 | Classe | Papel |
@@ -121,12 +121,12 @@ mysql -u SEU_USUARIO -p algorithmia < database/migrations/20250616-novas-classes
 
 ### UI
 - `public/img/ui/splash-cena.png`
-- `public/img/ui/botao-entrar-mundo.png`
-- `public/img/ui/logo-marca-ilustrado.png`
-- `public/img/ui/logo-header.png`
-- `public/img/ui/moldura-selecao-classes.png`
-- `public/img/ui/card-texto-bg.png`
-- `public/img/ui/botao-que-comece-sofrimento.png`
+- `public/img/ui/botoes/botao-entrar-mundo.png`
+- `public/img/ui/logos/logo-marca-ilustrado.png`
+- `public/img/ui/logos/logo-header.png`
+- `public/img/ui/molduras/moldura-selecao-classes.png`
+- `public/img/ui/molduras/card-texto-bg.png`
+- `public/img/ui/botoes/botao-que-comece-sofrimento.png`
 
 ### Personagens
 - `public/img/herois/hud-mago.png`

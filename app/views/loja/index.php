@@ -6,7 +6,7 @@ foreach ($inventario as $i) { $possui[(int) $i['item_id']] = (int) $i['quantidad
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem">
     <h1 class="titulo-secao" style="margin:0">🏪 Loja do Reino</h1>
     <div class="recurso ouro" style="font-size:1.2rem;font-weight:800;color:var(--ouro)">
-        <?= svg('ui/icone-ouro', 'ico') ?> <?= (int) $heroi['ouro'] ?> de ouro
+        <?= svg('ui/icones/icone-ouro', 'ico') ?> <?= (int) $heroi['ouro'] ?> de ouro
     </div>
 </div>
 <p class="subtitulo">Equipamentos e poções para a jornada. A venda devolve metade do valor.</p>

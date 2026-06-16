@@ -150,7 +150,8 @@ def processar_marca(src: str | None = None) -> None:
         src = os.path.join(RAIZ, "tools", ".cache", "logo-marca-ilustrado-src.png")
     if not os.path.isfile(src):
         return
-    dst = os.path.join(RAIZ, "public", "img", "ui", "logo-marca-ilustrado.png")
+    dst = os.path.join(RAIZ, "public", "img", "ui", "logos", "logo-marca-ilustrado.png")
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
 
     def is_bg(r, g, b, a):
         if a < 5:
@@ -226,8 +227,9 @@ def processar_botao(src: str | None = None) -> None:
     if src is None:
         src = os.path.join(RAIZ, "tools", ".cache", "botao-entrar-mundo-src.png")
     if not os.path.isfile(src):
-        src = os.path.join(RAIZ, "public", "img", "ui", "botao-entrar-mundo.png")
-    dst = os.path.join(RAIZ, "public", "img", "ui", "botao-entrar-mundo.png")
+        src = os.path.join(RAIZ, "public", "img", "ui", "botoes", "botao-entrar-mundo.png")
+    dst = os.path.join(RAIZ, "public", "img", "ui", "botoes", "botao-entrar-mundo.png")
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
 
     def is_xadrez(r, g, b, a):
         if a < 8:
@@ -279,7 +281,7 @@ def main():
 
     src_marca = os.path.join(RAIZ, "tools", ".cache", "logo-marca-ilustrado-src.png")
     if not os.path.isfile(src_marca):
-        src_marca = os.path.join(RAIZ, "public", "img", "ui", "logo-marca-ilustrado.png")
+        src_marca = os.path.join(RAIZ, "public", "img", "ui", "logos", "logo-marca-ilustrado.png")
 
     print("Removendo fundo dos logos ilustrados...")
     processar_entrada(src_icon, os.path.join(RAIZ, "public", "img", "ui", "logo-ilustrado.png"))

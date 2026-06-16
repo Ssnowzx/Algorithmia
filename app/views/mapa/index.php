@@ -12,8 +12,8 @@ $iconePorTipo = [
 <div class="mapa-pano-fundo" aria-hidden="true"></div>
 <div class="mapa-wrap">
     <div class="mapa-cabecalho">
-        <?php /* §5.1 — ícone ilustrado ui/icone-mapa.png (não usar emoji 🗺️) */ ?>
-        <h1><?= svg('ui/icone-mapa', 'icone-mapa-titulo') ?> Mapa de Algorithmia</h1>
+        <?php /* §5.1 — ícone ilustrado ui/icones/icone-mapa.png (não usar emoji 🗺️) */ ?>
+        <h1><?= svg('ui/icones/icone-mapa', 'icone-mapa-titulo') ?> Mapa de Algorithmia</h1>
         <p class="mapa-progresso-geral">
             <?= (int) $concluidas ?> / <?= (int) $totalFases ?> fases concluídas ·
             <span style="color:var(--xp)">★ <?= (int) $totalEstrelas ?> estrelas</span>

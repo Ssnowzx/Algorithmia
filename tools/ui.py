@@ -118,7 +118,7 @@ def troxeu_bronze(cv): trofeu(cv, (205,130,70,255), (150,90,45,255))
 
 
 UI = {
-    "logo": logo, "icone-ouro": icone_ouro, "icone-estrela": icone_estrela,
+    "icone-ouro": icone_ouro, "icone-estrela": icone_estrela,
     "icone-coracao": icone_coracao, "icone-nivel": icone_nivel, "icone-bau": icone_bau,
     "icone-ia": icone_ia, "icone-final": icone_final, "conquista-generica": conquista_generica,
     "placeholder": placeholder, "troxeu-ouro": troxeu_ouro, "troxeu-prata": troxeu_prata,
@@ -126,11 +126,23 @@ UI = {
 }
 
 
+def _subpasta(nome):
+    """Subpasta de destino em public/img/ui conforme o prefixo do slug."""
+    if nome.startswith("icone-"):
+        return "icones"
+    if nome.startswith("troxeu-") or nome.startswith("conquista-"):
+        return "trofeus"
+    return ""  # placeholder permanece na raiz de ui/
+
+
 def gerar():
     for nome, fn in UI.items():
         cv = Canvas(G, G); fn(cv)
-        cv.save(os.path.join(RAIZ, "public", "img", "ui", f"{nome}.png"))
-        print(f"  ok  ui/{nome}.png")
+        sub = _subpasta(nome)
+        destino = os.path.join(RAIZ, "public", "img", "ui", sub, f"{nome}.png")
+        os.makedirs(os.path.dirname(destino), exist_ok=True)
+        cv.save(destino)
+        print(f"  ok  ui/{(sub + '/') if sub else ''}{nome}.png")
 
 
 if __name__ == "__main__":
