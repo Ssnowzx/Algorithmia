@@ -200,6 +200,14 @@ class BatalhaService
      */
     public function usarFragmentoIa(array $personagem): array
     {
+        // Valida a batalha ANTES de consumir o item/reputação: sem esta guarda,
+        // usar o Fragmento sem batalha ativa gastava o item e derrubava a
+        // reputação sem efeito algum.
+        $estado = $this->estado();
+        if (!$estado || $estado['finalizada'] || $estado['indice'] >= $estado['total']) {
+            return ['erro' => 'Nenhuma batalha ativa.'];
+        }
+
         $itemModel = new Item();
         $fragmento = $itemModel->findBy('svg_slug', self::ITEM_FRAGMENTO_IA);
         if (!$fragmento || $this->inventario->quantidade((int) $personagem['id'], (int) $fragmento['id']) < 1) {
@@ -208,11 +216,8 @@ class BatalhaService
 
         $this->inventario->remover((int) $personagem['id'], (int) $fragmento['id']);
 
-        $estado = $this->estado();
-        if ($estado) {
-            $estado['usou_ia'] = true;
-            $_SESSION['batalha'] = $estado;
-        }
+        $estado['usou_ia'] = true;
+        $_SESSION['batalha'] = $estado;
         $novaRep = $this->reputacao->ajustar((int) $personagem['id'], REPUTACAO_USO_IA);
 
         $retorno = $this->responder(null, true);
