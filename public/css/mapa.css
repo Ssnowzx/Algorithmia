@@ -1,10 +1,71 @@
 /* ============================================================
    Algorithmia — Mapa-múndi (trilha estilo Duolingo)
+   Design system: docs/PROMPT-EVOLUCAO-VISUAL.md (§4 fundos, §5 nós, §5.1 página)
+   UI aprovada — não remover body.pagina-mapa / cards translúcidos sem pedido.
+   Regra agentes: .cursor/rules/mapa-pagina-aprovada.mdc
    ============================================================ */
+
+/* §5.1 — Pano de fundo da PÁGINA (não confundir com fundos dentro dos cards). */
+body.pagina-mapa {
+    background-color: var(--bg);
+    background-image:
+        radial-gradient(900px 480px at 50% 100%, rgba(124, 92, 255, .12), transparent 55%),
+        linear-gradient(180deg, rgba(8, 6, 18, .38) 0%, rgba(8, 6, 18, .12) 45%, rgba(4, 3, 12, .5) 100%);
+    background-attachment: scroll;
+}
+/* Camada fixa separada: Safari perde background-attachment:fixed ao voltar (bfcache). */
+.mapa-pano-fundo {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background: url(../img/fundos/fundo-mapa.png) center top / cover no-repeat;
+    transform: translateZ(0);
+}
+body.pagina-mapa::before { display: none; }
+
+/* ---------- Barra superior do mapa (HUD cyber-fantasia) ---------- */
+body.pagina-mapa .topo {
+    background: linear-gradient(180deg, rgba(6,8,22,.94), rgba(6,8,22,.78));
+    border-bottom-color: color-mix(in srgb, var(--primaria) 38%, rgba(255,255,255,.08));
+    box-shadow: 0 6px 32px rgba(0,0,0,.5), inset 0 1px 0 rgba(140,230,255,.08);
+}
+body.pagina-mapa .topo::before {
+    background: linear-gradient(90deg, transparent, rgba(140,230,255,.55) 15%, rgba(255,206,71,.65) 50%, rgba(140,230,255,.55) 85%, transparent);
+}
+body.pagina-mapa .marca { max-width: min(46vw, 220px); }
+body.pagina-mapa .logo-marca-header {
+    height: 34px;
+    filter: drop-shadow(0 0 10px rgba(124, 92, 255, .35)) drop-shadow(0 3px 8px rgba(0, 0, 0, .35));
+}
+body.pagina-mapa .hud-placa {
+    background: rgba(8,10,26,.78);
+    border-color: color-mix(in srgb, var(--hud-cor, var(--primaria)) 45%, rgba(255,255,255,.12));
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 26px color-mix(in srgb, var(--hud-cor, var(--primaria)) 20%, transparent), inset 0 1px 0 rgba(255,255,255,.07);
+}
+body.pagina-mapa .hud-avatar {
+    box-shadow: 0 0 18px color-mix(in srgb, var(--hud-cor, var(--primaria)) 40%, transparent);
+}
+body.pagina-mapa .topo-nav a[href*="mapa"] {
+    color: var(--texto);
+    background: color-mix(in srgb, var(--primaria) 22%, transparent);
+    border-color: color-mix(in srgb, var(--primaria) 45%, transparent);
+    box-shadow: 0 0 12px rgba(124,92,255,.22);
+}
+body.pagina-mapa .conteudo { padding-top: 1.2rem; }
 
 .mapa-wrap { max-width: 760px; margin: 0 auto; }
 .mapa-cabecalho { text-align: center; margin-bottom: 1.4rem; }
-.mapa-cabecalho h1 { margin: .2rem 0; }
+.mapa-cabecalho h1 {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: .55rem; margin: .2rem 0;
+}
+.mapa-cabecalho h1 .icone-mapa-titulo {
+    width: 52px; height: 52px; object-fit: contain; flex-shrink: 0;
+    image-rendering: auto;
+    filter: drop-shadow(0 2px 10px rgba(124, 92, 255, .4));
+}
 .mapa-progresso-geral { color: var(--texto-fraco); font-size: .9rem; }
 
 /* Cada região (capítulo) recebe um bioma colorido. */
@@ -21,11 +82,59 @@
 }
 /* Cenário em imagem (arte de fundo da região) — cobre o card e escurece um
    pouco no rodapé para manter nós e textos legíveis. */
-.regiao > .cena-bioma-img { background-size: cover; background-position: center; }
-.regiao > .cena-bioma-img::after {
+.regiao > .cena-bioma-img-wrap {
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+.regiao > .cena-bioma-img-wrap .cena-bioma-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+    pointer-events: none;
+    image-rendering: auto;
+}
+.regiao > .cena-bioma-img-wrap.cena-bioma-retrato .cena-bioma-img { object-position: center top; }
+.regiao > .cena-bioma-img-wrap.cena-bioma-paisagem .cena-bioma-img { object-position: center center; }
+.regiao > .cena-bioma-img-wrap::after {
     content: ""; position: absolute; inset: 0; border-radius: inherit;
     background: linear-gradient(180deg, rgba(10,8,24,.28) 0%, rgba(10,8,24,.58) 100%);
 }
+
+/* §5.1 — Cards translúcidos: void visível atrás da arte do bioma (opacity ~0.58). */
+body.pagina-mapa .regiao {
+    background: rgba(6, 8, 20, 0.12);
+    border-color: color-mix(in srgb, var(--cor-regiao, #7c5cff) 45%, rgba(255, 255, 255, .14)) !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    isolation: isolate;
+}
+/* backdrop-filter num pseudo-elemento: overflow:hidden quebra no próprio .regiao. */
+body.pagina-mapa .regiao::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    backdrop-filter: blur(16px) saturate(1.12);
+    -webkit-backdrop-filter: blur(16px) saturate(1.12);
+    z-index: 0;
+    pointer-events: none;
+}
+body.pagina-mapa .regiao > .cena-bioma-img-wrap,
+body.pagina-mapa .regiao > .cena-bioma:not(.cena-bioma-img-wrap) {
+    opacity: 0.58;
+    z-index: 1;
+}
+body.pagina-mapa .regiao > .cena-bioma-img-wrap::after {
+    background: linear-gradient(180deg, rgba(4, 3, 12, 0.02) 0%, rgba(4, 3, 12, 0.28) 100%);
+}
+body.pagina-mapa .regiao-cabecalho,
+body.pagina-mapa .regiao > .trilha {
+    position: relative;
+    z-index: 2;
+}
+
 /* Garante o conteúdo (cabeçalho e trilha) acima do cenário. */
 .regiao-cabecalho, .regiao .trilha { position: relative; z-index: 1; }
 /* Luzes/vaga-lumes do bioma cintilando suavemente. */
@@ -33,10 +142,21 @@
 @keyframes biomaLuzes { from { opacity: .55; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .cena-bioma .bioma-luzes { animation: none; } }
 
-/* Transição de entrada (só aplicada por JS quando há movimento + observer). */
-.regiao.pre-revelar { opacity: 0; transform: translateY(22px); }
+/* Transição de entrada: só conteúdo some; o cenário do card fica sempre visível. */
+.regiao.pre-revelar { transform: translateY(14px); }
+.regiao.pre-revelar .regiao-cabecalho,
+.regiao.pre-revelar > .trilha {
+    opacity: 0;
+    transform: translateY(10px);
+}
 .regiao.pre-revelar.revelada {
-    opacity: 1; transform: none;
+    transform: none;
+    transition: transform .55s cubic-bezier(.2,.8,.3,1);
+}
+.regiao.pre-revelar.revelada .regiao-cabecalho,
+.regiao.pre-revelar.revelada > .trilha {
+    opacity: 1;
+    transform: none;
     transition: opacity .5s ease, transform .55s cubic-bezier(.2,.8,.3,1);
 }
 @media (prefers-reduced-motion: reduce) {
@@ -64,48 +184,204 @@
 
 /* Trilha sinuosa: nós alternam para a esquerda e a direita. */
 .trilha { display: flex; flex-direction: column; align-items: center; gap: .2rem; position: relative; }
-.no-fase { position: relative; display: flex; flex-direction: column; align-items: center; width: 130px; padding: .3rem 0; }
-.no-fase:nth-child(odd) { transform: translateX(-72px); }
-.no-fase:nth-child(even) { transform: translateX(72px); }
+.no-fase { position: relative; display: flex; flex-direction: column; align-items: center; width: 160px; padding: .3rem 0; }
+.no-fase:nth-child(odd) { transform: translateX(-92px); }
+.no-fase:nth-child(even) { transform: translateX(92px); }
 
 .no-bolha {
-    width: 74px; height: 74px; border-radius: 50%;
+    width: 96px; height: 96px; border-radius: 50%;
     display: grid; place-items: center; cursor: pointer;
     border: 4px solid var(--borda); background: var(--painel-2);
     box-shadow: 0 6px 0 rgba(0,0,0,.35); transition: .15s; position: relative;
     text-decoration: none;
 }
 .no-bolha:hover { transform: translateY(-3px); }
-.no-bolha svg { width: 42px; height: 42px; }
-.no-bolha .emoji { font-size: 1.8rem; }
+.no-bolha svg { width: 52px; height: 52px; }
+.no-bolha .emoji { font-size: 2.15rem; }
 
-.no-fase.concluida .no-bolha { border-color: var(--sucesso); background: linear-gradient(180deg, #2f5e44, #234a36); }
-.no-fase.atual .no-bolha { border-color: var(--xp); background: linear-gradient(180deg, #4a4326, #3a3420); animation: pulsa 1.6s infinite; }
-.no-fase.bloqueada .no-bolha { filter: grayscale(.7) brightness(.6); cursor: not-allowed; box-shadow: 0 4px 0 rgba(0,0,0,.3); }
+/* Nó com arte ilustrada: a imagem preenche o círculo inteiro (sem quadrado dentro). */
+.no-bolha-arte {
+    display: block;
+    padding: 0; overflow: hidden;
+    background: rgba(8, 6, 20, 0.55);
+    border-color: color-mix(in srgb, var(--cor-regiao, #7c5cff) 55%, #eef0fb);
+    box-shadow:
+        0 6px 0 rgba(0, 0, 0, 0.38),
+        0 0 16px color-mix(in srgb, var(--cor-regiao, #7c5cff) 22%, transparent),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+.no-bolha-arte .icone-fase {
+    position: absolute; inset: 0;
+    width: 100% !important; height: 100% !important;
+    max-width: none; max-height: none;
+    object-fit: cover; object-position: center center;
+    border-radius: 50%;
+    opacity: 0.9;
+    image-rendering: auto;
+}
+.no-bolha-arte::after {
+    content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+    background:
+        radial-gradient(circle at 50% 32%, rgba(255, 255, 255, 0.14), transparent 52%),
+        radial-gradient(circle at 50% 100%, rgba(8, 6, 20, 0.55), transparent 62%);
+    mix-blend-mode: soft-light;
+}
+.no-fase.concluida .no-bolha-arte {
+    border-color: color-mix(in srgb, var(--cor-regiao, #7c5cff) 72%, #fff);
+    background: rgba(8, 6, 20, 0.45);
+    box-shadow:
+        0 6px 0 rgba(0, 0, 0, 0.35),
+        0 0 16px color-mix(in srgb, var(--cor-regiao, #7c5cff) 38%, transparent);
+}
+.no-fase.concluida .no-bolha-arte .icone-fase { opacity: 0.95; filter: saturate(1.08); }
+.no-fase.atual .no-bolha-arte {
+    border-color: color-mix(in srgb, var(--cor-regiao, #7c5cff) 82%, #fff);
+    background: rgba(8, 6, 20, 0.4);
+    box-shadow:
+        0 6px 0 rgba(0, 0, 0, 0.35),
+        0 0 22px color-mix(in srgb, var(--cor-regiao, #7c5cff) 52%, transparent);
+}
+.no-fase.atual .no-bolha-arte .icone-fase { opacity: 0.96; filter: saturate(1.12) brightness(1.05); }
+.no-fase.bloqueada .no-bolha-arte { filter: none; }
+.no-fase.bloqueada .no-bolha-arte .icone-fase {
+    filter: grayscale(0.55) brightness(0.62) saturate(0.7);
+    opacity: 0.75;
+}
+.no-fase.bloqueada .no-bolha-arte::after {
+    background: radial-gradient(circle at 50% 50%, rgba(8, 6, 20, 0.15), rgba(8, 6, 20, 0.65));
+    mix-blend-mode: normal;
+}
+.no-tipo-historia .no-bolha-arte { border-style: dashed; }
+
+/* Emblema circular da região (Hello World / Abismo) — combina com o card. */
+.regiao .regiao-cabecalho .retrato-mestre.retrato-icone {
+    width: 80px; aspect-ratio: 1; height: auto;
+    border-radius: 50%; overflow: hidden; flex-shrink: 0;
+    border: 3px solid color-mix(in srgb, var(--cor-regiao, #7c5cff) 60%, #eef0fb);
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.45),
+        0 0 16px color-mix(in srgb, var(--cor-regiao, #7c5cff) 28%, transparent);
+    filter: none;
+}
+.regiao .regiao-cabecalho .retrato-icone img {
+    width: 100%; height: 100%; object-fit: cover; object-position: center;
+    border-radius: 50%; image-rendering: auto;
+    opacity: 0.92;
+    -webkit-mask-image: none; mask-image: none;
+}
+
+.no-fase.concluida .no-bolha:not(.no-bolha-arte) {
+    border-color: color-mix(in srgb, var(--cor-regiao, #7c5cff) 70%, #fff);
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--cor-regiao, #7c5cff) 38%, #1a1d35),
+        color-mix(in srgb, var(--cor-regiao, #7c5cff) 22%, #121528)
+    );
+}
+.no-fase.atual .no-bolha:not(.no-bolha-arte) {
+    border-color: color-mix(in srgb, var(--cor-regiao, #7c5cff) 85%, #fff);
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--cor-regiao, #7c5cff) 45%, #1a1d35),
+        color-mix(in srgb, var(--cor-regiao, #7c5cff) 28%, #121528)
+    );
+    animation: pulsa 1.6s infinite;
+}
+.no-fase.atual .no-bolha-arte { animation: pulsa 1.6s infinite; }
+.no-fase.bloqueada .no-bolha:not(.no-bolha-arte) {
+    filter: grayscale(.7) brightness(.6);
+    cursor: not-allowed;
+    box-shadow: 0 4px 0 rgba(0,0,0,.3);
+}
+.no-fase.bloqueada .no-bolha-arte {
+    cursor: not-allowed;
+    box-shadow: 0 4px 0 rgba(0,0,0,.3);
+}
 .no-fase.bloqueada .no-bolha:hover { transform: none; }
 
-.no-tipo-chefe .no-bolha, .no-tipo-chefe_final .no-bolha { width: 92px; height: 92px; border-width: 5px; }
-.no-tipo-chefe .no-bolha svg { width: 56px; height: 56px; }
+.no-tipo-chefe .no-bolha, .no-tipo-chefe_final .no-bolha { width: 118px; height: 118px; border-width: 5px; }
+.no-tipo-chefe .no-bolha svg { width: 68px; height: 68px; }
 .no-tipo-historia .no-bolha { border-style: dashed; }
 
-.no-rotulo { font-size: .74rem; text-align: center; margin-top: .4rem; max-width: 120px; color: var(--texto-fraco); line-height: 1.2; }
+.no-rotulo { font-size: .74rem; text-align: center; margin-top: .4rem; max-width: 152px; color: var(--texto-fraco); line-height: 1.2; }
 .no-estrelas { font-size: .8rem; letter-spacing: 1px; height: 1rem; color: var(--xp); }
 
-@keyframes pulsa { 0%,100% { box-shadow: 0 6px 0 rgba(0,0,0,.35), 0 0 0 0 rgba(255,210,63,.5); } 50% { box-shadow: 0 6px 0 rgba(0,0,0,.35), 0 0 0 12px rgba(255,210,63,0); } }
+@keyframes pulsa {
+    0%, 100% {
+        box-shadow:
+            0 6px 0 rgba(0, 0, 0, 0.35),
+            0 0 0 0 color-mix(in srgb, var(--cor-regiao, #7c5cff) 55%, transparent);
+    }
+    50% {
+        box-shadow:
+            0 6px 0 rgba(0, 0, 0, 0.35),
+            0 0 0 12px color-mix(in srgb, var(--cor-regiao, #7c5cff) 0%, transparent);
+    }
+}
 
 /* ---------- Tela de diálogo ---------- */
-.cena-dialogo { max-width: 800px; margin: 0 auto; }
+.cena-dialogo { max-width: 720px; margin: 0 auto; }
 .palco {
-    min-height: 320px; border-radius: 18px; border: 1px solid var(--borda);
+    height: clamp(260px, 42vw, 320px);
+    min-height: 260px;
+    border-radius: 18px; border: 1px solid var(--borda);
     background: linear-gradient(180deg, #1a1d38, #0f1124);
-    display: flex; align-items: flex-end; justify-content: center; padding: 1.5rem; position: relative; overflow: hidden;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding: 0.65rem 1rem 0.45rem; position: relative; overflow: hidden;
 }
-.palco .ator { width: 200px; height: 200px; transition: .3s; }
+.palco .ator {
+    width: auto;
+    height: 94%;
+    max-height: 300px;
+    transition: .3s;
+}
+.palco .ator-svg {
+    width: auto; height: 100%;
+    display: flex; align-items: flex-end; justify-content: center;
+    position: relative;
+}
+.palco .ator img {
+    display: block;
+    width: auto;
+    height: 100%;
+    max-height: inherit;
+    object-fit: contain;
+    object-position: center bottom;
+    position: relative;
+    z-index: 1;
+}
+.palco .ator .ator-ilustrado {
+    image-rendering: auto;
+    opacity: 1;
+    filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.55));
+}
+.palco .ator .ator-mestre {
+    max-height: 255px;
+    max-width: min(185px, 33vw);
+}
+.palco .ator .ator-npc {
+    max-height: 292px;
+    max-width: min(265px, 47vw);
+}
+.palco .ator .ator-fase {
+    max-height: 300px;
+    max-width: min(280px, 50vw);
+}
+.palco .ator .ator-ilustrado:not(.ator-mestre):not(.ator-npc):not(.ator-fase) {
+    max-height: 275px;
+    max-width: min(220px, 40vw);
+}
+.palco .ator .ator-pixel {
+    max-height: 260px;
+    max-width: min(240px, 44vw);
+    image-rendering: pixelated;
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
+}
 .palco .ator svg { width: 100%; height: 100%; filter: drop-shadow(0 10px 20px rgba(0,0,0,.5)); }
 
-/* ---- Vida na cena: cenário pixel art + partículas mágicas + brilho ---- */
+/* ---- Vida na cena: cenário ilustrado + partículas mágicas + brilho ---- */
 .palco-cena {
-    background-size: cover; background-position: center; image-rendering: pixelated;
+    background-size: cover; background-position: center;
     border-color: color-mix(in srgb, var(--cor-cena, #7c5cff) 55%, #2a2f55);
     box-shadow: inset 0 0 70px rgba(0,0,0,.55),
                 0 0 26px color-mix(in srgb, var(--cor-cena, #7c5cff) 35%, transparent);
@@ -113,8 +389,8 @@
 .palco-cena::before {
     content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
     background:
-        radial-gradient(72% 55% at 50% 80%, color-mix(in srgb, var(--cor-cena, #7c5cff) 32%, transparent), transparent 70%),
-        radial-gradient(130% 90% at 50% 122%, rgba(0,0,0,.5), transparent 60%);
+        radial-gradient(50% 40% at 50% 92%, rgba(8, 6, 24, 0.55) 0%, transparent 65%),
+        radial-gradient(130% 90% at 50% 122%, rgba(0,0,0,.45), transparent 60%);
 }
 .palco-cena::after {
     content: ""; position: absolute; inset: -25%; pointer-events: none; z-index: 0; opacity: .85;
@@ -130,11 +406,20 @@
     animation: palcoParticulas 7s linear infinite;
 }
 @keyframes palcoParticulas { from { transform: translateY(10px); } to { transform: translateY(-34px); } }
-.palco-cena .ator { position: relative; z-index: 1; animation: atorFlutua 3.2s ease-in-out infinite alternate; }
+.palco-cena .ator {
+    position: relative; z-index: 2;
+    animation: atorFlutua 3.2s ease-in-out infinite alternate;
+}
+.palco-cena .ator .ator-ilustrado {
+    opacity: 1 !important;
+}
+.palco-cena::before,
+.palco-cena::after { z-index: 0; }
 .palco-cena .ator::after {
-    content: ""; position: absolute; left: 50%; bottom: -4px; width: 130px; height: 22px;
-    transform: translateX(-50%); z-index: -1; filter: blur(3px);
-    background: radial-gradient(ellipse, color-mix(in srgb, var(--cor-cena, #7c5cff) 75%, transparent), transparent 70%);
+    content: ""; position: absolute; left: 50%; bottom: 0; width: 72%; height: 28%;
+    transform: translateX(-50%); z-index: 0; pointer-events: none;
+    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.5) 0%, transparent 72%);
+    filter: blur(4px);
 }
 @keyframes atorFlutua { from { transform: translateY(0); } to { transform: translateY(-12px); } }
 @media (prefers-reduced-motion: reduce) {
@@ -170,7 +455,7 @@
 /* ---------- Vida no mapa: nós interativos + retrato do mestre ---------- */
 .no-bolha { transition: transform .18s ease, box-shadow .18s ease, filter .18s ease; }
 .no-fase:not(.bloqueada) .no-bolha:hover { transform: scale(1.16) translateY(-2px); filter: brightness(1.12); cursor: pointer; }
-.no-fase.atual .no-bolha {
+.no-fase.atual .no-bolha:not(.no-bolha-arte) {
     animation: pulsoNo 1.5s ease-in-out infinite;
     box-shadow: 0 0 14px color-mix(in srgb, var(--cor-regiao, #7c5cff) 60%, transparent);
 }
@@ -183,5 +468,23 @@
 .regiao-cabecalho .retrato-mestre { animation: retratoFlutua 3.4s ease-in-out infinite; }
 @keyframes retratoFlutua { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
 @media (prefers-reduced-motion: reduce) {
-    .no-fase.atual .no-bolha, .no-fase.atual .no-bolha .emoji, .regiao-cabecalho .retrato-mestre { animation: none; }
+    .no-fase.atual .no-bolha:not(.no-bolha-arte), .no-fase.atual .no-bolha .emoji, .regiao-cabecalho .retrato-mestre { animation: none; }
 }
+
+/* Responsividade para telas menores (celular) */
+@media (max-width: 520px) {
+    .regiao-cabecalho {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 0.8rem;
+    }
+    .regiao .regiao-cabecalho .retrato-mestre:has(img) {
+        width: 96px; /* Tamanho ligeiramente reduzido para mobile */
+        margin-bottom: 0.2rem;
+    }
+    .regiao-cabecalho h2 {
+        font-size: 1.15rem;
+    }
+}
+

@@ -14,8 +14,8 @@
 <div class="tela-auth">
     <div class="cartao-auth">
         <div class="auth-logo">
-            <?= svg('ui/logo') ?>
-            <h1><?= NOME_JOGO ?></h1>
+            <?= marcaHtml('auth') ?>
+            <h1 class="sr-only"><?= NOME_JOGO ?></h1>
             <p><?= SUBTITULO_JOGO ?></p>
         </div>
         <div class="painel">

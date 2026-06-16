@@ -49,8 +49,10 @@
              clamp(1rem, 6vw, 5rem)
              calc(env(safe-area-inset-bottom, 0px) + 2rem);
 }
-.cena-safe .cena-logo { width: clamp(96px, 16vh, 180px); height: auto; image-rendering: pixelated;
+.cena-safe .cena-logo { width: clamp(96px, 16vh, 180px); height: auto;
     filter: drop-shadow(0 0 22px rgba(124,92,255,.7)); animation: cenaEntra .9s cubic-bezier(.2,.8,.3,1.2) both; }
+.cena-safe .cena-logo-marca { width: min(92vw, 720px); max-width: 720px; }
+.cena-safe .cena-logo-marca .logo-marca-hero { width: 100%; height: auto; display: block; }
 .cena-safe .cena-titulo {
     font-family: var(--titulo); font-weight: 700; line-height: 1;
     font-size: clamp(2.6rem, 9vw, 6rem); margin: .2rem 0 0;
@@ -73,14 +75,11 @@
 @keyframes cenaSeta { 0%,100% { transform: translateX(-50%) translateY(0); opacity: .5; } 50% { transform: translateX(-50%) translateY(7px); opacity: 1; } }
 
 /* ---------- Splash cinemático (push-in por CSS) ---------- */
-.splash-cena { position: absolute; inset: 0; z-index: 0; }
-.splash-mundo { transform-origin: 50% 42%; animation: splashPushIn 2.6s ease-out both; }
-@keyframes splashPushIn { from { transform: scale(1.18); } to { transform: scale(1); } }
 .splash-inicio .splash-conteudo { position: relative; z-index: 2; }
 
 /* ---------- Acessibilidade: movimento reduzido ---------- */
 @media (prefers-reduced-motion: reduce) {
-    .splash-mundo { animation: none; }
+    .splash-cena-img, .splash-particulas { animation: none; }
     .cena-lua, .cena-feixe, .cena-nevoa, .cena-nuvens,
     .cena-safe .cena-logo, .cena-safe .cena-titulo, .cena-safe .cena-sub,
     .cena-safe .cena-acoes, .cena-safe .seta-rolar { animation: none; }

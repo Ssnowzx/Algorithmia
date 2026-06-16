@@ -68,6 +68,8 @@ SKIN = {
     "claro": ((240, 200, 158, 255), (205, 158, 118, 255)),
     "medio": ((226, 175, 130, 255), (185, 136, 96, 255)),
     "moreno": ((196, 142, 100, 255), (158, 108, 76, 255)),
+    "xeno": ((80, 200, 180, 255), (50, 150, 130, 255)),
+    "escamas": ((180, 130, 90, 255), (140, 95, 60, 255)),
 }
 
 
@@ -269,10 +271,22 @@ HEROIS = {
         cabelo="curto", cabelo_col=(80,55,35,255), acc="elmo", acc_col=(255,138,80,255),
         roupa=(196,96,54,255), roupa_sh=(150,70,40,255), calca=(110,70,45,255),
         bota=(70,48,34,255), item="espada_escudo", escudo_col=(74,140,210,255), boca="calmo"),
-    "heroi-ranger": dict(aura=(46,204,113,255), pele="medio", corpo="tunica",
-        cabelo="curto", cabelo_col=(60,45,30,255), acc="capuz", acc_col=(39,110,70,255),
+    "heroi-ranger": dict(aura=(46,204,113,255), pele="moreno", corpo="tunica",
+        cabelo="curto", cabelo_col=(40, 32, 24, 255), acc="capuz", acc_col=(39,110,70,255),
         roupa=(46,150,90,255), roupa_sh=(29,100,60,255), calca=(50,60,45,255),
         bota=(55,45,34,255), item="arco", boca="calmo"),
+    "heroi-xeno": dict(aura=(0,229,160,255), pele="xeno", corpo="tunica",
+        cabelo="careca", acc="headphones", acc_col=(0,200,160,255),
+        roupa=(30,80,70,255), roupa_sh=(18,55,48,255), calca=(25,60,55,255),
+        bota=(40,50,48,255), item="orbe_mao", item_col=(120,255,220,255), boca="grin"),
+    "heroi-elfo": dict(aura=(168,212,255,255), pele="claro", corpo="robe",
+        cabelo="longo", cabelo_col=(210,220,235,255), oculos="redondo", oculos_col=(180,200,255,255),
+        roupa=(180,190,220,255), roupa_sh=(140,150,190,255), gola=(230,235,255,255),
+        item="carta", boca="calmo"),
+    "heroi-draconato": dict(aura=(255,107,74,255), pele="escamas", corpo="tunica",
+        cabelo="careca", acc="elmo", acc_col=(200,90,50,255),
+        roupa=(160,70,45,255), roupa_sh=(110,48,30,255), calca=(90,50,35,255),
+        bota=(70,40,28,255), item="espada_escudo", escudo_col=(180,80,40,255), boca="grin"),
 }
 
 

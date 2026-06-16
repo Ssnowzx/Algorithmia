@@ -1,5 +1,7 @@
 # PROMPT MESTRE — Jogo SVG completo, ambientado e em tela cheia
 
+> **Algorithmia (este repo):** use [`docs/PROMPT-EVOLUCAO-VISUAL.md`](PROMPT-EVOLUCAO-VISUAL.md) como design system oficial. Este prompt abaixo é um template genérico SVG, não a direção visual do jogo.
+
 > Prompt de nível "estúdio" para construir um jogo **vetorial (SVG)** com a sensação de um
 > título completo (benchmark: **Super Mario World**): mundo coeso, profundidade de cena,
 > uso de **toda a tela**, e técnica de SVG na raiz (filtros, camadas, máscaras, câmera por

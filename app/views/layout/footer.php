@@ -1,7 +1,7 @@
 </main>
 <footer class="rodape">
     <div class="rodape-conteudo">
-        <span class="rodape-marca"><?= svg('ui/logo', 'rodape-logo') ?> <?= NOME_JOGO ?></span>
+        <span class="rodape-marca"><?= marcaHtml('rodape') ?></span>
         <span class="rodape-sep">·</span>
         <span><?= SUBTITULO_JOGO ?></span>
         <span class="rodape-sep">·</span>

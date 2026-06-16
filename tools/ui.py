@@ -3,6 +3,7 @@
 """Pixel art dos 13 ícones de UI do Algorithmia (32x32)."""
 import os, math
 from pixelart import Canvas, _mix, _alpha, OUTLINE, WHITE, BROWN
+from marca import desenhar_simbolo
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 G = 32
@@ -11,18 +12,7 @@ ROXO = (124, 92, 255, 255)
 
 
 def logo(cv):
-    cv.disc(16, 16, 13, _alpha(ROXO, 45))
-    # escudo arcano
-    r, rs = (140, 110, 240, 255), (90, 64, 190, 255)
-    cv.rect(8, 5, 24, 18, r); cv.rect(8, 5, 9, 18, rs)
-    cv.rect(10, 18, 22, 22, r); cv.rect(13, 22, 19, 27, r)
-    cv.rect(8, 5, 24, 6, _mix(r, (255,255,255), 0.35))
-    cv.ring(16, 15, 11, OURO)
-    # "</>" dourado, claro e centralizado
-    for (x, y) in [(13,12),(12,13),(11,14),(11,15),(12,16),(13,17)]: cv.set(x, y, OURO)  # <
-    for (x, y) in [(18,12),(17,14),(16,15),(15,17)]: cv.set(x, y, OURO)                   # /
-    for (x, y) in [(19,12),(20,13),(21,14),(21,15),(20,16),(19,17)]: cv.set(x, y, OURO)  # >
-    cv.set(16, 8, WHITE); cv.set(22, 10, _alpha(WHITE, 160))  # brilhos
+    desenhar_simbolo(cv, 16, 16, 1.0)
 
 
 def icone_ouro(cv):

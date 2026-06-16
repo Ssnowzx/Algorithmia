@@ -1,0 +1,37 @@
+---
+description: UI aprovada da página do mapa — fundo, ícone do título e cards translúcidos. Não sobrescrever sem pedido explícito.
+globs: public/css/mapa.css,app/views/mapa/**,app/controllers/MapaController.php,public/img/fundos/fundo-mapa.png,public/img/ui/icone-mapa.png,docs/PROMPT-EVOLUCAO-VISUAL.md
+alwaysApply: false
+---
+
+# Página do mapa-múndi — UI aprovada
+
+Leia **`docs/PROMPT-EVOLUCAO-VISUAL.md` §5.1** antes de editar estes arquivos.
+
+## Três peças distintas (não confundir)
+
+| Peça | Asset / código | Função |
+|------|----------------|--------|
+| **Fundo da página** | `public/img/fundos/fundo-mapa.png` + `body.pagina-mapa` em `mapa.css` | Void cósmico atrás de todos os cards |
+| **Ícone do título** | `public/img/ui/icone-mapa.png` + `svg('ui/icone-mapa')` em `mapa/index.php` | Ao lado de "Mapa de Algorithmia" — **não** usar emoji 🗺️ |
+| **Cards de região** | `fundo-vila.png`, `fundo-porto.png`, etc. dentro de cada `.regiao` | Arte do bioma **dentro** do card |
+
+## Contrato de código (manter)
+
+- `MapaController::index()` deve passar `'bodyClass' => 'pagina-mapa'`.
+- `mapa/index.php`: `<h1><?= svg('ui/icone-mapa', 'icone-mapa-titulo') ?> Mapa de Algorithmia</h1>`.
+- `mapa.css`: blocos `body.pagina-mapa` (fundo) e `body.pagina-mapa .regiao` (translucidez + `backdrop-filter` no `::before`).
+
+## Não fazer sem pedido explícito do usuário
+
+- Remover `bodyClass` ou voltar fundo sólido do `body` na página do mapa.
+- Trocar o ícone do título por emoji ou regenerar `icone-mapa.png`.
+- Regenerar ou deletar `fundo-mapa.png`.
+- Remover translucidez dos cards (opacidade ~0.58 na arte do bioma é intencional).
+- Aplicar `backdrop-filter` direto em `.regiao` com `overflow: hidden` (quebra o efeito).
+- Confundir `fundo-mapa.png` (pano da página) com fundos de bioma (`fundo-porto.png`, etc.).
+
+## Ajustes permitidos
+
+- Fine-tuning de opacidade/overlay **mantendo** o void visível atrás dos cards.
+- Novas fases/regiões seguindo §4 e §5 do design system.

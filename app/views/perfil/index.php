@@ -7,7 +7,7 @@ $classe = CLASSES[$heroi['classe']] ?? [];
 <div class="grid-2">
     <div class="painel">
         <div style="display:flex;gap:1rem;align-items:center">
-            <div class="hud-avatar" style="width:80px;height:80px"><?= svg('herois/' . ($classe['svg'] ?? 'heroi-ranger')) ?></div>
+            <div class="hud-avatar" style="width:80px;height:80px;--hud-cor:<?= e($classe['cor'] ?? '#2ecc71') ?>"><?= svg(retratoHud($heroi['classe']), 'hud-retrato') ?></div>
             <div>
                 <h2 style="margin:.1rem 0"><?= e($heroi['nome']) ?></h2>
                 <div class="subtitulo" style="margin:0"><?= e($classe['nome'] ?? '') ?> · Nível <?= (int) $heroi['nivel'] ?></div>

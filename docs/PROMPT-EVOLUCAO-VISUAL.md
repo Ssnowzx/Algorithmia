@@ -1,160 +1,298 @@
-# PROMPT — Evolução visual, animação e som (Algorithmia)
+# Design System — Algorithmia
 
-> Prompt refinado e **adaptado ao projeto real** (Algorithmia — A Lenda dos Cinco Mestres).
-> Cole isto como instrução para a IA que for trabalhar na camada visual/UX.
-> Foi reescrito a partir de um template genérico de "jogo single-file + SVG": aqui o jogo
-> é **PHP MVC multi-arquivo, pixel art PNG, com paleta e fontes já definidas**. As seções
-> abaixo refletem isso — não invente estilo nem paleta novos, **evolua o que já existe**.
+> **Fonte única de verdade** para direção visual, assets e regras de UI do jogo.
+> Use este arquivo ao gerar arte, CSS ou pedir ajuda à IA. Não invente estilo paralelo.
 
 ---
 
-# OBJETIVO
-Evoluir **Algorithmia — A Lenda dos Cinco Mestres** da versão atual para qualidade de
-produção: identidade visual ainda mais coesa, animações fluidas a 60fps e design de som
-imersivo (hoje inexistente). O jogo já tem direção de arte pixel art autoral e tema JRPG —
-o trabalho é **aprofundar a coesão e dar "juice"** (feedback visual e sonoro em cada ação),
-sem quebrar mecânicas, arquitetura ou as regras de desenvolvimento.
+## 1. Identidade
 
-# CONTEXTO DO JOGO (já preenchido)
-- **Gênero/mecânica:** RPG educativo (Duolingo + JRPG). Mapa-múndi de fases que se
-  destravam em sequência; **batalha por turnos** onde responder desafios de programação
-  causa/recebe dano.
-- **Tema/ambientação:** "programar é magia". Mundo de fantasia tech, 5 regiões
-  (Porto da Sintaxe, Cidadela dos Objetos, Floresta das Estruturas, Montanha do Cálculo,
-  Torre das Conexões). Vilão: Lorde Segfault / IA Ancestral.
-- **Sensação alvo:** épico-divertido com **humor ácido/autoconsciente**; nostalgia retro
-  (pixel/chiptune) sem comprometer a clareza pedagógica das explicações.
-- **Stack atual (FIXA, não trocar):** PHP 8 puro + MVC + MySQL/PDO. Front-end em
-  **HTML/CSS/JS vanilla**, sem framework e **sem dependências de runtime**. Arte em
-  **pixel art PNG** gerada por scripts Python/Pillow em `tools/`.
-- **Estado atual (o que já existe e funciona):**
-  - Tokens de cor e tipografia já definidos em `public/css/style.css` (`:root`).
-  - Fontes: **Pixelify Sans** (títulos/HUD) + **Rubik** (corpo); mono p/ código.
-  - 72 assets pixel art em `public/img/` (`herois/`, `inimigos/`, `mestres/`, `itens/`,
-    `fundos/`, `ui/`), com `image-rendering: pixelated`.
-  - Animações existentes: nós do mapa pulsando (`pulsa`), respiração idle dos sprites,
-    investida + tremor na batalha, efeito máquina de escrever nos diálogos
-    (`public/js/dialogo.js`), modal/toast temáticos (`public/js/ui.js`), fundo estelar.
-  - JS por tela: `app.js` (global), `batalha.js`, `dialogo.js`, `ui.js`.
-  - CSS por área: `style.css`, `mapa.css`, `batalha.css`.
-- **O que NÃO pode quebrar (preservar 100%):**
-  - Regras de batalha: combo (+25%/acerto, teto 4x), **Especial** (15 MP, dobra dano),
-    **Poção**, **Fugir**, e a ordem de término vitória/derrota (inimigo 0 = vitória;
-    herói 0 = derrota; acabaram desafios com inimigo vivo = derrota).
-  - **Reputação** e o **Fragmento da IA** (−10 reputação, acerto automático, marca a fase).
-  - Estrelas (1–3), liberação sequencial de fases, XP/níveis/ouro, os 3 finais.
-  - Validação de resposta **sempre no servidor** (o gabarito nunca vai ao cliente).
-  - Segurança existente: PDO/prepared, `e()`/escape, CSRF, `password_hash`, sessão.
+**Algorithmia** = RPG educativo onde *programar é magia*. Tom épico com humor ácido; fantasia tech (código como runas).
 
-# DIREÇÃO DE ARTE (coesão é requisito — e já existe uma base, RESPEITE-A)
-- **Estilo único = pixel art autoral + tema JRPG escuro/vibrante já estabelecido.**
-  Não criar estilo novo. Por que combina: pixel art reforça o subtexto "código/retro" de
-  um mundo onde programar é magia, e o JRPG escuro dá peso épico às batalhas e à lore.
-- **Paleta fixa = os tokens que JÁ existem em `:root` (`public/css/style.css`).** Use
-  SOMENTE estes; nenhum hex solto fora deles. São eles:
-  `--bg #0b0c1d`, `--bg-2 #14162c`, `--painel #1a1d38`, `--painel-2 #23274a`,
-  `--borda #353c6b`, `--borda-luz #4a54a0`, `--texto #eef0fb`, `--texto-fraco #9aa0c9`,
-  `--primaria #7c5cff`, `--primaria-2 #9d83ff`, `--hp #ff5d6c`, `--mp #4aa3ff`,
-  `--xp #ffd23f`, `--ouro #ffce47`, `--sucesso #2ecc71`, `--erro #ff6b6b`,
-  `--aviso #ffb142`. Se faltar uma cor, **derive** das existentes e proponha como NOVO
-  token (não hardcode).
-- **Linguagem visual consistente:** todo sprite novo/redesenhado mantém a mesma resolução
-  base, mesma densidade de pixel, mesma fonte de luz e contorno dos assets atuais — herói,
-  inimigo e item devem parecer "da mesma mão". Sprites novos devem ser gerados pelos
-  scripts em `tools/` (Pillow), não importados de fontes externas.
-- **Tipografia:** manter Pixelify Sans (título/HUD) + Rubik (corpo) + mono (código), com os
-  fallbacks já presentes. Não adicionar fontes novas sem justificar.
+**Estética oficial — Cyber-Fantasia Ilustrada:**
+- Ilustração digital detalhada (estilo card game / JRPG moderno)
+- Noite crepuscular, navy/teal profundo, **ouro** nos detalhes, **ciano elétrico** nas runas de código
+- Símbolos de programação integrados ao cenário (`</>`, `{ }`, SQL, POO, etc.) — nunca colados sem contexto
+- **Não** usar pixel art nos mestres, fundos de região e ícones do mapa
 
-# EVOLUÇÃO POR CATEGORIA
-1. **CENÁRIOS (`fundos/`, `mapa.css`, `batalha.css`):** dar profundidade às 5 regiões —
-   parallax leve em camadas, elementos ambientais animados coerentes por bioma (brasas no
-   Cálculo, pacotes/luz de rede na Torre, folhas na Floresta), e transição visível ao trocar
-   de região no mapa. Manter o chão em perspectiva e o brilho arcano já existentes na arena.
-2. **ITENS (`itens/`, inventário, loja):** garantir que armas/escudos/poções/relíquias
-   sigam o mesmo traço pixel; dar uma microanimação por item (poção borbulhando, relíquia
-   brilhando, moeda/ouro girando) nas listas de inventário e loja, e um "pop" ao
-   equipar/usar/comprar.
-3. **PERSONAGENS (`herois/`, `inimigos/`, `mestres/`):** estados de animação por entidade —
-   **idle** (respiração, já existe), **ação/ataque** (investida, já existe), **dano**
-   (flash + tremor), **vitória** e **derrota**. Os 5 mestres e os 3 chefes merecem um idle
-   mais expressivo que os inimigos comuns.
-
-# ANIMAÇÃO (especificação — adaptada a PIXEL ART, não SVG)
-- **Estados visuais distintos por entidade interativa:** idle, movimento, ação, dano,
-  vitória/derrota. Trocar de estado = trocar classe CSS (o JS de batalha já controla isso).
-- **Técnicas (priorize 60fps, anime só `transform` e `opacity` — nunca `top/left/width`
-  que causam reflow):**
-  - **Transforms CSS** (`translate/scale/rotate`) + `opacity` para movimento, pop, flash,
-    tremor e flutuação idle. É o que o projeto já faz — mantenha esse padrão.
-  - **Sprite-sheet com `animation-timing-function: steps(N)`** para walk/attack cycles
-    quando quiser quadros desenhados (não interpolados). Anime sprites a **4–8fps** mesmo
-    com a tela a 60fps: o "choppy" é o charme retro correto, e é barato.
-  - **`image-rendering: pixelated`** em todo sprite escalado (já presente) para não borrar.
-  - **`requestAnimationFrame`** apenas para partículas/efeitos dinâmicos com muitos elementos
-    (coleta de ouro, faíscas de acerto, explosão de bug derrotado). Use CSS para tudo que for
-    estado declarativo; use rAF só quando precisar de física/spawn por frame. Justifique a
-    escolha em cada caso.
-- **Timing:** transições de estado de UI **150–300ms, ease-out**; loops ambientais suaves
-  (idle flutuando ~2s, moeda girando ~1s, pulso do nó atual ~1.6s — já existe).
-- **Feedback de ação (juice — TODA ação responde na hora):** partículas ao coletar
-  ouro/item; flash + shake ao tomar dano (herói e inimigo); "pop"/recuo no acerto; combo
-  crescendo visualmente; número de dano flutuante; brilho no Especial; tremor de tela
-  contido na vitória/derrota. **Nada de ação sem retorno visual.**
-- **Acessibilidade:** respeitar `prefers-reduced-motion` — desligar/reduzir parallax,
-  flutuações, partículas e shake; manter só transições essenciais e instantâneas.
-
-# DESIGN DE SOM (imersão — HOJE NÃO EXISTE, é a maior novidade)
-- **Web Audio API, som procedural via osciladores — combina com o tema retro/chiptune e
-  respeita "sem dependências".** Use square/pulse para beeps de UI e acertos, sawtooth para
-  dano/erro, mais envelopes (gain) e um filtro simples. **Sem arquivos de áudio externos
-  pesados** sem autorização explícita.
-- **Desbloqueio:** navegadores bloqueiam áudio até o 1º gesto — destravar o `AudioContext`
-  no primeiro clique/tecla (ex.: no botão de criar personagem / iniciar fase).
-- **Mapa evento → som (timbre curto e distinto para cada um):**
-  acerto, erro, **dano recebido**, combo subindo, **Especial**, usar poção, coletar
-  ouro/item, subir de nível, **vitória**, **derrota**, usar o **Fragmento da IA** (som
-  "corrompido"/dissonante, reforçando que é o atalho que corrói a alma), clique de UI,
-  abrir/fechar modal, máquina de escrever do diálogo (tic discreto por caractere).
-- **Controle de volume + botão MUTE persistente** (estado salvo entre páginas — como é
-  multi-página PHP, persistir via `localStorage` ou cookie/sessão; escolher e justificar).
-- **Opcional (com meu OK):** trilha ambiente em loop, baixa, coerente por região, separada
-  dos efeitos, com volume independente.
-
-# RESTRIÇÕES TÉCNICAS
-- **Entrega:** edições nos arquivos existentes (`public/css/*`, `public/js/*`,
-  `app/views/*`), respeitando a separação MVC. Som novo deve ir num módulo próprio
-  (ex.: `public/js/som.js`) exposto como `window.SOM`, no padrão de `window.UI`/`window.BATALHA`.
-- **Dependências:** **nenhuma nova** (sem framework, sem libs de runtime, sem Composer).
-- **Suporte:** desktop **e** mobile com controles touch; navegadores atuais.
-- **Performance:** manter 60fps com vários elementos animados (batalha com partículas +
-  sprites + HUD ao mesmo tempo).
-- **Padrões de código do projeto:** `declare(strict_types=1)` no PHP, PHPDoc em funções
-  públicas, nomes de domínio em **português**, escape `e()` em toda saída de view.
-
-# PROCESSO (OBRIGATÓRIO — o projeto é spec-driven com OpenSpec)
-1. **Antes de codar:** abra uma **proposta OpenSpec** (`/opsx:propose` ou skill
-   `openspec-propose`) e apresente um **plano curto** + a direção (confirmação dos tokens
-   existentes a usar, lista de estados de animação por entidade, mapa evento→som). **Espere
-   meu OK.** Não fazer grandes mudanças direto no código sem proposta.
-2. **Depois do OK:** implemente (`/opsx:apply`) e entregue o código **completo, sem trechos
-   truncados**, pronto para rodar com `php -S localhost:8001`.
-3. **Explique** as decisões principais (por que CSS vs rAF em cada efeito, por que cada
-   timbre) e **como testar** cada novidade. Ao concluir, **arquive** (`/opsx:archive`).
-
-# DEFINIÇÃO DE "PRONTO"
-- Todo elemento segue a MESMA direção de arte e usa SOMENTE os tokens de `:root`.
-- Toda ação tem feedback **visual E sonoro**.
-- 60fps mantidos; **mute persistente** e **`prefers-reduced-motion`** funcionando.
-- Mecânicas, segurança e arquitetura MVC preservadas — **zero regressão**.
-- Mudança passou pelo fluxo OpenSpec (proposta → spec → implementação → arquivo).
+**Camada legado — Pixel art (mantida):**
+- Sprites de heróis em batalha, inimigos e itens em inventário/loja (`tools/pixelart.py`, `tools/bestiario.py`, `tools/itens.py`)
+- `image-rendering: pixelated` **somente** nesses sprites — ver `public/css/style.css`
 
 ---
 
-## Referências de técnica (para fundamentar a implementação)
-- Sprite sheet + `steps()` e por que animar a 4–8fps mesmo com tela a 60fps:
-  [kirupa](https://www.kirupa.com/html5/sprite_sheet_animations_using_only_css.htm) ·
-  [Pixnote — FPS de pixel art](https://pixnote.net/en/learn/animation/) ·
-  [Otimização de sprite sheet](https://sosquishy.io/articles/sprite-sheet-optimization)
-- Som de jogo procedural sem arquivos (osciladores + envelope + filtro):
-  [Synth zero-dependência (Web Audio)](https://dev.to/hexshift/how-to-build-a-zero-dependency-audio-synth-in-the-browser-using-web-audio-api-1bp5) ·
-  [Som em jogo de navegador](https://dinogame.gg/blog/how-to-add-sound-to-browser-game/)
+## 2. Paleta e tipografia
+
+Usar **apenas** tokens de `:root` em `public/css/style.css`:
+
+| Token | Uso |
+|-------|-----|
+| `--primaria` / `--primaria-2` | Acento mágico, links, brilho UI |
+| `--cor-regiao` (inline por card) | Anéis de nó, borda do card, glow do bioma |
+| `--xp` | Fase atual no mapa |
+| `--sucesso` | Fase concluída |
+| `--hp` / `--mp` / `--ouro` | HUD de batalha |
+| `--texto` / `--texto-fraco` | Títulos e legendas |
+
+**Fontes:** Pixelify Sans (títulos/HUD) · Rubik (corpo) · mono (código). Não adicionar fontes sem motivo.
+
+---
+
+## 3. Estrutura de assets (`public/img/`)
+
+```
+public/img/
+├── mestres/          # Retratos ilustrados dos 5 mestres (~1024×1536, 2:3) — NÃO ALTERAR sem pedido
+├── fundos/           # Cenários ativos no jogo (ver §4)
+├── fundos_novos/     # Rascunhos/exports alternativos; produção usa fundos/
+├── mapas/            # Ícones de fase e emblemas de região (512×512, ver §5) — **só mapa, nunca diálogo**
+├── atores/           # Retratos de palco: NPCs e mestres com alpha nativo (ver §5.2)
+├── herois/           # Cartas HUD (`hud-*`) + sprites pixel art (`heroi-*`)
+├── inimigos/         # Pixel art — bestiário (diálogo + batalha, alpha nativo)
+├── itens/            # Pixel art — inventário/loja
+└── ui/               # Logos, splash, molduras, botões e ícones de sistema
+```
+
+**Helper PHP:** `svg('pasta/arquivo')` em `app/core/helpers.php` → `<img>` de `public/img/{slug}.png`.
+
+**Mapas de região/fase:** `fundoRegiao()`, `iconeFaseMapa()`, `iconeRegiaoMapa()` no mesmo arquivo.
+
+**Status visual recente:** ver também `docs/STATUS-UI-ATUAL.md` para splash/home, seleção de personagem, cartas e assets aprovados.
+
+---
+
+## 4. Cenários de região (`fundos/`)
+
+| Arquivo | Região | Formato | Card no mapa |
+|---------|--------|---------|--------------|
+| `fundo-vila.png` | Terras de Hello World (início) | **1200×800** paisagem 3:2 | Curto (~3 fases) |
+| `fundo-porto.png` | Porto da Sintaxe (Willen) | **1200×800** paisagem 3:2 | Alto (~6 fases) |
+| `fundo-cidadela.png` | Cidadela dos Objetos (Clayton) | 1200×800 | Alto |
+| `fundo-floresta.png` | Floresta das Estruturas (Marcelo) | 1200×800 | Alto |
+| `fundo-montanha.png` | Montanha do Cálculo (Cesar) | 1200×800 | Alto |
+| `fundo-torre.png` | Torre das Conexões (Cassandro) | 1200×800 | Alto |
+| `fundo-abismo.png` | O Fim da Jornada | **1200×600** paisagem 2:1 | Curto (~2 fases) |
+| `fundo-batalha.png` | Arena genérica | 1200×600 | — |
+| `fundo-mapa.png` | Pano de fundo da página do mapa (void, trilha dourada, abismo) | **1536×1024** | — (body `.pagina-mapa`) |
+
+### Regras de composição
+- **Cards altos (mestres):** composição vertical; cúpulas/torres/cidade no **terço superior**; `background-position: center top`
+- **Cards curtos (início/fim):** composição horizontal centrada; `background-position: center center`
+- **Nunca** esticar a última linha de pixels para preencher altura — exportar na proporção real
+- Overlay escuro do card: gradiente em `.cena-bioma-img-wrap::after` (`mapa.css`) — não remover
+
+### CSS (`public/css/mapa.css`)
+- Wrapper: `.cena-bioma-img-wrap.cena-bioma-retrato` | `.cena-bioma-paisagem`
+- View: `app/views/mapa/index.php`
+
+### Gerar novo cenário
+1. Referência visual: `public/img/mestres/mestre-{nome}.png` + cenário existente do bioma
+2. Prompt: cyber-fantasia, código integrado, **sem personagens**, composição para card alto ou curto
+3. Exportar **1200×800** (mestres) ou **1200×600** (curto/abismo/batalha)
+4. Salvar em `public/img/fundos/` (e opcionalmente `fundos_novos/`)
+
+---
+
+## 5. Mapa — nós e emblemas (`mapas/`)
+
+### Nós com arte (`.no-bolha-arte`)
+**Todas as 35 fases** têm ícone em `public/img/mapas/`, mapeadas por `ordem_global` em `iconeFaseMapa()`.
+
+| Região | ordem_global | Slugs |
+|--------|--------------|-------|
+| Hello World | 1–3 | `fase-prologo-despertar`, `fase-primeiros-passos`, `fase-bug-primordial` |
+| Porto da Sintaxe | 4–9 | `fase-porto-chegada` … `fase-parse-error-kraken` |
+| Cidadela dos Objetos | 10–15 | `fase-cidadela-chegada` … `fase-god-class` |
+| Floresta das Estruturas | 16–21 | `fase-floresta-chegada` … `fase-hidra-recursiva` |
+| Montanha do Cálculo | 22–27 | `fase-montanha-chegada` … `fase-limite-colosso` |
+| Torre das Conexões | 28–33 | `fase-torre-chegada` … `fase-ddos-enxame` |
+| Abismo | 34–35 | `fase-abismo-devnull`, `fase-lorde-segfault` |
+
+Lista completa de slugs: ver `$mapa` em `app/core/helpers.php` → `iconeFaseMapa()`.
+
+### Emblemas de região (`iconeRegiaoMapa()`)
+| Chave | Arquivo |
+|-------|---------|
+| `inicio` | `regiao-hello-world.png` |
+| `fim` | `regiao-abismo.png` |
+
+### Spec do ícone de fase
+- **512×512**, sujeito centralizado, zoom ~72–85% (crop no export) para preencher círculo
+- Quadrado fonte OK; no UI vira **círculo cheio** via CSS
+- Classe: `.no-bolha-arte` + `.icone-fase`
+- Imagem: `position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:50%`
+- Anel: `border-color: color-mix(in srgb, var(--cor-regiao) 55%, #eef0fb)`
+- Overlay suave: `::after` com vignette — opacidade ~0.9 na arte, não 1.0
+
+### ⚠️ Conflito CSS crítico
+`public/css/style.css` define tamanho fixo para `.no-bolha img` (42px/56px).
+**Sempre** excluir nós com arte: `.no-bolha:not(.no-bolha-arte) img`.
+Ilustrações usam `image-rendering: auto` (não pixelated).
+
+---
+
+## 5.2 Palco de diálogo — personagem + cenário ⚠️
+
+> **Dois assets distintos.** O fundo do palco vem de `fundos/` (região). O personagem vem de sprite com alpha — **nunca** de `mapas/fase-*.png`.
+
+### Camadas do palco (`app/views/historia/dialogo.php`)
+
+| Camada | Asset | Regra |
+|--------|-------|-------|
+| **Cenário** | `fundos/fundo-vila.png`, `fundo-porto.png`, … | Sempre visível via `fundoRegiao()` + overlay escuro |
+| **Personagem** | `inimigos/`, `atores/`, `mestres/` | PNG com **alpha nativo** — gerado sem fundo, não recortado depois |
+
+### De onde vem cada personagem
+
+| Contexto | Asset | Pasta |
+|----------|-------|-------|
+| **Palco de diálogo** | `fase-primeiros-passos`, `npc-narrador`, `mestre-willen` | `atores/` — ilustração cyber-fantasia, **alpha nativo** |
+| **Batalha** | `inimigo-slime`, … | `inimigos/` — pixel art (`tools/bestiario.py`) |
+| **Mapa (nó circular)** | `fase-primeiros-passos`, … | `mapas/` — cenário incluso, **nunca no palco** |
+
+> ⚠️ **Pixel art no palco = erro.** `inimigos/` é só para a tela de batalha.
+
+### Retratos de palco (`atores/fase-*.png`) — opcional, manual
+
+O código **não gera nem recorta** arte. Só usa o arquivo se você colocar em `public/img/atores/`.
+
+1. Exporte PNG com **alpha real** (Photoshop, Procreate, Midjourney com fundo transparente, etc.).
+2. Mesmo personagem do ícone do mapa, **sem cenário**.
+3. Nome: `fase-{slug}.png` (ex.: `fase-primeiros-passos.png`).
+4. Enquanto o arquivo não existir, o palco usa o sprite pixel de `inimigos/` (fallback).
+
+> **Não usar:** gerador de imagem do Cursor, recorte automático de `mapas/`, nem `tools/personagens_fase.py`.
+
+### Pixel art (batalha + fallback no diálogo)
+
+- `tools/bestiario.py` → `public/img/inimigos/`
+
+### Código
+
+- `svgAtor()`, `personagemFase()`, `slugAtorDialogo()` em `app/core/helpers.php`
+- CSS do palco: `public/css/mapa.css` (`.palco-cena`, `.ator-pixel`, `.ator-mestre`, `.ator-npc`)
+
+---
+
+## 5.1 Página do mapa-múndi — UI aprovada ⚠️
+
+> **Status: finalizado e aprovado.** Não remover nem substituir por padrões genéricos (emoji, fundo sólido, cards opacos) sem pedido explícito do usuário.
+> Regra Cursor: `.cursor/rules/mapa-pagina-aprovada.mdc`
+
+### Três camadas visuais (não confundir)
+
+| Camada | Asset | Onde |
+|--------|-------|------|
+| **Fundo da página** | `public/img/fundos/fundo-mapa.png` | `body.pagina-mapa` — void escuro, ilhas, trilha dourada, vórtice `/dev/null` |
+| **Ícone do título** | `public/img/ui/icone-mapa.png` | Cabeçalho `<h1>` — pergaminho mágico cyber-fantasia (**não** emoji 🗺️) |
+| **Arte dentro de cada card** | `fundo-vila.png`, `fundo-porto.png`, … | `.cena-bioma-img-wrap` por região — independente do pano |
+
+### Contrato de código
+
+| O quê | Arquivo |
+|-------|---------|
+| `bodyClass: 'pagina-mapa'` | `app/controllers/MapaController.php` |
+| `svg('ui/icone-mapa', 'icone-mapa-titulo')` no `<h1>` | `app/views/mapa/index.php` |
+| Fundo fixo + cards translúcidos | `public/css/mapa.css` (blocos `body.pagina-mapa`) |
+
+### Cards translúcidos (`.pagina-mapa .regiao`)
+
+- Fundo do card quase transparente + `::before` com `backdrop-filter: blur(16px)` (no pseudo-elemento, **não** no `.regiao` — `overflow: hidden` quebra o blur).
+- Arte do bioma (`.cena-bioma-img-wrap`): `opacity: 0.58` para o void aparecer atrás.
+- Conteúdo (cabeçalho, trilha, nós): `z-index: 2` — permanece legível.
+- Overlay interno (`.cena-bioma-img-wrap::after`) mais leve que o padrão global.
+
+### Regenerar assets
+
+- **`fundo-mapa.png`:** tom escuro, narrativa (amnésia, Fragmento, queda ao abismo). Ilustração, 1536×1024.
+- **`icone-mapa.png`:** pergaminho + runas + bússola. Ilustração, ~512px no UI (52×52 CSS).
+
+---
+
+## 6. Mestres no card
+
+- Retrato: `public/img/mestres/mestre-{slug}.png` (~1024×1536)
+- CSS: `.retrato-mestre:has(img)` — máscara radial, flutuação suave
+- **Não** colocar card/borda ao redor; retrato funde no cenário
+- Regiões sem mestre usam `.retrato-icone` (emblema circular 80px)
+
+---
+
+## 7. Animação e acessibilidade
+
+- Animar só `transform` e `opacity` (60fps)
+- Mapa: pulso na fase atual (`--xp`), hover scale nos nós
+- `prefers-reduced-motion`: desligar flutuações e partículas; manter estados estáticos legíveis
+
+Som: ver specs em `openspec/changes/som-e-juice-batalha/` (Web Audio procedural).
+
+---
+
+## 7.1 Splash, home e seleção de personagens
+
+### Splash / Home
+- Fundo aprovado: `public/img/ui/splash-cena.png`.
+- Botão de entrada: `public/img/ui/botao-entrar-mundo.png`.
+- Logo grande: `public/img/ui/logo-marca-ilustrado.png`; não esticar `logo-header.png` na splash.
+- Logout força `?splash=1` para exibir a splash novamente e limpar `sessionStorage.splashVisto`.
+- A home usa `body.pagina-home`; evitar duas imagens de fundo visíveis ao mesmo tempo.
+
+### Seleção de personagens
+- View: `app/views/auth/criar-personagem.php`.
+- CSS: bloco “Seleção de classe” em `public/css/style.css`.
+- Painel externo: `public/img/ui/moldura-selecao-classes.png`.
+- Fundo da placa de texto: `public/img/ui/card-texto-bg.png`.
+- Botão final: `public/img/ui/botao-que-comece-sofrimento.png`.
+- Retratos/cartas: `public/img/herois/hud-*.png`.
+- Sprites de batalha: `public/img/herois/heroi-*.png`.
+
+### Direção visual das classes
+- 6 classes atuais: `mago`, `guerreiro`, `ranger`, `xeno`, `elfo`, `draconato`.
+- As cartas devem ter moldura integrada na própria imagem.
+- Personagens em pose séria/guerreira, com arma/equipamento visível.
+- Ranger: homem negro, sério, sem sorriso.
+- Mago: única mulher da seleção atual.
+- Xeno: alien claramente não humano, xenoíde insectoide.
+- Não remover fundo/moldura automaticamente dos cards; recorte pós-geração destrói brilho e bordas.
+
+---
+
+## 8. O que NÃO quebrar
+
+- Mecânicas de batalha, reputação, Fragmento da IA, 3 finais
+- MVC PHP, validação no servidor, CSRF, `e()` em views
+- Mestres já aprovados — não regenerar sem pedido explícito
+- **UI da página do mapa (§5.1):** `fundo-mapa.png`, `icone-mapa.png`, `bodyClass pagina-mapa`, cards translúcidos
+- **Seleção de personagem (§7.1):** cartas com moldura integrada, painel externo ornamentado e botão final em imagem
+- Fluxo OpenSpec para mudanças grandes (`docs/FLUXO-OPENSPEC.md`)
+
+---
+
+## 9. Checklist rápido (nova sessão de IA)
+
+- [ ] Mestres/fundos/mapas = **ilustração cyber-fantasia**, não pixel art
+- [ ] Cenário de mestre = 1200×800, `center top` no card alto
+- [ ] Ícone de fase = preenche círculo inteiro (`.no-bolha-arte`)
+- [ ] Cores = tokens `:root` + `--cor-regiao` do card
+- [ ] `style.css` não sobrescreve `.no-bolha-arte img`
+- [ ] Assets em `public/img/fundos/` e `public/img/mapas/`
+- [ ] Registrar slug em `helpers.php` se nova fase/região especial
+- [ ] Mapa (§5.1): manter `pagina-mapa`, `icone-mapa.png`, `fundo-mapa.png`, cards translúcidos
+- [ ] Diálogo (§5.2): palco usa `fundos/` + sprite com alpha (`inimigos/` ou `atores/`) — **nunca** `mapas/fase-*.png`
+- [ ] Splash/home/personagens (§7.1): seguir `docs/STATUS-UI-ATUAL.md`
+
+---
+
+## 10. Referências no código
+
+| O quê | Onde |
+|-------|------|
+| Tokens, pixel art global | `public/css/style.css` |
+| Cards, fundos, nós | `public/css/mapa.css` |
+| View do mapa | `app/views/mapa/index.php` |
+| Slugs de fundo/ícone | `app/core/helpers.php` |
+| UI página mapa (§5.1) | `MapaController.php`, `mapa.css` (`body.pagina-mapa`), `ui/icone-mapa.png`, `fundos/fundo-mapa.png` |
+| Status visual atual | `docs/STATUS-UI-ATUAL.md` |
+| Seleção de personagem | `app/views/auth/criar-personagem.php`, `public/css/style.css`, `public/img/ui/moldura-selecao-classes.png`, `public/img/herois/hud-*.png` |
+| Geradores pixel art legado | `tools/pixelart.py`, `tools/cenarios.py` |
+| Regras de jogo | `docs/REGRAS-DO-JOGO.md` |

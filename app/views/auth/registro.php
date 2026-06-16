@@ -10,7 +10,7 @@
 <div class="tela-auth">
     <div class="cartao-auth">
         <div class="auth-logo">
-            <?= svg('ui/logo') ?>
+            <?= marcaHtml('auth') ?>
             <h1>Torne-se um Aprendiz</h1>
             <p>Sua jornada em <?= NOME_JOGO ?> começa aqui. Não diga que ninguém avisou.</p>
         </div>

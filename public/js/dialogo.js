@@ -13,7 +13,7 @@
 
     function mostrarAtor(slug) {
         atores.forEach(function (a) {
-            a.style.display = (a.getAttribute('data-slug') === slug) ? 'block' : 'none';
+            a.style.display = (slug && a.getAttribute('data-slug') === slug) ? 'block' : 'none';
         });
     }
 
@@ -40,7 +40,7 @@
         var linha = linhas[n];
         if (!linha) { return; }
         elFalante.textContent = linha.falante;
-        if (linha.slug) { mostrarAtor(linha.slug); }
+        mostrarAtor(linha.slug || '');
         digitar(linha.texto);
     }
 
@@ -63,9 +63,10 @@
     }
 
     if (dados.semFalas || linhas.length === 0) {
+        if (dados.falanteFallback && elFalante) { elFalante.textContent = dados.falanteFallback; }
+        if (dados.textoFallback && elTexto) { elTexto.textContent = dados.textoFallback; }
         elDica.style.display = 'none';
         elAcao.style.display = 'block';
-        if (elTexto) { elTexto.textContent = ''; }
     } else {
         mostrarLinha(0);
         document.querySelector('.cena-dialogo').addEventListener('click', avancar);

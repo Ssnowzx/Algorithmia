@@ -291,6 +291,21 @@ def anciao(cv):
     cv.disc(29.5, 8, 2.5, _alpha((180,120,255,255),160)); cv.disc(29.5, 8, 1.4, (200,150,255,255))
 
 
+def narrador(cv):
+    """Voz off / narrador: capuz escuro e cristal-cursor na mão."""
+    base(cv, (124, 92, 255, 255))
+    c, cs = (36, 32, 52, 255), (22, 18, 34, 255)
+    cv.rect(11, 10, 29, 37, c); cv.rect(11, 10, 14, 37, cs)
+    cv.disc(20, 12, 6, cs)                                            # sombra do capuz
+    cv.disc(20, 13, 2, (90, 220, 255, 255))                           # brilho nos olhos
+    cv.disc(20, 14, 0.8, (200, 240, 255, 255))
+    cv.rect(22, 24, 30, 28, pele := (185, 136, 96, 255))             # mão
+    cv.disc(28, 25, 2.8, _alpha((90, 220, 255, 255), 180))           # cristal
+    cv.disc(28, 25, 1.5, (200, 240, 255, 255))
+    cv.rect(27, 23, 29, 23, (255, 210, 63, 255))                     # cursor piscando
+    cv.set(28, 22, (255, 210, 63, 255))
+
+
 CRIATURAS = {
     "inimigo-slime": slime, "inimigo-bug": bug, "inimigo-gargula": gargula,
     "inimigo-espectro": espectro, "inimigo-sentinela": sentinela, "inimigo-kraken": kraken,
@@ -300,6 +315,7 @@ CRIATURAS = {
     "inimigo-hidra": hidra, "inimigo-espiral": espiral, "inimigo-colosso": colosso,
     "inimigo-roteador": roteador, "inimigo-pacote": pacote, "inimigo-ddos": ddos,
     "inimigo-segfault": segfault, "inimigo-ia-ancestral": ia_ancestral, "npc-anciao": anciao,
+    "npc-narrador": narrador,
 }
 
 

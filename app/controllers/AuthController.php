@@ -77,7 +77,8 @@ class AuthController extends Controller
     public function logout(): void
     {
         Auth::logout();
-        $this->redirect('');
+        header('Location: ' . url('') . '&splash=1');
+        exit;
     }
 
     /**

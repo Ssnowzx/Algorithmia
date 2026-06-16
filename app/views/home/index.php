@@ -4,26 +4,26 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= NOME_JOGO ?> — <?= SUBTITULO_JOGO ?></title>
+    <link rel="icon" href="<?= asset('favicon.png') ?>" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Rubik:wght@400;500;700;800&display=swap">
     <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/cena.css') ?>">
 </head>
-<body>
-<?php require __DIR__ . '/../layout/svg-defs.php'; ?>
+<body class="pagina-home">
+<?php require __DIR__ . '/../layout/splash.php'; ?>
 
-<!-- Tela de título: cena SVG full-screen + conteúdo HTML na safe-zone. -->
-<section class="cena-palco">
-    <?php $cenaId = 'cenaTitulo'; require __DIR__ . '/../layout/cena-titulo.php'; ?>
-    <div class="cena-safe">
-        <div class="cena-logo"><?= svg('ui/logo') ?></div>
-        <h1 class="cena-titulo"><?= NOME_JOGO ?></h1>
-        <p class="cena-sub"><?= SUBTITULO_JOGO ?> — onde <strong>programar é magia</strong> e aprender é na marra.</p>
-        <div class="cena-acoes">
-            <a class="botao" href="<?= url('auth/registro') ?>">⚔ Aceitar o inevitável</a>
-            <a class="botao botao-fantasma" href="<?= url('auth/login') ?>">Já vendi minha alma aqui</a>
-        </div>
+<section class="home-entrada">
+    <div class="home-entrada-overlay"></div>
+    <div class="splash-particulas" aria-hidden="true"></div>
+    <div class="home-entrada-conteudo">
+        <?= marcaHtml('hero') ?>
+        <p class="home-entrada-sub"><?= SUBTITULO_JOGO ?> — onde <strong>programar é magia</strong> e aprender é na marra.</p>
+        <a class="home-entrada-botao" href="<?= url('auth/registro') ?>">
+            <img src="<?= asset('img/ui/botao-entrar-mundo.png') ?>" alt="Entrar no mundo" loading="eager">
+        </a>
+        <a class="home-login-link" href="<?= url('auth/login') ?>">Já vendi minha alma aqui</a>
         <a class="seta-rolar" href="#saibaMais" aria-label="Rolar para saber mais">▾</a>
     </div>
 </section>
@@ -60,7 +60,7 @@
 
 <footer class="rodape">
     <div class="rodape-conteudo">
-        <span class="rodape-marca"><?= svg('ui/logo', 'rodape-logo') ?> <?= NOME_JOGO ?></span>
+        <span class="rodape-marca"><?= marcaHtml('rodape') ?></span>
         <span class="rodape-sep">·</span>
         <span><?= SUBTITULO_JOGO ?></span>
         <span class="rodape-sep">·</span>
@@ -69,13 +69,8 @@
 </footer>
 <script src="<?= asset('js/som.js') ?>"></script>
 <script src="<?= asset('js/ui.js') ?>"></script>
-<script src="<?= asset('js/cena.js') ?>"></script>
 <script>
 (function () {
-    // Inicia a cena de título (parallax de ponteiro + motas + deriva de câmera).
-    var svg = document.getElementById('cenaTitulo');
-    if (svg && window.CENA) { window.CENA.iniciar(svg, { motas: 18, parallaxPonteiro: true }); }
-
     // Pad ambiente + som de entrada: só após o 1º gesto (política de áudio).
     var armado = false;
     function destravar() {
@@ -87,7 +82,7 @@
     ['pointerdown', 'keydown', 'touchstart'].forEach(function (e) { document.addEventListener(e, destravar, { passive: true }); });
 
     // Som nos botões de entrada.
-    document.querySelectorAll('.cena-acoes .botao').forEach(function (b) {
+    document.querySelectorAll('.home-entrada-botao, .home-login-link').forEach(function (b) {
         b.addEventListener('mouseenter', function () { if (window.SOM) { window.SOM.clique(); } });
         b.addEventListener('click', function () { if (window.SOM) { window.SOM.pressStart(); } });
     });

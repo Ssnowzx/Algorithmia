@@ -39,14 +39,63 @@
     // ---------- Revelação das regiões do mapa ao rolar ----------
     var regioes = document.querySelectorAll('.regiao');
     var semMovimento = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function revelarRegiao(el) {
+        el.classList.add('revelada');
+    }
+
+    function regiaoNoViewport(el) {
+        var rect = el.getBoundingClientRect();
+        var vh = window.innerHeight || document.documentElement.clientHeight;
+        return rect.top < vh * 0.94 && rect.bottom > vh * 0.06;
+    }
+
+    function revelarRegioesVisiveis() {
+        regioes.forEach(function (r) {
+            if (regiaoNoViewport(r)) { revelarRegiao(r); }
+        });
+    }
+
     if (regioes.length && !semMovimento && 'IntersectionObserver' in window) {
         var io = new IntersectionObserver(function (entradas) {
             entradas.forEach(function (en) {
-                if (en.isIntersecting) { en.target.classList.add('revelada'); io.unobserve(en.target); }
+                if (en.isIntersecting) {
+                    revelarRegiao(en.target);
+                    io.unobserve(en.target);
+                }
             });
-        }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
-        regioes.forEach(function (r) { r.classList.add('pre-revelar'); io.observe(r); });
+        }, { threshold: 0.08, rootMargin: '0px 0px -4% 0px' });
+        regioes.forEach(function (r) {
+            r.classList.add('pre-revelar');
+            if (regiaoNoViewport(r)) { revelarRegiao(r); }
+            else { io.observe(r); }
+        });
+        // Fallback: nunca deixar card preso invisível se o observer falhar.
+        setTimeout(function () {
+            regioes.forEach(revelarRegiao);
+        }, 1200);
     }
+
+    // ---------- Mapa: fundos estáveis ao voltar (Safari bfcache) ----------
+    function repintarFundosMapa() {
+        document.querySelectorAll('.cena-bioma-img').forEach(function (img) {
+            var src = img.currentSrc || img.src;
+            if (!src) { return; }
+            img.loading = 'eager';
+            img.src = src;
+        });
+    }
+
+    window.addEventListener('pageshow', function (ev) {
+        if (document.body.classList.contains('pagina-mapa')) {
+            repintarFundosMapa();
+        }
+        if (ev.persisted) {
+            document.querySelectorAll('.regiao.pre-revelar:not(.revelada)').forEach(function (el) {
+                el.classList.add('revelada');
+            });
+        }
+    });
 
     // ---------- Clique de UI sonoro (botões e links de ação) ----------
     document.addEventListener('click', function (e) {

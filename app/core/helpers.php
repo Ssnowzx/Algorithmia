@@ -28,10 +28,11 @@ function asset(string $caminho): string
 }
 
 /**
- * Insere a arte (pixel art PNG) de um asset do jogo a partir de
- * public/img/{slug}.png, como uma tag <img> (mantém o cache do navegador).
+ * Insere arte PNG de public/img/{slug}.png como <img>.
+ * Ilustrações (mestres, fundos, mapas/): image-rendering auto via CSS específico.
+ * Pixel art (heróis, inimigos, itens): image-rendering pixelated em style.css.
  *
- * @param string $slug   Caminho-base do asset (ex.: 'mestres/mestre-willen').
+ * @param string $slug   Caminho do asset (ex.: 'mestres/mestre-willen', 'mapas/fase-prologo-despertar').
  * @param string $classe Classe(s) CSS opcional(is) aplicada(s) ao <img>.
  * @param string $attrs  Atributos HTML extras opcionais.
  * @return string Tag <img>, ou um marcador "▢" se o asset não existir.
@@ -45,8 +46,39 @@ function svg(string $slug, string $classe = '', string $attrs = ''): string
     }
     $classeAttr = $classe !== '' ? ' class="' . e($classe) . '"' : '';
     $extra = $attrs !== '' ? ' ' . $attrs : '';
-    return '<img src="' . asset('img/' . $slug . '.png') . '"'
+    $src = asset('img/' . $slug . '.png') . '?v=' . filemtime($png);
+    return '<img src="' . $src . '"'
         . $classeAttr . $extra . ' alt="' . e($slug) . '" loading="lazy">';
+}
+
+/**
+ * Logo unificada. Usa a versão compacta no header e a marca grande nas telas de impacto.
+ */
+function marcaHtml(string $variante = 'header'): string
+{
+    $classes = [
+        'header' => 'logo-marca logo-marca-header',
+        'auth'   => 'logo-marca logo-marca-auth',
+        'rodape' => 'logo-marca logo-marca-rodape',
+        'splash' => 'logo-marca logo-marca-splash splash-marca',
+        'hero'   => 'logo-marca logo-marca-hero',
+    ];
+    $classe = $classes[$variante] ?? 'logo-marca';
+    $arquivos = [
+        'header' => 'logo-header.png',
+        'rodape' => 'logo-header.png',
+        'auth'   => 'logo-marca-ilustrado.png',
+        'splash' => 'logo-marca-ilustrado.png',
+        'hero'   => 'logo-marca-ilustrado.png',
+    ];
+    $arquivo = $arquivos[$variante] ?? 'logo-header.png';
+    $png = __DIR__ . '/../../public/img/ui/' . $arquivo;
+    if (!is_file($png)) {
+        return '<span class="svg-faltando" title="ui/' . e($arquivo) . '">▢</span>';
+    }
+    $src = asset('img/ui/' . $arquivo) . '?v=' . filemtime($png);
+    $lazy = $variante === 'splash' ? 'eager' : 'lazy';
+    return '<img src="' . $src . '" class="' . e($classe) . '" alt="' . e(NOME_JOGO) . '" loading="' . $lazy . '">';
 }
 
 /**
@@ -89,8 +121,8 @@ function svgSlug(string $slug, string $classe = ''): string
 }
 
 /**
- * Resolve o cenário de fundo (pixel art) de uma região a partir do slug do
- * mestre. Regiões sem mestre (início/fim) caem na vila de Hello World.
+ * Resolve o cenário de fundo ilustrado de uma região a partir do slug do
+ * mestre. Regiões sem mestre (início/fim) usam fundo explícito no controller.
  */
 function fundoRegiao(?string $mestreSlug): string
 {
@@ -102,6 +134,212 @@ function fundoRegiao(?string $mestreSlug): string
         'mestre-cassandro' => 'fundo-torre',     // Torre das Conexões
     ];
     return $mapa[$mestreSlug ?? ''] ?? 'fundo-vila';
+}
+
+/**
+ * Slug do ícone de mapa (fase-*) para uma ordem_global.
+ */
+function slugPalcoFase(int $ordemGlobal): ?string
+{
+    $path = iconeFaseMapa($ordemGlobal);
+    if ($path === null) {
+        return null;
+    }
+    return basename($path);
+}
+
+/**
+ * Slug do ator em cena de diálogo.
+ * Palco usa atores/ (ilustrado, alpha) — nunca mapas/ nem inimigos/ pixel.
+ */
+function caminhoAtor(string $slug): string
+{
+    if ($slug === '') {
+        return '';
+    }
+    if (strpos($slug, '/') !== false) {
+        return $slug;
+    }
+    if (str_starts_with($slug, 'fase-')) {
+        return 'atores/' . $slug;
+    }
+    if (str_starts_with($slug, 'mestre-')) {
+        $atores = 'atores/' . $slug;
+        if (is_file(__DIR__ . '/../../public/img/' . $atores . '.png')) {
+            return $atores;
+        }
+        return 'mestres/' . $slug;
+    }
+    if (str_starts_with($slug, 'npc-')) {
+        return 'atores/' . $slug;
+    }
+    return caminhoSvg($slug);
+}
+
+/** true = arte ilustrada (não pixel art) no palco de diálogo. */
+function atorIlustrado(string $slug): bool
+{
+    $path = caminhoAtor($slug);
+    if ($path === '' || str_starts_with($path, 'inimigos/')) {
+        return false;
+    }
+    if (str_starts_with($path, 'atores/')
+        || str_starts_with($path, 'mestres/')) {
+        return true;
+    }
+    return false;
+}
+
+/** Insere sprite de ator de diálogo a partir de assets existentes em public/img/. */
+function svgAtor(string $slug, string $classe = ''): string
+{
+    if ($slug === '') {
+        return '';
+    }
+    $path = caminhoAtor($slug);
+    if ($path === '' || !is_file(__DIR__ . '/../../public/img/' . $path . '.png')) {
+        return '';
+    }
+    if (str_starts_with($slug, 'npc-')) {
+        $classe = trim($classe . ' ator-ilustrado ator-npc');
+    } elseif (str_starts_with($slug, 'mestre-')) {
+        $classe = trim($classe . ' ator-ilustrado ator-mestre');
+    } elseif (str_starts_with($slug, 'fase-')) {
+        $classe = trim($classe . ' ator-ilustrado ator-fase');
+    } elseif (atorIlustrado($slug)) {
+        $classe = trim($classe . ' ator-ilustrado');
+    } else {
+        $classe = trim($classe . ' ator-pixel');
+    }
+    return svg($path, $classe);
+}
+
+/** Resolve slug de ator quando o banco não define svg_slug (ex.: Narrador). */
+function slugAtorPorFalante(string $falante): string
+{
+    if (stripos($falante, 'Narrador') !== false) {
+        return 'npc-narrador';
+    }
+    return '';
+}
+
+/**
+ * Se existir retrato manual em atores/fase-*.png, usa no palco.
+ * Caso contrário mantém o slug do banco (inimigo-*, npc-*, mestre-*).
+ */
+function slugAtorDialogo(string $slug, array $fase, ?array $mestre = null): string
+{
+    if ($slug !== '' && str_starts_with($slug, 'inimigo-')) {
+        $palco = slugPalcoFase((int) ($fase['ordem_global'] ?? 0));
+        if ($palco !== null && is_file(__DIR__ . '/../../public/img/atores/' . $palco . '.png')) {
+            return $palco;
+        }
+    }
+    if ($slug !== '') {
+        return $slug;
+    }
+    return personagemFase($fase, $mestre)['slug'];
+}
+
+/** Fase exige cena de combate (lição, chefe, secundária). */
+function faseEhCombate(array $fase): bool
+{
+    return in_array($fase['tipo'] ?? '', ['licao', 'chefe', 'chefe_final', 'secundaria'], true);
+}
+
+/**
+ * Personagem principal ilustrado no palco (atores/fase-*.png ou NPC/mestre).
+ *
+ * @return array{slug: string, nome: string}
+ */
+function personagemFase(array $fase, ?array $mestre = null): array
+{
+    $nomeInimigo = !empty($fase['inimigo_nome']) ? (string) $fase['inimigo_nome'] : (string) $fase['nome'];
+    $palco = slugPalcoFase((int) ($fase['ordem_global'] ?? 0));
+    if ($palco !== null && is_file(__DIR__ . '/../../public/img/atores/' . $palco . '.png')) {
+        return ['slug' => $palco, 'nome' => $nomeInimigo];
+    }
+    if ($mestre && !empty($mestre['svg_slug'])) {
+        return [
+            'slug' => (string) $mestre['svg_slug'],
+            'nome' => (string) ($mestre['nome'] ?? $fase['nome']),
+        ];
+    }
+    $ordem = (int) ($fase['ordem_global'] ?? 0);
+    if ($ordem === 1) {
+        return ['slug' => 'npc-anciao', 'nome' => 'Anciã da Vila'];
+    }
+    if ($ordem === 34 || ($fase['tipo'] ?? '') === 'chefe_final') {
+        $final = slugPalcoFase(35);
+        if ($final !== null && is_file(__DIR__ . '/../../public/img/atores/' . $final . '.png')) {
+            return ['slug' => $final, 'nome' => 'Lorde Segfault'];
+        }
+        return ['slug' => 'npc-narrador', 'nome' => 'Lorde Segfault'];
+    }
+    return ['slug' => 'npc-narrador', 'nome' => (string) $fase['nome']];
+}
+
+/**
+ * Ícone ilustrado de fase no mapa (todas as 35 fases).
+ * Fallback para emoji se o PNG não existir.
+ */
+function iconeFaseMapa(int $ordemGlobal): ?string
+{
+    $mapa = [
+        1  => 'mapas/fase-prologo-despertar',
+        2  => 'mapas/fase-primeiros-passos',
+        3  => 'mapas/fase-bug-primordial',
+        4  => 'mapas/fase-porto-chegada',
+        5  => 'mapas/fase-variaveis-eco',
+        6  => 'mapas/fase-estruturas-controle',
+        7  => 'mapas/fase-padrao-mvc',
+        8  => 'mapas/fase-bau-select',
+        9  => 'mapas/fase-parse-error-kraken',
+        10 => 'mapas/fase-cidadela-chegada',
+        11 => 'mapas/fase-classes-objetos',
+        12 => 'mapas/fase-encapsulamento',
+        13 => 'mapas/fase-heranca-composicao',
+        14 => 'mapas/fase-interfaces-secretas',
+        15 => 'mapas/fase-god-class',
+        16 => 'mapas/fase-floresta-chegada',
+        17 => 'mapas/fase-pilhas-filas',
+        18 => 'mapas/fase-listas-nos',
+        19 => 'mapas/fase-arvores-bigo',
+        20 => 'mapas/fase-gol-quadrado',
+        21 => 'mapas/fase-hidra-recursiva',
+        22 => 'mapas/fase-montanha-chegada',
+        23 => 'mapas/fase-sequencias-ritmo',
+        24 => 'mapas/fase-recursao-limites',
+        25 => 'mapas/fase-complexidade',
+        26 => 'mapas/fase-verdade-zero',
+        27 => 'mapas/fase-limite-colosso',
+        28 => 'mapas/fase-torre-chegada',
+        29 => 'mapas/fase-camadas-osi',
+        30 => 'mapas/fase-ip-dns-rotas',
+        31 => 'mapas/fase-tcp-udp-http',
+        32 => 'mapas/fase-pacote-perdido',
+        33 => 'mapas/fase-ddos-enxame',
+        34 => 'mapas/fase-abismo-devnull',
+        35 => 'mapas/fase-lorde-segfault',
+    ];
+    $slug = $mapa[$ordemGlobal] ?? null;
+    if ($slug === null) {
+        return null;
+    }
+    $png = __DIR__ . '/../../public/img/' . $slug . '.png';
+    return is_file($png) ? $slug : null;
+}
+
+/**
+ * Emblema ilustrado de região sem mestre (Hello World / Abismo).
+ */
+function iconeRegiaoMapa(string $chaveRegiao): ?string
+{
+    $mapa = [
+        'inicio' => 'mapas/regiao-hello-world',
+        'fim'    => 'mapas/regiao-abismo',
+    ];
+    return $mapa[$chaveRegiao] ?? null;
 }
 
 /**
@@ -122,6 +360,22 @@ function csrf_valido(): bool
 {
     return isset($_POST['csrf'], $_SESSION['csrf'])
         && hash_equals($_SESSION['csrf'], $_POST['csrf']);
+}
+
+/**
+ * Retrato ilustrado do herói para o HUD do topo (cyber-fantasia).
+ */
+function retratoHud(string $classe): string
+{
+    $map = [
+        'mago'      => 'herois/hud-mago',
+        'guerreiro' => 'herois/hud-guerreiro',
+        'ranger'    => 'herois/hud-ranger',
+        'xeno'      => 'herois/hud-xeno',
+        'elfo'      => 'herois/hud-elfo',
+        'draconato' => 'herois/hud-draconato',
+    ];
+    return $map[$classe] ?? 'herois/hud-ranger';
 }
 
 /**

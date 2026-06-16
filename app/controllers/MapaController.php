@@ -63,8 +63,10 @@ class MapaController extends Controller
         $totalFases = count($fases);
         $concluidas = count($mapaProgresso);
 
+        // UI aprovada §5.1 — bodyClass ativa fundo + cards translúcidos em mapa.css
         $this->view('mapa/index', [
             'pageTitle'   => 'Mapa de Algorithmia',
+            'bodyClass'   => 'pagina-mapa',
             'regioes'     => $regioes,
             'totalFases'  => $totalFases,
             'concluidas'  => $concluidas,

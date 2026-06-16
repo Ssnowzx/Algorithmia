@@ -9,19 +9,22 @@ $iconePorTipo = [
 ];
 ?>
 <?php require __DIR__ . '/../layout/svg-defs.php'; ?>
+<div class="mapa-pano-fundo" aria-hidden="true"></div>
 <div class="mapa-wrap">
     <div class="mapa-cabecalho">
-        <h1>🗺️ Mapa de Algorithmia</h1>
+        <?php /* §5.1 — ícone ilustrado ui/icone-mapa.png (não usar emoji 🗺️) */ ?>
+        <h1><?= svg('ui/icone-mapa', 'icone-mapa-titulo') ?> Mapa de Algorithmia</h1>
         <p class="mapa-progresso-geral">
             <?= (int) $concluidas ?> / <?= (int) $totalFases ?> fases concluídas ·
             <span style="color:var(--xp)">★ <?= (int) $totalEstrelas ?> estrelas</span>
         </p>
     </div>
 
-    <?php foreach ($regioes as $regiao): ?>
+    <?php foreach ($regioes as $chaveRegiao => $regiao): ?>
         <?php
             $fundoBase = $regiao['fundo'] ?? fundoRegiao($regiao['svg_slug'] ?? null);
             $biomaReg = str_replace('fundo-', '', $fundoBase); // ex.: 'floresta', 'torre'
+            $iconeRegiao = iconeRegiaoMapa((string) $chaveRegiao);
         ?>
         <section class="regiao bioma-<?= e($biomaReg) ?>" style="--cor-regiao: <?= e($regiao['cor']) ?>; border-color: <?= e($regiao['cor']) ?>55;">
             <?php
@@ -29,14 +32,22 @@ $iconePorTipo = [
                 $temFundoImg = is_file(__DIR__ . '/../../../public/img/fundos/' . $fundoBase . '.png');
             ?>
             <?php if ($temFundoImg): ?>
-                <div class="cena-bioma cena-bioma-img" aria-hidden="true"
-                     style="background-image:url('<?= e(asset('img/fundos/' . $fundoBase . '.png')) ?>')"></div>
+                <?php
+                    // Cards dos mestres são altos; início/fim são baixos.
+                    $fundosRetrato = ['fundo-porto', 'fundo-cidadela', 'fundo-floresta', 'fundo-montanha', 'fundo-torre'];
+                    $fmtFundo = in_array($fundoBase, $fundosRetrato, true) ? 'retrato' : 'paisagem';
+                ?>
+                <div class="cena-bioma cena-bioma-img-wrap cena-bioma-<?= e($fmtFundo) ?>" aria-hidden="true">
+                    <img class="cena-bioma-img" src="<?= e(asset('img/fundos/' . $fundoBase . '.png')) ?>" alt="" loading="eager" decoding="async">
+                </div>
             <?php else: ?>
                 <?php $bioma = $biomaReg; require __DIR__ . '/../layout/cena-bioma.php'; ?>
             <?php endif; ?>
             <div class="regiao-cabecalho">
                 <?php if (!empty($regiao['svg_slug'])): ?>
                     <div class="retrato-mestre"><?= svg('mestres/' . $regiao['svg_slug']) ?></div>
+                <?php elseif ($iconeRegiao): ?>
+                    <div class="retrato-mestre retrato-icone"><?= svg($iconeRegiao) ?></div>
                 <?php else: ?>
                     <div class="retrato-mestre"><span style="font-size:1.6rem"><?= $regiao['emoji'] ?? '🌍' ?></span></div>
                 <?php endif; ?>
@@ -55,13 +66,18 @@ $iconePorTipo = [
                     <?php
                         $estado = $fase['estado'];
                         $icone = $iconePorTipo[$fase['tipo']] ?? '⚔️';
+                        $slugIconeFase = iconeFaseMapa((int) ($fase['ordem_global'] ?? 0));
                         $clicavel = $estado !== 'bloqueada';
                         $tag = $clicavel ? 'a' : 'span';
                         $href = $clicavel ? 'href="' . url('historia/ver/' . (int) $fase['id']) . '"' : '';
                     ?>
                     <div class="no-fase no-tipo-<?= e($fase['tipo']) ?> <?= e($estado) ?>">
-                        <<?= $tag ?> class="no-bolha" <?= $href ?> title="<?= e($fase['nome']) ?>">
-                            <span class="emoji"><?= $icone ?></span>
+                        <<?= $tag ?> class="no-bolha<?= $slugIconeFase ? ' no-bolha-arte' : '' ?>" <?= $href ?> title="<?= e($fase['nome']) ?>">
+                            <?php if ($slugIconeFase): ?>
+                                <?= svg($slugIconeFase, 'icone-fase') ?>
+                            <?php else: ?>
+                                <span class="emoji"><?= $icone ?></span>
+                            <?php endif; ?>
                             <?php if ($estado === 'bloqueada'): ?><span style="position:absolute;bottom:-2px;right:-2px;font-size:.9rem">🔒</span><?php endif; ?>
                         </<?= $tag ?>>
                         <div class="no-estrelas">

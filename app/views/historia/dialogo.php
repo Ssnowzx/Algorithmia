@@ -3,11 +3,18 @@
 $linhas = [];
 $slugsUnicos = [];
 foreach ($dialogos as $d) {
-    $slug = $d['svg_slug'] ?: '';
+    $slug = slugAtorDialogo($d['svg_slug'] ?: slugAtorPorFalante($d['falante']), $fase, $mestre ?? null);
     $linhas[] = ['falante' => $d['falante'], 'texto' => $d['texto'], 'slug' => $slug];
     if ($slug && !in_array($slug, $slugsUnicos, true)) {
         $slugsUnicos[] = $slug;
     }
+}
+$slugInicial = $linhas[0]['slug'] ?? '';
+$personagemFase = personagemFase($fase, $mestre ?? null);
+
+if (empty($slugsUnicos) && $personagemFase['slug'] !== '') {
+    $slugsUnicos = [$personagemFase['slug']];
+    $slugInicial = $personagemFase['slug'];
 }
 
 // Define o destino do botão de ação ao fim do diálogo.
@@ -25,25 +32,29 @@ $fundoCena = ($fase['tipo'] ?? '') === 'chefe_final'
     ? 'fundo-abismo'
     : (($ehCombate && empty($mestre)) ? 'fundo-batalha' : fundoRegiao($mestre['svg_slug'] ?? null));
 $fundoCenaUrl = asset('img/fundos/' . $fundoCena . '.png');
+$stylePalco = '--cor-cena: ' . e($corCena)
+    . '; background-image: linear-gradient(180deg, rgba(10,12,28,.28), rgba(10,12,28,.68)), url(' . e($fundoCenaUrl) . ')';
 ?>
 <div class="cena-dialogo">
-    <div class="palco palco-cena" style="--cor-cena: <?= e($corCena) ?>; background-image: linear-gradient(180deg, rgba(10,12,28,.30), rgba(10,12,28,.72)), url('<?= e($fundoCenaUrl) ?>');">
+    <div class="palco palco-cena" style="<?= $stylePalco ?>">
         <!-- Reserva de atores: JS mostra o do falante atual. -->
         <div class="ator" id="ator">
             <?php if ($slugsUnicos): ?>
-                <?php foreach ($slugsUnicos as $i => $slug): ?>
-                    <div class="ator-svg" data-slug="<?= e($slug) ?>" style="display:<?= $i === 0 ? 'block' : 'none' ?>">
-                        <?= svgSlug($slug) ?>
+                <?php foreach ($slugsUnicos as $slug): ?>
+                    <div class="ator-svg" data-slug="<?= e($slug) ?>" style="display:<?= $slug === $slugInicial ? 'block' : 'none' ?>">
+                        <?= svgAtor($slug) ?>
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
-                <div style="font-size:5rem">📖</div>
+                <div class="ator-svg" data-slug="<?= e($personagemFase['slug']) ?>" style="display:block">
+                    <?= svgAtor($personagemFase['slug']) ?>
+                </div>
             <?php endif; ?>
         </div>
     </div>
 
     <div class="caixa-fala">
-        <div class="falante" id="falante"><?= e($linhas[0]['falante'] ?? $fase['nome']) ?></div>
+        <div class="falante" id="falante"><?= e($linhas[0]['falante'] ?? $personagemFase['nome']) ?></div>
         <div class="texto-fala" id="textoFala"></div>
 
         <div class="dialogo-controles">
@@ -58,7 +69,9 @@ $fundoCenaUrl = asset('img/fundos/' . $fundoCena . '.png');
 <script>
 window.DIALOGO = {
     linhas: <?= json_encode($linhas, JSON_UNESCAPED_UNICODE) ?>,
-    semFalas: <?= empty($linhas) ? 'true' : 'false' ?>
+    semFalas: <?= empty($linhas) ? 'true' : 'false' ?>,
+    falanteFallback: <?= json_encode($personagemFase['nome'], JSON_UNESCAPED_UNICODE) ?>,
+    textoFallback: <?= json_encode(empty($linhas) ? ($fase['descricao'] ?? '') : '', JSON_UNESCAPED_UNICODE) ?>
 };
 </script>
 <script src="<?= asset('js/dialogo.js') ?>"></script>
