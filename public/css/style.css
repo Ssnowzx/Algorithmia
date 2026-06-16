@@ -287,6 +287,45 @@ code, pre { font-family: var(--pixel); }
 }
 .ficha-modal-fechar:hover { background: rgba(0,0,0,.82); transform: scale(1.08); }
 
+/* ---------- Popup usando a carta de status (card-status-heroi) ---------- */
+.fcs-wrap { display: flex; flex-direction: column; align-items: center; gap: .7rem; max-height: 94vh; }
+.ficha-card-status {
+    position: relative;
+    width: min(90vw, 360px);
+    aspect-ratio: 799 / 1011;
+    background-size: 100% 100%; background-repeat: no-repeat;
+    container-type: inline-size;
+    animation: lorePop .24s cubic-bezier(.2, .8, .3, 1.2) both;
+    filter: drop-shadow(0 18px 44px rgba(0,0,0,.6));
+}
+.ficha-card-status > * { position: absolute; }
+.ficha-card-status .ficha-modal-fechar {
+    top: 2.5%; left: 3.5%; width: 9%; height: auto; aspect-ratio: 1; font-size: 4cqw;
+}
+/* Personagem no painel superior (slot y 4–46%). */
+.fcs-personagem { top: 5%; height: 40%; left: 50%; transform: translateX(-50%); display: grid; place-items: center; }
+.fcs-personagem img { height: 100%; width: auto; max-width: 72cqw; object-fit: contain; image-rendering: auto; }
+/* Nome (slot ~52%). */
+.fcs-nome {
+    top: 47.5%; left: 50%; transform: translateX(-50%); width: 74%; text-align: center;
+    font-family: var(--titulo); font-weight: 700; font-size: 6cqw; color: #fff; line-height: 1;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 2px 6px rgba(0,0,0,.8);
+}
+.fcs-nivel { font-size: 3.4cqw; color: var(--ouro); }
+/* Slots de stat (2×2 + reputação larga). */
+.fcs-slot {
+    transform: translate(-50%, -50%); display: flex; align-items: center; gap: 1.5cqw;
+    font-family: var(--hud); font-weight: 700; font-size: 3.6cqw; color: #fff; white-space: nowrap;
+    text-shadow: 0 1px 3px rgba(0,0,0,.85);
+}
+.fcs-slot .ic { display: inline-flex; align-items: center; font-size: 3.8cqw; }
+.fcs-slot .ic .ico { width: 3.8cqw; height: 3.8cqw; }
+.fcs-hp   { left: 28.5%; top: 62.5%; color: var(--hp); }
+.fcs-mp   { left: 71%;   top: 62.5%; color: var(--mp); }
+.fcs-xp   { left: 28.5%; top: 71.5%; color: var(--xp); }
+.fcs-ouro { left: 71%;   top: 71.5%; color: var(--ouro); }
+.fcs-rep  { left: 50%;   top: 83%; width: 78%; justify-content: center; font-size: 3.1cqw; }
+
 /* ---------- Controle de som (mute/volume) no topo ---------- */
 .som-controle { display: inline-flex; align-items: center; gap: .4rem; }
 .btn-som {

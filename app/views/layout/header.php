@@ -87,16 +87,33 @@ unset($_SESSION['flash']);
 
 <?php if ($heroi): ?>
 <?php
-    // Ficha do herói (popup ao clicar no status). Imagem de fundo opcional do GPT.
     $fichaFundo = is_file(__DIR__ . '/../../../public/img/ui/ficha-fundo.png') ? srcImagem('ui/ficha-fundo') : '';
+    $temCardStatus = is_file(__DIR__ . '/../../../public/img/ui/card-status-heroi.png');
     // Carta do herói no popup: usa herois/card-<classe> se existir; senão a carta hud-*.
     $cardHeroi = is_file(__DIR__ . '/../../../public/img/herois/card-' . $heroi['classe'] . '.png')
         ? 'herois/card-' . $heroi['classe']
         : retratoHud($heroi['classe']);
     $xpNivelAtual = xpParaNivel((int) $heroi['nivel']);
     $xpNivelProx  = xpParaNivel((int) $heroi['nivel'] + 1);
+    $repVal = (int) $heroi['reputacao'];
 ?>
 <div id="fichaModal" class="ficha-modal-overlay" aria-hidden="true">
+<?php if ($temCardStatus): ?>
+    <div class="fcs-wrap">
+        <div class="ficha-card-status" role="dialog" aria-modal="true" aria-labelledby="fichaNome"
+             style="--hud-cor: <?= e($cfgClasse['cor']) ?>; background-image: url('<?= e(srcImagem('ui/card-status-heroi')) ?>')">
+            <button type="button" class="ficha-modal-fechar" aria-label="Fechar">✕</button>
+            <div class="fcs-personagem"><?= svg($cardHeroi) ?></div>
+            <div class="fcs-nome" id="fichaNome"><?= e($heroi['nome']) ?> <span class="fcs-nivel">Nv <?= (int) $heroi['nivel'] ?></span></div>
+            <div class="fcs-slot fcs-hp"><span class="ic">❤</span><b><?= (int) $heroi['hp_atual'] ?>/<?= (int) $heroi['hp_max'] ?></b></div>
+            <div class="fcs-slot fcs-mp"><span class="ic">✦</span><b><?= (int) $heroi['mp_atual'] ?>/<?= (int) $heroi['mp_max'] ?></b></div>
+            <div class="fcs-slot fcs-xp"><span class="ic">★</span><b><?= max(0, (int) $heroi['xp'] - $xpNivelAtual) ?>/<?= max(1, $xpNivelProx - $xpNivelAtual) ?></b></div>
+            <div class="fcs-slot fcs-ouro"><span class="ic"><?= svg('ui/icone-ouro', 'ico') ?></span><b><?= (int) $heroi['ouro'] ?></b></div>
+            <div class="fcs-slot fcs-rep"><span class="ic"><?= $repVal >= 0 ? '⚖️' : '🤖' ?></span><b><?= e(rotuloReputacao($repVal)) ?> (<?= $repVal ?>)</b></div>
+        </div>
+        <a class="botao ficha-perfil-link" href="<?= url('perfil') ?>">Ver perfil completo →</a>
+    </div>
+<?php else: ?>
     <div class="ficha-modal-card<?= $fichaFundo ? ' ficha-com-fundo' : '' ?>" role="dialog" aria-modal="true" aria-labelledby="fichaNome"
          style="--hud-cor: <?= e($cfgClasse['cor']) ?><?= $fichaFundo ? '; background-image: linear-gradient(180deg, rgba(8,8,20,.28), rgba(8,8,20,.78) 58%, rgba(10,8,22,.93)), url(\'' . e($fichaFundo) . '\')' : '' ?>">
         <button type="button" class="ficha-modal-fechar" aria-label="Fechar">✕</button>
@@ -112,11 +129,12 @@ unset($_SESSION['flash']);
                 <div class="ficha-stat"><span>✦ Mana</span><strong><?= (int) $heroi['mp_atual'] ?> / <?= (int) $heroi['mp_max'] ?></strong></div>
                 <div class="ficha-stat"><span>★ XP</span><strong><?= max(0, (int) $heroi['xp'] - $xpNivelAtual) ?> / <?= max(1, $xpNivelProx - $xpNivelAtual) ?></strong></div>
                 <div class="ficha-stat"><span><?= svg('ui/icone-ouro', 'ico') ?> Ouro</span><strong><?= (int) $heroi['ouro'] ?></strong></div>
-                <div class="ficha-stat ficha-stat-larga"><span><?= (int) $heroi['reputacao'] >= 0 ? '⚖️' : '🤖' ?> Reputação</span><strong><?= e(rotuloReputacao((int) $heroi['reputacao'])) ?> (<?= (int) $heroi['reputacao'] ?>)</strong></div>
+                <div class="ficha-stat ficha-stat-larga"><span><?= $repVal >= 0 ? '⚖️' : '🤖' ?> Reputação</span><strong><?= e(rotuloReputacao($repVal)) ?> (<?= $repVal ?>)</strong></div>
             </div>
             <a class="botao ficha-perfil-link" href="<?= url('perfil') ?>">Ver perfil completo →</a>
         </div>
     </div>
+<?php endif; ?>
 </div>
 <script>
 (function () {
