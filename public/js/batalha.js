@@ -244,7 +244,6 @@
             else { renderDesafio(r.proximo || (r.estado && r.estado.desafio)); }
         });
         fb.appendChild(cont);
-        atualizarBotoesItens();
     }
 
     function bloquearZona() {
@@ -324,8 +323,6 @@
             else { btn.textContent = btn.textContent.replace(/\(\d+\)/, '(' + n + ')'); }
         }
     }
-
-    function atualizarBotoesItens() { /* hooks futuros */ }
 
     // ---------- resultado ----------
     function mostrarResultado(r) {

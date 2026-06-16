@@ -22,15 +22,4 @@ class Personagem extends Model
         $stmt->execute();
         return $stmt->fetchAll();
     }
-
-    /**
-     * Ajusta HP mantendo-o entre 0 e o máximo.
-     */
-    public function ajustarVida(int $personagemId, int $delta): int
-    {
-        $p = $this->findById($personagemId);
-        $novo = max(0, min((int) $p['hp_max'], (int) $p['hp_atual'] + $delta));
-        $this->update($personagemId, ['hp_atual' => $novo]);
-        return $novo;
-    }
 }
