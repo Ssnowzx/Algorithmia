@@ -9,11 +9,21 @@
 
 declare(strict_types=1);
 
+// Só via linha de comando — nunca pela web. Sem esta guarda, qualquer um
+// poderia (re)criar a conta de administrador acessando este arquivo pela URL.
+if (PHP_SAPI !== 'cli') {
+    http_response_code(403);
+    exit('Este script só pode ser executado via linha de comando.');
+}
+
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/db.php';
 
-const DEMO_EMAIL = 'masterboss@boss.com';
-const DEMO_SENHA = 'qwe123';
+// Credenciais por variável de ambiente; os valores abaixo são apenas o padrão
+// de conveniência para desenvolvimento local. Defina DEMO_EMAIL/DEMO_SENHA no
+// ambiente antes de rodar em qualquer lugar que não seja a sua máquina.
+define('DEMO_EMAIL', getenv('DEMO_EMAIL') ?: 'masterboss@boss.com');
+define('DEMO_SENHA', getenv('DEMO_SENHA') ?: 'qwe123');
 const DEMO_NOME_USUARIO = 'Master Boss';
 const DEMO_NOME_HEROI = 'Boss Explorer';
 

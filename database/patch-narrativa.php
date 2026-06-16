@@ -14,6 +14,12 @@
 
 declare(strict_types=1);
 
+// Só via linha de comando — nunca pela web.
+if (PHP_SAPI !== 'cli') {
+    http_response_code(403);
+    exit('Este script só pode ser executado via linha de comando.');
+}
+
 require_once __DIR__ . '/../config/db.php';
 
 /**

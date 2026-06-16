@@ -11,6 +11,13 @@
 
 declare(strict_types=1);
 
+// Blindagem: scripts de banco NUNCA podem ser disparados pela web (o document
+// root pode acabar incluindo database/). Só rodam via linha de comando.
+if (PHP_SAPI !== 'cli') {
+    http_response_code(403);
+    exit('Este script só pode ser executado via linha de comando.');
+}
+
 require_once __DIR__ . '/../config/db.php';
 
 /**
