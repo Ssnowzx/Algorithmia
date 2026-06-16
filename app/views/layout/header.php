@@ -4,6 +4,15 @@ $heroi = Auth::personagem();
 $ehMestre = Auth::ehMestre();
 $flash = $_SESSION['flash'] ?? null;
 unset($_SESSION['flash']);
+// Carta do herói usada TANTO no avatar da barra QUANTO no popup (mesma imagem,
+// para não mostrar artes diferentes do mesmo personagem). Prefere a carta
+// dedicada herois/card-<classe>; senão cai na carta hud-<classe>.
+$cardHeroi = '';
+if ($heroi) {
+    $cardHeroi = is_file(__DIR__ . '/../../../public/img/herois/card-' . $heroi['classe'] . '.png')
+        ? 'herois/card-' . $heroi['classe']
+        : retratoHud($heroi['classe']);
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -34,7 +43,7 @@ unset($_SESSION['flash']);
         <div class="hud-placa hud-placa-click" id="hudPlaca" role="button" tabindex="0"
              aria-haspopup="dialog" title="Ver ficha do herói">
             <div class="hud-avatar">
-                <?= svg(retratoHud($heroi['classe']), 'hud-retrato') ?>
+                <?= svg($cardHeroi, 'hud-retrato') ?>
                 <span class="hud-nivel-badge">Nv <?= (int) $heroi['nivel'] ?></span>
             </div>
             <div class="hud-info">
@@ -87,10 +96,7 @@ unset($_SESSION['flash']);
 <?php
     $fichaFundo = is_file(__DIR__ . '/../../../public/img/ui/ficha-fundo.png') ? srcImagem('ui/ficha-fundo') : '';
     $temCardStatus = is_file(__DIR__ . '/../../../public/img/ui/card-status-heroi.png');
-    // Carta do herói no popup: usa herois/card-<classe> se existir; senão a carta hud-*.
-    $cardHeroi = is_file(__DIR__ . '/../../../public/img/herois/card-' . $heroi['classe'] . '.png')
-        ? 'herois/card-' . $heroi['classe']
-        : retratoHud($heroi['classe']);
+    // $cardHeroi já definido no topo (mesma carta do avatar da barra).
     $xpNivelAtual = xpParaNivel((int) $heroi['nivel']);
     $xpNivelProx  = xpParaNivel((int) $heroi['nivel'] + 1);
     $repVal = (int) $heroi['reputacao'];
