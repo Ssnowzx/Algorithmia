@@ -6,6 +6,24 @@
 class Auth
 {
     /**
+     * Cache por requisição: usuario() e personagem() eram consultados várias
+     * vezes na mesma página (exigirLogin + ehMestre + HUD do header), gerando
+     * SELECTs idênticos repetidos. Memoizamos e invalidamos no login/logout.
+     */
+    private static ?array $usuarioMemo = null;
+    private static bool $usuarioMemoFeito = false;
+    private static ?array $personagemMemo = null;
+    private static bool $personagemMemoFeito = false;
+
+    private static function limparMemo(): void
+    {
+        self::$usuarioMemo = null;
+        self::$usuarioMemoFeito = false;
+        self::$personagemMemo = null;
+        self::$personagemMemoFeito = false;
+    }
+
+    /**
      * Autentica por email/senha. Regenera o id de sessão no sucesso.
      */
     public static function login(string $email, string $senha): bool
@@ -16,12 +34,14 @@ class Auth
         }
         session_regenerate_id(true);
         $_SESSION['usuario_id'] = (int) $usuario['id'];
+        self::limparMemo();
         return true;
     }
 
     public static function logout(): void
     {
         unset($_SESSION['usuario_id'], $_SESSION['batalha']);
+        self::limparMemo();
     }
 
     public static function logado(): bool
@@ -30,25 +50,33 @@ class Auth
     }
 
     /**
-     * Usuário autenticado (linha completa) ou null.
+     * Usuário autenticado (linha completa) ou null. Memoizado por requisição.
      */
     public static function usuario(): ?array
     {
-        if (!self::logado()) {
-            return null;
+        if (self::$usuarioMemoFeito) {
+            return self::$usuarioMemo;
         }
-        return (new Usuario())->findById((int) $_SESSION['usuario_id']);
+        self::$usuarioMemoFeito = true;
+        if (!self::logado()) {
+            return self::$usuarioMemo = null;
+        }
+        return self::$usuarioMemo = (new Usuario())->findById((int) $_SESSION['usuario_id']);
     }
 
     /**
-     * Personagem do usuário logado, ou null se ainda não criou.
+     * Personagem do usuário logado, ou null se ainda não criou. Memoizado.
      */
     public static function personagem(): ?array
     {
-        if (!self::logado()) {
-            return null;
+        if (self::$personagemMemoFeito) {
+            return self::$personagemMemo;
         }
-        return (new Personagem())->findBy('usuario_id', (int) $_SESSION['usuario_id']);
+        self::$personagemMemoFeito = true;
+        if (!self::logado()) {
+            return self::$personagemMemo = null;
+        }
+        return self::$personagemMemo = (new Personagem())->findBy('usuario_id', (int) $_SESSION['usuario_id']);
     }
 
     public static function ehMestre(): bool
