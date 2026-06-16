@@ -106,6 +106,14 @@ code, pre { font-family: var(--pixel); }
     opacity: .85;
 }
 .topo-jogo { isolation: isolate; }
+/* Barra emoldurada (moldura-barra.webp) via border-image 9-slice: cantos nítidos,
+   bordas esticadas, miolo transparente. Slice/largura ajustáveis vendo a arte. */
+.topo-moldurado {
+    border-style: solid;
+    border-width: 16px 28px;
+    border-image: url("../img/ui/moldura-barra.webp") 80 / 16px 28px / 0 stretch;
+}
+.topo-moldurado::before { display: none; } /* sem o trilho de luz duplicado */
 .marca {
     display: inline-flex; align-items: center;
     color: var(--texto); text-decoration: none; line-height: 0; flex-shrink: 0;

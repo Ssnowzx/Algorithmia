@@ -21,7 +21,8 @@ unset($_SESSION['flash']);
     <link rel="stylesheet" href="<?= assetV('css/batalha.css') ?>">
 </head>
 <body class="<?= e($bodyClass ?? '') ?>">
-<header class="topo topo-jogo">
+<?php $temMolduraBarra = is_file(__DIR__ . '/../../../public/img/ui/moldura-barra.png'); ?>
+<header class="topo topo-jogo<?= $temMolduraBarra ? ' topo-moldurado' : '' ?>">
     <a class="marca" href="<?= url('mapa') ?>" aria-label="<?= NOME_JOGO ?> — ir para o mapa">
         <?= marcaHtml('header') ?>
     </a>
