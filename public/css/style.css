@@ -117,10 +117,10 @@ code, pre { font-family: var(--pixel); }
 }
 .logo-marca-header {
     display: block;
-    height: clamp(26px, 4vw, 32px);
+    height: clamp(38px, 5vw, 50px);
     width: auto;
     max-width: 100%;
-    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .35));
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, .4)) drop-shadow(0 0 10px rgba(124, 92, 255, .25));
 }
 .logo-marca-auth {
     display: block;
@@ -226,18 +226,29 @@ code, pre { font-family: var(--pixel); }
 .navegacao { display: flex; gap: .25rem; flex-wrap: wrap; justify-self: end; align-items: center; }
 .topo-nav { margin-left: 0; }
 .navegacao a {
-    padding: .42rem .72rem; border-radius: 9px; color: var(--texto-fraco);
-    font-weight: 600; font-size: .88rem; transition: .15s;
+    position: relative;
+    padding: .4rem .72rem; border-radius: 9px; color: var(--texto-fraco);
+    font-family: var(--titulo); font-weight: 600; font-size: .98rem; letter-spacing: .02em;
     border: 1px solid transparent;
+    transition: color .15s, background .15s, transform .15s, box-shadow .15s, border-color .15s;
 }
 .navegacao a:hover {
-    background: color-mix(in srgb, var(--primaria) 16%, var(--painel-2));
-    border-color: color-mix(in srgb, var(--primaria) 35%, transparent);
-    color: var(--texto);
-    box-shadow: 0 0 14px rgba(124,92,255,.18);
+    background: color-mix(in srgb, var(--primaria) 18%, var(--painel-2));
+    border-color: color-mix(in srgb, var(--primaria) 40%, transparent);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(124,92,255,.24);
 }
+/* Tracinho de luz embaixo no hover (cara de menu de game). */
+.navegacao a::after {
+    content: ""; position: absolute; left: 24%; right: 24%; bottom: 1px; height: 2px;
+    border-radius: 2px; opacity: 0; transition: opacity .15s;
+    background: linear-gradient(90deg, transparent, var(--primaria-2), var(--ouro), transparent);
+}
+.navegacao a:hover::after { opacity: 1; }
 .link-mestre { color: var(--xp) !important; }
 .link-sair { color: var(--hp) !important; }
+.link-sair:hover { background: color-mix(in srgb, var(--hp) 18%, var(--painel-2)); border-color: color-mix(in srgb, var(--hp) 40%, transparent); box-shadow: 0 4px 16px rgba(255,107,107,.22); }
 
 /* ---------- Barras (HP/MP/XP) ---------- */
 .barra {
@@ -937,7 +948,7 @@ textarea { min-height: 90px; resize: vertical; }
     .hud-placa { width: 100%; }
     .hud-recursos { flex-direction: row; gap: .65rem; border-left: none; padding-left: 0; padding-top: .25rem; }
     .marca { max-width: none; }
-    .logo-marca-header { height: 28px; max-width: min(42vw, 180px); }
+    .logo-marca-header { height: 36px; max-width: min(50vw, 210px); }
 }
 
 /* ============================================================
