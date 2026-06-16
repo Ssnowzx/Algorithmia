@@ -421,9 +421,26 @@ body.pagina-mapa .regiao > .trilha {
     background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.5) 0%, transparent 72%);
     filter: blur(4px);
 }
+/* Aura mágica pulsante atrás do personagem (cor da região). */
+.palco-cena .ator-svg::before {
+    content: ""; position: absolute; left: 50%; bottom: 6%;
+    width: 86%; height: 74%; transform: translateX(-50%);
+    z-index: 0; pointer-events: none;
+    background: radial-gradient(ellipse at center, color-mix(in srgb, var(--cor-cena, #7c5cff) 42%, transparent), transparent 70%);
+    filter: blur(16px);
+    animation: atorAura 3.6s ease-in-out infinite;
+}
 @keyframes atorFlutua { from { transform: translateY(0); } to { transform: translateY(-12px); } }
+@keyframes atorAura { 0%, 100% { opacity: .3; } 50% { opacity: .58; } }
+/* Entrada do personagem quando o falante muda (classe .entrando via dialogo.js). */
+@keyframes atorEntra {
+    from { opacity: 0; transform: translateY(26px) scale(.94); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.palco-cena .ator-svg.entrando { animation: atorEntra .5s cubic-bezier(.2, .8, .3, 1.12) both; }
 @media (prefers-reduced-motion: reduce) {
-    .palco-cena::after, .palco-cena .ator { animation: none; }
+    .palco-cena::after, .palco-cena .ator,
+    .palco-cena .ator-svg::before, .palco-cena .ator-svg.entrando { animation: none; }
 }
 
 .caixa-fala {

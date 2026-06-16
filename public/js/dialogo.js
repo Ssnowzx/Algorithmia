@@ -10,11 +10,22 @@
     var elDica = document.getElementById('dica');
     var elAcao = document.getElementById('acaoFinal');
     var atores = document.querySelectorAll('.ator-svg');
+    var slugAtorAtual = null;
 
     function mostrarAtor(slug) {
+        var alvo = null;
         atores.forEach(function (a) {
-            a.style.display = (slug && a.getAttribute('data-slug') === slug) ? 'block' : 'none';
+            var ehAtual = !!slug && a.getAttribute('data-slug') === slug;
+            a.style.display = ehAtual ? 'block' : 'none';
+            if (ehAtual) { alvo = a; }
         });
+        // Anima a entrada só quando o falante (personagem) muda.
+        if (alvo && slug !== slugAtorAtual) {
+            alvo.classList.remove('entrando');
+            void alvo.offsetWidth;           // reinicia a animação
+            alvo.classList.add('entrando');
+        }
+        slugAtorAtual = slug;
     }
 
     function digitar(texto) {
