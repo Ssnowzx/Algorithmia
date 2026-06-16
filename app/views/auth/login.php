@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
 </head>
 <body>
-<?php require __DIR__ . '/../layout/splash.php'; ?>
 <div class="tela-auth">
     <div class="cartao-auth">
         <div class="auth-logo">

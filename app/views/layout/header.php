@@ -21,7 +21,6 @@ unset($_SESSION['flash']);
     <link rel="stylesheet" href="<?= asset('css/batalha.css') ?>">
 </head>
 <body class="<?= e($bodyClass ?? '') ?>">
-<?php require __DIR__ . '/splash.php'; ?>
 <header class="topo topo-jogo">
     <a class="marca" href="<?= url('mapa') ?>" aria-label="<?= NOME_JOGO ?> — ir para o mapa">
         <?= marcaHtml('header') ?>

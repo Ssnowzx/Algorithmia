@@ -12,8 +12,6 @@
     <link rel="stylesheet" href="<?= asset('css/cena.css') ?>">
 </head>
 <body class="pagina-home">
-<?php require __DIR__ . '/../layout/splash.php'; ?>
-
 <section class="home-entrada">
     <img class="home-entrada-bg" src="<?= e(srcImagem('ui/splash-cena') ?? '') ?>" alt="" aria-hidden="true" decoding="async">
     <div class="home-entrada-overlay"></div>
