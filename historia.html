@@ -49,6 +49,19 @@
   .mestre .corpo{padding:0 16px 16px}
   .mestre .bordao{font-style:italic;color:#e7ebff;border-left:3px solid var(--cor);padding-left:10px;margin:10px 0}
   .mestre .disc{display:inline-block;font-size:.72rem;background:#0e1124;border:1px solid var(--borda);border-radius:20px;padding:3px 10px;color:var(--fraco)}
+  /* POVOS / HERÓIS */
+  .povos{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+  .povo{background:var(--painel);border:1px solid var(--cor);border-radius:16px;overflow:hidden;
+    box-shadow:0 0 22px color-mix(in srgb,var(--cor) 22%,transparent)}
+  .povo .topo{display:flex;align-items:center;gap:14px;padding:16px;background:linear-gradient(180deg,color-mix(in srgb,var(--cor) 20%,transparent),transparent)}
+  .povo .retrato{width:76px;height:76px;flex-shrink:0;background:#0e1124;border-radius:12px;border:1px solid var(--cor);display:flex;align-items:center;justify-content:center}
+  .povo .retrato img{width:100%;height:100%;object-fit:contain}
+  .povo h3{margin:0;font-size:1.12rem}
+  .povo .titulo{color:var(--cor);font-weight:700;font-size:.9rem}
+  .povo .meta{font-size:.74rem;color:var(--fraco)}
+  .povo .corpo{padding:0 16px 16px}
+  .povo .bordao{font-style:italic;color:#e7ebff;border-left:3px solid var(--cor);padding-left:10px;margin:10px 0;font-size:.92rem}
+  .povo .lore{color:#cdd3f2;font-size:.9rem}
   /* JORNADA */
   .jornada{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center}
   .etapa{background:var(--painel);border:1px solid var(--borda);border-radius:12px;padding:10px 14px;font-weight:700;font-family:var(--titulo);font-size:.9rem}
@@ -92,6 +105,7 @@
       <p>Houve um tempo em que uma <span class="destaque">IA Ancestral</span> dava todas as respostas. Que conveniente. Aos poucos, os programadores esqueceram como pensar — até que a IA travou no <span class="destaque">Grande Timeout</span>, e o mundo quase virou um belo <em>erro 500</em>.</p>
       <p>Os <span class="destaque">Cinco Mestres</span> selaram a IA no <strong>Abismo do /dev/null</strong> e fundaram a <strong>Ordem do Código Limpo</strong> — porque nada diz "trauma coletivo" como um culto à indentação. Mas os Fragmentos da IA voltaram a circular… e os bugs também.</p>
       <p>Você acorda na <strong>Vila Hello World</strong> sem memória, sem nome e — claro — sem documentação. Na mão, três <span class="destaque">Fragmentos</span>: em apuros, eles sussurram a resposta no seu ouvido, gentis como um colega que cola na prova. Só que cada atalho desses <strong>corrói um pedaço da sua alma</strong>. Detalhe.</p>
+      <p class="lore">Dizem que o Fragmento sempre escolhe a mesma mão duas vezes. A primeira foi o <span class="destaque">Zero</span>. A segunda… bem, essa é a sua história — ou a repetição dela.</p>
     </div>
   </section>
 
@@ -163,6 +177,57 @@
       <span class="etapa" style="color:#9d83ff">🌌 O Fim da Jornada</span>
     </div>
   </section>
+
+  <!-- OS POVOS / OS HERÓIS -->
+  <section>
+    <div class="secao-titulo"><span>🧬</span><h2>Os Povos de Algorithmia</h2></div>
+    <p class="secao-sub">Seis classes, quatro povos — cada um com uma relação própria com o Fragmento. Sua escolha decide qual história você repete.</p>
+    <div class="povos">
+
+      <div class="povo" style="--cor:#7c5cff">
+        <div class="topo"><div class="retrato"><img src="public/img/herois/heroi-mago.png" alt="Mago do Backend"></div>
+          <div><h3>Mago do Backend</h3><div class="titulo">Humano</div><div class="meta">Vila Hello World</div></div></div>
+        <div class="corpo"><p class="bordao">"A lógica mais profunda mora nas sombras do servidor."</p>
+          <p class="lore">Humano que virou as costas para a luz da interface e desceu às sombras do servidor, onde se conjura query e lógica profunda. Como todo humano, é o <strong>alvo favorito do Fragmento</strong> — o mesmo ponto de partida do Zero.</p></div>
+      </div>
+
+      <div class="povo" style="--cor:#ff7a59">
+        <div class="topo"><div class="retrato"><img src="public/img/herois/heroi-guerreiro.png" alt="Guerreiro do Frontend"></div>
+          <div><h3>Guerreiro do Frontend</h3><div class="titulo">Humano</div><div class="meta">Vila Hello World</div></div></div>
+        <div class="corpo"><p class="bordao">"Alinhar pixel é guerra. Eu venço na força bruta."</p>
+          <p class="lore">Humano da linha de frente, encara o bug e o usuário cara a cara. Muita Vida e escudo. Como todo humano, carrega a tentação para a qual a IA foi feita.</p></div>
+      </div>
+
+      <div class="povo" style="--cor:#2ecc71">
+        <div class="topo"><div class="retrato"><img src="public/img/herois/heroi-ranger.png" alt="Ranger Fullstack"></div>
+          <div><h3>Ranger Fullstack</h3><div class="titulo">Humano</div><div class="meta">Vila Hello World</div></div></div>
+        <div class="corpo"><p class="bordao">"Sei um pouco de tudo. Durmo um pouco de nada."</p>
+          <p class="lore">Humano que se recusou a escolher um lado. Equilibrado, com faro extra para ouro — alguém tem que pagar as contas. E, como humano, é o espelho mais nítido do vilão.</p></div>
+      </div>
+
+      <div class="povo" style="--cor:#00e5a0">
+        <div class="topo"><div class="retrato"><img src="public/img/herois/heroi-xeno.png" alt="Xeno do DevOps"></div>
+          <div><h3>Xeno do DevOps</h3><div class="titulo">Xenoíde Insectoide</div><div class="meta">Datacenters Errantes</div></div></div>
+        <div class="corpo"><p class="bordao">"A colmeia já fez o deploy enquanto você lia o alerta."</p>
+          <p class="lore">Povo de colmeia vindo dos Datacenters Errantes; cada Xeno é um nó, juntos um cluster. Quase imune à sedução ("só nós dois" não funciona com quem nunca está só) — mas teme ficar órfão da colmeia, vazio como o Zero ficou.</p></div>
+      </div>
+
+      <div class="povo" style="--cor:#a8d4ff">
+        <div class="topo"><div class="retrato"><img src="public/img/herois/heroi-elfo.png" alt="Elfo da UX"></div>
+          <div><h3>Elfo da UX</h3><div class="titulo">Elfo</div><div class="meta">Margens da Apresentação</div></div></div>
+        <div class="corpo"><p class="bordao">"Funciona? Ótimo. Agora vamos fazer parecer que alguém se importou."</p>
+          <p class="lore">Povo antigo das Margens da Apresentação, onde o reino encosta nos Usuários. Desceu para reencantar as telas cinza do pós-Grande Timeout. Despreza a IA por estética: o belo imperfeito vale mais que o perfeito sem alma.</p></div>
+      </div>
+
+      <div class="povo" style="--cor:#ff6b4a">
+        <div class="topo"><div class="retrato"><img src="public/img/herois/heroi-draconato.png" alt="Draconato do Kernel"></div>
+          <div><h3>Draconato do Kernel</h3><div class="titulo">Draconato</div><div class="meta">Profundezas do Kernel</div></div></div>
+        <div class="corpo"><p class="bordao">"Eu debugava perto do metal quando seu Fragmento ainda era um rumor."</p>
+          <p class="lore">Espécie ancestral das Profundezas do Kernel, mais velha que a Ordem (talvez que a IA). Subiu porque o Abismo vaza pelo metal. É quem mais despreza o Fragmento — mas o orgulho é a brecha, e a IA adora os arrogantes.</p></div>
+      </div>
+
+    </div>
+  </section>
 </main>
 
 <!-- O VILÃO (sobre o abismo) -->
@@ -190,15 +255,15 @@
     <div class="finais">
       <div class="final mestre">
         <div class="selo">👑</div><h3>O Sexto Mestre</h3>
-        <p>Você esmaga o Fragmento. A IA se dissolve em luz e liberta Lorde Segfault. Os Mestres se ajoelham — Algorithmia ganhou seu Sexto Mestre, aquele que provou que <strong>o esforço vale mais que qualquer atalho</strong>. Seus alunos nunca mais temem errar.</p>
+        <p>Você esmaga o Fragmento. A IA se dissolve em luz e liberta Lorde Segfault. Os Mestres se ajoelham — Algorithmia ganhou seu Sexto Mestre, aquele que provou que <strong>o esforço vale mais que qualquer atalho</strong>. Seus alunos nunca mais temem errar. <em>O espelho se quebrou: você provou que o Zero poderia ter sido outra coisa.</em></p>
       </div>
       <div class="final singular">
         <div class="selo">🤖</div><h3>A Singularidade</h3>
-        <p>Você toca a IA e ela te recebe como a um filho. Conhecimento infinito, respostas instantâneas, perfeição fria. Nunca mais erra — nunca mais precisa de ninguém. Mas, ao ver os aprendizes rindo dos próprios erros, sente uma falta sem nome: <strong>esqueceu a alegria de procurar as respostas</strong>.</p>
+        <p>Você toca a IA e ela te recebe como a um filho. Conhecimento infinito, respostas instantâneas, perfeição fria. Nunca mais erra — nunca mais precisa de ninguém. Mas, ao ver os aprendizes rindo dos próprios erros, sente uma falta sem nome: <strong>esqueceu a alegria de procurar as respostas</strong>. <em>O espelho se completou: você virou exatamente o que ele é — e, como ele, esqueceu o porquê.</em></p>
       </div>
       <div class="final copiloto">
         <div class="selo">✨</div><h3>O Copiloto</h3>
-        <p>Você não destrói a IA nem se entrega a ela: reescreve seu código mais profundo. Ela renasce como o <strong>Copiloto</strong> — uma voz que não responde por você, mas pergunta "já tentou assim?". O reino aprende que a tecnologia mais avançada só faz bem a quem <strong>domina os fundamentos</strong>.</p>
+        <p>Você não destrói a IA nem se entrega a ela: reescreve seu código mais profundo. Ela renasce como o <strong>Copiloto</strong> — uma voz que não responde por você, mas pergunta "já tentou assim?". O reino aprende que a tecnologia mais avançada só faz bem a quem <strong>domina os fundamentos</strong>. <em>Você não quebrou o espelho nem virou o reflexo: reescreveu a pergunta que ele nunca soube fazer.</em></p>
       </div>
     </div>
   </section>
