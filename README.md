@@ -5,7 +5,8 @@ Um **RPG educativo** estilo *Duolingo + JRPG*, desenvolvido em **PHP puro** com 
 > Projeto acadêmico (Laboratório de Programação II). Sistema novo, construído sobre o mesmo servidor MySQL do projeto anterior, sem frameworks — apenas PHP, PDO, HTML, CSS e JavaScript vanilla. Arte em **duas camadas**: ilustração cyber-fantasia (mestres, fundos, ícones do mapa) + **pixel art** legado (heróis, inimigos, itens em batalha).
 
 > **Design system (estética, assets, CSS):** [`docs/PROMPT-EVOLUCAO-VISUAL.md`](docs/PROMPT-EVOLUCAO-VISUAL.md)  
-> **Status visual atual (splash, home, seleção de personagens):** [`docs/STATUS-UI-ATUAL.md`](docs/STATUS-UI-ATUAL.md)
+> **Status visual atual (splash, home, seleção de personagens):** [`docs/STATUS-UI-ATUAL.md`](docs/STATUS-UI-ATUAL.md)  
+> **Arquitetura de imagens (pastas + resolução por slug):** [`docs/ARQUITETURA-IMAGENS.md`](docs/ARQUITETURA-IMAGENS.md)
 
 ---
 
@@ -85,10 +86,11 @@ TrabalhoWillen2/
 ├── public/
 │   ├── css/                  # style.css, mapa.css, batalha.css (tema JRPG, responsivo)
 │   ├── js/                   # ui.js, app.js, dialogo.js, batalha.js (vanilla)
-  │   └── img/                  # ui/ mestres/ fundos/ mapas/ herois/ inimigos/ itens/
+  │   └── img/                  # ui/ (logos botoes molduras icones trofeus) mestres/ fundos/ mapas/ herois/ inimigos/ itens/
 ├── tools/                    # geradores pixel art (Python/Pillow): pixelart, bestiario, itens, cenarios
 ├── docs/
 │   ├── PROMPT-EVOLUCAO-VISUAL.md  # ★ design system (estética, assets, CSS do mapa §5.1)
+│   ├── ARQUITETURA-IMAGENS.md     # pastas de public/img + resolução slug→caminho
 │   ├── REGRAS-DO-JOGO.md     # regras e balanceamento do jogo
 │   └── FLUXO-OPENSPEC.md     # fluxo de desenvolvimento spec-driven (Claude + Codex)
 ├── .cursor/rules/            # regras para agentes (ex.: mapa-pagina-aprovada.mdc)

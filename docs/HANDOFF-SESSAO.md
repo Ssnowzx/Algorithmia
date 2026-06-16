@@ -1,11 +1,12 @@
 # Handoff de Sessão — Algorithmia
 
 > Documento de transição para retomar o trabalho numa **sessão nova do zero**.
-> Resume o que foi feito e **aprovado** nesta branch, o pipeline de assets e o
-> **único item em aberto** (moldura/ícone do título do mapa).
+> Resume o que foi feito e **aprovado** nesta branch, o pipeline de assets e a
+> **arquitetura de imagens**.
 
-**Branch:** `refactor/auditoria-qualidade-producao` (46 commits a partir de `main`).
-**Status:** não foi feito push nem PR (tudo local). Working tree limpo.
+**Branch:** `refactor/auditoria-qualidade-producao` (47 commits a partir de `main`).
+**Status:** sem push nem PR (tudo local). **Há mudanças não commitadas** desta
+sessão — a reorganização das imagens e a remoção da moldura do título (ver §1.7).
 
 ---
 
@@ -51,6 +52,17 @@
 - **Avatar da barra e popup usam a MESMA carta** do herói (`$cardHeroi`). *(b977bcd)* — **aprovado.**
 - **Vitrine do Perfil** com `moldura-status` (slots medidos: avatar 10.5%/50%, recursos 90.7%/37%/62%, nome+barras no miolo). *(3bfcebd)*
 
+### 1.7 Arquitetura de imagens (reorg) + título do mapa
+- **`public/img/ui/` subdividida** em `logos/`, `botoes/`, `molduras/`, `icones/`,
+  `trofeus/` (raiz só com `splash-cena` e `placeholder`). A resolução por slug foi
+  atualizada em `helpers.php` (`caminhoSvg`/`marcaHtml`) + views/CSS + geradores
+  `tools/`. **Doc canônica: [`docs/ARQUITETURA-IMAGENS.md`](ARQUITETURA-IMAGENS.md).**
+- **Removidos (mortos):** `ui/logo.png`, `ui/logo-marca.png`,
+  `inimigos/npc-anciao.png`, `inimigos/npc-narrador.png` (diálogos usam `atores/`).
+- **Título do mapa LIMPO:** removida a moldura ornamental (`border-image` do
+  `.mapa-cabecalho h1`) e o asset `ui/molduras/moldura-barra` — fica só o ícone do
+  pergaminho + texto. **Resolve a antiga Seção 3.**
+
 ---
 
 ## 2. Pipeline de assets (importante para a sessão nova)
@@ -63,31 +75,34 @@ As imagens geradas no GPT vêm em **1536×1024, opacas, com xadrez de falsa-tran
 3. **Gerar `.webp`** otimizado (cwebp `-q 82..90`); o helper `srcImagem()` serve o webp.
 4. **Slots/medidas** de molduras detectados por script Python (flood-fill dos furos / faixas opacas) e usados como `%` no CSS (container queries `cqw`).
 
-**Assets de UI desta sessão:** `ui/ficha-fundo`, `ui/card-status-heroi`, `ui/moldura-status`, `ui/moldura-barra` (banner ornamentada), `herois/card-draconato`, `atores/npc-fragmento`. Há `tools/otimizar-imagens.sh` para WebP em lote (não toca pixel art).
+**Assets de UI desta sessão:** `ui/molduras/ficha-fundo`, `ui/molduras/card-status-heroi`, `ui/molduras/moldura-status`, `herois/card-draconato`, `atores/npc-fragmento`. Há `tools/otimizar-imagens.sh` para WebP em lote (não toca pixel art).
 
 ---
 
-## 3. ⚠️ ÚNICO ITEM EM ABERTO — moldura/ícone do título do mapa
+## 3. Título do mapa — ✅ RESOLVIDO
 
 Tela: **Mapa de Algorithmia** (`app/views/mapa/index.php` → `.mapa-cabecalho h1`).
 
-### 3.1 Ícone do pergaminho (`ui/icone-mapa`) — "quadrado escuro / fundo"
-- O arquivo **está transparente** (`icone-mapa.webp`/`.png` com alfa real, verificado: canto = alfa 0) e **não há `background` no CSS** (`.mapa-cabecalho h1 .icone-mapa-titulo` só tem width/height/object-fit/drop-shadow).
-- Mesmo assim o usuário **continua vendo um quadrado escuro** atrás do pergaminho em 52px, e hard-reload/`?v` não resolveram. Não foi possível concluir se é **cache agressivo do navegador** ou o **próprio conteúdo do mapa (oceano escuro)** parecendo fundo em tamanho pequeno.
-- **Sugestões para a sessão nova:**
-  - Confirmar em **janela privada** (sem cache) se o quadrado some.
-  - Se persistir: o ícone (mapa aberto, detalhado e escuro) é pesado para 52px → **trocar por um ícone mais simples/claro** ou **clarear**; ou renderizar maior; ou usar um pergaminho fechado/limpo.
-
-### 3.2 Moldura ornamentada do título
-- Hoje: `border-image` com `moldura-barra` **só nas laterais** (`border-width: 0 60px; slice 0 124 0 124`) → tampas ornamentais nas pontas, sem faixa atrás do texto. *(3c8a5c3)* O usuário ainda não validou esse estado final.
-
-### 3.3 Barra de topo (decisão tomada)
-- A `moldura-barra` (banner do GPT) **não cabe** numa barra larga: medido **laterais 124px vs topo/base 53/23px** → desbalanceada por qualquer técnica (border/overlay). Decidido **mover a banner para o título** e deixar a **barra LIMPA**. O gate `is_file(ui/moldura-barra-fina.png)` religa a moldura da barra **se** existir uma arte de **bordas finas e uniformes** (proporção ~12:1). Prompt para gerá-la está no histórico do chat.
+- **Moldura ornamental removida** (a pedido do usuário): tirado o `border-image`
+  com `moldura-barra` do `.mapa-cabecalho h1` e **apagado o asset**
+  `ui/molduras/moldura-barra.png`/`.webp`. O título ficou **limpo** — só o ícone do
+  pergaminho (`ui/icones/icone-mapa`) + texto.
+- **Ícone do pergaminho:** renderiza limpo no último screenshot (sem o "quadrado
+  escuro" que se via antes em 52px). Não há `background` no CSS
+  (`.mapa-cabecalho h1 .icone-mapa-titulo` só tem width/height/object-fit/
+  drop-shadow). Se reaparecer, é **cache do navegador** — `assetV()` versiona o
+  CSS, então um reload resolve.
+- **Barra de topo:** permanece **LIMPA**. O gate
+  `is_file(ui/molduras/moldura-barra-fina.png)` religa uma moldura fina **se**
+  existir uma arte de **bordas finas e uniformes** (proporção ~12:1).
 
 ---
 
 ## 4. Como continuar (sessão nova)
 - Branch já tem tudo: `git checkout refactor/auditoria-qualidade-producao`.
-- **Sem push/PR** ainda (decidir com o usuário).
-- O **único pendente** é a Seção 3 (ícone/moldura do título do mapa) — começar pela verificação em janela privada (Seção 3.1).
-- Specs/estado de UI: `docs/STATUS-UI-ATUAL.md` e `openspec/changes/entrada-e-selecao-ux/`.
+- **Há mudanças não commitadas** desta sessão (reorg de imagens + título do mapa).
+  Decidir com o usuário se commita (sugestão: um commit para a reorg de assets,
+  outro para a remoção da moldura) e se faz **push/PR**.
+- Arquitetura de imagens: **`docs/ARQUITETURA-IMAGENS.md`** (mapa de pastas +
+  resolução slug→caminho). Estado de UI: `docs/STATUS-UI-ATUAL.md` e
+  `openspec/changes/entrada-e-selecao-ux/`.
