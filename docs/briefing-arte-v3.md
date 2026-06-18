@@ -1,4 +1,13 @@
-# 🎨 BRIEFING v3 — Corrigir a arte dos ITENS (objeto transparente, sem moldura) · Algorithmia
+> # ⛔ CANCELADO (decisão do dono do projeto, 2026-06-18)
+> **NÃO regerar os itens.** As cartas de item COM moldura de ouro são para **manter**.
+> O problema real era o **card da loja** (`.carta-loja`) "azul sem vida", já corrigido no
+> CSS (chrome navy + ouro + brilho por raridade) preservando a arte. Este briefing fica
+> só como registro histórico — o método de transparência abaixo continua válido para
+> sprites de recorte (inimigos/heróis/ícones), mas **não** para os itens.
+
+---
+
+# 🎨 BRIEFING v3 — ~~Corrigir a arte dos ITENS (objeto transparente, sem moldura)~~ · Algorithmia
 
 > Documento para a IA geradora de imagens **com acesso ao projeto** (vê código, imagens e banco).
 > **Missão:** regerar os **19 PNGs de item** de `public/img/itens/` no padrão **certo** —
