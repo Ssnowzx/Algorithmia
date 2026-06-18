@@ -80,7 +80,21 @@ class ConquistaService
             $this->coletar($novas, $this->conceder($id, 'lenda_viva'));
         }
 
+        // Colecionador: juntou 8+ itens diferentes (cobre drops de fase).
+        $this->coletar($novas, $this->avaliarColecao($id));
+
         return $novas;
+    }
+
+    /**
+     * Concede "Colecionador" quando o personagem acumula 8+ itens DISTINTOS.
+     * Era a única conquista do catálogo sem gatilho. Chamável após qualquer
+     * aquisição (drop de fase ou compra na loja).
+     */
+    public function avaliarColecao(int $personagemId): ?array
+    {
+        $distintos = count((new Inventario())->doPersonagem($personagemId));
+        return $distintos >= 8 ? $this->conceder($personagemId, 'colecionador') : null;
     }
 
     private function coletar(array &$lista, ?array $conquista): void

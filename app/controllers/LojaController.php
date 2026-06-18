@@ -38,7 +38,8 @@ class LojaController extends Controller
 
         (new Personagem())->update((int) $heroi['id'], ['ouro' => (int) $heroi['ouro'] - (int) $item['preco']]);
         (new Inventario())->adicionar((int) $heroi['id'], (int) $itemId);
-        $this->flash('sucesso', e($item['nome']) . ' comprado!');
+        $colecao = (new ConquistaService())->avaliarColecao((int) $heroi['id']);
+        $this->flash('sucesso', e($item['nome']) . ' comprado!' . ($colecao ? ' 🏆 Conquista: Colecionador!' : ''));
         $this->redirect('loja');
     }
 
