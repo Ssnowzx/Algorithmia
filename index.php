@@ -28,6 +28,7 @@ header('Referrer-Policy: same-origin');
 
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/config/config.php';
+require_once __DIR__ . '/config/bestiario.php';
 require_once __DIR__ . '/app/core/helpers.php';
 
 // Autoload do núcleo, models e services. Controllers são carregados pelo Router.

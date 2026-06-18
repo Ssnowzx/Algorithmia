@@ -35,6 +35,8 @@
 .combatente .sprite { width: 220px; height: 220px; margin: 0 auto; transition: transform .12s; }
 .combatente .sprite svg, .combatente .sprite img { width: 100%; height: 100%; object-fit: contain; image-rendering: auto; filter: drop-shadow(0 8px 16px rgba(0,0,0,.5)); }
 .combatente .nome-combatente { font-weight: 800; margin-bottom: .3rem; }
+/* Epíteto do bestiário sob o nome do inimigo; a lore aparece no hover (title). */
+.combatente .bestiario-titulo { font-family: var(--titulo, serif); font-style: italic; font-size: .82rem; color: var(--ouro, #ffce47); opacity: .92; margin: -.15rem 0 .4rem; cursor: help; }
 .combatente .barra { height: 16px; }
 .combatente.heroi .sprite { transform: scaleX(-1); }
 /* Inimigo maior e VIRADO DE FRENTE para o herói (a arte vem encarando a esquerda). */

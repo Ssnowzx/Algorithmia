@@ -12,7 +12,11 @@ $heroiSvg = CLASSES[$heroi['classe']]['svg'] ?? 'heroi-ranger';
 
         <div class="combatente inimigo" id="ladoInimigo">
             <div class="sprite" id="spriteInimigo"><?= svgSlug($estado['inimigo_svg']) ?></div>
+            <?php $bestiario = BESTIARIO[$estado['inimigo_svg']] ?? null; ?>
             <div class="nome-combatente"><?= e($estado['inimigo_nome']) ?></div>
+            <?php if ($bestiario): ?>
+                <div class="bestiario-titulo" title="<?= e($bestiario['lore']) ?>">“<?= e($bestiario['titulo']) ?>”</div>
+            <?php endif; ?>
             <div class="barra barra-hp"><div class="barra-fill" id="hpInimigoFill" style="width:100%"></div>
                 <span class="barra-label" id="hpInimigoLabel"><?= (int) $estado['inimigo_hp'] ?> / <?= (int) $estado['inimigo_hp_max'] ?></span></div>
         </div>
