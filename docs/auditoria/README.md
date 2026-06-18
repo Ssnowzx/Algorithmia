@@ -26,7 +26,7 @@ cruzada** e consolidação por um líder técnico. Cada área tem um laudo detal
 - **CSRF ausente nos endpoints AJAX de batalha** — `responder/fragmento/pocao/especial/fugir` recebem JSON e não checam token. (`BatalhaController.php`)
 - **Sem transação em `concederRecompensas`** — 7 escritas (XP, ouro, progresso, drop, capítulo, conquistas, reputação) sem `beginTransaction`; crash no meio corrompe o personagem.
 - **Elfo inviável nos chefes** — HP 75 / def 4 → morre em 3–4 erros em F27/F33/F35. (`config.php` CLASSES + balanceamento de chefes)
-- **10 de 17 conquistas sem trigger** — `mestre_*`, `puro_de_coracao` e os 3 finais narrativos nunca são concedidos.
+- ~~**10 de 17 conquistas sem trigger**~~ → **CORRIGIDO na re-verificação: era apenas 1 (`colecionador`)**. As de região, `puro_de_coracao` e os 3 finais JÁ eram concedidas (BatalhaController + HistoriaController). O laudo de game design fez passe raso; ver "Atualização Fase 2". ✅ `colecionador` implementada.
 
 ### 🟠 Altos
 - **Race condition no ouro (TOCTOU)** 🔁 — saldo lido e gravado em statements separados; compras concorrentes corrompem o ouro. (`LojaController`)
@@ -48,7 +48,7 @@ cruzada** e consolidação por um líder técnico. Cada área tem um laudo detal
 - **`color-mix()` sem fallback** (47×, quebra Safari ≤15).
 - **Schema ENUM `assunto`** sem `calculo` em `schema.sql`. ✅ *corrigido nesta rodada.*
 - **Sem CSP**; **IP de produção hardcoded** em `seed_remote.sh`.
-- **Reputação invisível** ao jogador (decide os 3 finais).
+- ~~**Reputação invisível** ao jogador~~ → **INCORRETO: a reputação aparece no HUD (header), no perfil e no ranking.** (claim equivocado do laudo de game design)
 - **A11y:** labels sem `for/id`, `alt` ausente em imagens.
 - **9 docs SCREAMING_CASE** violam `lowercase-com-hífen`; **3 changes OpenSpec** não arquivadas.
 
@@ -64,6 +64,13 @@ PDO `EMULATE_PREPARES=false` (sem SQLi), `password_hash/verify`, `session_regene
 - 🧹 **Pasta duplicada removida** — `docs/galeria/` (cópia MD5-idêntica de `evolucao-visual/.../_galeria-contact-sheets`).
 - 📦 **Raiz limpa** — `Xiax-Plano-de-Produto-EdTech-v1.1.pdf` → `docs/produto/`.
 - ⚡ **WebP dos sprites finais** — 29 PNGs (inimigos + heróis) → ~34 MB mais leve no que é servido (`srcImagem()` já prefere `.webp`).
+
+### Atualização — Fase 2 (aplicado depois da consolidação)
+- 🔒 **Lote 1 (segurança+integridade):** `exigirCsrf()` exige POST+token (fecha CSRF via GET); novo `exigirCsrfAjax()` (header `X-CSRF-Token`) nos 5 endpoints de batalha; `concederRecompensas()` em **transação**.
+- 🎨 **Lote 4 (design system, fundação):** `public/css/tokens.css` (aditivo) + `docs/desenvolvimento/design-system.md`.
+- 📚 **Lote 3 (processo):** `docs/desenvolvimento/` — padrões, convenções, fluxos, criação de conteúdo/assets, QA, releases, checklists e timeline.
+- 🎮 **Lote 2 (jogo):** conquista `colecionador` implementada (era a única órfã real).
+- ⚠️ **Nota de confiabilidade:** o laudo de **game design** se mostrou o menos confiável (passe raso) — superestimou conquistas órfãs (10→1) e errou ao dizer que a reputação é invisível. Trate suas conclusões de **balanceamento** (Elfo/chefes/especial) como hipóteses a validar por playtest, não fatos.
 
 ## 3) Melhorias propostas (priorizadas)
 1. **Segurança:** CSRF em GET e nos endpoints AJAX; `escapeHtml` no redirect do `batalha.js`; rate-limit no login; CSP.
