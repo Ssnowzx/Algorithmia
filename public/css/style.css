@@ -1260,16 +1260,17 @@ textarea { min-height: 90px; resize: vertical; }
     .toast { transition: opacity .2s; }     /* sem deslize, só fade */
 }
 
-/* ---------- Pixel art (PNG) substituindo SVGs inline ---------- */
-/* As imagens são dimensionadas como os antigos <svg>, mantendo proporção
-   (object-fit) e nitidez de pixel (image-rendering). */
+/* ---------- Arte ilustrada v2 (PNG) substituindo SVGs inline ---------- */
+/* Imagens dimensionadas como os antigos <svg>, mantendo proporção (object-fit).
+   Renderização SUAVE (image-rendering: auto) — a arte é ilustrada, não pixel art;
+   o mesmo padrão dos personagens (mestres, heróis, narradores). */
 .logo-svg, .hud-heroi-svg, .recurso .ico,
 .no-bolha:not(.no-bolha-arte) img,
 .combatente .sprite img, .conquista-popup img,
 .hero-logo img, .mestre-card .retrato img,
 .classe-card .corpo img:not(.classe-retrato), .item-card .icone-item img, .conquista .medalha img {
     object-fit: contain;
-    image-rendering: pixelated;
+    image-rendering: auto;
 }
 .logo-marca, .hud-retrato {
     object-fit: contain;
