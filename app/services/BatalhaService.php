@@ -31,11 +31,7 @@ class BatalhaService
      */
     public function iniciar(array $personagem, array $fase): array
     {
-        $desafiosFase = $this->desafios->daFase((int) $fase['id']);
-        $lista = [];
-        foreach ($desafiosFase as $d) {
-            $lista[] = Desafio::decodificar($d);
-        }
+        $lista = $this->sortearDesafios($personagem, $fase);
 
         $combate = $this->atributosCombate($personagem);
 
@@ -68,6 +64,51 @@ class BatalhaService
 
         $_SESSION['batalha'] = $estado;
         return $estado;
+    }
+
+    /**
+     * Sorteia o conjunto de desafios desta batalha a partir do POOL da fase.
+     *
+     * Anti-repetição: sempre que sobra pool, prioriza perguntas que o personagem
+     * ainda NÃO viu (via respostas_log); só recorre às já vistas para completar a
+     * quantidade. Os escolhidos saem embaralhados e depois reordenados por
+     * dificuldade crescente — replays mostram combinações novas, mas a curva de
+     * dificuldade dentro da batalha continua suave.
+     *
+     * @return array<int,array> desafios já decodificados (opcoes/resposta)
+     */
+    private function sortearDesafios(array $personagem, array $fase): array
+    {
+        $pool = array_map(
+            [Desafio::class, 'decodificar'],
+            $this->desafios->poolDaFase((int) $fase['id'])
+        );
+
+        $quantos = DESAFIOS_POR_BATALHA[$fase['tipo']] ?? DESAFIOS_POR_BATALHA_PADRAO;
+        if ($quantos <= 0 || count($pool) <= $quantos) {
+            usort($pool, fn($a, $b) => (int) $a['dificuldade'] <=> (int) $b['dificuldade']);
+            return $pool;
+        }
+
+        $vistos = array_flip($this->desafios->idsVistos((int) $personagem['id'], (int) $fase['id']));
+        $ineditos = [];
+        $revisao = [];
+        foreach ($pool as $d) {
+            if (isset($vistos[(int) $d['id']])) {
+                $revisao[] = $d;
+            } else {
+                $ineditos[] = $d;
+            }
+        }
+
+        shuffle($ineditos);
+        shuffle($revisao);
+        $escolhidos = array_slice(array_merge($ineditos, $revisao), 0, $quantos);
+
+        // usort é estável no PHP 8: empates de dificuldade preservam a ordem
+        // já embaralhada, então a sequência muda a cada batalha.
+        usort($escolhidos, fn($a, $b) => (int) $a['dificuldade'] <=> (int) $b['dificuldade']);
+        return $escolhidos;
     }
 
     public function estado(): ?array

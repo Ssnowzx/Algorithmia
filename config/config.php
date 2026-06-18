@@ -127,5 +127,20 @@ const ASSUNTOS = [
     'poo'        => 'Orientação a Objetos',
     'estruturas' => 'Estruturas de Dados',
     'redes'      => 'Redes de Computadores',
-    'logica'     => 'Lógica e Cálculo',
+    'logica'     => 'Lógica e Algoritmos',
+    'calculo'    => 'Cálculo',
 ];
+
+// Anti-repetição: cada fase tem um POOL de desafios maior do que o sorteado por
+// batalha. A cada início de combate, sorteia-se N do pool priorizando os ainda
+// não vistos pelo personagem (via respostas_log), e os N são ordenados por
+// dificuldade crescente para preservar a progressão didática. N por TIPO de fase
+// espelha o tamanho original de cada batalha (mantém o balanceamento de HP).
+const DESAFIOS_POR_BATALHA = [
+    'licao'       => 4,
+    'secundaria'  => 3,
+    'chefe'       => 5,
+    'chefe_final' => 6,
+    'historia'    => 0, // fases de história não têm combate
+];
+const DESAFIOS_POR_BATALHA_PADRAO = 4;

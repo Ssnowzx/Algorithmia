@@ -243,6 +243,11 @@ foreach (['usuarios', 'mestres', 'fases', 'desafios', 'itens', 'conquistas', 'di
     }
 }
 if (!$apenasSchema) {
+    // Banco de questões ampliado (anti-repetição). Idempotente: roda sempre,
+    // inclusive em bancos já populados, sem duplicar perguntas existentes.
+    echo "\n🧠 Aplicando banco de questões ampliado (anti-repetição)...\n";
+    require __DIR__ . '/seed-banco-questoes.php';
+
     echo "\n🎮 Conta mestre admin (sem progresso automático)...\n";
     require __DIR__ . '/seed-conta-demo.php';
 }

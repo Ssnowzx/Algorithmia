@@ -3,3 +3,7 @@
 .DS_Store
 .env
 config/db.local.php
+
+# Caches e artefatos de build das ferramentas Python (tools/)
+tools/.cache/
+tools/__pycache__/
