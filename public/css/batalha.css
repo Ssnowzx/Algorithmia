@@ -14,7 +14,7 @@
         var(--fundo-bioma, url(../img/fundos/fundo-batalha.png)) center/cover,
         linear-gradient(180deg, #161a36 0%, #0e1124 62%, #0a0c1c 100%);
     image-rendering: auto;
-    padding: 1.2rem; display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; min-height: 260px;
+    padding: 1.2rem; display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; min-height: 340px;
     overflow: hidden; box-shadow: inset 0 0 80px rgba(0,0,0,.5);
 }
 /* Chão da arena com leve perspectiva. */
@@ -32,11 +32,13 @@
 }
 
 .combatente { text-align: center; width: 46%; }
-.combatente .sprite { width: 150px; height: 150px; margin: 0 auto; transition: transform .12s; }
+.combatente .sprite { width: 220px; height: 220px; margin: 0 auto; transition: transform .12s; }
 .combatente .sprite svg, .combatente .sprite img { width: 100%; height: 100%; object-fit: contain; image-rendering: auto; filter: drop-shadow(0 8px 16px rgba(0,0,0,.5)); }
 .combatente .nome-combatente { font-weight: 800; margin-bottom: .3rem; }
 .combatente .barra { height: 16px; }
 .combatente.heroi .sprite { transform: scaleX(-1); }
+/* Inimigo maior e VIRADO DE FRENTE para o herói (a arte vem encarando a esquerda). */
+.combatente.inimigo .sprite { width: 270px; height: 270px; transform: scaleX(-1); }
 
 /* Respiração idle no sprite interno (não conflita com investida/tremor no contêiner). */
 .combatente .sprite svg, .combatente .sprite img { animation: flutua 3s ease-in-out infinite; }
@@ -45,6 +47,7 @@
 /* Tremor + flash vermelho ao levar dano. */
 .combatente .sprite.tremer { animation: tremer .4s; }
 .combatente.heroi .sprite.tremer { animation: tremerH .4s; }
+.combatente.inimigo .sprite.tremer { animation: tremerH .4s; }
 @keyframes tremer { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
 @keyframes tremerH { 0%,100%{transform:scaleX(-1) translateX(0)} 25%{transform:scaleX(-1) translateX(-9px)} 50%{transform:scaleX(-1) translateX(9px)} 75%{transform:scaleX(-1) translateX(-6px)} }
 .combatente .sprite.tremer svg, .combatente .sprite.tremer img { animation: flutua 3s ease-in-out infinite, flashDano .4s; }
@@ -53,8 +56,11 @@
 /* Investida ao atacar (lança o sprite em direção ao oponente). */
 .combatente .sprite.atacando { animation: investida .4s ease; }
 .combatente.heroi .sprite.atacando { animation: investidaH .4s ease; }
+.combatente.inimigo .sprite.atacando { animation: investidaI .4s ease; }
 @keyframes investida { 0%,100%{transform:translateX(0)} 45%{transform:translateX(26px) scale(1.08)} }
 @keyframes investidaH { 0%,100%{transform:scaleX(-1) translateX(0)} 45%{transform:scaleX(-1) translateX(26px) scale(1.08)} }
+/* Inimigo está espelhado (scaleX(-1)); translateX negativo o lança VISUALMENTE para a direita, rumo ao herói. */
+@keyframes investidaI { 0%,100%{transform:scaleX(-1) translateX(0)} 45%{transform:scaleX(-1) translateX(-26px) scale(1.08)} }
 @media (prefers-reduced-motion: reduce) {
     .combatente .sprite svg, .combatente .sprite img, .combatente .sprite.atacando, .combatente .sprite.tremer { animation: none; }
 }
@@ -166,6 +172,7 @@
 .conquista-popup svg { width: 34px; height: 34px; }
 
 @media (max-width: 600px) {
-    .combatente .sprite { width: 100px; height: 100px; }
-    .campo-batalha { min-height: 170px; }
+    .combatente .sprite { width: 140px; height: 140px; }
+    .combatente.inimigo .sprite { width: 168px; height: 168px; }
+    .campo-batalha { min-height: 230px; }
 }
