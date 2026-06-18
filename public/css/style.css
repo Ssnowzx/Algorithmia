@@ -1028,27 +1028,47 @@ textarea { min-height: 90px; resize: vertical; }
     display: grid; gap: 1.1rem; margin-top: 1rem;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
 }
+/* Carta da loja com CHROME DE MARCA: alcove navy + filete dourado + borda/brilho
+   por raridade (tokens.css). A arte ilustrada (moldura de ouro) é preservada. */
 .carta-loja {
-    background: var(--painel); border: 1px solid var(--borda); border-radius: 16px;
+    --rar-borda: rgba(124, 92, 255, .28);
+    --rar-glow:  rgba(124, 92, 255, .18);
+    background:
+        radial-gradient(130% 75% at 50% -12%, rgba(124, 92, 255, .12), transparent 58%),
+        linear-gradient(180deg, #15173a 0%, #0d0e24 62%, #0a0b1b 100%);
+    border: 1px solid var(--rar-borda); border-radius: 16px;
     overflow: hidden; display: flex; flex-direction: column; position: relative;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, .42), inset 0 1px 0 rgba(255, 255, 255, .05);
     transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+/* Filete dourado de marca no topo, tingido pela raridade. */
+.carta-loja::before {
+    content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; z-index: 3;
+    background: linear-gradient(90deg, transparent, var(--rar-glow), var(--ouro), var(--rar-glow), transparent);
+    opacity: .85;
 }
 .carta-loja:hover {
     transform: translateY(-4px);
-    border-color: color-mix(in srgb, var(--primaria) 50%, var(--borda));
-    box-shadow: 0 14px 32px rgba(0, 0, 0, .45), 0 0 24px rgba(124, 92, 255, .22);
+    box-shadow: 0 16px 34px rgba(0, 0, 0, .5), 0 0 26px var(--rar-glow);
 }
 .carta-loja__arte {
-    position: relative; aspect-ratio: 2 / 3; background: var(--bg-2);
+    position: relative; aspect-ratio: 2 / 3;
+    background:
+        radial-gradient(85% 60% at 50% 40%, var(--rar-glow), transparent 70%),
+        linear-gradient(180deg, #0c0d20, #07080f);
     display: grid; place-items: center; overflow: hidden;
-    border-bottom: 1px solid var(--borda);
+    border-bottom: 1px solid var(--rar-borda);
 }
-/* A arte ilustrada já traz a própria moldura; preenche a carta (contain
-   mantém a square legível durante a transição do pixel art p/ ilustração). */
+/* Vinheta encaixa a carta ilustrada no alcove (some o "bloco preto" chapado). */
+.carta-loja__arte::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    box-shadow: inset 0 0 38px rgba(0, 0, 0, .55);
+}
 .carta-loja__arte .carta-loja__img {
     width: 100%; height: 100%; object-fit: contain;
-    image-rendering: auto; display: block;
+    image-rendering: auto; display: block; position: relative; z-index: 1;
     transition: transform .25s ease;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, .5));
 }
 .carta-loja:hover .carta-loja__img { transform: scale(1.04); }
 .carta-loja__raridade {
@@ -1056,25 +1076,22 @@ textarea { min-height: 90px; resize: vertical; }
     backdrop-filter: blur(2px); box-shadow: 0 2px 8px rgba(0, 0, 0, .5);
 }
 .carta-loja__corpo { padding: .8rem; display: flex; flex-direction: column; gap: .4rem; flex: 1; }
-.carta-loja__nome { margin: 0; font-size: 1rem; line-height: 1.2; }
+.carta-loja__nome { margin: 0; font-size: 1rem; line-height: 1.2; font-family: var(--titulo, inherit); }
 .carta-loja__corpo .desc-item { margin: 0; font-size: .78rem; color: var(--texto-fraco); }
 .carta-loja__efeitos { display: flex; flex-wrap: wrap; gap: .5rem; font-size: .82rem; font-weight: 700; }
 .carta-loja__rodape {
     margin-top: auto; padding-top: .5rem; display: flex; align-items: center;
     justify-content: space-between; gap: .5rem; flex-wrap: wrap;
-    border-top: 1px solid var(--borda);
+    border-top: 1px solid var(--rar-borda);
 }
-.carta-loja__preco { color: var(--ouro); font-size: 1.05rem; }
+.carta-loja__preco { color: var(--ouro); font-size: 1.05rem; font-weight: 800; text-shadow: 0 1px 6px rgba(255, 206, 71, .28); }
 .carta-loja__acoes { display: flex; gap: .4rem; flex-wrap: wrap; }
 
-/* Aura por raridade na carta inteira (épico violeta, lendário dourado). */
-.carta-loja.item-rar-raro { border-color: rgba(74, 163, 255, .4); }
-.carta-loja.item-rar-epico {
-    border-color: rgba(157, 131, 255, .5);
-    box-shadow: inset 0 0 0 1px rgba(157, 131, 255, .25), 0 0 16px rgba(157, 131, 255, .2);
-}
-.carta-loja.item-rar-lendario {
-    border-color: rgba(255, 206, 71, .55);
+/* Raridade define borda + brilho da carta inteira (tokens.css). */
+.carta-loja.item-rar-comum    { --rar-borda: var(--rar-comum-borda);    --rar-glow: rgba(154, 160, 201, .14); }
+.carta-loja.item-rar-raro     { --rar-borda: var(--rar-raro-borda);     --rar-glow: var(--rar-raro-glow); }
+.carta-loja.item-rar-epico    { --rar-borda: var(--rar-epico-borda);    --rar-glow: var(--rar-epico-glow); }
+.carta-loja.item-rar-lendario { --rar-borda: var(--rar-lendario-borda); --rar-glow: var(--rar-lendario-glow);
     animation: itemLendario 2.2s ease-in-out infinite;
 }
 
