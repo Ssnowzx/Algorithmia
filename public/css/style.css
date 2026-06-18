@@ -1023,6 +1023,61 @@ textarea { min-height: 90px; resize: vertical; }
     50%      { box-shadow: inset 0 0 0 1px rgba(255, 206, 71, .7),  0 0 22px rgba(255, 206, 71, .5); }
 }
 
+/* ---------- Loja: itens como cartas colecionáveis (arte 2:3) ---------- */
+.grade-cartas-loja {
+    display: grid; gap: 1.1rem; margin-top: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+.carta-loja {
+    background: var(--painel); border: 1px solid var(--borda); border-radius: 16px;
+    overflow: hidden; display: flex; flex-direction: column; position: relative;
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.carta-loja:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in srgb, var(--primaria) 50%, var(--borda));
+    box-shadow: 0 14px 32px rgba(0, 0, 0, .45), 0 0 24px rgba(124, 92, 255, .22);
+}
+.carta-loja__arte {
+    position: relative; aspect-ratio: 2 / 3; background: var(--bg-2);
+    display: grid; place-items: center; overflow: hidden;
+    border-bottom: 1px solid var(--borda);
+}
+/* A arte ilustrada já traz a própria moldura; preenche a carta (contain
+   mantém a square legível durante a transição do pixel art p/ ilustração). */
+.carta-loja__arte .carta-loja__img {
+    width: 100%; height: 100%; object-fit: contain;
+    image-rendering: auto; display: block;
+    transition: transform .25s ease;
+}
+.carta-loja:hover .carta-loja__img { transform: scale(1.04); }
+.carta-loja__raridade {
+    position: absolute; top: .5rem; right: .5rem; z-index: 2;
+    backdrop-filter: blur(2px); box-shadow: 0 2px 8px rgba(0, 0, 0, .5);
+}
+.carta-loja__corpo { padding: .8rem; display: flex; flex-direction: column; gap: .4rem; flex: 1; }
+.carta-loja__nome { margin: 0; font-size: 1rem; line-height: 1.2; }
+.carta-loja__corpo .desc-item { margin: 0; font-size: .78rem; color: var(--texto-fraco); }
+.carta-loja__efeitos { display: flex; flex-wrap: wrap; gap: .5rem; font-size: .82rem; font-weight: 700; }
+.carta-loja__rodape {
+    margin-top: auto; padding-top: .5rem; display: flex; align-items: center;
+    justify-content: space-between; gap: .5rem; flex-wrap: wrap;
+    border-top: 1px solid var(--borda);
+}
+.carta-loja__preco { color: var(--ouro); font-size: 1.05rem; }
+.carta-loja__acoes { display: flex; gap: .4rem; flex-wrap: wrap; }
+
+/* Aura por raridade na carta inteira (épico violeta, lendário dourado). */
+.carta-loja.item-rar-raro { border-color: rgba(74, 163, 255, .4); }
+.carta-loja.item-rar-epico {
+    border-color: rgba(157, 131, 255, .5);
+    box-shadow: inset 0 0 0 1px rgba(157, 131, 255, .25), 0 0 16px rgba(157, 131, 255, .2);
+}
+.carta-loja.item-rar-lendario {
+    border-color: rgba(255, 206, 71, .55);
+    animation: itemLendario 2.2s ease-in-out infinite;
+}
+
 /* Itens: animações sutis (hover, pulinho, brilho de raridade) tocam mesmo com
    prefers-reduced-motion — são leves e disparadas por interação. As animações
    fortes (shake/partículas de batalha, parallax de cena) seguem desligadas. */
