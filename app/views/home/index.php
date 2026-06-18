@@ -52,6 +52,17 @@
         <?php endforeach; ?>
     </div>
 
+    <h2 class="titulo-secao" style="text-align:center;margin-top:2.4rem">…e Aquele que Caiu</h2>
+    <div class="mestres-grid" style="max-width:330px;margin:0 auto">
+        <div class="mestre-card">
+            <div class="retrato"><?= svg('mapas/fase-lorde-segfault') ?></div>
+            <h3>Márcio</h3>
+            <div class="titulo-m">O Lorde Segfault</div>
+            <div class="disc">Soberano do /dev/null — outrora Zero, o primeiro aluno</div>
+            <div class="disc">📍 O Abismo do /dev/null</div>
+        </div>
+    </div>
+
     <div style="text-align:center;margin-top:2.5rem">
         <a class="botao" href="<?= url('auth/registro') ?>">Criar meu herói agora</a>
     </div>
