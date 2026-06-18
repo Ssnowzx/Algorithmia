@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS desafios (
     fase_id     INT NOT NULL,
     ordem       INT NOT NULL DEFAULT 0,
     tipo        ENUM('multipla','vf','completar','erro','ordenar','arrastar') NOT NULL,
-    assunto     ENUM('php','mvc','sql','poo','estruturas','redes','logica') NOT NULL,
+    assunto     ENUM('php','mvc','sql','poo','estruturas','redes','logica','calculo') NOT NULL,
     pergunta    TEXT NOT NULL,
     codigo      TEXT,
     opcoes      JSON,

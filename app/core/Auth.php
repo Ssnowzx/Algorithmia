@@ -40,7 +40,16 @@ class Auth
 
     public static function logout(): void
     {
-        unset($_SESSION['usuario_id'], $_SESSION['batalha']);
+        // Encerra a sessão por completo: zera os dados, expira o cookie de sessão
+        // e destrói a sessão no servidor (antes só fazia unset, deixando o cookie válido).
+        $_SESSION = [];
+        if (ini_get('session.use_cookies')) {
+            $p = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000, $p['path'], $p['domain'], $p['secure'], $p['httponly']);
+        }
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
         self::limparMemo();
     }
 
