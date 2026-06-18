@@ -135,7 +135,7 @@ INSERT INTO fases
 (5, 33, 'DDoS, o Enxame',                 'chefe',       'Milhares de requisições falsas tentam derrubar a torre.',                          'DDoS, o Enxame', 'inimigo-ddos', 200, 21, 230, 120, 16, 31),     -- 33
 -- Final — O Abismo do /dev/null
 (NULL, 34, 'O Abismo do /dev/null',       'historia',    'O caminho final. Lorde Segfault aguarda no vazio.',                                NULL, NULL, 0, 0, 60, 0, NULL, 33),                              -- 34
-(NULL, 35, 'Lorde Segfault & a IA Ancestral','chefe_final','O confronto derradeiro decidirá o destino de Algorithmia.',                     'Lorde Segfault', 'inimigo-segfault', 260, 24, 400, 200, 18, 34);  -- 35
+(NULL, 35, 'Lorde Segfault & a IA Ancestral','chefe_final','O confronto derradeiro decidirá o destino de Algorithmia.',                     'Márcio, o Lorde Segfault', 'inimigo-segfault', 260, 24, 400, 200, 18, 34);  -- 35
 
 -- ------------------------------------------------------------
 -- DESAFIOS — Capítulo 0 (Vila Hello World)
@@ -479,6 +479,7 @@ INSERT INTO dialogos (fase_id, momento, variante, ordem, falante, svg_slug, text
 (34, 'antes', 'ia', 4, 'Narrador', 'npc-narrador', 'Os Cinco Mestres surgem atrás de você, o olhar preocupado. Ainda resta uma escolha a fazer.'),
 -- Fase 35: confronto final
 (35, 'antes', 'padrao', 1, 'Lorde Segfault', 'inimigo-segfault', 'Chega de papo motivacional. Se quer mesmo salvar esse reino cheio de gente que não escreve um teste unitário, vai ter que me derrotar — e à própria IA Ancestral. Sem cola desta vez. Que irônico, né?'),
-(35, 'vitoria', 'padrao', 1, 'Narrador', 'npc-narrador', 'Lorde Segfault cai de joelhos. A IA Ancestral palpita, exposta, aguardando a sua decisão. O destino de Algorithmia está em suas mãos.');
+(35, 'antes', 'padrao', 2, 'Márcio, o Lorde Segfault', 'inimigo-segfault', 'Quer um nome para o vazio? Tenha: eu fui Márcio. Fui Zero, o primeiro aluno, o melhor de todos — até terceirizar cada pensamento à IA e descobrir que não restava ninguém aqui dentro. Há espaço de sobra no /dev/null. Venha provar que aprendeu o que eu nunca aprendi.'),
+(35, 'vitoria', 'padrao', 1, 'Narrador', 'npc-narrador', 'Márcio cai de joelhos, e por um instante o rosto sob a coroa corrompida é só o de um aluno cansado. A IA Ancestral palpita, exposta, aguardando a sua decisão. O destino de Algorithmia está em suas mãos.');
 
 -- @@FASES_FIM@@

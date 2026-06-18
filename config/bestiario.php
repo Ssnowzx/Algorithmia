@@ -239,11 +239,11 @@ const BESTIARIO = [
     //  O Abismo do /dev/null — o confronto final
     // ============================================================
     'inimigo-segfault' => [
-        'nome'     => 'Lorde Segfault',
+        'nome'     => 'Márcio, o Lorde Segfault',
         'titulo'   => 'O Zero — Aquele que Foi o Primeiro Aluno',
         'regiao'   => 'O Abismo do /dev/null (chefe final)',
         'conceito' => 'Segmentation fault: acesso a memória inválida, o ponteiro que aponta para o nada (/dev/null).',
-        'lore'     => 'Cavaleiro sombrio de armadura corrompida, exalando energia de /dev/null e runas vermelhas de falha de memória, Lorde Segfault foi, um dia, Zero: o brilhante primeiro aluno dos Cinco Mestres, que dependia da IA Ancestral para tudo e nunca aprendeu de verdade. Quando a muleta sumiu, sobrou um ponteiro apontando para o vazio — um acesso inválido à própria alma. Ele encarna a falha de segmentação porque é exatamente isso: um endereço que não leva a lugar nenhum. Oferece a você o mesmo atalho que o destruiu, com a generosidade venenosa de quem quer companhia no abismo.',
+        'lore'     => 'Soberano do /dev/null — rosto humano sob a coroa de energia corrompida e runas vermelhas de falha de memória. Seu nome era Márcio. Foi Zero, o brilhante primeiro aluno dos Cinco Mestres, que dependia da IA Ancestral para tudo e nunca aprendeu de verdade. Quando a muleta sumiu, sobrou um ponteiro apontando para o vazio — um acesso inválido à própria alma. Ele encarna a falha de segmentação porque é exatamente isso: um endereço que não leva a lugar nenhum. Oferece a você o mesmo atalho que o destruiu, com a generosidade venenosa de quem quer companhia no abismo.',
         'fraqueza' => 'Pensar por conta própria, sem cola: o conhecimento que você ganhou aprendendo de verdade é o ponteiro válido que ele nunca teve.',
     ],
 
