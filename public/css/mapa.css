@@ -220,6 +220,11 @@ body.pagina-mapa .regiao > .trilha {
     opacity: 0.9;
     image-rendering: auto;
 }
+/* Sprite de inimigo (recortado, transparente): mostra a criatura inteira no nó. */
+.no-bolha-arte .icone-fase-inimigo {
+    object-fit: contain; padding: 7%; opacity: 1;
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.55));
+}
 .no-bolha-arte::after {
     content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
     background:

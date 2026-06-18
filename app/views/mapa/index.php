@@ -66,15 +66,21 @@ $iconePorTipo = [
                     <?php
                         $estado = $fase['estado'];
                         $icone = $iconePorTipo[$fase['tipo']] ?? '⚔️';
-                        $slugIconeFase = iconeFaseMapa((int) ($fase['ordem_global'] ?? 0));
+                        // Nó com inimigo mostra o SPRITE NOVO do inimigo (recortado);
+                        // fases de história mantêm o emblema/cenário da fase.
+                        $inimigoSlug = trim((string) ($fase['inimigo_svg'] ?? ''));
+                        $emblemaFase = iconeFaseMapa((int) ($fase['ordem_global'] ?? 0));
+                        $arteNo = $inimigoSlug !== ''
+                            ? svgSlug($inimigoSlug, 'icone-fase icone-fase-inimigo')
+                            : ($emblemaFase ? svg($emblemaFase, 'icone-fase') : '');
                         $clicavel = $estado !== 'bloqueada';
                         $tag = $clicavel ? 'a' : 'span';
                         $href = $clicavel ? 'href="' . url('historia/ver/' . (int) $fase['id']) . '"' : '';
                     ?>
                     <div class="no-fase no-tipo-<?= e($fase['tipo']) ?> <?= e($estado) ?>">
-                        <<?= $tag ?> class="no-bolha<?= $slugIconeFase ? ' no-bolha-arte' : '' ?>" <?= $href ?> title="<?= e($fase['nome']) ?>">
-                            <?php if ($slugIconeFase): ?>
-                                <?= svg($slugIconeFase, 'icone-fase') ?>
+                        <<?= $tag ?> class="no-bolha<?= $arteNo ? ' no-bolha-arte' : '' ?>" <?= $href ?> title="<?= e($fase['nome']) ?>">
+                            <?php if ($arteNo): ?>
+                                <?= $arteNo ?>
                             <?php else: ?>
                                 <span class="emoji"><?= $icone ?></span>
                             <?php endif; ?>
