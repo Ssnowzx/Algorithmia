@@ -1052,7 +1052,7 @@ textarea { min-height: 90px; resize: vertical; }
     box-shadow: 0 16px 34px rgba(0, 0, 0, .5), 0 0 26px var(--rar-glow);
 }
 .carta-loja__arte {
-    position: relative; aspect-ratio: 2 / 3;
+    position: relative; aspect-ratio: 4 / 5;
     background:
         radial-gradient(85% 60% at 50% 40%, var(--rar-glow), transparent 70%),
         linear-gradient(180deg, #0c0d20, #07080f);
