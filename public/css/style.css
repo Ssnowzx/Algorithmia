@@ -1425,3 +1425,48 @@ textarea { min-height: 90px; resize: vertical; }
     .splash-marca, .logo-marca-splash, .splash-logo-img, .splash-titulo, .splash-sub,
     .splash-entrar, .splash-entrar-img { animation: none; }
 }
+
+/* ============================================================
+   Ranking (leaderboard) + Perfil — estética de marca (navy/ouro/raridade)
+   ============================================================ */
+.painel-ranking { padding: .5rem .7rem; overflow: hidden; }
+.tabela-ranking th {
+    color: var(--ouro); background: linear-gradient(180deg, rgba(124, 92, 255, .14), transparent);
+    border-bottom: 2px solid rgba(255, 206, 71, .35); padding: .9rem .8rem;
+}
+.tabela-ranking tbody tr { transition: background .15s ease; }
+.tabela-ranking tbody tr:hover td { background: rgba(124, 92, 255, .08); }
+.tabela-ranking .rank-pos { font-size: 1.15rem; font-weight: 800; text-align: center; width: 3rem; }
+.tabela-ranking .rank-top td:first-child { position: relative; }
+.tabela-ranking .rank-top td:first-child::before {
+    content: ""; position: absolute; left: 0; top: 6px; bottom: 6px; width: 3px; border-radius: 3px;
+}
+.tabela-ranking .rank-1 td { background: linear-gradient(90deg, rgba(255, 206, 71, .14), transparent 62%); }
+.tabela-ranking .rank-1 td:first-child::before { background: var(--ouro); box-shadow: 0 0 10px rgba(255, 206, 71, .6); }
+.tabela-ranking .rank-2 td { background: linear-gradient(90deg, rgba(203, 213, 225, .12), transparent 62%); }
+.tabela-ranking .rank-2 td:first-child::before { background: #cbd5e1; }
+.tabela-ranking .rank-3 td { background: linear-gradient(90deg, rgba(205, 127, 50, .15), transparent 62%); }
+.tabela-ranking .rank-3 td:first-child::before { background: #cd7f32; }
+.tabela-ranking .destaque td { background: linear-gradient(90deg, rgba(124, 92, 255, .2), rgba(255, 206, 71, .06)); font-weight: 700; }
+.tabela-ranking .destaque td:first-child { box-shadow: inset 3px 0 0 var(--primaria-2); }
+
+/* Conquistas: mesmo chrome dos cards (navy + acento ouro nas obtidas). */
+.conquista {
+    background: linear-gradient(180deg, #15173a, #0d0e24 70%, #0a0b1b);
+    border: 1px solid rgba(124, 92, 255, .26); position: relative; overflow: hidden;
+}
+.conquista:not(.bloqueada) { border-color: rgba(255, 206, 71, .32); box-shadow: 0 0 14px rgba(255, 206, 71, .08); }
+.conquista:not(.bloqueada)::before {
+    content: ""; position: absolute; inset: 0 auto 0 0; width: 3px;
+    background: linear-gradient(180deg, rgba(255, 206, 71, .5), var(--ouro), rgba(255, 206, 71, .5));
+}
+
+/* Painéis do perfil: leve filete dourado no topo, p/ casar com os cards. */
+.grid-2 > .painel { position: relative; }
+.grid-2 > .painel::before {
+    content: ""; position: absolute; inset: 0 0 auto 0; height: 2px; border-radius: 16px 16px 0 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 206, 71, .5), transparent); opacity: .7;
+}
+/* Trilha das barras de domínio por matéria: navy + preenche com brilho. */
+.barra-stat .trilha { background: #0b0c1d; border: 1px solid rgba(124, 92, 255, .18); }
+.barra-stat .preenche { background: linear-gradient(90deg, var(--primaria-2), var(--ouro)); box-shadow: 0 0 8px rgba(255, 206, 71, .25); }
