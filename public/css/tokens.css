@@ -1,0 +1,211 @@
+/* ============================================================
+   Algorithmia — Design Tokens (tokens.css)
+   ADITIVO e SEGURO: apenas :root. Não sobrescreve regras existentes.
+   Importar ANTES de style.css (ou após — os tokens complementam, nunca conflitam).
+
+   Uso:
+     <link rel="stylesheet" href="/css/tokens.css">
+     <link rel="stylesheet" href="/css/style.css">
+
+   Princípio: nomes já usados em style.css são REAPROVEITADOS aqui para
+   documentação. Tokens NOVOS são marcados com "NOVO".
+   ============================================================ */
+
+:root {
+
+    /* ------------------------------------------------------------------
+       CORES BASE (puxadas do :root de style.css — documentadas aqui)
+       ------------------------------------------------------------------ */
+
+    /* Fundos */
+    --cor-bg:          #0b0c1d;   /* body background profundo */
+    --cor-bg-2:        #14162c;   /* camada ligeiramente mais clara */
+    --cor-painel:      #1a1d38;   /* cards, painéis primários */
+    --cor-painel-2:    #23274a;   /* cards hover, camada secundária */
+
+    /* Bordas */
+    --cor-borda:       #353c6b;   /* borda padrão */
+    --cor-borda-luz:   #4a54a0;   /* borda iluminada (hover/foco) */
+
+    /* Texto */
+    --cor-texto:       #eef0fb;
+    --cor-texto-fraco: #9aa0c9;
+
+    /* Marca — primária (roxo arcano) */
+    --cor-primaria:    #7c5cff;
+    --cor-primaria-2:  #9d83ff;   /* variante mais clara */
+
+    /* Recursos de jogo */
+    --cor-hp:    #ff5d6c;
+    --cor-mp:    #4aa3ff;
+    --cor-xp:    #ffd23f;
+    --cor-ouro:  #ffce47;
+
+    /* Feedback */
+    --cor-sucesso: #2ecc71;
+    --cor-erro:    #ff6b6b;
+    --cor-aviso:   #ffb142;
+
+    /* Ciano (runa / detalhe arcano) — NOVO como alias explícito */
+    --cor-ciano:   #8ce6ff;
+
+
+    /* ------------------------------------------------------------------
+       SOMBRAS & BRILHOS (puxadas de style.css)
+       ------------------------------------------------------------------ */
+
+    --sombra-base:    0 10px 34px rgba(0, 0, 0, .5);
+    --sombra-brilho:  0 0 22px rgba(124, 92, 255, .35);
+
+    /* NOVO — variações de sombra para cards */
+    --sombra-card:    0 12px 28px rgba(0, 0, 0, .42), 0 0 22px rgba(124, 92, 255, .18);
+    --sombra-carta:   0 14px 32px rgba(0, 0, 0, .45), 0 0 24px rgba(124, 92, 255, .22);
+
+
+    /* ------------------------------------------------------------------
+       TIPOGRAFIA (puxadas de style.css)
+       ------------------------------------------------------------------ */
+
+    --fonte:   'Rubik', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --titulo:  'Pixelify Sans', 'Rubik', sans-serif;
+    --hud:     'Pixelify Sans', 'Rubik', sans-serif;
+    --pixel:   'JetBrains Mono', 'Courier New', monospace;
+
+    /* NOVO — escala tipográfica semântica */
+    --texto-xs:  .68rem;
+    --texto-sm:  .82rem;
+    --texto-md:  .98rem;   /* tamanho de corpo padrão */
+    --texto-lg:  1.15rem;
+    --texto-xl:  1.35rem;
+    --texto-2xl: 1.55rem;  /* .titulo-secao atual */
+
+
+    /* ------------------------------------------------------------------
+       ESPAÇAMENTOS (NOVO — escala em rem, 4px base)
+       ------------------------------------------------------------------ */
+
+    --esp-1:  .25rem;    /*  4px */
+    --esp-2:  .5rem;     /*  8px */
+    --esp-3:  .75rem;    /* 12px */
+    --esp-4:  1rem;      /* 16px */
+    --esp-5:  1.25rem;   /* 20px */
+    --esp-6:  1.5rem;    /* 24px */
+    --esp-8:  2rem;      /* 32px */
+
+
+    /* ------------------------------------------------------------------
+       RAIOS DE BORDA (NOVO — unifica os valores usados no projeto)
+       ------------------------------------------------------------------ */
+
+    --raio-sm:   8px;    /* botão-sm, inputs */
+    --raio-md:   11px;   /* botão padrão */
+    --raio-card: 14px;   /* .item-card */
+    --raio-carta: 16px;  /* .carta-loja */
+    --raio-painel: 16px; /* .painel */
+    --raio-full:  999px; /* pílulas */
+
+
+    /* ------------------------------------------------------------------
+       TOKENS DE CARTA / CARD (NOVO — design system compartilhado)
+       ------------------------------------------------------------------ */
+
+    /* Card horizontal (inventário) */
+    --card-radius:     var(--raio-card);   /* 14px */
+    --card-hover-y:    -3px;               /* translateY no hover */
+    --card-hover-glow: rgba(124, 92, 255, .2);
+
+    /* Carta vertical / colecionável (loja) */
+    --carta-radius:    var(--raio-carta);  /* 16px */
+    --carta-hover-y:   -4px;
+    --carta-hover-glow: rgba(124, 92, 255, .22);
+    --carta-arte-ratio: 2 / 3;            /* aspect-ratio da área de arte */
+
+    /* Grade de itens */
+    --grade-item-min:  220px;  /* minmax para grade-itens */
+    --grade-carta-min: 200px;  /* minmax para grade-cartas-loja */
+
+
+    /* ------------------------------------------------------------------
+       TOKENS DE BOTÃO (NOVO — documenta os valores já em uso)
+       ------------------------------------------------------------------ */
+
+    --btn-radius:    var(--raio-md);    /* 11px — .botao */
+    --btn-radius-sm: var(--raio-sm);    /* 8px — .botao-sm */
+    --btn-pad-y:     .7rem;
+    --btn-pad-x:     1.2rem;
+    --btn-pad-sm-y:  .4rem;
+    --btn-pad-sm-x:  .75rem;
+
+    /* Sombras por variante de botão */
+    --btn-sombra-primario: 0 6px 18px rgba(124, 92, 255, .4);
+    --btn-sombra-perigo:   0 6px 18px rgba(255, 93, 108, .35);
+    --btn-sombra-ouro:     0 6px 18px rgba(255, 206, 71, .35);
+
+
+    /* ------------------------------------------------------------------
+       RARIDADE — cores, bordas e brilhos (NOVO — centraliza os valores
+       espalhados em .raridade-*, .item-rar-*, .carta-loja.item-rar-*)
+       ------------------------------------------------------------------ */
+
+    /* Comum */
+    --rar-comum-bg:     rgba(154, 160, 201, .2);
+    --rar-comum-texto:  #c3c8ea;
+    --rar-comum-borda:  rgba(154, 160, 201, .3);
+
+    /* Raro */
+    --rar-raro-bg:     rgba(74, 163, 255, .2);
+    --rar-raro-texto:  #8cc6ff;
+    --rar-raro-borda:  rgba(74, 163, 255, .4);
+    --rar-raro-glow:   rgba(74, 163, 255, .18);
+
+    /* Épico */
+    --rar-epico-bg:    rgba(157, 131, 255, .22);
+    --rar-epico-texto: #c4b0ff;
+    --rar-epico-borda: rgba(157, 131, 255, .5);
+    --rar-epico-glow:  rgba(157, 131, 255, .25);
+
+    /* Lendário */
+    --rar-lendario-bg:    rgba(255, 206, 71, .2);
+    --rar-lendario-texto: var(--cor-xp);         /* #ffd23f */
+    --rar-lendario-borda: rgba(255, 206, 71, .55);
+    --rar-lendario-glow:  rgba(255, 206, 71, .38);
+
+
+    /* ------------------------------------------------------------------
+       REGIÕES DO MAPA — cor-âncora por bioma (NOVO)
+       Espelha o padrão --cor-regiao já usado inline nas views.
+       Valor padrão: roxo arcano (regiões sem bioma específico).
+       ------------------------------------------------------------------ */
+
+    --regiao-padrao:      #7c5cff;   /* fallback genérico */
+    --regiao-hello-world: #7c5cff;   /* Floresta de Variáveis — roxo */
+    --regiao-floresta:    #2ecc71;   /* Floresta de Árvores — verde */
+    --regiao-cidadela:    #9d83ff;   /* Cidadela OOP — lilás */
+    --regiao-montanha:    #ff8c42;   /* Montanha de Estruturas — laranja */
+    --regiao-porto:       #4aa3ff;   /* Porto de Redes — azul */
+    --regiao-torre:       #8ce6ff;   /* Torre da IA — ciano */
+    --regiao-abismo:      #ff5d6c;   /* Abismo /dev/null — vermelho */
+
+
+    /* ------------------------------------------------------------------
+       Z-INDEX (NOVO — escala semântica para evitar conflitos)
+       ------------------------------------------------------------------ */
+
+    --z-base:    0;
+    --z-elevado: 10;
+    --z-topo:    50;     /* .topo (header) */
+    --z-modal:   1000;   /* .modal-overlay */
+    --z-ficha:   1300;   /* .ficha-modal-overlay */
+    --z-toast:   1100;   /* .toast */
+
+
+    /* ------------------------------------------------------------------
+       TRANSIÇÕES (NOVO — padroniza os timings já usados no projeto)
+       ------------------------------------------------------------------ */
+
+    --transicao-rapida:  .12s ease;
+    --transicao-padrao:  .18s ease;
+    --transicao-suave:   .25s ease;
+    --transicao-modal:   .22s ease;
+
+}

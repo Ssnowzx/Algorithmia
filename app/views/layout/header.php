@@ -24,6 +24,7 @@ if ($heroi) {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Rubik:wght@400;500;700;800&display=swap">
+    <link rel="stylesheet" href="<?= assetV('css/tokens.css') ?>">
     <link rel="stylesheet" href="<?= assetV('css/style.css') ?>">
     <link rel="stylesheet" href="<?= assetV('css/cena.css') ?>">
     <link rel="stylesheet" href="<?= assetV('css/mapa.css') ?>">
