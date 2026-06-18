@@ -19,7 +19,7 @@
     function req(url, corpo) {
         return fetch(url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': (B && B.csrf) || '' },
             body: JSON.stringify(corpo || {})
         }).then(function (r) { return r.json(); });
     }

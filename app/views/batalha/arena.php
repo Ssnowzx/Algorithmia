@@ -54,6 +54,7 @@ $heroiSvg = CLASSES[$heroi['classe']]['svg'] ?? 'heroi-ranger';
 
 <script>
 window.BATALHA = {
+    csrf: <?= json_encode(csrf_token()) ?>,
     estado: <?= json_encode($estado, JSON_UNESCAPED_UNICODE) ?>,
     urls: {
         responder:  <?= json_encode(url('batalha/responder')) ?>,

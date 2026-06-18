@@ -68,13 +68,26 @@ class Controller
     }
 
     /**
-     * Aborta requisições POST sem token CSRF válido.
+     * Exige POST com token CSRF válido para ações que mudam estado.
+     * Bloqueia CSRF via GET (antes só validava o POST; um GET passava direto).
      */
     protected function exigirCsrf(): void
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && !csrf_valido()) {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !csrf_valido()) {
             http_response_code(419);
-            die('Sessão expirada ou token inválido. Volte e tente novamente.');
+            die('Sessão expirada ou requisição inválida. Volte e tente novamente.');
+        }
+    }
+
+    /**
+     * Valida o token CSRF de endpoints AJAX (JSON), lido do cabeçalho
+     * X-CSRF-Token — pois o corpo JSON não popula $_POST. Responde 419 em JSON.
+     */
+    protected function exigirCsrfAjax(): void
+    {
+        $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+        if (!is_string($token) || empty($_SESSION['csrf']) || !hash_equals($_SESSION['csrf'], $token)) {
+            $this->json(['erro' => 'Sessão expirada. Recarregue a página (F5) e tente de novo.'], 419);
         }
     }
 }

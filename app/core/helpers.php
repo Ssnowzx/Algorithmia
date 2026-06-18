@@ -383,12 +383,17 @@ function iconeRegiaoMapa(string $chaveRegiao): ?string
 /**
  * Campo escondido com o token CSRF para formulários POST.
  */
-function csrf_field(): string
+function csrf_token(): string
 {
     if (empty($_SESSION['csrf'])) {
         $_SESSION['csrf'] = bin2hex(random_bytes(32));
     }
-    return '<input type="hidden" name="csrf" value="' . e($_SESSION['csrf']) . '">';
+    return $_SESSION['csrf'];
+}
+
+function csrf_field(): string
+{
+    return '<input type="hidden" name="csrf" value="' . e(csrf_token()) . '">';
 }
 
 /**

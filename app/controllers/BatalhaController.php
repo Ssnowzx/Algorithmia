@@ -63,6 +63,7 @@ class BatalhaController extends Controller
      */
     public function responder(): void
     {
+        $this->exigirCsrfAjax();
         $heroi = Auth::exigirPersonagem();
         $corpo = $this->corpoJson();
         $resposta = $corpo['resposta'] ?? null;
@@ -77,6 +78,7 @@ class BatalhaController extends Controller
      */
     public function fragmento(): void
     {
+        $this->exigirCsrfAjax();
         $heroi = Auth::exigirPersonagem();
         $resultado = $this->batalha->usarFragmentoIa($heroi);
         if (!isset($resultado['erro'])) {
@@ -90,6 +92,7 @@ class BatalhaController extends Controller
      */
     public function especial(): void
     {
+        $this->exigirCsrfAjax();
         $heroi = Auth::exigirPersonagem();
         $this->json($this->batalha->armarEspecial($heroi));
     }
@@ -99,6 +102,7 @@ class BatalhaController extends Controller
      */
     public function pocao(): void
     {
+        $this->exigirCsrfAjax();
         $heroi = Auth::exigirPersonagem();
         $corpo = $this->corpoJson();
         $itemId = (int) ($corpo['item_id'] ?? 0);
@@ -110,6 +114,7 @@ class BatalhaController extends Controller
      */
     public function fugir(): void
     {
+        $this->exigirCsrfAjax();
         $this->batalha->limpar();
         $this->json(['ok' => true, 'redirect' => url('mapa')]);
     }
@@ -142,6 +147,14 @@ class BatalhaController extends Controller
      */
     private function concederRecompensas(array $heroi, array $estado): array
     {
+        // As 7 escritas (XP, ouro, progresso, drop, capítulo, conquistas, reputação)
+        // vão numa transação: um erro no meio reverte tudo, sem personagem corrompido.
+        $db = getConnection();
+        $transacaoPropria = !$db->inTransaction();
+        if ($transacaoPropria) {
+            $db->beginTransaction();
+        }
+        try {
         $fase = (new Fase())->findById($estado['fase_id']);
         $progressao = new ProgressaoService();
         $personagens = new Personagem();
@@ -187,7 +200,7 @@ class BatalhaController extends Controller
             (new ReputacaoService())->ajustar((int) $heroi['id'], 5);
         }
 
-        return [
+        $retorno = [
             'estrelas'    => $estrelas,
             'xp'          => (int) $fase['xp_recompensa'],
             'ouro'        => $ouro,
@@ -198,6 +211,16 @@ class BatalhaController extends Controller
             'fase_final'  => $fase['tipo'] === 'chefe_final',
             'redirect_final' => $fase['tipo'] === 'chefe_final' ? url('historia/final') : null,
         ];
+            if ($transacaoPropria) {
+                $db->commit();
+            }
+            return $retorno;
+        } catch (\Throwable $e) {
+            if ($transacaoPropria && $db->inTransaction()) {
+                $db->rollBack();
+            }
+            throw $e;
+        }
     }
 
     /**
