@@ -2,7 +2,7 @@
 
 Um **RPG educativo** estilo *Duolingo + JRPG*, desenvolvido em **PHP puro** com arquitetura **MVC**, onde **programar é magia**. O jogador evolui um herói, vive uma história com múltiplos finais e aprende **PHP, MVC, SQL, POO, Estruturas de Dados, Cálculo e Redes** enfrentando bugs em batalhas por turnos.
 
-> Projeto acadêmico (Laboratório de Programação II). Sistema novo, construído sobre o mesmo servidor MySQL do projeto anterior, sem frameworks — apenas PHP, PDO, HTML, CSS e JavaScript vanilla. Arte em **duas camadas**: ilustração cyber-fantasia (mestres, fundos, ícones do mapa) + **pixel art** legado (heróis, inimigos, itens em batalha).
+> Projeto acadêmico (Laboratório de Programação II). Sistema novo, construído sobre o mesmo servidor MySQL do projeto anterior, sem frameworks — apenas PHP, PDO, HTML, CSS e JavaScript vanilla. Arte **100% ilustrada (v2)**, estilo cyber-fantasia: mestres e cenários como cartas/cenas, heróis e inimigos recortados (fundo transparente via `rembg`) e itens como cartas. O pixel art da v1 fica preservado só no histórico (`docs/evolucao-visual/v1-pixel-art/`).
 
 > **Design system (estética, assets, CSS):** [`docs/PROMPT-EVOLUCAO-VISUAL.md`](docs/PROMPT-EVOLUCAO-VISUAL.md)  
 > **Status visual atual (splash, home, seleção de personagens):** [`docs/STATUS-UI-ATUAL.md`](docs/STATUS-UI-ATUAL.md)  
@@ -44,14 +44,14 @@ Cada uso do **Fragmento da IA Ancestral** (que acerta um desafio automaticamente
 |--------|------|--------|
 | Mestres, fundos de região, ícones de fase | `public/img/mestres/`, `fundos/`, `mapas/` | Ilustração cyber-fantasia |
 | Splash/home e seleção de personagens | `public/img/ui/`, `public/img/herois/hud-*.png` | Cartas ilustradas fantasy-tech — ver `docs/STATUS-UI-ATUAL.md` |
-| Batalha/inventário/loja | `public/img/herois/heroi-*.png`, `inimigos/`, `itens/` | Pixel art legado (`tools/`) |
+| Batalha/inventário/loja | `public/img/herois/heroi-*.png`, `inimigos/`, `itens/` | Ilustrações v2 — recortes transparentes (heróis/inimigos) e cartas (itens), via `rembg` |
 
 Documentação completa: **[`docs/PROMPT-EVOLUCAO-VISUAL.md`](docs/PROMPT-EVOLUCAO-VISUAL.md)** (paleta, tamanhos, CSS, checklist para IA).
 
 ### 👥 Personagens — os 5 Mestres (ilustrados) e 6 classes jogáveis
 ![Personagens](docs/galeria/personagens.png)
 
-### 👹 Inimigos & Chefes — bestiário pixel art
+### 👹 Inimigos & Chefes — bestiário ilustrado
 ![Inimigos](docs/galeria/inimigos.png)
 
 ### ⚔️ Itens — armas, escudos, poções e relíquias
@@ -187,7 +187,7 @@ Não há contas pré-criadas — **crie a sua** em *Criar conta* e forje seu her
 - **Sem credenciais embutidas**: nenhuma conta vem pré-criada no banco; o acesso de admin é concedido manualmente (promover a conta a `mestre`).
 
 ## 🎨 Créditos de arte
-A arte atual mistura **ilustração cyber-fantasia** (splash/home, mapa, mestres, cartas de personagem e UI ornamental) com **pixel art legado** para batalha, inimigos, itens e sprites funcionais. Os scripts em `tools/` continuam responsáveis pelos sprites pixel art (`tools/pixelart.py`, `tools/bestiario.py`, etc.). O estado visual atual está documentado em [`docs/STATUS-UI-ATUAL.md`](docs/STATUS-UI-ATUAL.md).
+A arte atual é **toda ilustração cyber-fantasia (v2)** — splash/home, mapa, mestres, cartas de personagem, UI ornamental, e também batalha/inimigos/itens (heróis e inimigos recortados com fundo transparente; itens como cartas). O recorte é feito por IA com `tools/recortar_rembg.py` (modelo `isnet-general-use`); o pixel art da v1 fica preservado no histórico em `docs/evolucao-visual/v1-pixel-art/`. Detalhes do pipeline em [`docs/desenvolvimento/criacao-de-assets.md`](docs/desenvolvimento/criacao-de-assets.md).
 
 ## 🖥️ Camada visual / UX
 - Tipografia de game: **Pixelify Sans** (títulos e HUD) + **Rubik** (corpo); **fundo estelar animado**, cenários por região e animações (investida na batalha, partículas, nós do mapa pulsando) para imersão.
