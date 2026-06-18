@@ -152,8 +152,8 @@ CAPITULOS = [
         "imagem": "mapas/fase-lorde-segfault.png", "cor": "#b33939",
         "disciplina": "Mix de todas as matérias", "pdf": "Revisão geral das 5 disciplinas",
         "fases": [
-            ("O Abismo do /dev/null", "historia", ["Lorde Segfault aguarda no vazio"], ""),
-            ("Lorde Segfault & a IA Ancestral", "chefe_final",
+            ("O Abismo do /dev/null", "historia", ["Márcio, o Lorde Segfault, aguarda no vazio"], ""),
+            ("Márcio, o Lorde Segfault & a IA Ancestral", "chefe_final",
              ["MVC (camadas)", "POO (herança)", "Estruturas (busca binária)", "Cálculo (limites)",
               "Redes (TCP)", "Lógica (recursão)"], "6 de ~16"),
         ],
