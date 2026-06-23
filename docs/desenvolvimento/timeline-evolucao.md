@@ -94,6 +94,30 @@ Ver laudo completo em `docs/auditoria/README.md`.
 
 ---
 
+## Correcao de deploy — banco de questoes no host (2026-06-23)
+
+**Marco:** as batalhas no site hospedado repetiam sempre as mesmas perguntas.
+
+**Causa-raiz:** o sorteio (`BatalhaService::sortearDesafios`) ja embaralhava o pool
+corretamente, mas o banco do HOST tinha sido montado so com `schema.sql` + `seeds.sql`,
+que NAO incluem as 157 perguntas ampliadas (elas vivem em `database/banco-questoes/*.php`,
+aplicadas por `seed-banco-questoes.php`). Com poucas perguntas por fase, o sorteio caia
+no atalho `count(pool) <= N` e devolvia sempre o mesmo conjunto, na mesma ordem.
+
+**Correcoes aplicadas:**
+- Novo `database/banco-questoes.sql`: import SQL idempotente das 157 perguntas (espelha o
+  seeder PHP; chave logica fase_id+pergunta; nunca duplica). Para hosts via phpMyAdmin.
+- `database/seed_remote.sh`: passou a incluir `banco-questoes.sql` e corrigiu um bug do
+  `sed` que deixava o `USE` vazar para o banco errado.
+- Docs corrigidos: README (caminho phpMyAdmin agora cita `banco-questoes.sql`), `DEPLOY.md`
+  (passo "atualizar so as perguntas" + troubleshooting), docblock de `migrate.php`
+  (dizia "dropa e recria" — na verdade so `--reset` e destrutivo).
+
+**Deploy do fix:** `git pull` + `php database/migrate.php` (ou `seed-banco-questoes.php`) +
+reload do Apache. Tudo idempotente e nao-destrutivo.
+
+---
+
 ## Proxima versao (planejada)
 
 **v3 — Itens redesenhados + Seguranca**

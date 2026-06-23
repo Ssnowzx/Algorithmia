@@ -75,7 +75,10 @@ TrabalhoWillen2/
 │   └── config.php            # Constantes do jogo (classes, XP, dano, reputação)
 ├── database/
 │   ├── schema.sql            # 13 tabelas (CREATE IF NOT EXISTS — não-destrutivo)
-│   ├── seeds.sql             # mestres, 35 fases, 112 desafios, itens, conquistas, diálogos
+│   ├── seeds.sql             # mestres, 35 fases, desafios-base, itens, conquistas, diálogos
+│   ├── banco-questoes/       # +157 perguntas por matéria (fonte PHP do anti-repetição)
+│   ├── banco-questoes.sql    # mesmas 157 perguntas como import SQL idempotente
+│   ├── seed-banco-questoes.php # CLI: aplica as 157 perguntas (idempotente, não duplica)
 │   └── migrate.php           # CLI: cria/atualiza o banco preservando dados
 ├── app/
 │   ├── core/                 # Router, Controller, Model, Auth, helpers (núcleo MVC)
@@ -132,7 +135,11 @@ Saída esperada: `✅ Banco 'algorithmia' pronto.` com a contagem de fases, desa
 | `php database/migrate.php --reset` | **Apaga tudo** e recria do zero (use só para um começo limpo). |
 | `php database/migrate.php --schema` | Apenas o schema (sem dados de conteúdo). |
 
-> Alternativa: importar `database/schema.sql` e depois `database/seeds.sql` em qualquer cliente MySQL.
+> Alternativa (cliente MySQL/phpMyAdmin): importe **nesta ordem** —
+> `database/schema.sql`, depois `database/seeds.sql` e por fim
+> `database/banco-questoes.sql`. ⚠️ Não pule o último: ele traz as **157 perguntas
+> ampliadas** (anti-repetição). Sem ele, cada fase fica com poucas perguntas e o
+> sorteio acaba repetindo sempre as mesmas. (O `migrate.php` já faz isso sozinho.)
 
 ### 3. Iniciar o servidor
 ```bash
@@ -148,7 +155,7 @@ O projeto é PHP puro, sem dependências externas (não usa Composer), então ro
 
 1. **Envie os arquivos** para o host (FTP/Git). Aponte o *document root* para a **raiz do projeto** (onde está o `index.php`).
 2. **Banco de dados**: crie um MySQL no painel do host e configure as credenciais por variáveis de ambiente (`DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS`) ou editando os padrões em `config/db.php`.
-3. **Inicialize o banco** uma vez: rode `php database/migrate.php` via SSH **ou** importe `database/schema.sql` e `database/seeds.sql` pelo phpMyAdmin do host.
+3. **Inicialize o banco** uma vez: rode `php database/migrate.php` via SSH (recomendado — popula tudo, inclusive as 157 perguntas) **ou** importe pelo phpMyAdmin nesta ordem: `database/schema.sql` → `database/seeds.sql` → `database/banco-questoes.sql`. Guia completo de VPS em [`docs/DEPLOY.md`](docs/DEPLOY.md).
 4. **Apache**: o `.htaccess` na raiz já faz o rewrite para o front controller. Em **Nginx**, direcione as requisições não-encontradas para `index.php`. O `BASE_URL` é detectado automaticamente, então funciona inclusive em subpastas.
 5. **HTTPS**: recomendado em produção (a sessão e o login se beneficiam de cookies seguros).
 

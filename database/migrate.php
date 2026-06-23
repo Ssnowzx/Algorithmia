@@ -3,10 +3,14 @@
  * Migrador / Seeder de linha de comando.
  *
  * Uso:
- *   php database/migrate.php          → cria o banco, as tabelas e os dados iniciais
- *   php database/migrate.php --schema → apenas o schema (sem seeds)
+ *   php database/migrate.php          → instala/atualiza PRESERVANDO os dados
+ *   php database/migrate.php --reset  → APAGA TUDO (DROP DATABASE) e recria do zero
+ *   php database/migrate.php --schema → apenas o schema (sem seeds de conteúdo)
  *
- * Idempotente: o schema dropa e recria as tabelas; rodar de novo recomeça do zero.
+ * NÃO-DESTRUTIVO por padrão (idempotente): o schema usa CREATE TABLE IF NOT EXISTS,
+ * as seeds de conteúdo (seeds.sql) só rodam quando o banco está vazio, e o banco de
+ * questões ampliado (seed-banco-questoes.php) roda sempre sem duplicar. Contas,
+ * personagens e progresso são preservados. Só `--reset` apaga dados.
  */
 
 declare(strict_types=1);

@@ -52,6 +52,7 @@ feature/* ou fix/* ou refactor/*
 | v1 — Pixel Art | Sprites autorais em pixel art (mestres, inimigos, itens, heroi). |
 | v2 — Ilustracoes | Arte ilustrada de alta resolucao; recorte com rembg; bestiario e codex. |
 | Auditoria (2026-06) | Auditoria de 6 areas; logout corrigido; schema sincronizado; assets reorganizados. |
+| Fix deploy (2026-06) | Banco de questoes ampliado no host: `banco-questoes.sql` idempotente, `seed_remote.sh` corrigido, docs de deploy alinhados (perguntas deixaram de repetir). |
 
 Ver historico detalhado em [timeline-evolucao.md](timeline-evolucao.md).
 

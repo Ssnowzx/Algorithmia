@@ -103,7 +103,9 @@ Abra `http://SEU_IP_DA_VPS/` no navegador. A home do Algorithmia deve carregar.
 
 ## Atualizar o jogo depois (deploy de novas versões)
 
-A migração é **não-destrutiva** — preserva contas e progresso:
+A migração é **não-destrutiva** — preserva contas e progresso. **Não pule o passo do
+`migrate.php`**: só o `git pull` atualiza o código, mas é o `migrate.php` que aplica
+as migrações e **as perguntas novas** no banco (`seed-banco-questoes.php`, idempotente).
 
 ```bash
 cd /var/www/algorithmia
@@ -114,7 +116,27 @@ sudo -u www-data DB_HOST=127.0.0.1 DB_NAME=algorithmia \
 sudo systemctl reload apache2
 ```
 
-> Para zerar tudo de propósito: acrescente `--reset` ao comando do migrate.
+> ⚠️ **`--reset` é o ÚNICO modo destrutivo** (faz `DROP DATABASE` e apaga contas e
+> progresso). O `migrate.php` sem flag **nunca** apaga dados.
+
+### Atualizar só o banco de perguntas (sem mexer no resto)
+
+Se quiser apenas garantir as perguntas no banco (ex.: o host foi montado importando
+`schema.sql` + `seeds.sql`, que **não** incluem o banco de questões ampliado):
+
+```bash
+cd /var/www/algorithmia
+sudo -u www-data DB_HOST=127.0.0.1 DB_NAME=algorithmia \
+     DB_USER=algorithmia DB_PASS='SUA_SENHA_FORTE' \
+     php database/seed-banco-questoes.php
+```
+
+Confira o resultado (cada fase de combate deve ter ~9–14 perguntas, não 4–7):
+
+```bash
+mysql -u algorithmia -p algorithmia \
+  -e "SELECT fase_id, COUNT(*) FROM desafios GROUP BY fase_id;"
+```
 
 ## Adicionar domínio + HTTPS depois
 
@@ -132,3 +154,8 @@ sudo certbot --apache -d seu-dominio.com
   faltando. Rode `sudo a2enmod rewrite && sudo systemctl restart apache2`.
 - **Página em branco / erro 500**: veja `sudo tail -f /var/log/apache2/algorithmia-error.log`.
 - **Imagens não aparecem**: confirme `sudo chown -R www-data:www-data /var/www/algorithmia`.
+- **As perguntas se repetem / não são aleatórias**: o banco do host está sem o banco de
+  questões ampliado (foi montado só com `schema.sql` + `seeds.sql`). Rode o
+  `seed-banco-questoes.php` (ou `migrate.php`) — ver "Atualizar só o banco de perguntas".
+  O sorteio (`BatalhaService::sortearDesafios`) embaralha o pool; com poucas perguntas
+  por fase ele cai no atalho e devolve sempre as mesmas.
