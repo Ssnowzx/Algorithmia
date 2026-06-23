@@ -6,6 +6,14 @@ acessível por IP (sem HTTPS). Stack: PHP 8 + PDO MySQL, sem dependências exter
 > Substitua os placeholders: `SUA_SENHA_FORTE` (senha do banco) e, se for usar
 > domínio depois, o `ServerName`.
 
+> 🖥️ **Hosts RHEL/CentOS/AlmaLinux/cPanel:** o serviço web chama-se **`httpd`**
+> (não `apache2`) e o projeto costuma ficar em **`~/public_html`** (ex.:
+> `/home/algorithmia/public_html`). Nesses hosts, troque os comandos:
+> - reiniciar/limpar OPcache: `sudo systemctl restart httpd` (ou o botão de
+>   restart do painel/cPanel) — `apache2`/`a2ensite`/`ufw` não existem lá.
+> - rode os scripts PHP como o usuário do site (não `www-data`), passando as
+>   credenciais inline: `DB_HOST=127.0.0.1 DB_NAME=... DB_USER=... DB_PASS=... php database/seed-banco-questoes.php`.
+
 ## 1. Instalar o ambiente
 
 ```bash
