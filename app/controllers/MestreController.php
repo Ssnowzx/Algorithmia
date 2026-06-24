@@ -61,8 +61,17 @@ class MestreController extends Controller
     public function salvarDesafio(): void
     {
         $this->exigirCsrf();
-        $dados = $this->lerDesafioDoPost();
         $id = (int) ($_POST['id'] ?? 0);
+        $dados = $this->lerDesafioDoPost();
+
+        // Barra desafios mal formados (ex.: ordenar/arrastar sem opções, que ficam
+        // sem itens para o jogador mover). Sem isto, o painel salvava perguntas
+        // impossíveis de responder.
+        $erro = $this->validarDesafio($dados);
+        if ($erro !== null) {
+            $this->flash('erro', $erro);
+            $this->redirect($id > 0 ? 'mestre/editarDesafio/' . $id : 'mestre/novoDesafio');
+        }
 
         $model = new Desafio();
         if ($id > 0) {
@@ -73,6 +82,53 @@ class MestreController extends Controller
             $this->flash('sucesso', 'Desafio criado.');
         }
         $this->redirect('mestre/desafios');
+    }
+
+    /**
+     * Valida um desafio conforme o tipo, devolvendo a mensagem de erro ou null.
+     * Garante que perguntas de escolha/ordenação tenham opções e uma resposta
+     * coerente — espelha o que BatalhaService::verificar() espera.
+     */
+    private function validarDesafio(array $dados): ?string
+    {
+        if (trim((string) $dados['pergunta']) === '') {
+            return 'A pergunta não pode ficar vazia.';
+        }
+        $opcoes = $dados['opcoes'] ? json_decode($dados['opcoes'], true) : [];
+        $opcoes = is_array($opcoes) ? $opcoes : [];
+        $resposta = json_decode($dados['resposta'], true);
+        $n = count($opcoes);
+
+        switch ($dados['tipo']) {
+            case 'multipla':
+            case 'erro':
+                if ($n < 2) {
+                    return 'Múltipla escolha / Encontrar erro precisam de pelo menos 2 opções (uma por linha).';
+                }
+                if (!is_int($resposta) || $resposta < 0 || $resposta >= $n) {
+                    return 'A resposta deve ser o índice de uma opção válida (0 a ' . ($n - 1) . ').';
+                }
+                break;
+
+            case 'ordenar':
+            case 'arrastar':
+                if ($n < 2) {
+                    return 'Ordenar / Arrastar precisam de pelo menos 2 opções (uma por linha) — são os itens que o jogador vai mover.';
+                }
+                $ordenada = is_array($resposta) ? array_map('intval', $resposta) : [];
+                sort($ordenada);
+                if ($ordenada !== range(0, $n - 1)) {
+                    return 'Em Ordenar/Arrastar a resposta deve conter TODOS os índices das opções, cada um uma vez, na ordem correta (ex.: 3 opções → algo como 2,0,1).';
+                }
+                break;
+
+            case 'completar':
+                if (!is_array($resposta) || count($resposta) === 0) {
+                    return 'Completar precisa de pelo menos uma resposta aceita (separe alternativas por vírgula).';
+                }
+                break;
+        }
+        return null;
     }
 
     public function excluirDesafio(string $id = '0'): void

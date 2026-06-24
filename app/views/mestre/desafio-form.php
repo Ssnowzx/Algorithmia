@@ -71,8 +71,11 @@ $tipos = ['multipla' => 'Múltipla escolha', 'vf' => 'Verdadeiro/Falso', 'comple
     </div>
 
     <div class="campo">
-        <label>Opções (uma por linha — para múltipla escolha, erro, ordenar)</label>
+        <label>Opções (uma por linha — obrigatórias em múltipla escolha, erro, ordenar e arrastar)</label>
         <textarea name="opcoes" placeholder="Opção A&#10;Opção B&#10;Opção C"><?= e($opcoesTexto) ?></textarea>
+        <p class="subtitulo" style="font-size:.78rem;margin-top:.3rem">
+            Em <strong>Ordenar/Arrastar</strong>, as opções são os itens que o jogador vai mover — sem elas a pergunta aparece vazia.
+        </p>
     </div>
 
     <div class="campo">
