@@ -89,8 +89,8 @@
         switch (d.tipo) {
             case 'vf': renderVF(zona); break;
             case 'completar': renderCompletar(zona); break;
-            case 'ordenar':
-            case 'arrastar': renderOrdenar(zona, d.opcoes); break;
+            case 'ordenar': renderOrdenar(zona, d.opcoes); break;
+            case 'arrastar': renderArrastar(zona, d.opcoes); break;
             default: renderMultipla(zona, d.opcoes); // multipla, erro
         }
     }
@@ -187,6 +187,82 @@
     function numerar() {
         var itens = document.querySelectorAll('#listaOrdenar .token .pos');
         itens.forEach(function (p, i) { p.textContent = (i + 1); });
+    }
+
+    // Tipo "relacionar" (arrastar): opcoes = { itens: [...], alvos: [...] } e a
+    // resposta é o índice do alvo correto de cada item. Renderiza um <select> de
+    // alvos por item; o jogador liga cada item ao seu alvo.
+    function renderArrastar(zona, opcoes) {
+        var itens = (opcoes && opcoes.itens) || [];
+        var alvos = (opcoes && opcoes.alvos) || [];
+
+        var dica = document.createElement('p');
+        dica.className = 'dialogo-dica';
+        if (!itens.length || !alvos.length) {
+            dica.textContent = 'Esta pergunta está sem itens/alvos configurados. Avise um Mestre.';
+            zona.appendChild(dica);
+            return;
+        }
+        dica.textContent = 'Relacione cada item ao alvo correto e confirme.';
+        zona.appendChild(dica);
+
+        // Embaralha a ORDEM DE EXIBIÇÃO dos alvos; o value guarda o índice
+        // original, então a correção continua batendo com a resposta do banco.
+        var ordemAlvos = alvos.map(function (_, i) { return i; });
+        for (var k = ordemAlvos.length - 1; k > 0; k--) {
+            var j = Math.floor(Math.random() * (k + 1));
+            var t = ordemAlvos[k]; ordemAlvos[k] = ordemAlvos[j]; ordemAlvos[j] = t;
+        }
+
+        var lista = document.createElement('div');
+        lista.className = 'relacionar-lista';
+        var selects = [];
+        itens.forEach(function (item) {
+            var par = document.createElement('div');
+            par.className = 'relacionar-par';
+
+            var lbl = document.createElement('span');
+            lbl.className = 'relacionar-item';
+            lbl.textContent = item;
+
+            var seta = document.createElement('span');
+            seta.className = 'relacionar-seta';
+            seta.textContent = '→';
+
+            var sel = document.createElement('select');
+            sel.className = 'relacionar-select';
+            sel.setAttribute('aria-label', 'Alvo para: ' + item);
+            var ph = document.createElement('option');
+            ph.value = ''; ph.textContent = '— escolha —';
+            ph.disabled = true; ph.selected = true;
+            sel.appendChild(ph);
+            ordemAlvos.forEach(function (origIdx) {
+                var op = document.createElement('option');
+                op.value = origIdx;
+                op.textContent = alvos[origIdx];
+                sel.appendChild(op);
+            });
+
+            selects.push(sel);
+            par.appendChild(lbl);
+            par.appendChild(seta);
+            par.appendChild(sel);
+            lista.appendChild(par);
+        });
+        zona.appendChild(lista);
+
+        var btn = document.createElement('button');
+        btn.className = 'botao';
+        btn.textContent = 'Confirmar';
+        btn.addEventListener('click', function () {
+            var resp = selects.map(function (s) { return s.value === '' ? -1 : parseInt(s.value, 10); });
+            if (resp.indexOf(-1) !== -1) {
+                window.UI.alerta('Relacione todos os itens antes de confirmar.', { tipo: 'erro' });
+                return;
+            }
+            enviar(resp, btn);
+        });
+        zona.appendChild(btn);
     }
 
     // ---------- envio de resposta ----------

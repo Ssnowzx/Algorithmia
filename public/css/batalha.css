@@ -149,6 +149,27 @@
 .ordenar-lista .token .puxador { color: var(--texto-fraco); }
 .ordenar-lista .token .pos { width: 24px; height: 24px; border-radius: 6px; background: var(--primaria); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: .8rem; }
 
+/* Relacionar (arrastar): cada item -> um alvo (select). Responsivo: empilha no mobile. */
+.relacionar-lista { display: flex; flex-direction: column; gap: .6rem; margin-bottom: .9rem; }
+.relacionar-par {
+    display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
+    background: var(--bg-2); border: 2px solid var(--borda); border-radius: 11px; padding: .6rem .8rem;
+}
+.relacionar-item { flex: 1 1 42%; min-width: 120px; font-weight: 700; }
+.relacionar-seta { flex: 0 0 auto; color: var(--texto-fraco); }
+.relacionar-select {
+    flex: 1 1 42%; min-width: 150px; padding: .6rem .7rem; border-radius: 9px;
+    background: var(--painel-2); border: 2px solid var(--borda); color: var(--texto);
+    font-family: var(--fonte); font-size: .95rem; cursor: pointer;
+}
+.relacionar-select:focus { border-color: var(--primaria-2); outline: none; }
+/* Mobile: empilha item sobre o alvo (largura total) — sem estouro horizontal. */
+@media (max-width: 540px) {
+    .relacionar-par { flex-direction: column; align-items: stretch; gap: .4rem; }
+    .relacionar-seta { display: none; }
+    .relacionar-item, .relacionar-select { flex: 1 1 auto; min-width: 0; width: 100%; }
+}
+
 /* Feedback e ações */
 .feedback { margin-top: 1rem; padding: .9rem 1.1rem; border-radius: 12px; display: none; }
 .feedback.mostrar { display: block; }

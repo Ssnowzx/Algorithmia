@@ -111,14 +111,32 @@ class MestreController extends Controller
                 break;
 
             case 'ordenar':
-            case 'arrastar':
                 if ($n < 2) {
-                    return 'Ordenar / Arrastar precisam de pelo menos 2 opções (uma por linha) — são os itens que o jogador vai mover.';
+                    return 'Ordenar precisa de pelo menos 2 opções (uma por linha) — são os itens que o jogador vai mover.';
                 }
                 $ordenada = is_array($resposta) ? array_map('intval', $resposta) : [];
                 sort($ordenada);
                 if ($ordenada !== range(0, $n - 1)) {
-                    return 'Em Ordenar/Arrastar a resposta deve conter TODOS os índices das opções, cada um uma vez, na ordem correta (ex.: 3 opções → algo como 2,0,1).';
+                    return 'Em Ordenar a resposta deve conter TODOS os índices das opções, cada um uma vez, na ordem correta (ex.: 3 opções → algo como 2,0,1).';
+                }
+                break;
+
+            case 'arrastar':
+                // "Relacionar": opcoes = {itens:[...], alvos:[...]}; resposta = índice
+                // do alvo correto de cada item. O formulário atual (textarea simples)
+                // não gera esse formato, então criações por aqui são barradas.
+                $itens = isset($opcoes['itens']) && is_array($opcoes['itens']) ? $opcoes['itens'] : [];
+                $alvos = isset($opcoes['alvos']) && is_array($opcoes['alvos']) ? $opcoes['alvos'] : [];
+                if (count($itens) < 2 || count($alvos) < 2) {
+                    return 'Relacionar (arrastar) usa opções no formato {itens, alvos} e ainda não pode ser criado/editado por este formulário.';
+                }
+                if (!is_array($resposta) || count($resposta) !== count($itens)) {
+                    return 'Em Relacionar, a resposta deve ter um índice de alvo para cada item.';
+                }
+                foreach ($resposta as $idx) {
+                    if (!is_int($idx) || $idx < 0 || $idx >= count($alvos)) {
+                        return 'Em Relacionar, cada índice de alvo deve ser válido (0 a ' . (count($alvos) - 1) . ').';
+                    }
                 }
                 break;
 

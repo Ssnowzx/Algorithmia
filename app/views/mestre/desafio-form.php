@@ -3,9 +3,14 @@
 $ed = $desafio !== null;
 $opcoesTexto = '';
 $respostaTexto = '';
+$ehRelacionar = false; // tipo "arrastar" usa opcoes {itens,alvos}, fora deste form
 if ($ed) {
     $ops = $desafio['opcoes'] ? json_decode($desafio['opcoes'], true) : [];
-    $opcoesTexto = is_array($ops) ? implode("\n", $ops) : '';
+    // Só vira texto se for uma lista simples (múltipla/ordenar). Em "relacionar"
+    // (arrastar) opcoes é {itens,alvos} — não tentar implodir (evita warning).
+    $listaSimples = is_array($ops) && array_reduce($ops, fn($c, $v) => $c && !is_array($v), true);
+    $ehRelacionar = $desafio['tipo'] === 'arrastar';
+    $opcoesTexto = $listaSimples ? implode("\n", array_map('strval', $ops)) : '';
     $resp = json_decode($desafio['resposta'], true);
     if (is_bool($resp)) {
         $respostaTexto = $resp ? 'true' : 'false';
@@ -70,11 +75,20 @@ $tipos = ['multipla' => 'Múltipla escolha', 'vf' => 'Verdadeiro/Falso', 'comple
         <textarea name="codigo" placeholder="Deixe vazio se não houver código"><?= $ed ? e($desafio['codigo']) : '' ?></textarea>
     </div>
 
+    <?php if ($ehRelacionar): ?>
+        <div class="painel" style="border-color:var(--xp);margin:1rem 0">
+            ⚠️ Esta é uma questão de <strong>Relacionar</strong> (itens → alvos). Esse formato
+            (<code>{itens, alvos}</code>) ainda não é editável por este formulário — edite só a
+            pergunta/explicação/dificuldade. Para mexer nos pares, ajuste direto no banco por enquanto.
+        </div>
+    <?php endif; ?>
+
     <div class="campo">
-        <label>Opções (uma por linha — obrigatórias em múltipla escolha, erro, ordenar e arrastar)</label>
+        <label>Opções (uma por linha — obrigatórias em múltipla escolha, erro e ordenar)</label>
         <textarea name="opcoes" placeholder="Opção A&#10;Opção B&#10;Opção C"><?= e($opcoesTexto) ?></textarea>
         <p class="subtitulo" style="font-size:.78rem;margin-top:.3rem">
-            Em <strong>Ordenar/Arrastar</strong>, as opções são os itens que o jogador vai mover — sem elas a pergunta aparece vazia.
+            Em <strong>Ordenar</strong>, as opções são os itens que o jogador vai mover — sem elas a pergunta aparece vazia.
+            <em>Relacionar (arrastar)</em> usa outro formato e não é criado por aqui.
         </p>
     </div>
 
