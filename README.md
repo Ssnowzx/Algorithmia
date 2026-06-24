@@ -80,6 +80,8 @@ TrabalhoWillen2/
 │   ├── banco-questoes.sql    # mesmas 157 perguntas como import SQL idempotente
 │   ├── relacionar.sql         # questões de relacionar (arrastar) idempotentes
 │   ├── desafios.sql           # banco completo de desafios do host (idempotente)
+│   ├── conquistas.sql         # conquistas idempotentes (sincroniza instalações antigas)
+│   ├── dialogos.sql           # diálogos idempotentes (sincroniza instalações antigas)
 │   ├── seed-banco-questoes.php # CLI: aplica as 157 perguntas (idempotente, não duplica)
 │   └── migrate.php           # CLI: cria/atualiza o banco preservando dados
 ├── app/

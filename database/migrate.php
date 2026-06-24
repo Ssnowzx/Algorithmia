@@ -260,6 +260,14 @@ if (!$apenasSchema) {
     echo "\n🧠 Aplicando banco completo de desafios...\n";
     executarArquivo($pdoBanco, __DIR__ . '/desafios.sql');
 
+    // Conquistas e diálogos idempotentes: o seeds.sql só roda em banco vazio, então
+    // instalações antigas (ex.: o host) não recebiam conquistas/diálogos novos.
+    // Estes aplicam só o que falta, sem duplicar nem sobrescrever.
+    echo "\n🏆 Sincronizando conquistas...\n";
+    executarArquivo($pdoBanco, __DIR__ . '/conquistas.sql');
+    echo "\n💬 Sincronizando diálogos...\n";
+    executarArquivo($pdoBanco, __DIR__ . '/dialogos.sql');
+
     echo "\n🎮 Conta mestre admin (sem progresso automático)...\n";
     require __DIR__ . '/seed-conta-demo.php';
 }
