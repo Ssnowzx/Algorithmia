@@ -5,8 +5,12 @@ foreach ($inventario as $i) { $possui[(int) $i['item_id']] = (int) $i['quantidad
 ?>
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem">
     <h1 class="titulo-secao" style="margin:0">🏪 Loja do Reino</h1>
-    <div class="recurso ouro" style="font-size:1.2rem;font-weight:800;color:var(--ouro)">
-        <?= svg('ui/icones/icone-ouro', 'ico') ?> <?= (int) $heroi['ouro'] ?> de ouro
+    <div style="display:flex;gap:.9rem;align-items:center;flex-wrap:wrap">
+        <div class="recurso ouro" style="font-size:1.2rem;font-weight:800;color:var(--ouro)">
+            <?= svg('ui/icones/icone-ouro', 'ico') ?> <?= (int) $heroi['ouro'] ?> de ouro
+        </div>
+        <div class="recurso" style="font-size:1.05rem;font-weight:800;color:var(--primaria-2)"
+             title="Ataque + Defesa totais. Veja-o subir ao equipar.">💪 Poder <?= poderTotal($atributos) ?></div>
     </div>
 </div>
 <p class="subtitulo">Cartas de equipamento e poção para a jornada. A venda devolve metade do valor.</p>
@@ -31,6 +35,35 @@ foreach ($inventario as $i) { $possui[(int) $i['item_id']] = (int) $i['quantidad
                     <?php if (!empty($efeito['cura_hp'])): ?><span style="color:var(--hp)">❤ +<?= (int)$efeito['cura_hp'] ?></span><?php endif; ?>
                     <?php if (!empty($efeito['cura_mp'])): ?><span style="color:var(--mp)">✦ +<?= (int)$efeito['cura_mp'] ?></span><?php endif; ?>
                 </div>
+                <?php
+                    // Comparação ciente de slot: equipar substitui o item do mesmo
+                    // tipo, então o ganho real é a diferença para o que já está posto.
+                    if (in_array($it['tipo'], ['arma', 'escudo', 'acessorio'], true)):
+                        $atualSlot = $equipadoPorTipo[$it['tipo']] ?? [];
+                        $dAtk = (int) ($efeito['ataque'] ?? 0) - (int) ($atualSlot['ataque'] ?? 0);
+                        $dDef = (int) ($efeito['defesa'] ?? 0) - (int) ($atualSlot['defesa'] ?? 0);
+                        if ($dAtk !== 0 || $dDef !== 0):
+                            $atkAtual = (int) $atributos['ataque']; $atkNovo = $atkAtual + $dAtk;
+                            $defAtual = (int) $atributos['defesa']; $defNovo = $defAtual + $dDef;
+                            $poderAtual = poderTotal($atributos);
+                            $poderNovo  = poderTotal(['ataque' => $atkNovo, 'defesa' => $defNovo]);
+                            $dPoder = $poderNovo - $poderAtual;
+                            $jaEquipado = $atualSlot !== [];
+                ?>
+                <div class="carta-loja__comparacao">
+                    <?php if ($dAtk !== 0): ?>
+                        <div class="cmp-linha">⚔ Ataque <span class="cmp-vals"><?= $atkAtual ?> → <strong><?= $atkNovo ?></strong></span>
+                            <span class="cmp-delta <?= $dAtk > 0 ? 'pos' : 'neg' ?>"><?= ($dAtk > 0 ? '+' : '') . $dAtk ?><?= $atkAtual > 0 ? ' (' . ($dAtk > 0 ? '+' : '') . round($dAtk / $atkAtual * 100) . '%)' : '' ?></span></div>
+                    <?php endif; ?>
+                    <?php if ($dDef !== 0): ?>
+                        <div class="cmp-linha">🛡 Defesa <span class="cmp-vals"><?= $defAtual ?> → <strong><?= $defNovo ?></strong></span>
+                            <span class="cmp-delta <?= $dDef > 0 ? 'pos' : 'neg' ?>"><?= ($dDef > 0 ? '+' : '') . $dDef ?><?= $defAtual > 0 ? ' (' . ($dDef > 0 ? '+' : '') . round($dDef / $defAtual * 100) . '%)' : '' ?></span></div>
+                    <?php endif; ?>
+                    <div class="cmp-poder">💪 Poder <?= $poderAtual ?> → <strong><?= $poderNovo ?></strong>
+                        <span class="cmp-delta <?= $dPoder >= 0 ? 'pos' : 'neg' ?>">(<?= ($dPoder > 0 ? '+' : '') . $dPoder ?>)</span></div>
+                    <?php if ($jaEquipado): ?><div class="cmp-nota">vs. o que está equipado</div><?php endif; ?>
+                </div>
+                <?php endif; endif; ?>
                 <div class="carta-loja__rodape">
                     <strong class="carta-loja__preco"><?= (int) $it['preco'] ?> ⛃</strong>
                     <div class="carta-loja__acoes">

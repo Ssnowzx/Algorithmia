@@ -311,6 +311,12 @@ body.pagina-mapa .regiao > .trilha {
 
 .no-rotulo { font-size: .74rem; text-align: center; margin-top: .4rem; max-width: 152px; color: var(--texto-fraco); line-height: 1.2; }
 .no-estrelas { font-size: .8rem; letter-spacing: 1px; height: 1rem; color: var(--xp); }
+/* Chip de tática: leitura curta da ameaça (ataque/defesa recomendados). */
+.no-tatica {
+    margin-top: .25rem; font-size: .64rem; font-weight: 800; line-height: 1;
+    padding: .2rem .45rem; border-radius: 999px; white-space: nowrap; cursor: help;
+    color: var(--ouro); background: rgba(255, 206, 71, .12); border: 1px solid rgba(255, 206, 71, .4);
+}
 
 @keyframes pulsa {
     0%, 100% {

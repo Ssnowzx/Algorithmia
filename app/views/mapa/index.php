@@ -76,9 +76,18 @@ $iconePorTipo = [
                         $clicavel = $estado !== 'bloqueada';
                         $tag = $clicavel ? 'a' : 'span';
                         $href = $clicavel ? 'href="' . url('historia/ver/' . (int) $fase['id']) . '"' : '';
+                        // Leitura do inimigo: tooltip completo + chip curto p/ ameaças
+                        // notáveis ainda não vencidas (motiva equipar antes de entrar).
+                        $tatica = $inimigoSlug !== ''
+                            ? taticaInimigo((int) ($fase['inimigo_hp'] ?? 0), (int) ($fase['inimigo_ataque'] ?? 0))
+                            : '';
+                        $taticaTag = $tatica !== ''
+                            ? taticaTag((int) ($fase['inimigo_hp'] ?? 0), (int) ($fase['inimigo_ataque'] ?? 0))
+                            : '';
+                        $tituloNo = $fase['nome'] . ($tatica !== '' ? ' — ' . $tatica : '');
                     ?>
                     <div class="no-fase no-tipo-<?= e($fase['tipo']) ?> <?= e($estado) ?>">
-                        <<?= $tag ?> class="no-bolha<?= $arteNo ? ' no-bolha-arte' : '' ?>" <?= $href ?> title="<?= e($fase['nome']) ?>">
+                        <<?= $tag ?> class="no-bolha<?= $arteNo ? ' no-bolha-arte' : '' ?>" <?= $href ?> title="<?= e($tituloNo) ?>">
                             <?php if ($arteNo): ?>
                                 <?= $arteNo ?>
                             <?php else: ?>
@@ -92,6 +101,9 @@ $iconePorTipo = [
                             <?php endif; ?>
                         </div>
                         <div class="no-rotulo"><?= e($fase['nome']) ?></div>
+                        <?php if ($taticaTag !== '' && $estado !== 'concluida'): ?>
+                            <div class="no-tatica" title="<?= e($tatica) ?>"><?= e($taticaTag) ?></div>
+                        <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
             </div>

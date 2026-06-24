@@ -31,16 +31,19 @@ class BatalhaService
      */
     public function iniciar(array $personagem, array $fase): array
     {
-        $lista = $this->sortearDesafios($personagem, $fase);
-
-        $combate = $this->atributosCombate($personagem);
+        $sorteio = $this->sortearDesafios($personagem, $fase);
+        $combate = $this->atributosDetalhados($personagem);
 
         $estado = [
             'fase_id'         => (int) $fase['id'],
             'personagem_id'   => (int) $personagem['id'],
-            'desafios'        => $lista,
+            // Sequência inteira jogável: os N principais (curva didática) +
+            // o resto do pool embaralhado, que abastece o Duelo Final.
+            'desafios'        => $sorteio['lista'],
             'indice'          => 0,
-            'total'           => count($lista),
+            // 'total' é só o LIMITE DE RITMO (gatilho da morte súbita), não mais
+            // uma condição de derrota — a batalha só acaba quando um HP zera.
+            'total'           => $sorteio['limite'],
             'inimigo_nome'    => $fase['inimigo_nome'] ?: 'Bug Selvagem',
             'inimigo_svg'     => $fase['inimigo_svg'] ?: 'inimigo-bug',
             'inimigo_hp_max'  => (int) $fase['inimigo_hp'],
@@ -52,6 +55,12 @@ class BatalhaService
             'heroi_mp_max'    => (int) $personagem['mp_max'],
             'heroi_ataque'    => $combate['ataque'],
             'heroi_defesa'    => $combate['defesa'],
+            // Separação classe vs. itens — usada para mostrar ao jogador o quanto
+            // o equipamento contribuiu (dano da arma / dano bloqueado pelo escudo).
+            'heroi_ataque_base'  => $combate['ataque_classe'],
+            'heroi_defesa_base'  => $combate['defesa_classe'],
+            'bonus_equip_ataque' => $combate['bonus_ataque'],
+            'bonus_equip_defesa' => $combate['bonus_defesa'],
             'heroi_nivel'     => (int) $personagem['nivel'],
             'combo'           => 0,
             'especial_armado' => false,
@@ -60,6 +69,15 @@ class BatalhaService
             'usou_ia'         => false,
             'finalizada'      => false,
             'resultado'       => null,
+            // Duelo Final.
+            'morte_subita'    => false,
+            'rodada_subita'   => 0,
+            // Acumuladores para o resumo de fim de batalha.
+            'dano_total'        => 0,
+            'dano_equip_total'  => 0,
+            'bloqueado_total'   => 0,
+            'hp_curado_total'   => 0,
+            'mp_curado_total'   => 0,
         ];
 
         $_SESSION['batalha'] = $estado;
@@ -75,7 +93,9 @@ class BatalhaService
      * dificuldade crescente — replays mostram combinações novas, mas a curva de
      * dificuldade dentro da batalha continua suave.
      *
-     * @return array<int,array> desafios já decodificados (opcoes/resposta)
+     * @return array{lista:array<int,array>,limite:int} 'lista' = N principais
+     *   (ordenados por dificuldade) seguidos do resto do pool embaralhado (reserva
+     *   para o Duelo Final); 'limite' = N (o limite de ritmo que abre a morte súbita).
      */
     private function sortearDesafios(array $personagem, array $fase): array
     {
@@ -87,7 +107,7 @@ class BatalhaService
         $quantos = DESAFIOS_POR_BATALHA[$fase['tipo']] ?? DESAFIOS_POR_BATALHA_PADRAO;
         if ($quantos <= 0 || count($pool) <= $quantos) {
             usort($pool, fn($a, $b) => (int) $a['dificuldade'] <=> (int) $b['dificuldade']);
-            return $pool;
+            return ['lista' => $pool, 'limite' => count($pool)];
         }
 
         $vistos = array_flip($this->desafios->idsVistos((int) $personagem['id'], (int) $fase['id']));
@@ -103,12 +123,36 @@ class BatalhaService
 
         shuffle($ineditos);
         shuffle($revisao);
-        $escolhidos = array_slice(array_merge($ineditos, $revisao), 0, $quantos);
+        $ordenados = array_merge($ineditos, $revisao);
+        $principal = array_slice($ordenados, 0, $quantos);
+        $reserva = array_slice($ordenados, $quantos);
 
         // usort é estável no PHP 8: empates de dificuldade preservam a ordem
         // já embaralhada, então a sequência muda a cada batalha.
-        usort($escolhidos, fn($a, $b) => (int) $a['dificuldade'] <=> (int) $b['dificuldade']);
-        return $escolhidos;
+        usort($principal, fn($a, $b) => (int) $a['dificuldade'] <=> (int) $b['dificuldade']);
+        shuffle($reserva); // a reserva só aparece no Duelo Final; ordem livre
+        return ['lista' => array_merge($principal, $reserva), 'limite' => count($principal)];
+    }
+
+    /**
+     * Garante que existe um desafio na posição atual do índice. Quando o Duelo
+     * Final esgota a reserva, recicla a sequência (reembaralhada) para nunca
+     * faltar pergunta — a fúria crescente encerra o combate em poucas rodadas,
+     * então a repetição é rara.
+     */
+    private function garantirDesafioAtual(array &$estado): void
+    {
+        if (isset($estado['desafios'][$estado['indice']]) || empty($estado['desafios'])) {
+            return;
+        }
+        $reciclar = $estado['desafios'];
+        shuffle($reciclar);
+        foreach ($reciclar as $d) {
+            $estado['desafios'][] = $d;
+            if (isset($estado['desafios'][$estado['indice']])) {
+                break;
+            }
+        }
     }
 
     public function estado(): ?array
@@ -145,6 +189,8 @@ class BatalhaService
             'indice'         => $estado['indice'],
             'total'          => $estado['total'],
             'finalizada'     => $estado['finalizada'],
+            'morte_subita'   => !empty($estado['morte_subita']),
+            'rodada_subita'  => (int) ($estado['rodada_subita'] ?? 0),
             'desafio'        => $atual,
         ];
     }
@@ -154,7 +200,7 @@ class BatalhaService
      */
     private function desafioAtualPublico(array $estado): ?array
     {
-        if ($estado['indice'] >= $estado['total']) {
+        if (!empty($estado['finalizada']) || !isset($estado['desafios'][$estado['indice']])) {
             return null;
         }
         $d = $estado['desafios'][$estado['indice']];
@@ -179,7 +225,11 @@ class BatalhaService
     public function responder($resposta, bool $viaIa = false): array
     {
         $estado = $this->estado();
-        if (!$estado || $estado['finalizada'] || $estado['indice'] >= $estado['total']) {
+        if (!$estado || $estado['finalizada']) {
+            return ['erro' => 'Nenhuma batalha ativa.'];
+        }
+        $this->garantirDesafioAtual($estado);
+        if (!isset($estado['desafios'][$estado['indice']])) {
             return ['erro' => 'Nenhuma batalha ativa.'];
         }
 
@@ -187,6 +237,10 @@ class BatalhaService
         $correto = $viaIa ? true : $this->verificar($desafio, $resposta);
 
         $this->log->registrar($estado['personagem_id'], (int) $desafio['id'], $correto, $viaIa);
+
+        // Fúria do Duelo Final: 1.0 no combate normal; cresce a cada rodada de
+        // morte súbita. Aplica-se tanto ao dano causado quanto ao recebido.
+        $furia = $this->multiplicadorFuria($estado);
 
         $retorno = [
             'correto'    => $correto,
@@ -198,41 +252,64 @@ class BatalhaService
         if ($correto) {
             $estado['combo'] = min(COMBO_MAX, $estado['combo'] + 1);
             $estado['acertos']++;
-            $dano = $this->calcularDano($estado, (int) $desafio['dificuldade']);
-            $estado['inimigo_hp'] = max(0, $estado['inimigo_hp'] - $dano);
+            $danoInfo = $this->calcularDano($estado, (int) $desafio['dificuldade'], $furia);
+            $estado['inimigo_hp'] = max(0, $estado['inimigo_hp'] - $danoInfo['total']);
             $estado['especial_armado'] = false;
-            $retorno['dano_inimigo'] = $dano;
+            $estado['dano_total'] += $danoInfo['total'];
+            $estado['dano_equip_total'] += $danoInfo['equip'];
+            $retorno['dano_inimigo'] = $danoInfo['total'];
+            $retorno['dano_equip'] = $danoInfo['equip']; // parte vinda da arma/acessório
             $retorno['combo'] = $estado['combo'];
         } else {
             $estado['combo'] = 0;
             $estado['erros']++;
-            $danoRecebido = max(1, $estado['inimigo_ataque'] - intdiv($estado['heroi_defesa'], 2));
+            // Dano com e sem o equipamento: a diferença é o que o escudo bloqueou.
+            $danoComEquip = max(1, $estado['inimigo_ataque'] - intdiv($estado['heroi_defesa'], 2));
+            $danoSemEquip = max(1, $estado['inimigo_ataque'] - intdiv((int) $estado['heroi_defesa_base'], 2));
+            $danoRecebido = max(1, (int) round($danoComEquip * $furia));
+            $bloqueado = max(0, (int) round(($danoSemEquip - $danoComEquip) * $furia));
             $estado['heroi_hp'] = max(0, $estado['heroi_hp'] - $danoRecebido);
+            $estado['bloqueado_total'] += $bloqueado;
             $retorno['dano_heroi'] = $danoRecebido;
+            $retorno['bloqueado'] = $bloqueado; // dano que o escudo evitou
         }
 
         $estado['indice']++;
-        $_SESSION['batalha'] = $estado;
 
-        // Verifica condições de término.
+        // A batalha SÓ termina quando um HP zera — nunca por acabarem as perguntas.
         if ($estado['inimigo_hp'] <= 0) {
             $retorno['resultado'] = 'vitoria';
             $this->finalizar($estado, 'vitoria');
         } elseif ($estado['heroi_hp'] <= 0) {
             $retorno['resultado'] = 'derrota';
             $this->finalizar($estado, 'derrota');
-        } elseif ($estado['indice'] >= $estado['total']) {
-            // Acabaram os desafios e o inimigo continua de pé: DERROTA.
-            // Só se vence derrubando o inimigo (ramo inimigo_hp <= 0 acima).
-            $retorno['resultado'] = 'derrota';
-            $this->finalizar($estado, 'derrota');
         } else {
+            // Ninguém caiu. Ao atingir o limite de ritmo, abre/segue o Duelo
+            // Final: a fúria sobe a cada rodada até alguém tombar.
+            if ($estado['indice'] >= $estado['total']) {
+                $estado['morte_subita'] = true;
+                $estado['rodada_subita'] = (int) $estado['rodada_subita'] + 1;
+            }
+            $this->garantirDesafioAtual($estado);
+            $_SESSION['batalha'] = $estado;
             $retorno['resultado'] = null;
             $retorno['proximo'] = $this->desafioAtualPublico($estado);
         }
 
         $retorno['estado'] = $this->estadoPublico($estado);
+        if (!empty($retorno['resultado'])) {
+            $retorno['resumo'] = $this->resumoBatalha($estado, $retorno['resultado']);
+        }
         return $retorno;
+    }
+
+    /** Multiplicador de fúria do Duelo Final (1.0 fora da morte súbita). */
+    private function multiplicadorFuria(array $estado): float
+    {
+        if (empty($estado['morte_subita'])) {
+            return 1.0;
+        }
+        return min(MORTE_SUBITA_RAGE_MAX, 1 + MORTE_SUBITA_RAGE_STEP * (int) $estado['rodada_subita']);
     }
 
     /**
@@ -243,9 +320,10 @@ class BatalhaService
     {
         // Valida a batalha ANTES de consumir o item/reputação: sem esta guarda,
         // usar o Fragmento sem batalha ativa gastava o item e derrubava a
-        // reputação sem efeito algum.
+        // reputação sem efeito algum. (Vale também no Duelo Final, em que o
+        // índice já passou do limite mas a batalha segue ativa.)
         $estado = $this->estado();
-        if (!$estado || $estado['finalizada'] || $estado['indice'] >= $estado['total']) {
+        if (!$estado || $estado['finalizada']) {
             return ['erro' => 'Nenhuma batalha ativa.'];
         }
 
@@ -307,35 +385,56 @@ class BatalhaService
         }
         $efeito = Item::efeito($item);
 
+        // Acumula o quanto a poção realmente recuperou (respeitando o teto),
+        // para o resumo de fim de batalha valorizar os consumíveis.
         if (!empty($efeito['cura_hp'])) {
+            $antes = $estado['heroi_hp'];
             $estado['heroi_hp'] = min($estado['heroi_hp_max'], $estado['heroi_hp'] + (int) $efeito['cura_hp']);
+            $estado['hp_curado_total'] = (int) ($estado['hp_curado_total'] ?? 0) + ($estado['heroi_hp'] - $antes);
         }
         if (!empty($efeito['cura_mp'])) {
+            $antes = $estado['heroi_mp'];
             $estado['heroi_mp'] = min($estado['heroi_mp_max'], $estado['heroi_mp'] + (int) $efeito['cura_mp']);
+            $estado['mp_curado_total'] = (int) ($estado['mp_curado_total'] ?? 0) + ($estado['heroi_mp'] - $antes);
         }
 
         $this->inventario->remover((int) $personagem['id'], $itemId);
         $_SESSION['batalha'] = $estado;
-        return [
+
+        $retorno = [
             'ok'     => true,
             'efeito' => $efeito,
             'estado' => $this->estadoPublico($estado),
         ];
+        // Objetivo "usou a 1ª poção" (vale tanto em batalha quanto fora dela).
+        $obj = (new ConquistaService())->concederObjetivo((int) $personagem['id'], 'primeira_pocao');
+        if ($obj) {
+            $retorno['objetivo'] = ['nome' => $obj['conquista']['nome'], 'ouro' => (int) $obj['ouro']];
+        }
+        return $retorno;
     }
 
     /**
-     * Calcula o dano de um acerto considerando nível, dificuldade, combo e especial.
+     * Calcula o dano de um acerto considerando nível, dificuldade, combo, especial
+     * e a fúria do Duelo Final. Devolve o total e a fatia vinda do equipamento de
+     * ataque (linear no ataque), para mostrar ao jogador "+X da arma".
+     *
+     * @return array{total:int,equip:int}
      */
-    private function calcularDano(array $estado, int $dificuldade): int
+    private function calcularDano(array $estado, int $dificuldade, float $furia = 1.0): array
     {
-        $base = $estado['heroi_ataque'] + $estado['heroi_nivel'] * DANO_BASE_POR_NIVEL;
-        $base += $dificuldade * 2;
-        $multiploCombo = 1 + ($estado['combo'] - 1) * COMBO_BONUS;
-        $dano = $base * max(1, $multiploCombo);
-        if ($estado['especial_armado']) {
-            $dano *= MULTIPLICADOR_ESPECIAL;
-        }
-        return (int) round($dano);
+        $multCombo = max(1, 1 + ($estado['combo'] - 1) * COMBO_BONUS);
+        $multEspecial = $estado['especial_armado'] ? MULTIPLICADOR_ESPECIAL : 1.0;
+        $mult = $multCombo * $multEspecial * $furia;
+
+        $base = $estado['heroi_ataque'] + $estado['heroi_nivel'] * DANO_BASE_POR_NIVEL + $dificuldade * 2;
+        $total = (int) round($base * $mult);
+
+        // O bônus de ataque dos itens já está embutido em heroi_ataque; sua
+        // contribuição ao dano é esse bônus vezes os mesmos multiplicadores.
+        $equip = (int) round((int) ($estado['bonus_equip_ataque'] ?? 0) * $mult);
+        $equip = max(0, min($equip, $total));
+        return ['total' => $total, 'equip' => $equip];
     }
 
     /**
@@ -345,9 +444,23 @@ class BatalhaService
      */
     public function atributosCombate(array $personagem): array
     {
+        $d = $this->atributosDetalhados($personagem);
+        return ['ataque' => $d['ataque'], 'defesa' => $d['defesa']];
+    }
+
+    /**
+     * Como atributosCombate(), mas separando a base da classe dos bônus dos itens
+     * equipados — base para o feedback de valor (dano da arma, bloqueio do escudo).
+     *
+     * @return array{ataque:int,defesa:int,ataque_classe:int,defesa_classe:int,bonus_ataque:int,bonus_defesa:int}
+     */
+    public function atributosDetalhados(array $personagem): array
+    {
         $classe = CLASSES[$personagem['classe']] ?? CLASSES['ranger'];
-        $ataque = (int) $classe['ataque'];
-        $defesa = (int) $classe['defesa'];
+        $ataqueClasse = (int) $classe['ataque'];
+        $defesaClasse = (int) $classe['defesa'];
+        $bonusAtaque = 0;
+        $bonusDefesa = 0;
 
         $equipados = $this->db()->prepare(
             "SELECT i.efeito FROM inventario inv
@@ -357,10 +470,17 @@ class BatalhaService
         $equipados->execute(['p' => (int) $personagem['id']]);
         foreach ($equipados->fetchAll() as $linha) {
             $efeito = $linha['efeito'] ? json_decode($linha['efeito'], true) : [];
-            $ataque += (int) ($efeito['ataque'] ?? 0);
-            $defesa += (int) ($efeito['defesa'] ?? 0);
+            $bonusAtaque += (int) ($efeito['ataque'] ?? 0);
+            $bonusDefesa += (int) ($efeito['defesa'] ?? 0);
         }
-        return ['ataque' => $ataque, 'defesa' => $defesa];
+        return [
+            'ataque'        => $ataqueClasse + $bonusAtaque,
+            'defesa'        => $defesaClasse + $bonusDefesa,
+            'ataque_classe' => $ataqueClasse,
+            'defesa_classe' => $defesaClasse,
+            'bonus_ataque'  => $bonusAtaque,
+            'bonus_defesa'  => $bonusDefesa,
+        ];
     }
 
     private function db(): PDO
@@ -426,8 +546,9 @@ class BatalhaService
 
     /**
      * Marca a batalha como finalizada (a recompensa é processada pelo controller).
+     * Recebe o estado por referência para que o chamador veja finalizada=true.
      */
-    private function finalizar(array $estado, string $resultado): void
+    private function finalizar(array &$estado, string $resultado): void
     {
         $estado['finalizada'] = true;
         $estado['resultado'] = $resultado;
@@ -437,5 +558,54 @@ class BatalhaService
             'mp_atual' => $estado['heroi_mp'],
         ]);
         $_SESSION['batalha'] = $estado;
+    }
+
+    /**
+     * Monta o resumo de fim de batalha (vitória ou derrota): quanto o equipamento
+     * e as poções pesaram, mais uma dica estratégica quando o herói cai. É o que
+     * faz o jogador SENTIR o valor do que comprou na loja.
+     */
+    private function resumoBatalha(array $estado, string $resultado): array
+    {
+        $temEquip = ((int) ($estado['bonus_equip_ataque'] ?? 0)
+                   + (int) ($estado['bonus_equip_defesa'] ?? 0)) > 0;
+
+        $resumo = [
+            'dano_total'   => (int) ($estado['dano_total'] ?? 0),
+            'dano_arma'    => (int) ($estado['dano_equip_total'] ?? 0),
+            'bloqueado'    => (int) ($estado['bloqueado_total'] ?? 0),
+            'hp_curado'    => (int) ($estado['hp_curado_total'] ?? 0),
+            'mp_curado'    => (int) ($estado['mp_curado_total'] ?? 0),
+            'acertos'      => (int) ($estado['acertos'] ?? 0),
+            'erros'        => (int) ($estado['erros'] ?? 0),
+            'morte_subita' => !empty($estado['morte_subita']),
+            'tem_equip'    => $temEquip,
+        ];
+        if ($resultado === 'derrota') {
+            $resumo['dica'] = $this->dicaDerrota($estado);
+        }
+        return $resumo;
+    }
+
+    /**
+     * Dica estratégica após a derrota — concreta e calculada do estado, sem abrir
+     * a loja nem forçar compra. Apenas mostra o caminho.
+     */
+    private function dicaDerrota(array $estado): string
+    {
+        $hpInimigo = max(0, (int) $estado['inimigo_hp']);
+        $hpMaxInimigo = max(1, (int) $estado['inimigo_hp_max']);
+
+        // Chegou pertinho: faltava pouco HP do inimigo → mais ataque resolveria.
+        if ($hpInimigo > 0 && $hpInimigo <= $hpMaxInimigo * 0.25) {
+            return "Faltavam só {$hpInimigo} de HP para derrubá-lo! Uma arma mais forte fecharia a conta antes que ele revidasse.";
+        }
+        // Apanhou de um inimigo pesado → defesa faz cada erro doer menos.
+        if ((int) $estado['inimigo_ataque'] >= INIMIGO_ATAQUE_ALTO) {
+            $atk = (int) $estado['inimigo_ataque'];
+            return "Esse bate {$atk} por erro. Um bom escudo derruba esse número pela metade — cada deslize machuca bem menos.";
+        }
+        // Caso geral: a economia da luta passa por errar menos e bater mais.
+        return "Mantenha o combo (erre menos) e leve uma arma melhor: a luta acaba antes de o inimigo ter chance de revidar.";
     }
 }

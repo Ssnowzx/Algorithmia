@@ -39,8 +39,47 @@ class InventarioController extends Controller
             }
         }
         $inv->update((int) $linha['id'], ['equipado' => 1]);
-        $this->flash('sucesso', e($item['nome']) . ' equipado!');
+
+        $msg = e($item['nome']) . ' equipado!' . $this->premiarObjetivosDeEquip($heroi, $item, $inv);
+        $this->flash('sucesso', $msg);
         $this->redirect('inventario');
+    }
+
+    /**
+     * Concede os objetivos de loja ligados a equipar (1ª arma e arsenal completo)
+     * e devolve o sufixo de texto para o flash. Vazio se nada foi conquistado.
+     */
+    private function premiarObjetivosDeEquip(array $heroi, array $item, Inventario $inv): string
+    {
+        $svc = new ConquistaService();
+        $texto = '';
+
+        if ($item['tipo'] === 'arma') {
+            $texto .= $this->textoObjetivo($svc->concederObjetivo((int) $heroi['id'], 'primeira_arma'));
+        }
+
+        // Arsenal completo: arma + escudo + acessório equipados ao mesmo tempo.
+        $tipos = [];
+        foreach ($inv->doPersonagem((int) $heroi['id']) as $i) {
+            if ((int) $i['equipado'] === 1) {
+                $tipos[$i['tipo']] = true;
+            }
+        }
+        if (isset($tipos['arma'], $tipos['escudo'], $tipos['acessorio'])) {
+            $texto .= $this->textoObjetivo($svc->concederObjetivo((int) $heroi['id'], 'arsenal_completo'));
+        }
+        return $texto;
+    }
+
+    /** Sufixo de flash para um objetivo recém-concedido (ou vazio). */
+    private function textoObjetivo(?array $resultado): string
+    {
+        if (!$resultado) {
+            return '';
+        }
+        $ouro = (int) $resultado['ouro'];
+        return ' 🏅 Objetivo: ' . e($resultado['conquista']['nome'])
+             . ($ouro > 0 ? " (+{$ouro} de ouro)" : '');
     }
 
     public function desequipar(string $itemId = '0'): void
@@ -76,7 +115,8 @@ class InventarioController extends Controller
         (new Personagem())->update((int) $heroi['id'], ['hp_atual' => $novoHp, 'mp_atual' => $novoMp]);
         $inv->remover((int) $heroi['id'], (int) $itemId);
 
-        $this->flash('sucesso', e($item['nome']) . ' usada. Você se sente revigorado!');
+        $obj = (new ConquistaService())->concederObjetivo((int) $heroi['id'], 'primeira_pocao');
+        $this->flash('sucesso', e($item['nome']) . ' usada. Você se sente revigorado!' . $this->textoObjetivo($obj));
         $this->redirect('inventario');
     }
 

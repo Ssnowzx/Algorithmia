@@ -9,6 +9,7 @@
     var estado = B.estado;
     var urls = B.urls;
     var respondendo = false;
+    var dueloAtivo = false; // banner do Duelo Final já foi exibido?
 
     var elPainel = document.getElementById('painelDesafio');
     var elCombo = document.getElementById('comboInd');
@@ -34,8 +35,25 @@
         document.getElementById('hpHeroiLabel').textContent = s.heroi_hp + ' / ' + s.heroi_hp_max;
         document.getElementById('mpHeroiFill').style.width = pct(s.heroi_mp, s.heroi_mp_max) + '%';
         document.getElementById('mpHeroiLabel').textContent = s.heroi_mp + ' / ' + s.heroi_mp_max;
-        elCombo.textContent = s.combo > 1 ? ('COMBO x' + s.combo + '!') : '';
-        if (s.especial_armado) { elCombo.textContent += ' ✦ESPECIAL'; }
+        if (s.morte_subita) {
+            // No Duelo Final o indicador mostra a fúria crescente em vez do combo.
+            elCombo.textContent = '🔥 DUELO FINAL — Fúria x' + (s.rodada_subita || 1);
+        } else {
+            elCombo.textContent = s.combo > 1 ? ('COMBO x' + s.combo + '!') : '';
+            if (s.especial_armado) { elCombo.textContent += ' ✦ESPECIAL'; }
+        }
+    }
+
+    // Revela o banner dramático do Duelo Final uma única vez e tinge a arena.
+    function checarDueloFinal(s) {
+        if (!s || !s.morte_subita || dueloAtivo) { return; }
+        dueloAtivo = true;
+        var campo = document.getElementById('campo');
+        if (campo) { campo.classList.add('morte-subita'); }
+        var banner = document.getElementById('bannerDuelo');
+        if (banner) { banner.hidden = false; banner.classList.add('mostrar'); }
+        som('especial');
+        if (J) { J.shake(0.7); }
     }
 
     function tremer(qualSprite) {
@@ -51,7 +69,7 @@
         setTimeout(function () { el.classList.remove('atacando'); }, 400);
     }
 
-    function flutuar(lado, texto, classe, critico) {
+    function flutuar(lado, texto, classe, critico, detalhe) {
         var alvo = document.getElementById(lado);
         var span = document.createElement('span');
         span.className = 'flutuante ' + classe + (critico ? ' critico' : '');
@@ -62,6 +80,13 @@
         num.className = 'num';
         num.textContent = texto;
         span.appendChild(num);
+        // Sublinha opcional: atribui o efeito a um item ("+5 da arma").
+        if (detalhe) {
+            var det = document.createElement('span');
+            det.className = 'detalhe';
+            det.textContent = detalhe;
+            span.appendChild(det);
+        }
         alvo.appendChild(span);
         span.addEventListener('animationend', function () { span.remove(); });
         setTimeout(function () { if (span.parentNode) { span.remove(); } }, 1400);
@@ -285,20 +310,22 @@
         // Animações de ataque + dano: o atacante investe e o alvo reage logo depois.
         if (r.dano_inimigo) {
             var critIni = r.dano_inimigo >= 25;
+            var detArma = (r.dano_equip && r.dano_equip > 0) ? ('+' + r.dano_equip + ' da arma') : '';
             atacar('spriteHeroi');
             setTimeout(function () {
                 tremer('spriteInimigo');
-                flutuar('ladoInimigo', '-' + r.dano_inimigo, 'dano', critIni);
+                flutuar('ladoInimigo', '-' + r.dano_inimigo, 'dano', critIni, detArma);
                 som('danoInimigo');
                 if (J) { J.faiscas('spriteInimigo', 'inimigo'); J.shake(critIni ? 0.5 : 0.3); }
             }, 170);
         }
         if (r.dano_heroi) {
             var critHer = r.dano_heroi >= 20;
+            var detEscudo = (r.bloqueado && r.bloqueado > 0) ? ('escudo evitou ' + r.bloqueado) : '';
             atacar('spriteInimigo');
             setTimeout(function () {
                 tremer('spriteHeroi');
-                flutuar('ladoHeroi', '-' + r.dano_heroi, 'dano', critHer);
+                flutuar('ladoHeroi', '-' + r.dano_heroi, 'dano', critHer, detEscudo);
                 som('danoHeroi');
                 if (J) { J.faiscas('spriteHeroi', 'heroi'); J.shake(critHer ? 0.5 : 0.35); }
             }, 170);
@@ -306,6 +333,7 @@
         if (r.combo && r.combo > 1) { flutuar('ladoInimigo', 'x' + r.combo, 'combo'); som('combo', r.combo); }
 
         atualizarBarras(r.estado);
+        checarDueloFinal(r.estado);
         marcarOpcao(elemento, r.correto);
         mostrarFeedback(r);
 
@@ -364,6 +392,11 @@
                     flutuar('ladoHeroi', '+' + cura, 'cura');
                     som('pocao');
                     if (J) { J.cura(); }
+                    // Objetivo "1ª poção": mostra o ouro ganho sem interromper a luta.
+                    if (r.objetivo) {
+                        flutuar('ladoHeroi', '🏅 +' + r.objetivo.ouro + ' ouro', 'combo');
+                        som('ouro');
+                    }
                     consumirBotao(btn);
                 });
             } else if (acao === 'fragmento') {
@@ -440,8 +473,10 @@
                 html += '<div class="conquista-popup">🏅 Conquista desbloqueada: <strong>' + escapeHtml(c.nome) + '</strong></div>';
             });
         } else {
-            html += '<p class="subtitulo">O inimigo continuou de pé — ou seus HP zeraram, ou os desafios acabaram antes de derrubá-lo. Estude a explicação e tente novamente: a fase só é vencida derrotando o inimigo.</p>';
+            html += '<p class="subtitulo">Seus HP zeraram. A fase só é vencida derrotando o inimigo — estude a explicação, ajuste a estratégia e volte para o troco.</p>';
         }
+
+        html += resumoHtml(r.resumo, venceu);
 
         html += '<div style="margin-top:1.2rem;display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap">';
         if (venceu && rec.redirect_final) {
@@ -458,6 +493,27 @@
         } // fim revelar
     }
 
+    // Relatório de combate: dá rosto aos itens (dano da arma, bloqueio do escudo,
+    // cura das poções) e, na derrota, uma dica estratégica concreta.
+    function resumoHtml(resumo, venceu) {
+        if (!resumo) { return ''; }
+        var h = '<div class="resumo-batalha">';
+        h += '<h3>Relatório de combate</h3><ul>';
+        if (resumo.tem_equip) {
+            h += '<li>⚔ Sua arma somou <strong>' + (resumo.dano_arma || 0) + '</strong> de dano</li>';
+            h += '<li>🛡 Seu escudo evitou <strong>' + (resumo.bloqueado || 0) + '</strong> de dano</li>';
+        }
+        if (resumo.hp_curado) { h += '<li>🧪 Poções recuperaram <strong>' + resumo.hp_curado + '</strong> de HP</li>'; }
+        h += '<li>🎯 Acertos: <strong>' + (resumo.acertos || 0) + '</strong> · Erros: <strong>' + (resumo.erros || 0) + '</strong></li>';
+        h += '</ul>';
+        if (resumo.morte_subita) { h += '<p class="selo-duelo">⚔ Decidido no Duelo Final!</p>'; }
+        h += '</div>';
+        if (!venceu && resumo.dica) {
+            h += '<div class="dica-derrota">💡 ' + escapeHtml(resumo.dica) + '</div>';
+        }
+        return h;
+    }
+
     // ---------- helpers ----------
     function escapeHtml(s) {
         return String(s == null ? '' : s)
@@ -472,5 +528,6 @@
 
     // ---------- início ----------
     atualizarBarras(estado);
+    checarDueloFinal(estado); // recarregou no meio de um Duelo Final?
     renderDesafio(estado.desafio);
 })();

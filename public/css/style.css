@@ -1039,6 +1039,20 @@ textarea { min-height: 90px; resize: vertical; }
 .carta-loja__nome { margin: 0; font-size: 1rem; line-height: 1.2; font-family: var(--titulo, inherit); }
 .carta-loja__corpo .desc-item { margin: 0; font-size: .78rem; color: var(--texto-fraco); }
 .carta-loja__efeitos { display: flex; flex-wrap: wrap; gap: .5rem; font-size: .82rem; font-weight: 700; }
+/* Comparação ciente de slot: deixa óbvio o ganho real de equipar o item. */
+.carta-loja__comparacao {
+    display: flex; flex-direction: column; gap: .15rem; font-size: .78rem;
+    background: rgba(124, 92, 255, .08); border: 1px solid var(--borda);
+    border-radius: 9px; padding: .45rem .6rem;
+}
+.carta-loja__comparacao .cmp-linha,
+.carta-loja__comparacao .cmp-poder { display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; }
+.carta-loja__comparacao .cmp-vals { color: var(--texto-fraco); }
+.carta-loja__comparacao .cmp-poder { font-weight: 700; margin-top: .1rem; }
+.carta-loja__comparacao .cmp-delta { margin-left: auto; font-weight: 800; }
+.carta-loja__comparacao .cmp-delta.pos { color: var(--sucesso); }
+.carta-loja__comparacao .cmp-delta.neg { color: var(--hp); }
+.carta-loja__comparacao .cmp-nota { font-size: .68rem; color: var(--texto-fraco); opacity: .8; }
 .carta-loja__rodape {
     margin-top: auto; padding-top: .5rem; display: flex; align-items: center;
     justify-content: space-between; gap: .5rem; flex-wrap: wrap;

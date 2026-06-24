@@ -48,6 +48,9 @@ class BatalhaController extends Controller
         }
         $bioma = str_replace('fundo-', '', $fundoBioma); // ex.: 'montanha', 'torre'
 
+        // Leitura do inimigo: sugere uma tática (ataque/defesa) conforme a ameaça.
+        $intelInimigo = taticaInimigo((int) $fase['inimigo_hp'], (int) $fase['inimigo_ataque']);
+
         $this->view('batalha/arena', [
             'pageTitle'    => $fase['nome'],
             'fase'         => $fase,
@@ -55,6 +58,7 @@ class BatalhaController extends Controller
             'itensUsaveis' => $itensUsaveis,
             'fundoBioma'   => $fundoBioma,
             'bioma'        => $bioma,
+            'intelInimigo' => $intelInimigo,
         ]);
     }
 

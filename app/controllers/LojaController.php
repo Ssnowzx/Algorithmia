@@ -13,11 +13,23 @@ class LojaController extends Controller
         $itens = (new Item())->compraveis();
         $inventario = (new Inventario())->doPersonagem((int) $heroi['id']);
 
+        // Atributos atuais + o que está equipado em cada slot, para a loja mostrar
+        // de forma óbvia o ganho de equipar (comparação ciente de slot + Poder).
+        $atributos = (new BatalhaService())->atributosCombate($heroi);
+        $equipadoPorTipo = [];
+        foreach ($inventario as $i) {
+            if ((int) $i['equipado'] === 1 && in_array($i['tipo'], ['arma', 'escudo', 'acessorio'], true)) {
+                $equipadoPorTipo[$i['tipo']] = Item::efeito($i);
+            }
+        }
+
         $this->view('loja/index', [
-            'pageTitle'   => 'Loja do Reino',
-            'heroi'       => $heroi,
-            'itens'       => $itens,
-            'inventario'  => $inventario,
+            'pageTitle'       => 'Loja do Reino',
+            'heroi'           => $heroi,
+            'itens'           => $itens,
+            'inventario'      => $inventario,
+            'atributos'       => $atributos,
+            'equipadoPorTipo' => $equipadoPorTipo,
         ]);
     }
 

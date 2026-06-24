@@ -30,6 +30,31 @@ class ConquistaService
     }
 
     /**
+     * Concede um "objetivo de loja" e credita a recompensa em ouro (definida em
+     * OBJETIVOS_OURO) — apenas na PRIMEIRA vez, pois conceder() é idempotente.
+     * Devolve {conquista, ouro} quando inédito, ou null se já tinha (ou se a
+     * conquista ainda não existe no banco — instalação sem a migração rodada).
+     *
+     * @return array{conquista:array,ouro:int}|null
+     */
+    public function concederObjetivo(int $personagemId, string $codigo): ?array
+    {
+        $conquista = $this->conceder($personagemId, $codigo);
+        if ($conquista === null) {
+            return null;
+        }
+        $ouro = (int) (OBJETIVOS_OURO[$codigo] ?? 0);
+        if ($ouro > 0) {
+            $personagens = new Personagem();
+            $personagem = $personagens->findById($personagemId);
+            if ($personagem) {
+                $personagens->update($personagemId, ['ouro' => (int) $personagem['ouro'] + $ouro]);
+            }
+        }
+        return ['conquista' => $conquista, 'ouro' => $ouro];
+    }
+
+    /**
      * Avalia conquistas dependentes do resultado de uma fase recém-concluída.
      *
      * @return array<int,array> conquistas recém-obtidas (para exibir ao jogador)

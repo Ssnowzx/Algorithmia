@@ -5,10 +5,14 @@ $heroiSvg = CLASSES[$heroi['classe']]['svg'] ?? 'heroi-ranger';
 ?>
 <?php $fundoBatalha = srcImagem('fundos/' . ($fundoBioma ?? 'fundo-batalha')) ?? asset('img/fundos/' . ($fundoBioma ?? 'fundo-batalha') . '.png'); ?>
 <div class="arena">
+    <?php if (!empty($intelInimigo)): ?>
+        <div class="intel-inimigo" role="note">🧠 <span><?= e($intelInimigo) ?></span></div>
+    <?php endif; ?>
     <div class="campo-batalha bioma-<?= e($bioma ?? 'batalha') ?>" id="campo"
          style="--fundo-bioma: url('<?= e($fundoBatalha) ?>')">
         <div class="cena-ambiente" aria-hidden="true"></div>
         <div class="combo-indicador" id="comboInd"></div>
+        <div class="banner-duelo" id="bannerDuelo" hidden>⚔ DUELO FINAL<br><small>Chega de aquecimento.</small></div>
 
         <div class="combatente inimigo" id="ladoInimigo">
             <div class="sprite" id="spriteInimigo"><?= svgSlug($estado['inimigo_svg']) ?></div>

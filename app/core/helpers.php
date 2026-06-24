@@ -445,3 +445,58 @@ function rotuloReputacao(int $rep): string
     if ($rep < 60)   return 'Discípulo Dedicado';
     return 'Mestre do Código Limpo';
 }
+
+/**
+ * "Poder Total" do herói: número único que resume o quão forte ele está, para
+ * dar sensação de progressão. Soma simples e estável de ataque + defesa (os dois
+ * atributos que a loja afeta), para o jogador ver o número subir ao equipar.
+ *
+ * @param array{ataque:int,defesa:int} $atributos saída de atributosCombate()
+ */
+function poderTotal(array $atributos): int
+{
+    return (int) ($atributos['ataque'] ?? 0) + (int) ($atributos['defesa'] ?? 0);
+}
+
+/**
+ * "Leitura do inimigo": sugere uma tática conforme HP e ataque da fase, para o
+ * jogador entender sozinho qual equipamento ajuda — sem empurrar a loja. Retorna
+ * uma frase curta, ou string vazia para inimigos comuns (sem ameaça notável).
+ */
+function taticaInimigo(int $inimigoHp, int $inimigoAtaque): string
+{
+    $resistente = $inimigoHp >= INIMIGO_HP_ALTO;
+    $brutal     = $inimigoAtaque >= INIMIGO_ATAQUE_ALTO;
+
+    if ($resistente && $brutal) {
+        return 'Resistente e violento: vá com ataque E defesa elevados — ou vire estatística.';
+    }
+    if ($resistente) {
+        return 'Couro grosso, muito HP: ataque elevado ajuda a derrubá-lo a tempo.';
+    }
+    if ($brutal) {
+        return 'Golpes pesados: defesa elevada faz cada erro doer bem menos.';
+    }
+    return '';
+}
+
+/**
+ * Versão curta de taticaInimigo() para caber em um chip no mapa (o texto completo
+ * vai no tooltip). String vazia para inimigos comuns.
+ */
+function taticaTag(int $inimigoHp, int $inimigoAtaque): string
+{
+    $resistente = $inimigoHp >= INIMIGO_HP_ALTO;
+    $brutal     = $inimigoAtaque >= INIMIGO_ATAQUE_ALTO;
+
+    if ($resistente && $brutal) {
+        return '⚠ Leve ataque e defesa';
+    }
+    if ($resistente) {
+        return '⚔ Leve ataque';
+    }
+    if ($brutal) {
+        return '🛡 Leve defesa';
+    }
+    return '';
+}

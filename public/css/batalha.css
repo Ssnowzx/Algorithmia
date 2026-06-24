@@ -82,6 +82,12 @@
 .flutuante.dano .num  { color: var(--hp); }
 .flutuante.cura .num  { color: var(--sucesso); }
 .flutuante.combo .num { color: var(--xp); }
+/* Sublinha que atribui o efeito a um item ("+5 da arma", "escudo evitou 6"). */
+.flutuante .detalhe {
+    display: block; font-size: .72rem; font-weight: 800; line-height: 1; margin-top: 3px;
+    color: #ffe39a; text-shadow: 0 1px 0 rgba(0,0,0,.9), 0 0 5px rgba(0,0,0,.6);
+    animation: flutuaSobe .85s cubic-bezier(.22,1,.36,1) forwards;
+}
 .flutuante.critico .num { font-size: 2.6rem; color: var(--aviso); }
 .flutuante.critico { animation-duration: 1.1s; }
 .flutuante.critico .num { animation-duration: 1.1s, .26s; }
@@ -193,6 +199,57 @@
 .estrelas-resultado { font-size: 2.4rem; letter-spacing: 6px; color: var(--xp); margin: .6rem 0; }
 .conquista-popup { background: rgba(255,206,71,.12); border: 1px solid var(--xp); border-radius: 12px; padding: .7rem 1rem; margin: .6rem 0; display: flex; gap: .6rem; align-items: center; justify-content: center; }
 .conquista-popup svg { width: 34px; height: 34px; }
+
+/* ---------- Leitura do inimigo (tática pré-luta) ---------- */
+.intel-inimigo {
+    display: flex; gap: .5rem; align-items: center; justify-content: center;
+    margin: 0 0 .8rem; padding: .55rem .9rem; border-radius: 11px;
+    background: rgba(255,206,71,.10); border: 1px solid rgba(255,206,71,.40);
+    color: var(--ouro); font-weight: 700; font-size: .9rem; text-align: center; line-height: 1.35;
+}
+
+/* ---------- Duelo Final (morte súbita) ---------- */
+.campo-batalha.morte-subita { animation: pulsoDuelo 1.1s ease-in-out infinite; }
+@keyframes pulsoDuelo {
+    0%,100% { box-shadow: inset 0 0 80px rgba(255,55,75,.40); }
+    50%     { box-shadow: inset 0 0 120px rgba(255,55,75,.72); }
+}
+.banner-duelo {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(.6);
+    z-index: 5; pointer-events: none; text-align: center; white-space: nowrap;
+    font-family: var(--titulo); font-weight: 900; font-size: 2.4rem; color: #fff;
+    text-shadow: 0 0 18px #ff3c50, 0 0 38px #ff3c50, 0 4px 0 rgba(0,0,0,.6); letter-spacing: 2px;
+}
+.banner-duelo small { display: block; font-size: .9rem; font-weight: 700; opacity: .9; letter-spacing: 1px; }
+.banner-duelo.mostrar { animation: bannerDuelo 1.9s cubic-bezier(.2,1,.3,1) forwards; }
+@keyframes bannerDuelo {
+    0%   { opacity: 0; transform: translate(-50%,-50%) scale(.4); }
+    18%  { opacity: 1; transform: translate(-50%,-50%) scale(1.15); }
+    34%  { transform: translate(-50%,-50%) scale(1); }
+    80%  { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%,-50%) scale(1.05); }
+}
+
+/* ---------- Resumo de fim de batalha + dica de derrota ---------- */
+.resumo-batalha {
+    text-align: left; max-width: 420px; margin: 1.1rem auto;
+    background: var(--painel-2); border: 1px solid var(--borda); border-radius: 12px; padding: .9rem 1.1rem;
+}
+.resumo-batalha h3 { margin: 0 0 .55rem; font-size: 1rem; color: var(--primaria-2); text-align: center; }
+.resumo-batalha ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .35rem; }
+.resumo-batalha li { font-size: .92rem; }
+.resumo-batalha .selo-duelo { text-align: center; color: #ff8a98; font-weight: 800; margin: .55rem 0 0; }
+.dica-derrota {
+    max-width: 480px; margin: 1rem auto; padding: .8rem 1rem; border-radius: 12px;
+    background: rgba(124,92,255,.12); border: 1px solid rgba(124,92,255,.45);
+    color: #d8ccff; font-size: .95rem; line-height: 1.5; text-align: left;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .campo-batalha.morte-subita { animation: none; box-shadow: inset 0 0 100px rgba(255,55,75,.55); }
+    .banner-duelo.mostrar { animation: bannerFade 1.6s linear forwards; }
+    @keyframes bannerFade { 0% { opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+}
 
 @media (max-width: 600px) {
     .combatente .sprite { width: 140px; height: 140px; }

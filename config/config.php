@@ -103,6 +103,27 @@ const COMBO_MAX             = 4;    // teto do multiplicador de combo
 const CUSTO_MP_ESPECIAL     = 15;   // mana gasta no ataque especial
 const MULTIPLICADOR_ESPECIAL = 2.0; // o especial dobra o próximo dano
 
+// Duelo Final (morte súbita): a batalha NUNCA mais termina por acabarem os
+// desafios — só quando um HP zera. Quando o limite de perguntas é atingido com
+// os dois vivos, entra-se em morte súbita: a cada rodada, acertos e erros
+// passam a doer mais (fúria crescente), garantindo um desfecho rápido e tenso
+// SEM tirar a decisão das mãos de quem sabe a matéria.
+const MORTE_SUBITA_RAGE_STEP = 0.5; // +50% de dano por rodada de morte súbita
+const MORTE_SUBITA_RAGE_MAX  = 4.0; // teto do multiplicador de fúria
+
+// Limiares para a "leitura do inimigo" (sugestão de tática na arena e no mapa).
+const INIMIGO_HP_ALTO      = 150; // acima disto: inimigo resistente (ataque ajuda)
+const INIMIGO_ATAQUE_ALTO  = 15;  // acima disto: golpes pesados (defesa ajuda)
+
+// Objetivos da loja: recompensa em ouro ÚNICA por conquista (creditada na 1ª vez).
+// Valores modestos (somados < custo de uma arma rara) — empurrão inicial, sem
+// inflar a economia nem virar pay-to-win.
+const OBJETIVOS_OURO = [
+    'primeira_arma'    => 30,
+    'primeira_pocao'   => 20,
+    'arsenal_completo' => 60,
+];
+
 // Reputação: eixo Disciplina (+) vs. IA (-). Começa em 0.
 const REPUTACAO_USO_IA = -10;
 const REPUTACAO_MIN    = -100;

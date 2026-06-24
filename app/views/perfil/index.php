@@ -42,6 +42,7 @@ $classe = CLASSES[$heroi['classe']] ?? [];
             <div>🛡 Defesa: <strong><?= (int)$atributos['defesa'] ?></strong></div>
             <div>⛃ Ouro: <strong style="color:var(--ouro)"><?= (int)$heroi['ouro'] ?></strong></div>
             <div>★ Estrelas: <strong style="color:var(--xp)"><?= (int)$totalEstrelas ?></strong></div>
+            <div>💪 Poder Total: <strong style="color:var(--primaria-2)"><?= poderTotal($atributos) ?></strong></div>
         </div>
         <hr style="border-color:var(--borda);margin:1rem 0">
         <div>
