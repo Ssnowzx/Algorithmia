@@ -11,8 +11,7 @@ acessível por IP (sem HTTPS). Stack: PHP 8 + PDO MySQL, sem dependências exter
 > `/home/algorithmia/public_html`). Nesses hosts, troque os comandos:
 > - reiniciar/limpar OPcache: `sudo systemctl restart httpd` (ou o botão de
 >   restart do painel/cPanel) — `apache2`/`a2ensite`/`ufw` não existem lá.
-> - rode os scripts PHP como o usuário do site (não `www-data`), passando as
->   credenciais inline: `DB_HOST=127.0.0.1 DB_NAME=... DB_USER=... DB_PASS=... php database/seed-banco-questoes.php`.
+> - rode os scripts PHP como o usuário do site (não `www-data`), passando as credenciais inline: `DB_HOST=127.0.0.1 DB_NAME=... DB_USER=... DB_PASS=... php database/migrate.php`.
 
 ## 1. Instalar o ambiente
 
@@ -113,7 +112,7 @@ Abra `http://SEU_IP_DA_VPS/` no navegador. A home do Algorithmia deve carregar.
 
 A migração é **não-destrutiva** — preserva contas e progresso. **Não pule o passo do
 `migrate.php`**: só o `git pull` atualiza o código, mas é o `migrate.php` que aplica
-as migrações e **as perguntas novas** no banco (`seed-banco-questoes.php`, idempotente).
+as migrações e **as perguntas novas** no banco (`seed-banco-questoes.php` e `relacionar.sql`, idempotentes).
 
 ```bash
 cd /var/www/algorithmia
@@ -130,7 +129,7 @@ sudo systemctl reload apache2
 ### Atualizar só o banco de perguntas (sem mexer no resto)
 
 Se quiser apenas garantir as perguntas no banco (ex.: o host foi montado importando
-`schema.sql` + `seeds.sql`, que **não** incluem o banco de questões ampliado):
+`schema.sql` + `seeds.sql`, que **não** incluem o banco de questões ampliado e as questões de relacionar):
 
 ```bash
 cd /var/www/algorithmia

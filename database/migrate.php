@@ -252,6 +252,10 @@ if (!$apenasSchema) {
     echo "\n🧠 Aplicando banco de questões ampliado (anti-repetição)...\n";
     require __DIR__ . '/seed-banco-questoes.php';
 
+    // Conteúdo de relacionar (tipo arrastar), versionado a partir do host.
+    echo "\n🧠 Aplicando questões de relacionar (arrastar)...\n";
+    executarArquivo($pdoBanco, __DIR__ . '/relacionar.sql');
+
     echo "\n🎮 Conta mestre admin (sem progresso automático)...\n";
     require __DIR__ . '/seed-conta-demo.php';
 }
