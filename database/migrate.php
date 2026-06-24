@@ -256,6 +256,10 @@ if (!$apenasSchema) {
     echo "\n🧠 Aplicando questões de relacionar (arrastar)...\n";
     executarArquivo($pdoBanco, __DIR__ . '/relacionar.sql');
 
+    // Banco completo de desafios, versionado a partir do host.
+    echo "\n🧠 Aplicando banco completo de desafios...\n";
+    executarArquivo($pdoBanco, __DIR__ . '/desafios.sql');
+
     echo "\n🎮 Conta mestre admin (sem progresso automático)...\n";
     require __DIR__ . '/seed-conta-demo.php';
 }

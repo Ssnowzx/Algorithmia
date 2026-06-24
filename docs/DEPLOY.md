@@ -112,7 +112,7 @@ Abra `http://SEU_IP_DA_VPS/` no navegador. A home do Algorithmia deve carregar.
 
 A migração é **não-destrutiva** — preserva contas e progresso. **Não pule o passo do
 `migrate.php`**: só o `git pull` atualiza o código, mas é o `migrate.php` que aplica
-as migrações e **as perguntas novas** no banco (`seed-banco-questoes.php` e `relacionar.sql`, idempotentes).
+as migrações e **as perguntas novas** no banco (`seed-banco-questoes.php`, `relacionar.sql` e `desafios.sql`, idempotentes).
 
 ```bash
 cd /var/www/algorithmia
@@ -129,7 +129,7 @@ sudo systemctl reload apache2
 ### Atualizar só o banco de perguntas (sem mexer no resto)
 
 Se quiser apenas garantir as perguntas no banco (ex.: o host foi montado importando
-`schema.sql` + `seeds.sql`, que **não** incluem o banco de questões ampliado e as questões de relacionar):
+`schema.sql` + `seeds.sql`, que **não** incluem o banco de questões ampliado, as questões de relacionar e o banco completo de desafios):
 
 ```bash
 cd /var/www/algorithmia
