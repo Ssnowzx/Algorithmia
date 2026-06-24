@@ -975,57 +975,11 @@ textarea { min-height: 90px; resize: vertical; }
 
 /* ---------- Grades genéricas (itens, conquistas) ---------- */
 .grade-itens { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
-.item-card {
-    --rar-borda: rgba(124, 92, 255, .28);
-    --rar-glow:  rgba(124, 92, 255, .16);
-    background:
-        radial-gradient(130% 90% at 0% -25%, rgba(124, 92, 255, .10), transparent 55%),
-        linear-gradient(180deg, #14163a, #0c0d22 70%, #0a0b1b);
-    border: 1px solid var(--rar-borda); border-radius: 14px;
-    padding: 1rem; display: flex; gap: .8rem; align-items: flex-start;
-    position: relative; overflow: hidden;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, .38), inset 0 1px 0 rgba(255, 255, 255, .05);
-    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
-}
-/* Filete dourado lateral de marca, tingido pela raridade (mesmo idioma da loja). */
-.item-card::before {
-    content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; z-index: 2;
-    background: linear-gradient(180deg, var(--rar-glow), var(--ouro), var(--rar-glow)); opacity: .8;
-}
-.item-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 14px 30px rgba(0, 0, 0, .5), 0 0 22px var(--rar-glow);
-}
-.item-card .icone-item {
-    width: 64px; height: 64px; flex-shrink: 0; border-radius: 10px;
-    background: radial-gradient(80% 80% at 50% 38%, var(--rar-glow), #0b0c1d 76%);
-    display: grid; place-items: center; position: relative; overflow: hidden;
-    border: 1px solid var(--rar-borda);
-    transition: box-shadow .2s ease;
-}
-.item-card .icone-item svg,
-.item-card .icone-item img { width: 100%; height: 100%; object-fit: contain; }
-.item-card:hover .icone-item { box-shadow: 0 0 16px var(--rar-glow); }
-.item-card:hover .icone-item img,
-.item-card:hover .icone-item svg { animation: itemPulo .45s ease; }
-@keyframes itemPulo { 0% { transform: translateY(0); } 45% { transform: translateY(-6px); } 100% { transform: translateY(0); } }
-.item-card h4 { margin: 0 0 .2rem; font-size: .98rem; font-family: var(--titulo, inherit); }
-.item-card .desc-item { font-size: .8rem; color: var(--texto-fraco); margin: 0 0 .5rem; }
 .raridade { font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; padding: .1rem .4rem; border-radius: 5px; }
 .raridade-comum { background: rgba(154,160,201,.2); color: #c3c8ea; }
 .raridade-raro { background: rgba(74,163,255,.2); color: #8cc6ff; }
 .raridade-epico { background: rgba(157,131,255,.22); color: #c4b0ff; }
 .raridade-lendario { background: rgba(255,206,71,.2); color: var(--xp); }
-.tag-equipado { font-size: .68rem; font-weight: 800; color: var(--sucesso); animation: equipadoPulsa 1.8s ease-in-out infinite; }
-@keyframes equipadoPulsa { 0%, 100% { opacity: .65; } 50% { opacity: 1; } }
-
-/* Raridade define borda + brilho da carta do inventário (tokens.css). */
-.item-card.item-rar-comum    { --rar-borda: var(--rar-comum-borda);    --rar-glow: rgba(154, 160, 201, .13); }
-.item-card.item-rar-raro     { --rar-borda: var(--rar-raro-borda);     --rar-glow: var(--rar-raro-glow); }
-.item-card.item-rar-epico    { --rar-borda: var(--rar-epico-borda);    --rar-glow: var(--rar-epico-glow); }
-.item-card.item-rar-lendario { --rar-borda: var(--rar-lendario-borda); --rar-glow: var(--rar-lendario-glow);
-    animation: itemLendario 2.2s ease-in-out infinite;
-}
 @keyframes itemLendario {
     0%, 100% { box-shadow: inset 0 0 0 1px rgba(255, 206, 71, .45), 0 0 12px rgba(255, 206, 71, .22); }
     50%      { box-shadow: inset 0 0 0 1px rgba(255, 206, 71, .7),  0 0 22px rgba(255, 206, 71, .5); }
@@ -1100,6 +1054,38 @@ textarea { min-height: 90px; resize: vertical; }
 .carta-loja.item-rar-lendario { --rar-borda: var(--rar-lendario-borda); --rar-glow: var(--rar-lendario-glow);
     animation: itemLendario 2.2s ease-in-out infinite;
 }
+
+/* ---------- Inventário: cards verticais no idioma da Loja (.carta-loja) ----------
+   Grid auto-fit centralizado: 1 coluna no celular, vários no desktop; com poucos
+   itens as cartas ficam centradas (sem coluna estreita "perdida" à esquerda). */
+.grade-inventario {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 250px));
+    gap: 1.1rem;
+    justify-content: center;
+    align-items: stretch;
+    margin-top: 1rem;
+}
+.titulo-grupo-inv { font-size: 1.15rem; margin-top: 1.6rem; }
+/* Selo "Equipado" (canto sup. esq.) e quantidade (canto inf. dir.) sobre a arte. */
+.carta-loja__equipado {
+    position: absolute; top: .5rem; left: .5rem; z-index: 2;
+    font-size: .62rem; font-weight: 800; letter-spacing: .3px;
+    color: var(--sucesso); background: rgba(7, 8, 15, .62);
+    padding: .14rem .42rem; border-radius: 6px; backdrop-filter: blur(2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .5);
+}
+.carta-loja__qtd {
+    position: absolute; bottom: .5rem; right: .5rem; z-index: 2;
+    font-size: .74rem; font-weight: 800; color: #fff;
+    background: rgba(11, 12, 29, .72); border: 1px solid var(--rar-borda);
+    padding: .08rem .42rem; border-radius: 7px; backdrop-filter: blur(2px);
+}
+.carta-loja.carta-equipada { box-shadow: 0 8px 22px rgba(0, 0, 0, .42), 0 0 0 1px var(--sucesso) inset; }
+/* Ações ocupam a largura do card: botões lado a lado e do mesmo tamanho. */
+.grade-inventario .carta-loja__acoes { width: 100%; }
+.grade-inventario .carta-loja__acoes form { flex: 1 1 0; min-width: 0; }
+.grade-inventario .carta-loja__acoes .botao { width: 100%; }
 
 /* Itens: animações sutis (hover, pulinho, brilho de raridade) tocam mesmo com
    prefers-reduced-motion — são leves e disparadas por interação. As animações
@@ -1291,7 +1277,7 @@ textarea { min-height: 90px; resize: vertical; }
 .no-bolha:not(.no-bolha-arte) img,
 .combatente .sprite img, .conquista-popup img,
 .hero-logo img, .mestre-card .retrato img,
-.classe-card .corpo img:not(.classe-retrato), .item-card .icone-item img, .conquista .medalha img {
+.classe-card .corpo img:not(.classe-retrato), .conquista .medalha img {
     object-fit: contain;
     image-rendering: auto;
 }
@@ -1323,7 +1309,6 @@ textarea { min-height: 90px; resize: vertical; }
     display: block;
     image-rendering: auto;
 }
-.item-card .icone-item img { width: 50px; height: 50px; }
 .conquista .medalha img { width: 48px; height: 48px; }
 
 /* ---------- Tela de início (splash) ---------- */
