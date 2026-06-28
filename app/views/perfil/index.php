@@ -24,6 +24,28 @@ $classe = CLASSES[$heroi['classe']] ?? [];
 </div>
 <?php endif; ?>
 
+<?php
+    $rs = $recapSemana ?? [];
+    $rsResp = (int) ($rs['respostas'] ?? 0);
+    $rsFases = (int) ($rs['fases'] ?? 0);
+    $rsIa   = (int) ($rs['usos_ia'] ?? 0);
+    $rsPct  = $rsResp > 0 ? round((int) ($rs['acertos'] ?? 0) / $rsResp * 100) : 0;
+    $rsAtivo = $rsResp > 0 || $rsFases > 0;
+?>
+<div class="painel recap-semana">
+    <h3 class="recap-titulo">📅 Sua semana</h3>
+    <?php if ($rsAtivo): ?>
+        <div class="recap-stats">
+            <div class="recap-item"><strong><?= $rsResp ?></strong><span>desafios</span></div>
+            <div class="recap-item"><strong><?= $rsPct ?>%</strong><span>de acerto</span></div>
+            <div class="recap-item"><strong><?= $rsFases ?></strong><span>fases</span></div>
+            <?php if ($rsIa > 0): ?><div class="recap-item recap-ia"><strong><?= $rsIa ?></strong><span>vezes c/ IA</span></div><?php endif; ?>
+        </div>
+    <?php else: ?>
+        <p class="subtitulo recap-vazio">Nenhuma prática nos últimos 7 dias. Que tal voltar ao reino? <a href="<?= url('mapa') ?>">Começar uma fase →</a></p>
+    <?php endif; ?>
+</div>
+
 <div class="grid-2">
     <div class="painel">
         <div class="perfil-id">

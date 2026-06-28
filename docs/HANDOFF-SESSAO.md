@@ -1,8 +1,31 @@
 # Handoff de Sessão — Algorithmia
 
 > Documento de transição para retomar o trabalho numa **sessão nova do zero**.
-> Resume o que foi feito e **aprovado** nesta branch, o pipeline de assets e a
-> **arquitetura de imagens**.
+
+---
+
+## 🗓️ Sessão 2026-06-28 — Evolução de UX (apresentação) · na `main`
+
+**PR #1** (15 commits) **mergeado** na `main` (`576c5f5`); **PR #2** (recap semanal) na sequência.
+Spec-driven: change `openspec/changes/evolucao-ux-apresentacao/` (proposal/design/tasks/specs, validada).
+
+**O que entrou — só apresentação/perf (nada de perguntas, batalha, XP, ouro, reputação/regra):**
+- **Navegação:** rail (desktop ≥1000px) + barra inferior (mobile), top bar full-width, **View Transitions** entre páginas.
+- **Design system:** tokens unificados, `:focus-visible`, `aria-current`, `color-mix` oklab, tokens de motion, `width/height` anti-CLS, dedup de fontes.
+- **Perfil/gamificação:** medidor de Reputação (Disciplina↔Singularidade), progresso parcial das conquistas (X/Y), recap "Sua semana", stats em tiles, inventário em grade.
+- **Mapa:** barra de progresso + chip "Próximo objetivo"; barras animadas; **confete** (conquista/compra/level-up, `public/js/celebracao.js`).
+- **Loja:** dedupe de itens — migration idempotente `database/migrations/20260628-dedupe-itens.sql`.
+- **Performance:** right-size de imagens (`tools/right_size_imagens.py`) ≈ **−46 MB servidos**, mesma arte; PNGs de itens movidos só p/ `docs/evolucao-visual`.
+
+**Para retomar / pendências:**
+- **Deploy:** ainda NÃO publicado em produção (algorithmia.tars.art.br). Ao deployar, rodar `php database/migrate.php` p/ aplicar a migration de dedupe da loja lá.
+- As **animações** (View Transitions/confete/barras) só aparecem em browser **sem "reduzir movimento"**.
+- **Próxima etapa** (já é gamificação de mecânica): ligas/cohorts no ranking (exige reset semanal/cron) ou streak (risco documentado de ansiedade — desaconselhado). Decidir explicitamente.
+- Memória viva da rodada: `~/.claude/projects/-Users-snows-AntiGravity-TrabalhoWillen2/memory/auditoria-ux-andamento.md`.
+
+---
+
+## Sessão anterior (histórico)
 
 **Branch:** `refactor/auditoria-qualidade-producao` (47 commits a partir de `main`).
 **Status:** sem push nem PR (tudo local). **Há mudanças não commitadas** desta

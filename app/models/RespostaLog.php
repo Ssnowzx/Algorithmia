@@ -54,4 +54,28 @@ class RespostaLog extends Model
         $stmt->execute(['p' => $personagemId]);
         return (int) $stmt->fetchColumn();
     }
+
+    /**
+     * Resumo da última semana (7 dias) para o recap do perfil: desafios
+     * respondidos, acertos e usos de IA. Read-only; não cria nem altera dado.
+     *
+     * @return array{respostas:int,acertos:int,usos_ia:int}
+     */
+    public function resumoSemana(int $personagemId): array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT COUNT(*) AS respostas,
+                    COALESCE(SUM(correta), 0) AS acertos,
+                    COALESCE(SUM(usou_ia), 0) AS usos_ia
+             FROM respostas_log
+             WHERE personagem_id = :p AND respondido_em >= (NOW() - INTERVAL 7 DAY)"
+        );
+        $stmt->execute(['p' => $personagemId]);
+        $r = $stmt->fetch() ?: [];
+        return [
+            'respostas' => (int) ($r['respostas'] ?? 0),
+            'acertos'   => (int) ($r['acertos'] ?? 0),
+            'usos_ia'   => (int) ($r['usos_ia'] ?? 0),
+        ];
+    }
 }
