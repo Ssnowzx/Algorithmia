@@ -1621,7 +1621,12 @@ textarea { min-height: 90px; resize: vertical; }
 @media (prefers-reduced-motion: no-preference) {
     .barra-fill,
     .barra-stat .preenche,
-    .mapa-barra-fill {
+    .mapa-barra-fill,
+    .conquista-progresso .preenche,
+    .onboarding-trilha .preenche,
+    .maestria-trilha .preenche,
+    .missao-trilha .preenche,
+    .regiao-trilha .preenche {
         transform-origin: left;
         animation: barraEnche var(--dur-tela, .5s) var(--ease-out, cubic-bezier(.2, .8, .3, 1)) both;
     }
