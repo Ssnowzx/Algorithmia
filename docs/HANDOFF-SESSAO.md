@@ -6,7 +6,7 @@
 
 ## 🗓️ Sessão 2026-06-28 (cont.) — Gamificação de MECÂNICA · na `main`
 
-Três etapas de gamificação de **mecânica** (a apresentação já estava pronta), todas
+Quatro etapas de gamificação de **mecânica** (a apresentação já estava pronta), todas
 **mergeadas e pushadas na `main`**, no padrão read-only que vinha dando certo: **sem
 migration, sem cron, sem mexer em perguntas/economia/regra**. Cada uma com spec-driven
 (`openspec/changes/…`, validada) + teste CLI puro (o projeto não tem PHPUnit).
@@ -31,20 +31,31 @@ migration, sem cron, sem mexer em perguntas/economia/regra**. Cada uma com spec-
   `REGIAO_TITULO_LENDA`, `Mestre::progressoPorRegiao` (query parte de FASES → robusta à
   duplicação de `mestres`; só fases não-história), `RegiaoService`, `tools/verificar_regioes.php`
   (28 asserts). Ajuste posterior (`2070eef`): o painel conta só `tipo IN ('licao','chefe')`
-  (secundárias opcionais), alinhando com o critério do jogo de "concluir região". **Débito
-  real observado (não corrigido):** tabela `mestres` duplicada (10 = 5 + 5 órfãos, seed-2×,
-  como a loja). *(As conquistas `mestre_X` NÃO estão órfãs — são concedidas ao derrotar o
-  chefe em `BatalhaController::concederConquistaDeRegiao`; afirmar o contrário foi erro meu.)*
+  (secundárias opcionais), alinhando com o critério do jogo de "concluir região".
+  *(As conquistas `mestre_X` NÃO estão órfãs — são concedidas ao derrotar o chefe em
+  `BatalhaController::concederConquistaDeRegiao`; afirmar o contrário foi erro meu, já corrigido.)*
+- **Onboarding "Primeiros passos"** (`feat/onboarding-primeiros-passos` → merge `edd2af6`).
+  Painel de boas-vindas no topo do perfil (endowed progress) com o 1º marco JÁ feito ("Forjar
+  seu herói") + 3 read-only (batalha/item/conquista); barra X/4; aparece só até
+  `ONBOARDING_NIVEL_MAX=3` e some quando o novato evolui/completa. `OnboardingService` (montar
+  pura + primeirosPassos defensivo), `Inventario::temEquipado`, `tools/verificar_onboarding.php`
+  (14 asserts).
+
+**Também nesta sessão (correções de dados/infra):**
+- **Dedupe da tabela `mestres`** (`fix/dedupe-mestres` → merge `7ad5f03`): migration idempotente
+  `database/migrations/20260628-dedupe-mestres.sql` (mantém menor id por `svg_slug`, repointa
+  fases; 10→5) — resolve o único débito de dados que restava (era o mesmo seed-2× da loja).
+- **`worker/` (ponte Telegram) versionado** (`a8a8206`): bridge, scripts e `.env.example`; trava
+  anti-segredo confirmou `.env`/`.state.json`/logs fora do commit.
 
 **Para retomar / pendências:**
-- **Deploy:** maestria, missões e domínio de regiões NÃO publicados em produção
-  (algorithmia.tars.art.br). Não exigem migration própria, mas o deploy ainda precisa rodar
-  `php database/migrate.php` (dedupe da loja da rodada anterior).
+- **Deploy:** as 4 features de gamificação + o dedupe de `mestres` NÃO publicados em produção
+  (algorithmia.tars.art.br). O deploy precisa rodar `php database/migrate.php` — agora aplica o
+  dedupe da loja (rodada anterior) **e** o dedupe de `mestres` (idempotentes, registrados).
 - **Verificação dos painéis** exige dados na conta; foi feita injetando respostas/progresso de
   fases no personagem demo (pers5 = masterboss/Boss Explorer) e **revertendo** — banco intacto.
-- **Próximas opções de mecânica:** ligas/cohorts (exigem cron/reset — bloqueio técnico real),
-  onboarding com progresso dotado. Streak segue desaconselhado. Débito real aberto: duplicação
-  da tabela `mestres` (seed-2×, como a loja teve) — exigiria migration de dedupe.
+- **Próximas opções de mecânica:** ligas/cohorts (exigem cron/reset — bloqueio técnico real).
+  Streak segue desaconselhado. (Onboarding e o dedupe de `mestres` já foram feitos nesta sessão.)
 - Memória viva: `~/.claude/projects/-Users-snows-AntiGravity-TrabalhoWillen2/memory/auditoria-ux-andamento.md`.
 
 ---
