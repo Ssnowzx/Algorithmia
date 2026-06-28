@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Perfil — Algorithmia (protótipo)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Rubik:wght@400;500;700;800&display=swap">
+  <link rel="stylesheet" href="prototipo.css">
+</head>
+<body data-setor="perfil" class="tem-lateral">
+  <header class="topo">
+    <a class="marca" href="index.html"><img src="../../public/img/ui/logos/logo-header.webp" alt="Algorithmia"></a>
+    <div class="hud-mini"><span class="moeda">◈ <b data-contador="888">0</b></span><img class="avatar" src="../../public/img/herois/hud-guerreiro.webp" alt="Herói" onerror="this.style.display='none'"></div>
+  </header>
+
+  <aside class="rail">
+    <a class="rail-logo" href="index.html"><img src="../../public/img/ui/logos/logo-header.webp" alt="Algorithmia"></a>
+    <nav class="nav-app" aria-label="Navegação principal">
+      <a class="nav-item" href="mapa.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2Z"/><path d="M9 3v16M15 5v16"/></svg><span>Mapa</span></a>
+      <a class="nav-item" href="inventario.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M4 9l1.5-4h13L20 9"/><path d="M10 13h4"/></svg><span>Inventário</span></a>
+      <a class="nav-item" href="loja.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg><span>Loja</span></a>
+      <a class="nav-item is-ativo" href="perfil.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg><span>Perfil</span></a>
+      <a class="nav-item" href="ranking.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v4a4 4 0 0 1-8 0Z"/><path d="M8 6H5a2 2 0 0 0 2 3h1M16 6h3a2 2 0 0 1-2 3h-1"/><path d="M12 12v3M9 20h6l-.5-4h-5Z"/></svg><span>Ranking</span></a>
+    </nav>
+    <div class="rail-rodape"><span class="moeda">◈ <b data-contador="888">0</b></span></div>
+  </aside>
+
+  <main class="conteudo">
+    <h1 class="secao-titulo revelar" style="--i:0">📊 Perfil</h1>
+
+    <section class="painel vitrine revelar col-larga" style="--hud-cor: var(--primaria-2); --i:1" data-pop>
+      <img class="retrato" src="../../public/img/herois/hud-guerreiro.webp" alt="Retrato do herói" onerror="this.style.opacity=.2">
+      <div class="barras">
+        <div class="nome">Aurelia</div>
+        <div class="classe">Guerreiro do Frontend · Nível 4</div>
+        <div><div class="barra-rotulo"><span>❤ Vida</span><b>72 / 90</b></div><div class="barra hp"><div class="barra-fill" data-v="0.8"></div></div></div>
+        <div><div class="barra-rotulo"><span>✦ Mana</span><b>48 / 60</b></div><div class="barra mp"><div class="barra-fill" data-v="0.8"></div></div></div>
+        <div><div class="barra-rotulo"><span>★ XP</span><b>1 240 / 1 800</b></div><div class="barra xp"><div class="barra-fill" data-v="0.69"></div></div></div>
+      </div>
+    </section>
+
+    <div class="perfil-grid">
+      <section class="painel revelar" style="--i:2">
+        <h2>⚖️ Reputação</h2>
+        <p class="subtitulo" style="margin-top:0">O eixo central do jogo, agora <strong>visível</strong>: usar o Fragmento da IA te puxa para a Singularidade; resolver com disciplina te aproxima do Sexto Mestre.</p>
+        <div class="reputacao" data-rep="35">
+          <div class="escala"><span class="marcador" style="left:50%"></span></div>
+          <div class="extremos"><span class="disc">⚖️ Disciplina</span><span class="ia">🤖 Singularidade</span></div>
+        </div>
+        <p class="subtitulo" style="margin-top:.75rem">Estado: <strong style="color:var(--ciano)">Aprendiz Disciplinada</strong> (+35). Respostas: 142 · Usos da IA: 3.</p>
+      </section>
+
+      <section class="painel revelar" style="--i:3">
+        <h2>Atributos</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
+          <div>⚔ Ataque <b style="float:right">18</b></div><div>🛡 Defesa <b style="float:right">9</b></div>
+          <div>★ Estrelas <b style="float:right;color:var(--xp)">16</b></div><div>💪 Poder <b style="float:right;color:var(--primaria-2)">132</b></div>
+        </div>
+        <button class="botao ouro bloco" id="btnNivel" type="button" style="margin-top:1rem">⬆️ Simular subir de nível</button>
+      </section>
+    </div>
+
+    <section class="painel revelar col-larga" style="--i:4;margin-top:1.25rem">
+      <h2>📚 Domínio por matéria</h2>
+      <div class="materia"><div class="topo"><span>PHP</span><span class="pct">38/41 (93%)</span></div><div class="barra xp"><div class="barra-fill" data-v="0.93"></div></div></div>
+      <div class="materia"><div class="topo"><span>POO</span><span class="pct">40/51 (78%)</span></div><div class="barra xp"><div class="barra-fill" data-v="0.78"></div></div></div>
+      <div class="materia"><div class="topo"><span>SQL</span><span class="pct">5/7 (71%)</span></div><div class="barra xp"><div class="barra-fill" data-v="0.71"></div></div></div>
+      <div class="materia"><div class="topo"><span>Estruturas</span><span class="pct">22/51 (43%)</span></div><div class="barra xp"><div class="barra-fill" data-v="0.43"></div></div></div>
+      <div class="materia"><div class="topo"><span>Redes</span><span class="pct">8/50 (16%)</span></div><div class="barra xp"><div class="barra-fill" data-v="0.16"></div></div></div>
+    </section>
+
+    <h2 class="secao-titulo revelar" style="--i:5;margin-top:1.5rem">🏅 Conquistas <span class="subtitulo" style="font-size:1rem">(4/12)</span></h2>
+    <section class="grade-conquistas revelar" style="--i:6">
+      <div class="carta conquista"><div class="medalha">🎓</div><div><strong>Primeiro Passo</strong><div class="desc">Concluiu o prólogo</div></div></div>
+      <div class="carta conquista"><div class="medalha">🛡️</div><div><strong>Sem Falhas</strong><div class="desc">Venceu uma fase sem erros</div></div></div>
+      <div class="carta conquista"><div class="medalha">⚓</div><div><strong>Discípulo de Willen</strong><div class="desc">Domínio do Porto da Sintaxe</div></div></div>
+      <div class="carta conquista"><div class="medalha">📈</div><div><strong>Aprendiz Veterana</strong><div class="desc">Alcançou o nível 5</div></div></div>
+      <div class="carta conquista bloqueada"><div class="medalha">💎</div><div><strong>Pura de Coração</strong><div class="desc">Conclua um capítulo sem usar a IA</div></div></div>
+      <div class="carta conquista bloqueada"><div class="medalha">❓</div><div><strong>??? (Secreta)</strong><div class="desc">Descubra jogando</div></div></div>
+    </section>
+  </main>
+
+  <aside class="lateral">
+    <div class="painel revelar" style="--i:1">
+      <h3>🧭 Identidade</h3>
+      <p class="subtitulo" style="margin-top:0">Você está construindo a competência de <strong style="color:var(--ciano)">Engenheira Disciplinada</strong>. Faltam +5 de Reputação para <strong>Discípulo Dedicado</strong>.</p>
+    </div>
+    <div class="painel revelar" style="--i:2">
+      <h3>🎯 Próximo marco</h3>
+      <div class="obj"><span class="ic">⭐</span><div><strong>Selo de Mestre: PHP</strong><div class="subtitulo">93% — domine mais 3 questões.</div></div></div>
+    </div>
+  </aside>
+
+  <nav class="nav-inferior" aria-label="Navegação principal">
+    <a class="nav-item" href="mapa.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2Z"/><path d="M9 3v16M15 5v16"/></svg><span>Mapa</span></a>
+    <a class="nav-item" href="inventario.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M4 9l1.5-4h13L20 9"/><path d="M10 13h4"/></svg><span>Inventário</span></a>
+    <a class="nav-item" href="loja.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg><span>Loja</span></a>
+    <a class="nav-item is-ativo" href="perfil.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg><span>Perfil</span></a>
+    <a class="nav-item" href="ranking.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v4a4 4 0 0 1-8 0Z"/><path d="M8 6H5a2 2 0 0 0 2 3h1M16 6h3a2 2 0 0 1-2 3h-1"/><path d="M12 12v3M9 20h6l-.5-4h-5Z"/></svg><span>Ranking</span></a>
+  </nav>
+
+  <div class="recompensa-fx" id="fx" aria-hidden="true"></div>
+  <script src="prototipo.js" defer></script>
+  <script>document.getElementById('btnNivel').addEventListener('click',function(){if(window.__burstRecompensa)window.__burstRecompensa();});</script>
+</body>
+</html>

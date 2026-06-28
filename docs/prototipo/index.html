@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Algorithmia — Protótipo de direção</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Rubik:wght@400;500;700;800&display=swap">
+  <link rel="stylesheet" href="prototipo.css">
+</head>
+<body data-setor="sobre">
+  <header class="topo">
+    <a class="marca" href="index.html"><img src="../../public/img/ui/logos/logo-header.webp" alt="Algorithmia"></a>
+    <div class="hud-mini"><span class="chip">protótipo</span></div>
+  </header>
+
+  <aside class="rail">
+    <a class="rail-logo" href="index.html"><img src="../../public/img/ui/logos/logo-header.webp" alt="Algorithmia"></a>
+    <nav class="nav-app" aria-label="Navegação principal">
+      <a class="nav-item" href="mapa.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2Z"/><path d="M9 3v16M15 5v16"/></svg><span>Mapa</span></a>
+      <a class="nav-item" href="inventario.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M4 9l1.5-4h13L20 9"/><path d="M10 13h4"/></svg><span>Inventário</span></a>
+      <a class="nav-item" href="loja.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg><span>Loja</span></a>
+      <a class="nav-item" href="perfil.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg><span>Perfil</span></a>
+      <a class="nav-item" href="ranking.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v4a4 4 0 0 1-8 0Z"/><path d="M8 6H5a2 2 0 0 0 2 3h1M16 6h3a2 2 0 0 1-2 3h-1"/><path d="M12 12v3M9 20h6l-.5-4h-5Z"/></svg><span>Ranking</span></a>
+    </nav>
+    <div class="rail-rodape"><span class="moeda">◈ <b data-contador="420">0</b></span></div>
+  </aside>
+
+  <main class="conteudo">
+    <h1 class="secao-titulo">Protótipo de direção visual</h1>
+    <p class="subtitulo" style="max-width:64ch">
+      Pré-visualização <strong>estática e isolada</strong> (não toca no jogo vivo) das decisões fundamentadas
+      na pesquisa em <code>docs/auditoria-ux/pesquisa/</code>. Reusa os assets reais de <code>public/img</code>.
+    </p>
+    <div class="painel revelar" style="--i:0;margin-top:1rem">
+      <h2>Duas versões — redimensione a janela para ver as duas</h2>
+      <ul class="subtitulo" style="line-height:1.9">
+        <li><strong>📱 Mobile</strong> (&lt; 1000px): navegação na <strong>barra inferior</strong> (faixa do polegar), 5 setores, alvos ≥44px.</li>
+        <li><strong>🖥️ Web</strong> (≥ 1000px): <strong>rail lateral à esquerda</strong> (estilo Duolingo) aproveitando o espaço; painel contextual à direita (≥ 1280px). Sem barra inferior.</li>
+      </ul>
+    </div>
+
+    <div class="perfil-grid" style="margin-top:1.25rem">
+      <a class="carta revelar" href="mapa.html" style="--i:1;display:block;padding:1.25rem"><h2 style="margin-top:0">🗺️ Mapa</h2><p class="subtitulo">Trilha por região com cenário de fundo, estado ativo, reveal dos nós e pulso do nó atual.</p><span class="botao">Abrir →</span></a>
+      <a class="carta revelar" href="perfil.html" style="--i:2;display:block;padding:1.25rem"><h2 style="margin-top:0">📊 Perfil</h2><p class="subtitulo"><strong>Reputação visível</strong> (Disciplina ↔ IA), barras animadas, domínio e conquistas.</p><span class="botao fantasma">Abrir →</span></a>
+      <a class="carta revelar" href="loja.html" style="--i:3;display:block;padding:1.25rem"><h2 style="margin-top:0">🛒 Loja</h2><p class="subtitulo">Cartas com raridade e comparação de poder (ATK/DEF) vs. o equipado.</p><span class="botao fantasma">Abrir →</span></a>
+      <a class="carta revelar" href="ranking.html" style="--i:4;display:block;padding:1.25rem"><h2 style="margin-top:0">🏆 Ranking</h2><p class="subtitulo">Liga de pares (~30) com promoção/rebaixamento e <strong>delta pessoal</strong>.</p><span class="botao fantasma">Abrir →</span></a>
+    </div>
+
+    <div class="painel revelar" style="--i:5;margin-top:1.25rem">
+      <h2>Microinterações & acessibilidade</h2>
+      <p class="subtitulo">View Transitions entre páginas, reveal escalonado, preenchimento de XP e burst de recompensa. Ative <code>prefers-reduced-motion: reduce</code> no DevTools (Rendering) e recarregue: tudo colapsa sem nada fora do lugar.</p>
+      <button class="botao ouro" id="btnRecompensa" type="button">✨ Testar burst de recompensa</button>
+    </div>
+  </main>
+
+  <nav class="nav-inferior" aria-label="Navegação principal">
+    <a class="nav-item" href="mapa.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2Z"/><path d="M9 3v16M15 5v16"/></svg><span>Mapa</span></a>
+    <a class="nav-item" href="inventario.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M4 9l1.5-4h13L20 9"/><path d="M10 13h4"/></svg><span>Inventário</span></a>
+    <a class="nav-item" href="loja.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg><span>Loja</span></a>
+    <a class="nav-item" href="perfil.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg><span>Perfil</span></a>
+    <a class="nav-item" href="ranking.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v4a4 4 0 0 1-8 0Z"/><path d="M8 6H5a2 2 0 0 0 2 3h1M16 6h3a2 2 0 0 1-2 3h-1"/><path d="M12 12v3M9 20h6l-.5-4h-5Z"/></svg><span>Ranking</span></a>
+  </nav>
+
+  <div class="recompensa-fx" id="fx" aria-hidden="true"></div>
+  <script src="prototipo.js" defer></script>
+</body>
+</html>

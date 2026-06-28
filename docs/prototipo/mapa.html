@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mapa — Algorithmia (protótipo)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Rubik:wght@400;500;700;800&display=swap">
+  <link rel="stylesheet" href="prototipo.css">
+</head>
+<body data-setor="mapa" class="tem-lateral pagina-mapa">
+  <header class="topo">
+    <a class="marca" href="index.html"><img src="../../public/img/ui/logos/logo-header.webp" alt="Algorithmia"></a>
+    <div class="hud-mini"><span class="moeda">◈ <b data-contador="888">0</b></span><img class="avatar" src="../../public/img/herois/hud-guerreiro.webp" alt="Herói" onerror="this.style.display='none'"></div>
+  </header>
+
+  <aside class="rail">
+    <a class="rail-logo" href="index.html"><img src="../../public/img/ui/logos/logo-header.webp" alt="Algorithmia"></a>
+    <nav class="nav-app" aria-label="Navegação principal">
+      <a class="nav-item is-ativo" href="mapa.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2Z"/><path d="M9 3v16M15 5v16"/></svg><span>Mapa</span></a>
+      <a class="nav-item" href="inventario.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M4 9l1.5-4h13L20 9"/><path d="M10 13h4"/></svg><span>Inventário</span></a>
+      <a class="nav-item" href="loja.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg><span>Loja</span></a>
+      <a class="nav-item" href="perfil.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg><span>Perfil</span></a>
+      <a class="nav-item" href="ranking.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v4a4 4 0 0 1-8 0Z"/><path d="M8 6H5a2 2 0 0 0 2 3h1M16 6h3a2 2 0 0 1-2 3h-1"/><path d="M12 12v3M9 20h6l-.5-4h-5Z"/></svg><span>Ranking</span></a>
+    </nav>
+    <div class="rail-rodape"><span class="moeda">◈ <b data-contador="888">0</b></span></div>
+  </aside>
+
+  <main class="conteudo">
+    <div class="mapa-cab revelar" style="--i:0">
+      <h1 class="secao-titulo" style="justify-content:center">🗺️ Mapa de Algorithmia</h1>
+      <p class="progresso">10 / 35 fases concluídas · <span class="ouro">★ 22 estrelas</span></p>
+    </div>
+
+    <section class="regiao revelar" style="--cor-regiao: var(--primaria); --cena: url('../../public/img/fundos/fundo-vila.webp'); --i:1">
+      <div class="regiao-cab">
+        <img class="retrato" src="../../public/img/mapas/regiao-hello-world.webp" alt="" onerror="this.style.opacity=.2">
+        <div><h2>Terras de Hello World</h2><span class="mestre">O começo da jornada</span></div>
+      </div>
+      <div class="trilha">
+        <div class="no-fase concluida"><a class="no-bolha"><img src="../../public/img/mapas/fase-prologo-despertar.webp" alt=""></a><div class="estrelas">★★★</div><div class="rotulo">Prólogo: O Despertar</div></div>
+        <div class="no-fase concluida"><a class="no-bolha sprite"><img src="../../public/img/inimigos/inimigo-slime.webp" alt=""></a><div class="estrelas">★★★</div><div class="rotulo">Os Primeiros Passos</div></div>
+        <div class="no-fase concluida"><a class="no-bolha sprite"><img src="../../public/img/inimigos/inimigo-bug.webp" alt=""></a><div class="estrelas">★★★</div><div class="rotulo">O Bug Primordial</div></div>
+      </div>
+    </section>
+
+    <section class="regiao revelar" style="--cor-regiao: var(--regiao-porto); --cena: url('../../public/img/fundos/fundo-porto.webp'); --i:2">
+      <div class="regiao-cab">
+        <img class="retrato" src="../../public/img/mestres/mestre-willen.webp" alt="" onerror="this.style.opacity=.2">
+        <div><h2>Porto da Sintaxe</h2><span class="mestre">Mestre Willen</span></div>
+      </div>
+      <div class="trilha">
+        <div class="no-fase concluida"><a class="no-bolha"><img src="../../public/img/mapas/fase-porto-chegada.webp" alt=""></a><div class="estrelas">★★<span class="vazia">★</span></div><div class="rotulo">Chegada ao Porto</div></div>
+        <div class="no-fase concluida"><a class="no-bolha sprite"><img src="../../public/img/inimigos/inimigo-slime.webp" alt=""></a><div class="estrelas">★★★</div><div class="rotulo">Variáveis e Eco</div></div>
+        <div class="no-fase concluida"><a class="no-bolha sprite"><img src="../../public/img/inimigos/inimigo-gargula.webp" alt=""></a><div class="estrelas">★★<span class="vazia">★</span></div><div class="rotulo">Estruturas de Controle</div></div>
+        <div class="no-fase atual"><a class="no-bolha sprite"><img src="../../public/img/inimigos/inimigo-espectro.webp" alt=""></a><div class="estrelas">&nbsp;</div><div class="rotulo">O Padrão MVC</div><div class="chip" style="margin-top:2px">você está aqui</div></div>
+        <div class="no-fase bloqueada"><span class="no-bolha sprite"><img src="../../public/img/inimigos/inimigo-sentinela.webp" alt=""></span><div class="estrelas">&nbsp;</div><div class="rotulo">O Baú do SELECT</div></div>
+        <div class="no-fase bloqueada"><span class="no-bolha sprite"><img src="../../public/img/inimigos/inimigo-kraken.webp" alt=""></span><div class="estrelas">&nbsp;</div><div class="rotulo">Parse Error, o Kraken</div></div>
+      </div>
+    </section>
+
+    <section class="regiao revelar" style="--cor-regiao: var(--regiao-cidadela); --cena: url('../../public/img/fundos/fundo-cidadela.webp'); --i:3">
+      <div class="regiao-cab">
+        <img class="retrato" src="../../public/img/mestres/mestre-clayton.webp" alt="" onerror="this.style.opacity=.2" style="filter:grayscale(.6) brightness(.7)">
+        <div><h2>Cidadela dos Objetos</h2><span class="mestre">Mestre Clayton · 🔒 derrote o Kraken</span></div>
+      </div>
+      <div class="trilha">
+        <div class="no-fase bloqueada"><span class="no-bolha"><img src="../../public/img/mapas/fase-cidadela-chegada.webp" alt=""></span><div class="estrelas">&nbsp;</div><div class="rotulo">A Cidadela dos Objetos</div></div>
+        <div class="no-fase bloqueada"><span class="no-bolha sprite"><img src="../../public/img/inimigos/inimigo-golem.webp" alt=""></span><div class="estrelas">&nbsp;</div><div class="rotulo">Classes e Objetos</div></div>
+      </div>
+    </section>
+  </main>
+
+  <aside class="lateral">
+    <div class="painel revelar" style="--i:1">
+      <h3>🎯 Próximo objetivo</h3>
+      <div class="obj"><span class="ic">⚔️</span><div><strong>O Padrão MVC</strong><div class="subtitulo">Espectro do Spaghetti · 85 HP. Equipe-se antes de entrar.</div></div></div>
+      <a class="botao bloco" href="#" style="margin-top:.75rem">Continuar fase</a>
+    </div>
+    <div class="painel revelar" style="--i:2">
+      <h3>🏆 Liga Prata · Semana</h3>
+      <p class="subtitulo" style="margin-top:0">Você está em <strong>3º de 30</strong> — top 7 sobe para Ouro.</p>
+      <a class="botao fantasma bloco" href="ranking.html">Ver liga</a>
+    </div>
+  </aside>
+
+  <nav class="nav-inferior" aria-label="Navegação principal">
+    <a class="nav-item is-ativo" href="mapa.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2Z"/><path d="M9 3v16M15 5v16"/></svg><span>Mapa</span></a>
+    <a class="nav-item" href="inventario.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M4 9l1.5-4h13L20 9"/><path d="M10 13h4"/></svg><span>Inventário</span></a>
+    <a class="nav-item" href="loja.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg><span>Loja</span></a>
+    <a class="nav-item" href="perfil.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg><span>Perfil</span></a>
+    <a class="nav-item" href="ranking.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v4a4 4 0 0 1-8 0Z"/><path d="M8 6H5a2 2 0 0 0 2 3h1M16 6h3a2 2 0 0 1-2 3h-1"/><path d="M12 12v3M9 20h6l-.5-4h-5Z"/></svg><span>Ranking</span></a>
+  </nav>
+
+  <div class="recompensa-fx" id="fx" aria-hidden="true"></div>
+  <script src="prototipo.js" defer></script>
+</body>
+</html>
