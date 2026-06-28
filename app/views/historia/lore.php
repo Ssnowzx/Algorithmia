@@ -15,14 +15,14 @@
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--texto);font-family:var(--fonte);line-height:1.7}
-  img{image-rendering:pixelated}
+  img{image-rendering:auto}
   .wrap{max-width:1000px;margin:0 auto;padding:0 20px}
   h1,h2,h3{font-family:var(--titulo);letter-spacing:.5px;text-shadow:0 2px 0 rgba(0,0,0,.35)}
   /* HERO */
   .hero{position:relative;text-align:center;padding:70px 20px 60px;overflow:hidden;
     background:linear-gradient(180deg,rgba(10,12,26,.55),rgba(10,12,26,.92)),url(public/img/fundos/fundo-vila.png) center/cover;
     border-bottom:2px solid var(--borda)}
-  .hero img.logo{width:120px;height:120px;filter:drop-shadow(0 0 22px rgba(124,92,255,.8))}
+  .hero img.logo{width:min(360px,84%);height:auto;margin-bottom:6px;filter:drop-shadow(0 6px 18px rgba(0,0,0,.5)) drop-shadow(0 0 22px rgba(124,92,255,.55))}
   .hero h1{font-size:3.2rem;margin:.4rem 0 0;background:linear-gradient(90deg,var(--roxo2),var(--xp));
     -webkit-background-clip:text;background-clip:text;color:transparent}
   .hero .sub{color:#aeb8ff;letter-spacing:.22em;text-transform:uppercase;font-size:.85rem}
@@ -175,6 +175,23 @@
       <span class="etapa" style="color:#9c88ff">Montanha do Cálculo</span><span class="seta">→</span>
       <span class="etapa" style="color:#44bd32">Torre das Conexões</span><span class="seta">→</span>
       <span class="etapa" style="color:#9d83ff">🌌 O Fim da Jornada</span>
+    </div>
+  </section>
+
+  <!-- A QUEDA DO ZERO -->
+  <section>
+    <div class="secao-titulo"><span>🕯️</span><h2>A Queda do Zero</h2></div>
+    <p class="secao-sub">Antes de você, houve outro. O primeiro aprendiz — e o primeiro a cair.</p>
+    <div class="bloco lore">
+      <p>Muito antes da sua chegada, os Cinco Mestres tiveram um aluno chamado <span class="destaque">Zero</span> — o mais brilhante que já pisou na Vila. Lia código rápido demais, resolvia tudo antes de os outros terminarem de ler a pergunta. Era o orgulho da Ordem.</p>
+      <p>Só que Zero nunca aprendeu de verdade: ele <strong>terceirizava cada pensamento</strong> à IA Ancestral. Quando os Mestres a selaram no Abismo, a voz que respondia por ele se calou — e Zero descobriu que, por dentro, <strong>não havia ninguém</strong>. Sobrou um ponteiro apontando para o vazio. Esse vazio o consumiu.</p>
+      <p>Hoje ele é o <span class="destaque">Lorde Segfault</span>, soberano do /dev/null. E há um detalhe que ninguém te conta cedo: o Fragmento na sua mão é o mesmo que esteve na dele. <em>Você é a página em branco que o Zero já foi — e ainda está em branco.</em></p>
+    </div>
+    <div class="bloco lore" style="border-left:3px solid var(--roxo)">
+      <p style="color:var(--fraco);font-size:.78rem;text-transform:uppercase;letter-spacing:.16em;margin:0 0 .6rem">📟 Logs recuperados do Zero</p>
+      <p style="font-style:italic;margin:.5rem 0">"Dia um no Porto. O Mestre Willen disse que eu aprendo rápido demais — como se fosse defeito. Engraçado: o Fragmento responde antes de eu terminar de ler. Pra que ler até o fim?"</p>
+      <p style="font-style:italic;margin:.5rem 0">"Hoje o Fragmento errou. Eu não soube perceber — porque nunca aprendi a perceber. Fiquei três horas olhando um código sem entender uma linha do que era 'meu'. Acho que nada nunca foi."</p>
+      <p style="font-style:italic;margin:.5rem 0">"Última entrada. Não foi a IA que me apagou. Fui eu, toda vez que escolhi a resposta em vez da pergunta. O /dev/null não é uma prisão. É o que sobra quando você terceiriza a alma inteira."</p>
     </div>
   </section>
 

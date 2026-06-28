@@ -64,8 +64,10 @@ Documentação completa: **[`docs/arte/PROMPT-EVOLUCAO-VISUAL.md`](docs/arte/PRO
 > ilustrada no jogo — rota `historia/lore` (`HistoriaController::lore` →
 > [`app/views/historia/lore.php`](app/views/historia/lore.php)).
 > Para ver **offline (duplo-clique, sem servidor)**, há também
-> [`historia.html`](historia.html) na raiz — cópia estática gerada a partir da view
-> (caminhos de imagem relativos). Se a lore mudar, regere a cópia a partir de `lore.php`.
+> [`app/views/historia/historia.html`](app/views/historia/historia.html) — cópia estática
+> na mesma pasta da view, gerada por `tools/preview/gerar-html-estatico.py` (caminhos de
+> imagem relativos). Se a lore mudar, regere com:
+> `python3 tools/preview/gerar-html-estatico.py app/views/historia/lore.php app/views/historia/historia.html ../../../public/`
 
 ---
 
