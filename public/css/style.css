@@ -1621,12 +1621,7 @@ textarea { min-height: 90px; resize: vertical; }
 @media (prefers-reduced-motion: no-preference) {
     .barra-fill,
     .barra-stat .preenche,
-    .mapa-barra-fill,
-    .conquista-progresso .preenche,
-    .onboarding-trilha .preenche,
-    .maestria-trilha .preenche,
-    .missao-trilha .preenche,
-    .regiao-trilha .preenche {
+    .mapa-barra-fill {
         transform-origin: left;
         animation: barraEnche var(--dur-tela, .5s) var(--ease-out, cubic-bezier(.2, .8, .3, 1)) both;
     }
@@ -1640,11 +1635,18 @@ textarea { min-height: 90px; resize: vertical; }
     }
 }
 
+/* As barras de progresso dos painéis reusam a pista `.trilha`, mas `.trilha` é
+   flex-center (feita para as trilhas do MAPA, que empilham fases) — isso empurrava
+   o `.preenche` para o MEIO. Forçar block faz a barra encher da ESQUERDA, como o
+   comum. (Especificidade .painel … vence o `.trilha` global.) */
+.painel .maestria-trilha, .painel .missao-trilha,
+.painel .regiao-trilha, .painel .onboarding-trilha { display: block; }
+
 /* Progresso parcial das conquistas (X/Y) — endowed progress na ficha.
    Auto-contido (não depende do escopo de .barra-stat). */
 .conquista-progresso { display: flex; align-items: center; gap: .5rem; margin-top: .4rem; }
 .conquista-progresso .trilha {
-    flex: 1; height: 8px; border-radius: 6px; overflow: hidden;
+    display: block; flex: 1; height: 8px; border-radius: 6px; overflow: hidden;
     background: #0c0d1c; border: 1px solid color-mix(in oklab, var(--xp) 22%, var(--borda));
 }
 .conquista-progresso .preenche {
