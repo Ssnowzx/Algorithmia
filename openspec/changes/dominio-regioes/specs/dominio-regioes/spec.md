@@ -3,7 +3,7 @@
 ### Requirement: Domínio por região derivado da perfeição da jornada
 
 O perfil SHALL exibir, para cada região (mestre que governa fases), um estado de domínio
-derivado das fases **jogáveis** daquela região e das estrelas obtidas: **A explorar** (nenhuma
+derivado das fases **principais** (lição+chefe) daquela região e das estrelas obtidas: **A explorar** (nenhuma
 fase concluída), **Em jornada** (algumas), **Conquistada** (todas concluídas) e **Dominada**
 (todas com 3 estrelas). O cálculo SHALL ser read-only (de `fases` + `progresso_fases`) e SHALL
 considerar apenas os mestres efetivamente referenciados por fases (robusto à duplicação do
@@ -16,17 +16,17 @@ catálogo de mestres).
 
 #### Scenario: Região em progresso
 
-- **WHEN** o herói concluiu algumas (não todas) as fases jogáveis da região
+- **WHEN** o herói concluiu algumas (não todas) as fases principais (lição+chefe) da região
 - **THEN** a região aparece como "Em jornada" e indica quantas fases faltam
 
 #### Scenario: Região conquistada mas não perfeita
 
-- **WHEN** todas as fases jogáveis estão concluídas, mas nem todas com 3 estrelas
+- **WHEN** todas as fases principais (lição+chefe) estão concluídas, mas nem todas com 3 estrelas
 - **THEN** a região aparece como "Conquistada" e orienta a perfeccionar para dominar
 
 #### Scenario: Região dominada
 
-- **WHEN** todas as fases jogáveis estão concluídas com 3 estrelas (sem erros e sem IA)
+- **WHEN** todas as fases principais (lição+chefe) estão concluídas com 3 estrelas (sem erros e sem IA)
 - **THEN** a região aparece como "Dominada"
 
 ### Requirement: Resumo de domínio e título culminante

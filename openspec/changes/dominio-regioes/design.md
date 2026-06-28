@@ -12,7 +12,7 @@
 
 ## Modelo de domínio (por região)
 
-A partir de `total` (fases jogáveis do mestre), `concluidas`, `perfeitas` (3 estrelas) e
+A partir de `total` (fases principais do mestre: lição + chefe), `concluidas`, `perfeitas` (3 estrelas) e
 `estrelas` (soma), define-se o **estado** e a barra:
 
 | Estado | Regra | Cor |
@@ -31,9 +31,12 @@ A partir de `total` (fases jogáveis do mestre), `concluidas`, `perfeitas` (3 es
 - Cada região usa a `cor_tema` do mestre como acento (identidade), e o estado modula (Dominada
   ganha brilho dourado; A explorar fica dessaturada).
 
-### Por que só fases jogáveis
-Estrelas só existem em combate. Fases de **história** (1–2 por mestre) não têm estrelas, então
-entram não como mérito mas como ruído — são excluídas (`tipo <> 'historia'`) do total/perfeição.
+### Por que só as fases principais (lição + chefe)
+"Concluir a região" no jogo significa o caminho **principal**: lição + chefe. As fases
+**secundárias** são opcionais (o `puro_de_coracao` diz "secundárias opcionais não contam") e
+a **história** não tem combate/estrelas. Para o domínio ficar consistente com as conquistas
+"Discípulo do mestre"/"Puro de Coração" — quem é Discípulo vê a região como Conquistada —
+contam-se só `tipo IN ('licao','chefe')`.
 
 ## Query (robusta à duplicação de mestres)
 
@@ -49,7 +52,7 @@ SELECT m.id, m.ordem, m.regiao, m.titulo, m.cor_tema, m.svg_slug,
 FROM fases f
 JOIN mestres m ON m.id = f.mestre_id
 LEFT JOIN progresso_fases pf ON pf.fase_id = f.id AND pf.personagem_id = :p
-WHERE f.mestre_id IS NOT NULL AND f.tipo <> 'historia'
+WHERE f.mestre_id IS NOT NULL AND f.tipo IN ('licao', 'chefe')
 GROUP BY m.id, m.ordem, m.regiao, m.titulo, m.cor_tema, m.svg_slug
 ORDER BY m.ordem
 ```
