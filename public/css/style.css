@@ -1075,9 +1075,10 @@ textarea { min-height: 90px; resize: vertical; }
    itens as cartas ficam centradas (sem coluna estreita "perdida" à esquerda). */
 .grade-inventario {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
-    gap: 1.1rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 210px));
+    gap: 1rem;
     align-items: start;
+    justify-content: start;
     margin-top: 1rem;
 }
 .titulo-grupo-inv { font-size: 1.15rem; margin-top: 1.6rem; }
@@ -1555,3 +1556,55 @@ textarea { min-height: 90px; resize: vertical; }
     ::view-transition-old(*),
     ::view-transition-new(*) { animation: none !important; }
 }
+
+
+/* ============================================================
+   PERFIL — identidade, stats em tiles e MEDIDOR DE REPUTAÇÃO
+   (pesquisa P3: tornar visível o eixo Disciplina↔Singularidade — a
+   "maior oportunidade perdida" da auditoria). Só apresentação.
+   ============================================================ */
+.perfil-id { display: flex; gap: 1rem; align-items: center; }
+.perfil-id-avatar { width: 80px; height: 80px; flex: none; }
+.perfil-id-nome { margin: .1rem 0; }
+.perfil-id-email { font-size: .85rem; color: var(--texto-fraco); }
+
+.perfil-stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+    gap: .6rem; margin: 1.1rem 0;
+}
+.stat-tile {
+    display: flex; flex-direction: column; align-items: center; gap: .12rem;
+    padding: .6rem .4rem; border-radius: var(--raio-card, 14px);
+    background: color-mix(in oklab, var(--painel-2) 70%, transparent);
+    border: 1px solid var(--borda);
+}
+.stat-tile .stat-ic  { font-size: 1.1rem; line-height: 1; }
+.stat-tile .stat-val { font-family: var(--hud, var(--titulo)); font-weight: 700; font-size: 1.05rem; color: var(--texto); }
+.stat-tile .stat-lbl { font-size: .66rem; color: var(--texto-fraco); text-transform: uppercase; letter-spacing: .4px; }
+.stat-tile.is-ouro  .stat-val { color: var(--ouro); }
+.stat-tile.is-xp    .stat-val { color: var(--xp); }
+.stat-tile.is-poder .stat-val { color: var(--primaria-2); }
+
+.rep-bloco { display: grid; gap: .5rem; padding-top: 1rem; border-top: 1px solid var(--borda); }
+.rep-cabecalho { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; }
+.rep-titulo { color: var(--texto-fraco); }
+.rep-rotulo { font-family: var(--titulo); }
+.rep-escala {
+    position: relative; height: 14px; border-radius: 999px;
+    background: linear-gradient(90deg,
+        color-mix(in oklab, var(--hp) 78%, var(--bg)) 0%,
+        var(--bg-2) 50%,
+        color-mix(in oklab, var(--cor-ciano, #8ce6ff) 78%, var(--bg)) 100%);
+    border: 1px solid var(--borda);
+}
+.rep-marcador {
+    position: absolute; top: 50%; left: var(--rep-pos, 50%);
+    width: 16px; height: 16px; transform: translate(-50%, -50%);
+    border-radius: 999px; background: var(--texto); border: 3px solid var(--bg);
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--primaria) 60%, transparent), 0 2px 8px rgba(0, 0, 0, .5);
+    transition: left var(--dur-tela, .35s) var(--ease-out, ease);
+}
+.rep-extremos { display: flex; justify-content: space-between; font-size: var(--texto-xs, .72rem); font-family: var(--titulo); }
+.rep-extremos .rep-ia   { color: var(--hp); }
+.rep-extremos .rep-disc { color: var(--cor-ciano, #8ce6ff); }
+.rep-meta { font-size: .82rem; }

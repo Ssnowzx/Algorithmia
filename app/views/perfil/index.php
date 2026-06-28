@@ -26,32 +26,39 @@ $classe = CLASSES[$heroi['classe']] ?? [];
 
 <div class="grid-2">
     <div class="painel">
-        <div style="display:flex;gap:1rem;align-items:center">
-            <div class="hud-avatar" style="width:80px;height:80px;--hud-cor:<?= e($classe['cor'] ?? '#2ecc71') ?>"><?= svg(retratoHud($heroi['classe']), 'hud-retrato') ?></div>
+        <div class="perfil-id">
+            <div class="hud-avatar perfil-id-avatar" style="--hud-cor:<?= e($classe['cor'] ?? '#2ecc71') ?>"><?= svg(retratoHud($heroi['classe']), 'hud-retrato') ?></div>
             <div>
-                <h2 style="margin:.1rem 0"><?= e($heroi['nome']) ?></h2>
+                <h2 class="perfil-id-nome"><?= e($heroi['nome']) ?></h2>
                 <div class="subtitulo" style="margin:0"><?= e($classe['nome'] ?? '') ?> · Nível <?= (int) $heroi['nivel'] ?></div>
-                <div style="font-size:.85rem;color:var(--texto-fraco)"><?= e($usuario['email']) ?></div>
+                <div class="perfil-id-email"><?= e($usuario['email']) ?></div>
             </div>
         </div>
-        <hr style="border-color:var(--borda);margin:1rem 0">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;font-size:.95rem">
-            <div>❤ HP: <strong><?= (int)$heroi['hp_atual'] ?>/<?= (int)$heroi['hp_max'] ?></strong></div>
-            <div>✦ MP: <strong><?= (int)$heroi['mp_atual'] ?>/<?= (int)$heroi['mp_max'] ?></strong></div>
-            <div>⚔ Ataque: <strong><?= (int)$atributos['ataque'] ?></strong></div>
-            <div>🛡 Defesa: <strong><?= (int)$atributos['defesa'] ?></strong></div>
-            <div>⛃ Ouro: <strong style="color:var(--ouro)"><?= (int)$heroi['ouro'] ?></strong></div>
-            <div>★ Estrelas: <strong style="color:var(--xp)"><?= (int)$totalEstrelas ?></strong></div>
-            <div>💪 Poder Total: <strong style="color:var(--primaria-2)"><?= poderTotal($atributos) ?></strong></div>
+
+        <div class="perfil-stats">
+            <div class="stat-tile"><span class="stat-ic">❤</span><span class="stat-val"><?= (int)$heroi['hp_max'] ?></span><span class="stat-lbl">Vida</span></div>
+            <div class="stat-tile"><span class="stat-ic">✦</span><span class="stat-val"><?= (int)$heroi['mp_max'] ?></span><span class="stat-lbl">Mana</span></div>
+            <div class="stat-tile"><span class="stat-ic">⚔</span><span class="stat-val"><?= (int)$atributos['ataque'] ?></span><span class="stat-lbl">Ataque</span></div>
+            <div class="stat-tile"><span class="stat-ic">🛡</span><span class="stat-val"><?= (int)$atributos['defesa'] ?></span><span class="stat-lbl">Defesa</span></div>
+            <div class="stat-tile is-ouro"><span class="stat-ic">⛃</span><span class="stat-val"><?= (int)$heroi['ouro'] ?></span><span class="stat-lbl">Ouro</span></div>
+            <div class="stat-tile is-xp"><span class="stat-ic">★</span><span class="stat-val"><?= (int)$totalEstrelas ?></span><span class="stat-lbl">Estrelas</span></div>
+            <div class="stat-tile is-poder"><span class="stat-ic">💪</span><span class="stat-val"><?= poderTotal($atributos) ?></span><span class="stat-lbl">Poder</span></div>
         </div>
-        <hr style="border-color:var(--borda);margin:1rem 0">
-        <div>
-            <div class="topo-stat" style="display:flex;justify-content:space-between">
-                <span>Alinhamento</span><strong><?= rotuloReputacao((int)$heroi['reputacao']) ?> (<?= (int)$heroi['reputacao'] ?>)</strong>
+
+        <?php $rep = (int) $heroi['reputacao']; $repPos = max(0, min(100, ($rep + 100) / 2)); ?>
+        <div class="rep-bloco">
+            <div class="rep-cabecalho">
+                <span class="rep-titulo">Alinhamento</span>
+                <strong class="rep-rotulo"><?= e(rotuloReputacao($rep)) ?> (<?= $rep ?>)</strong>
             </div>
-            <div class="subtitulo" style="font-size:.82rem">
-                Respostas dadas: <?= (int)$totalRespostas ?> · Vezes que recorreu à IA: <strong><?= (int)$totalUsosIa ?></strong>
+            <div class="rep-medidor" style="--rep-pos: <?= $repPos ?>%">
+                <div class="rep-escala"><span class="rep-marcador"></span></div>
+                <div class="rep-extremos">
+                    <span class="rep-ia">🤖 Singularidade</span>
+                    <span class="rep-disc">⚖️ Disciplina</span>
+                </div>
             </div>
+            <div class="subtitulo rep-meta">Respostas dadas: <?= (int)$totalRespostas ?> · Recorreu à IA: <strong><?= (int)$totalUsosIa ?></strong></div>
         </div>
     </div>
 
