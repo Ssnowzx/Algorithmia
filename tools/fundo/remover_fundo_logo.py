@@ -5,7 +5,7 @@ import os
 from collections import deque
 from PIL import Image
 
-RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RAIZ = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 def _lum(r, g, b):

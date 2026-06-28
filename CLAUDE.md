@@ -19,12 +19,12 @@ versionada e curada.
 - **Nunca apagar** uma versão anterior. Arte nova **não substitui** o registro da
   antiga — cria-se uma nova versão (`v3`, `v4`, …).
 - **Ao fechar um marco visual novo:** snapshot dos PNGs em `docs/evolucao-visual/vN-<nome>/`
-  e regerar o PDF-galeria com `python3 tools/gerar_galeria_evolucao.py`.
+  e regerar o PDF-galeria com `python3 tools/pdf/gerar_galeria_evolucao.py`.
 
 ## 🪙 Identidade visual / marca (REGRA PERMANENTE)
 
 Todos os documentos/PDFs do projeto devem ter **a mesma cara de produto**, para o
-jogador reconhecer a marca. A identidade é centralizada em **`tools/marca_pdf.py`**
+jogador reconhecer a marca. A identidade é centralizada em **`tools/pdf/marca_pdf.py`**
 (kit compartilhado) — **todo PDF novo deve importá-lo**, nunca recriar do zero.
 
 - **Logo:** usar SEMPRE a logo **oficial ilustrada** do jogo (`logo-marca-ilustrado.png` na capa,
@@ -39,6 +39,6 @@ jogador reconhecer a marca. A identidade é centralizada em **`tools/marca_pdf.p
   faixa-topo (emblema+wordmark), moldura ornamental dourada com filetes de canto, rodapé com runa.
 
 ### Ferramentas
-- `tools/marca_pdf.py` → **kit de marca** (emblema, fontes, CSS, ícones, cabeçalho/rodapé). Base de todo PDF.
-- `tools/gerar_pdf_fases.py` → Códex dos Mestres: fases & tópicos (`docs/Fases-e-Topicos-por-Mestre.pdf`).
-- `tools/gerar_galeria_evolucao.py` → galeria da evolução visual (`docs/evolucao-visual/Evolucao-Visual.pdf`).
+- `tools/pdf/marca_pdf.py` → **kit de marca** (emblema, fontes, CSS, ícones, cabeçalho/rodapé). Base de todo PDF.
+- `tools/pdf/gerar_pdf_fases.py` → Códex dos Mestres: fases & tópicos (`docs/Fases-e-Topicos-por-Mestre.pdf`).
+- `tools/pdf/gerar_galeria_evolucao.py` → galeria da evolução visual (`docs/evolucao-visual/Evolucao-Visual.pdf`).

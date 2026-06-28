@@ -4,7 +4,7 @@
 import os
 from pixelart import MESTRES, Canvas, desenhar
 
-RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RAIZ = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 def gerar():

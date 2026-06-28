@@ -11,7 +11,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 from pixelart import Canvas, _mix, _alpha, WHITE
 
-RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RAIZ = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT_UI = os.path.join(RAIZ, "public", "img", "ui")
 
 # Tokens do design system

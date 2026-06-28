@@ -5,7 +5,7 @@ import os, math
 from pixelart import Canvas, _mix, _alpha, OUTLINE, WHITE, BROWN
 from marca import desenhar_simbolo
 
-RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RAIZ = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 G = 32
 OURO = (255, 210, 70, 255); OURO_SH = (200, 150, 30, 255)
 ROXO = (124, 92, 255, 255)

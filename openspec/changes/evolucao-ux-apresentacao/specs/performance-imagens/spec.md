@@ -19,7 +19,7 @@ As `.webp` ilustradas servidas SHALL ter resolução compatível com o maior tam
 exibição real (com folga ~2.3× para retina), e os itens da loja/inventário SHALL ser servidos
 como `.webp` leve. A ARTE NÃO SHALL mudar (mesma imagem, só menor resolução); os PNGs
 originais SHALL ser preservados em `docs/evolucao-visual` como fonte. A ferramenta
-`tools/right_size_imagens.py` SHALL ser idempotente (rodar de novo não altera nada).
+`tools/imagens/right_size_imagens.py` SHALL ser idempotente (rodar de novo não altera nada).
 
 #### Scenario: Arte continua nítida no maior uso
 
@@ -33,5 +33,5 @@ originais SHALL ser preservados em `docs/evolucao-visual` como fonte. A ferramen
 
 #### Scenario: Re-rodar a ferramenta é no-op
 
-- **WHEN** `tools/right_size_imagens.py` roda novamente num diretório já otimizado
+- **WHEN** `tools/imagens/right_size_imagens.py` roda novamente num diretório já otimizado
 - **THEN** nenhuma imagem é alterada

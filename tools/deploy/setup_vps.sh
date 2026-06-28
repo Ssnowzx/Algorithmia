@@ -18,7 +18,7 @@ if [[ $EUID -ne 0 ]]; then
   exit 1
 fi
 
-APP_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+APP_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 DB_HOST="${DB_HOST:-127.0.0.1}"
 DB_NAME="${DB_NAME:-algorithmia}"
 DB_USER="${DB_USER:-algorithmia}"

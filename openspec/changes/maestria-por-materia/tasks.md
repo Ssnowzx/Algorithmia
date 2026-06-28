@@ -6,8 +6,8 @@
 - [x] 1.3 `MaestriaService::porMateria($estatisticas)` mapeia os 8 `ASSUNTOS` (defensivo → `[]`)
 
 ## 2. Teste
-- [x] 2.1 `tools/verificar_maestria.php` (CLI): asserts AAA dos casos-limite (0 respostas, baixo volume/alta precisão, alto volume/baixa precisão, fronteiras de cada faixa)
-- [x] 2.2 Rodar `php tools/verificar_maestria.php` — verde
+- [x] 2.1 `tools/diagnostico/verificar_maestria.php` (CLI): asserts AAA dos casos-limite (0 respostas, baixo volume/alta precisão, alto volume/baixa precisão, fronteiras de cada faixa)
+- [x] 2.2 Rodar `php tools/diagnostico/verificar_maestria.php` — verde
 
 ## 3. Integração (apresentação)
 - [x] 3.1 `PerfilController`: passa `$maestria` reusando `$estatisticas` (sem query nova)

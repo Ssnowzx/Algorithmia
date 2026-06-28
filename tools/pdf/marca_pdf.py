@@ -12,7 +12,7 @@ Alinhado a :root em public/css/style.css e ao emblema de tools/marca.py.
 import os
 import urllib.request
 
-RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RAIZ = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 CACHE = os.path.join(RAIZ, "tools", ".cache")
 OUT_LOGO = os.path.join(RAIZ, "public", "img", "ui", "logos")
 

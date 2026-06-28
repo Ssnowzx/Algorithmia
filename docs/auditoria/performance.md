@@ -37,7 +37,7 @@ _Data: 2026-06-18 | Branch: `refactor/auditoria-qualidade-producao` | Auditor: r
 
 **Impacto:** A cada load da tela de mapa, batalha ou inventário, o navegador baixa PNGs de 2–3 MB em vez de .webp equivalentes de 200–400 KB. Estimativa conservadora: 40–70 MB economizados por sessão completa.
 
-**Recomendação (SEGURO):** Rodar `tools/otimizar-imagens.sh` (já existe no repo) ou gerar via `cwebp -q 85 *.png` nas pastas listadas. Sem mudança de código.
+**Recomendação (SEGURO):** Rodar `tools/imagens/otimizar-imagens.sh` (já existe no repo) ou gerar via `cwebp -q 85 *.png` nas pastas listadas. Sem mudança de código.
 
 ---
 

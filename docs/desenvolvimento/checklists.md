@@ -131,7 +131,7 @@ Banco
 ```
 [ ] Briefing consultado (docs/briefing-arte-v2.md ou v3.md)
 [ ] Slug planejado segue convencao (prefixo-descricao, lowercase-com-hifen)
-[ ] Para sprites (inimigos/herois/icones): recorte com tools/recortar_rembg.py
+[ ] Para sprites (inimigos/herois/icones): recorte com tools/fundo/recortar_rembg.py
 [ ] WebP gerado (cwebp -q 90 entrada.png -o saida.webp)
 [ ] PNG original mantido em public/img/
 [ ] srcImagem('slug/caminho') retorna URL (nao null) — testar no browser

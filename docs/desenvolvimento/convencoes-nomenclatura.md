@@ -18,7 +18,7 @@
 Todos em `lowercase-com-hifen`:
 - `docs/auditoria/backend-arquitetura.md`
 - `docs/evolucao-visual/README.md`
-- `tools/recortar_rembg.py` (underline e aceitavel em Python por convencao da linguagem)
+- `tools/fundo/recortar_rembg.py` (underline e aceitavel em Python por convencao da linguagem)
 
 > Docs em `SCREAMING_CASE` (ex.: `DEPLOY.md`, `REGRAS-DO-JOGO.md`) sao debito
 > tecnico a ser normalizado — nao repetir esse padrao em arquivos novos.

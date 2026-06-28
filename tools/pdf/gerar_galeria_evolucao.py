@@ -18,7 +18,7 @@ from PIL import Image
 
 import marca_pdf as marca
 
-RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RAIZ = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 BASE = os.path.join(RAIZ, "docs", "evolucao-visual")
 SAIDA_PDF = os.path.join(BASE, "Evolucao-Visual.pdf")
 THUMBS = os.path.join(tempfile.gettempdir(), "evolucao_thumbs")

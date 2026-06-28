@@ -26,7 +26,7 @@ import sys
 from PIL import Image
 from rembg import new_session, remove
 
-RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RAIZ = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 PUB = os.path.join(RAIZ, "public", "img")
 MODELO = "isnet-general-use"
 

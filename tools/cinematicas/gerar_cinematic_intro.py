@@ -20,7 +20,7 @@ import shutil
 import sys
 from pathlib import Path
 
-RAIZ = Path(__file__).resolve().parents[1]
+RAIZ = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(RAIZ))
 
 from cinematic_intro.imagens import preparar_keyframes

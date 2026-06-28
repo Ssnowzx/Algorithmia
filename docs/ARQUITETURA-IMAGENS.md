@@ -53,7 +53,7 @@ prefere o `.webp`, cai para `.png`, e versiona por `?v=filemtime`.
 ## 3. Adicionar um asset novo (checklist)
 
 1. Escolha a pasta certa pela tabela acima (UI vai numa subpasta de `ui/`).
-2. Coloque o `.png` fonte; gere o `.webp` com **`bash tools/otimizar-imagens.sh`**
+2. Coloque o `.png` fonte; gere o `.webp` com **`bash tools/imagens/otimizar-imagens.sh`**
    (anda recursivo, então pega as subpastas; **não** toca pixel art).
 3. Referencie sempre por **slug com subpasta** (`svg('ui/icones/...')`) — ou, se
    vier do banco, garanta que o prefixo esteja no mapa de `caminhoSvg()`.
@@ -65,12 +65,12 @@ prefere o `.webp`, cai para `.png`, e versiona por `?v=filemtime`.
 
 | Script | Saída |
 |---|---|
-| `tools/ui.py` | `ui/icones/*`, `ui/trofeus/*`, `ui/placeholder` |
-| `tools/remover_fundo_logo.py` | `ui/logos/logo-marca-ilustrado`, `ui/botoes/botao-entrar-mundo`, `favicon.png` |
-| `tools/bestiario.py`, `tools/itens.py`, `tools/pixelart.py` | `inimigos/*`, `itens/*`, `herois/heroi-*` |
-| `tools/otimizar-imagens.sh` | `.webp` ao lado de cada ilustração |
+| `tools/arte/ui.py` | `ui/icones/*`, `ui/trofeus/*`, `ui/placeholder` |
+| `tools/fundo/remover_fundo_logo.py` | `ui/logos/logo-marca-ilustrado`, `ui/botoes/botao-entrar-mundo`, `favicon.png` |
+| `tools/arte/bestiario.py`, `tools/arte/itens.py`, `tools/arte/pixelart.py` | `inimigos/*`, `itens/*`, `herois/heroi-*` |
+| `tools/imagens/otimizar-imagens.sh` | `.webp` ao lado de cada ilustração |
 
-> **Legado:** `tools/marca.py` gerava `ui/logo.png` e `ui/logo-marca.png`, que
+> **Legado:** `tools/arte/marca.py` gerava `ui/logo.png` e `ui/logo-marca.png`, que
 > foram **aposentados** (a marca viva é `ui/logos/logo-header` e
 > `ui/logos/logo-marca-ilustrado`). Não rode `marca.py` sem repensar a saída.
 

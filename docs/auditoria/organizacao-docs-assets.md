@@ -159,7 +159,7 @@ A otimizacao WebP foi aplicada a `fundos/`, `atores/`, `mestres/`, `mapas/`, `ui
 | `public/img/itens/` | 19 de 19 (100%) |
 | `public/img/herois/` (so `heroi-*`) | 6 de 6 (heroi-elfo, heroi-ranger, heroi-guerreiro, heroi-draconato, heroi-mago, heroi-xeno) |
 
-**Acao:** Rodar `tools/otimizar-imagens.sh` sobre `inimigos/`, `itens/` e os `heroi-*` restantes em `herois/`.
+**Acao:** Rodar `tools/imagens/otimizar-imagens.sh` sobre `inimigos/`, `itens/` e os `heroi-*` restantes em `herois/`.
 
 ---
 

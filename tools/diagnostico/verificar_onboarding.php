@@ -10,8 +10,8 @@ if (PHP_SAPI !== 'cli') {
     exit('Somente CLI.');
 }
 
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../app/services/OnboardingService.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../app/services/OnboardingService.php';
 
 $falhas = 0;
 $total  = 0;

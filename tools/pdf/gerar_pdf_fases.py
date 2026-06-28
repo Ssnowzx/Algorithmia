@@ -18,7 +18,7 @@ import tempfile
 
 import marca_pdf as marca
 
-RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RAIZ = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 IMG = os.path.join(RAIZ, "public", "img")
 SAIDA_HTML = os.path.join(tempfile.gettempdir(), "_codex-mestres.html")
 SAIDA_PDF = os.path.join(RAIZ, "docs", "Fases-e-Topicos-por-Mestre.pdf")

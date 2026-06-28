@@ -13,7 +13,7 @@ from PIL import Image
 
 W, H = 32, 44      # grade lógica (corpo inteiro: mais alto que largo)
 SCALE = 8          # 32x44 -> 256x352
-RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RAIZ = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 class Canvas:

@@ -16,7 +16,7 @@
 - **Não** usar pixel art nos mestres, fundos de região e ícones do mapa
 
 **Camada legado — Pixel art (mantida):**
-- Sprites de heróis em batalha, inimigos e itens em inventário/loja (`tools/pixelart.py`, `tools/bestiario.py`, `tools/itens.py`)
+- Sprites de heróis em batalha, inimigos e itens em inventário/loja (`tools/arte/pixelart.py`, `tools/arte/bestiario.py`, `tools/arte/itens.py`)
 - `image-rendering: pixelated` **somente** nesses sprites — ver `public/css/style.css`
 
 ---
@@ -147,7 +147,7 @@ Ilustrações usam `image-rendering: auto` (não pixelated).
 | Contexto | Asset | Pasta |
 |----------|-------|-------|
 | **Palco de diálogo** | `fase-primeiros-passos`, `npc-narrador`, `mestre-willen` | `atores/` — ilustração cyber-fantasia, **alpha nativo** |
-| **Batalha** | `inimigo-slime`, … | `inimigos/` — pixel art (`tools/bestiario.py`) |
+| **Batalha** | `inimigo-slime`, … | `inimigos/` — pixel art (`tools/arte/bestiario.py`) |
 | **Mapa (nó circular)** | `fase-primeiros-passos`, … | `mapas/` — cenário incluso, **nunca no palco** |
 
 > ⚠️ **Pixel art no palco = erro.** `inimigos/` é só para a tela de batalha.
@@ -161,11 +161,11 @@ O código **não gera nem recorta** arte. Só usa o arquivo se você colocar em 
 3. Nome: `fase-{slug}.png` (ex.: `fase-primeiros-passos.png`).
 4. Enquanto o arquivo não existir, o palco usa o sprite pixel de `inimigos/` (fallback).
 
-> **Não usar:** gerador de imagem do Cursor, recorte automático de `mapas/`, nem `tools/personagens_fase.py`.
+> **Não usar:** gerador de imagem do Cursor, recorte automático de `mapas/`, nem `tools/arte/personagens_fase.py`.
 
 ### Pixel art (batalha + fallback no diálogo)
 
-- `tools/bestiario.py` → `public/img/inimigos/`
+- `tools/arte/bestiario.py` → `public/img/inimigos/`
 
 ### Código
 
@@ -294,5 +294,5 @@ Som: ver specs em `openspec/changes/som-e-juice-batalha/` (Web Audio procedural)
 | UI página mapa (§5.1) | `MapaController.php`, `mapa.css` (`body.pagina-mapa`), `ui/icones/icone-mapa.png`, `fundos/fundo-mapa.png` |
 | Status visual atual | `docs/STATUS-UI-ATUAL.md` |
 | Seleção de personagem | `app/views/auth/criar-personagem.php`, `public/css/style.css`, `public/img/ui/molduras/moldura-selecao-classes.png`, `public/img/herois/hud-*.png` |
-| Geradores pixel art legado | `tools/pixelart.py`, `tools/cenarios.py` |
+| Geradores pixel art legado | `tools/arte/pixelart.py`, `tools/arte/cenarios.py` |
 | Regras de jogo | `docs/REGRAS-DO-JOGO.md` |

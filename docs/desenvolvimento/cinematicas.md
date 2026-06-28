@@ -12,12 +12,12 @@ keyframes ilustrados → narração PT-BR (Kokoro) → montagem FFmpeg**.
 
 | Caminho | Papel |
 |---|---|
-| `tools/gerar_cinematic_intro.py` | CLI do pipeline |
-| `tools/cinematic_intro/` | módulos (marca visual, narração, imagens, vídeo) |
-| `tools/cinematic_intro/presets/<slug>.yaml` | um preset por cinemática (narração, cenas, durações, refs) |
+| `tools/cinematicas/gerar_cinematic_intro.py` | CLI do pipeline |
+| `tools/cinematicas/cinematic_intro/` | módulos (marca visual, narração, imagens, vídeo) |
+| `tools/cinematicas/cinematic_intro/presets/<slug>.yaml` | um preset por cinemática (narração, cenas, durações, refs) |
 | `docs/cinematics/<slug>/` | saída-fonte: `keyframes/` (PNGs fonte), `narracao.mp3`, `manifest.json` |
 | `public/video/cinematics/<slug>.mp4` | **vídeo servido pela web** (é o que o jogo carrega) |
-| `tools/dev-server-router.php` | router de dev p/ testar vídeo no `php -S` (suporte a Range) |
+| `tools/deploy/dev-server-router.php` | router de dev p/ testar vídeo no `php -S` (suporte a Range) |
 
 ## As 7 cinemáticas
 
@@ -46,10 +46,10 @@ Ou seja: basta publicar `public/video/cinematics/<slug>.mp4` que o ▶ aparece s
 ## Gerar / regerar uma cinemática
 
 ```bash
-python3 tools/gerar_cinematic_intro.py --listar          # lista presets
-python3 tools/gerar_cinematic_intro.py <slug> --prompts-sora   # prompts p/ Sora/ChatGPT
-python3 tools/gerar_cinematic_intro.py <slug>            # pipeline completo (narração+vídeo)
-python3 tools/gerar_cinematic_intro.py <slug> --somente-video  # só remonta (keyframes já existem)
+python3 tools/cinematicas/gerar_cinematic_intro.py --listar          # lista presets
+python3 tools/cinematicas/gerar_cinematic_intro.py <slug> --prompts-sora   # prompts p/ Sora/ChatGPT
+python3 tools/cinematicas/gerar_cinematic_intro.py <slug>            # pipeline completo (narração+vídeo)
+python3 tools/cinematicas/gerar_cinematic_intro.py <slug> --somente-video  # só remonta (keyframes já existem)
 ```
 
 O pipeline **publica automaticamente** o MP4 em `public/video/cinematics/<slug>.mp4`.
@@ -69,7 +69,7 @@ Dependências: `ffmpeg` + `espeak-ng` (`brew install espeak-ng`); o venv Kokoro 
 O servidor embutido `php -S` **não faz streaming de MP4** (sem Range/206). Para testar:
 
 ```bash
-php -S 127.0.0.1:8000 tools/dev-server-router.php
+php -S 127.0.0.1:8000 tools/deploy/dev-server-router.php
 ```
 
 Em produção (Apache) o Range é nativo. Se um vídeo travar após uma tentativa falha,

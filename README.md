@@ -196,7 +196,7 @@ Não há contas pré-criadas — **crie a sua** em *Criar conta* e forje seu her
 - **Sem credenciais embutidas**: nenhuma conta vem pré-criada no banco; o acesso de admin é concedido manualmente (promover a conta a `mestre`).
 
 ## 🎨 Créditos de arte
-A arte atual é **toda ilustração cyber-fantasia (v2)** — splash/home, mapa, mestres, cartas de personagem, UI ornamental, e também batalha/inimigos/itens (heróis e inimigos recortados com fundo transparente; itens como cartas). O recorte é feito por IA com `tools/recortar_rembg.py` (modelo `isnet-general-use`); o pixel art da v1 fica preservado no histórico em `docs/evolucao-visual/v1-pixel-art/`. Detalhes do pipeline em [`docs/desenvolvimento/criacao-de-assets.md`](docs/desenvolvimento/criacao-de-assets.md).
+A arte atual é **toda ilustração cyber-fantasia (v2)** — splash/home, mapa, mestres, cartas de personagem, UI ornamental, e também batalha/inimigos/itens (heróis e inimigos recortados com fundo transparente; itens como cartas). O recorte é feito por IA com `tools/fundo/recortar_rembg.py` (modelo `isnet-general-use`); o pixel art da v1 fica preservado no histórico em `docs/evolucao-visual/v1-pixel-art/`. Detalhes do pipeline em [`docs/desenvolvimento/criacao-de-assets.md`](docs/desenvolvimento/criacao-de-assets.md).
 
 ## 🖥️ Camada visual / UX
 - Tipografia de game: **Pixelify Sans** (títulos e HUD) + **Rubik** (corpo); **fundo estelar animado**, cenários por região e animações (investida na batalha, partículas, nós do mapa pulsando) para imersão.

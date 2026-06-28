@@ -25,7 +25,7 @@ import os
 
 from PIL import Image
 
-BASE = os.path.join(os.path.dirname(__file__), '..', 'public', 'img')
+BASE = os.path.join(os.path.dirname(__file__), '..', '..', 'public', 'img')
 CAPS = {
     'mapas': 384,
     'inimigos': 640,

@@ -8,7 +8,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-RAIZ = Path(__file__).resolve().parents[2]
+RAIZ = Path(__file__).resolve().parents[3]
 VENV_DIR = RAIZ / "tools" / ".venvs" / "cinematic"
 VENV_PYTHON = VENV_DIR / "bin" / "python3.11"
 if not VENV_PYTHON.is_file():

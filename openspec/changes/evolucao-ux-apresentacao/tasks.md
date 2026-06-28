@@ -39,6 +39,6 @@
 - [x] 6.1 Migration idempotente `20260628-dedupe-itens.sql` (mantém menor id; repointa refs; sem órfãos)
 
 ## 7. Performance de imagens  *(f86093f, b97642e, bfcf8db)*
-- [x] 7.1 `tools/right_size_imagens.py`: right-size das webp ilustradas (−12 MB)
+- [x] 7.1 `tools/imagens/right_size_imagens.py`: right-size das webp ilustradas (−12 MB)
 - [x] 7.2 Gera webp dos itens a partir do PNG (loja/inventário; −34 MB servidos)
 - [x] 7.3 Remove PNGs de itens de public/img (source preservado em docs/evolucao-visual; −35 MB repo)

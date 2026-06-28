@@ -16,20 +16,20 @@ migration, sem cron, sem mexer em perguntas/economia/regra**. Cada uma com spec-
   →Praticante→Especialista→Mestre) por **volume de acertos + precisão sustentada** (2/2=100%
   não vira domínio); **barra goal-gradient** ao próximo selo (reflete o fator mais atrasado);
   resumo "X/8 dominadas". `config MAESTRIA_FAIXAS`/`MAESTRIA_TIER_DOMINADA`,
-  `app/services/MaestriaService.php`, `tools/verificar_maestria.php` (32 asserts).
+  `app/services/MaestriaService.php`, `tools/diagnostico/verificar_maestria.php` (32 asserts).
 - **Missões da semana** (`feat/missoes-semanais` → merge `37704bd`). Painel "🎯 Missões da
   semana" no perfil: **3 metas rotativas/semana** (pool sorteado determinístico pela data),
   progresso na **semana ISO** corrente (`YEARWEEK(col,3)`), ✓ dourado ao concluir, "X/3
   concluídas". `config MISSOES_SEMANAIS`/`MISSOES_POR_SEMANA`, `MissaoService` (seleção/
   avaliação puras), `RespostaLog::metricasSemana` + `ProgressoFase::fasesSemana`,
-  `tools/verificar_missoes.php` (33 asserts). **NÃO dá recompensa material** (de propósito:
+  `tools/diagnostico/verificar_missoes.php` (33 asserts). **NÃO dá recompensa material** (de propósito:
   recompensa exigiria persistência/migration/economia).
 - **Domínio das regiões** (`feat/dominio-regioes` → merge `3f94c40`). Painel "🏰 Domínio das
   Regiões" no perfil — maestria **HORIZONTAL**: perfeição da jornada por mestre, 4 estados
   (A explorar→Em jornada→Conquistada→**Dominada** = todas as fases com 3★), barra estrelas/máx,
   "X/5 dominadas" + título **"Mestre dos Cinco"** (5/5). `config REGIAO_FAIXAS`/
   `REGIAO_TITULO_LENDA`, `Mestre::progressoPorRegiao` (query parte de FASES → robusta à
-  duplicação de `mestres`; só fases não-história), `RegiaoService`, `tools/verificar_regioes.php`
+  duplicação de `mestres`; só fases não-história), `RegiaoService`, `tools/diagnostico/verificar_regioes.php`
   (28 asserts). Ajuste posterior (`2070eef`): o painel conta só `tipo IN ('licao','chefe')`
   (secundárias opcionais), alinhando com o critério do jogo de "concluir região".
   *(As conquistas `mestre_X` NÃO estão órfãs — são concedidas ao derrotar o chefe em
@@ -38,7 +38,7 @@ migration, sem cron, sem mexer em perguntas/economia/regra**. Cada uma com spec-
   Painel de boas-vindas no topo do perfil (endowed progress) com o 1º marco JÁ feito ("Forjar
   seu herói") + 3 read-only (batalha/item/conquista); barra X/4; aparece só até
   `ONBOARDING_NIVEL_MAX=3` e some quando o novato evolui/completa. `OnboardingService` (montar
-  pura + primeirosPassos defensivo), `Inventario::temEquipado`, `tools/verificar_onboarding.php`
+  pura + primeirosPassos defensivo), `Inventario::temEquipado`, `tools/diagnostico/verificar_onboarding.php`
   (14 asserts).
 
 **Também nesta sessão (correções de dados/infra):**
@@ -71,7 +71,7 @@ Spec-driven: change `openspec/changes/evolucao-ux-apresentacao/` (proposal/desig
 - **Perfil/gamificação:** medidor de Reputação (Disciplina↔Singularidade), progresso parcial das conquistas (X/Y), recap "Sua semana", stats em tiles, inventário em grade.
 - **Mapa:** barra de progresso + chip "Próximo objetivo"; barras animadas; **confete** (conquista/compra/level-up, `public/js/celebracao.js`).
 - **Loja:** dedupe de itens — migration idempotente `database/migrations/20260628-dedupe-itens.sql`.
-- **Performance:** right-size de imagens (`tools/right_size_imagens.py`) ≈ **−46 MB servidos**, mesma arte; PNGs de itens movidos só p/ `docs/evolucao-visual`.
+- **Performance:** right-size de imagens (`tools/imagens/right_size_imagens.py`) ≈ **−46 MB servidos**, mesma arte; PNGs de itens movidos só p/ `docs/evolucao-visual`.
 
 **Para retomar / pendências:**
 - **Deploy:** ainda NÃO publicado em produção (algorithmia.tars.art.br). Ao deployar, rodar `php database/migrate.php` p/ aplicar a migration de dedupe da loja lá.
@@ -154,7 +154,7 @@ As imagens geradas no GPT vêm em **1536×1024, opacas, com xadrez de falsa-tran
 3. **Gerar `.webp`** otimizado (cwebp `-q 82..90`); o helper `srcImagem()` serve o webp.
 4. **Slots/medidas** de molduras detectados por script Python (flood-fill dos furos / faixas opacas) e usados como `%` no CSS (container queries `cqw`).
 
-**Assets de UI desta sessão:** `ui/molduras/ficha-fundo`, `ui/molduras/card-status-heroi`, `ui/molduras/moldura-status`, `herois/card-draconato`, `atores/npc-fragmento`. Há `tools/otimizar-imagens.sh` para WebP em lote (não toca pixel art).
+**Assets de UI desta sessão:** `ui/molduras/ficha-fundo`, `ui/molduras/card-status-heroi`, `ui/molduras/moldura-status`, `herois/card-draconato`, `atores/npc-fragmento`. Há `tools/imagens/otimizar-imagens.sh` para WebP em lote (não toca pixel art).
 
 ---
 

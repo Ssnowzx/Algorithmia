@@ -152,6 +152,6 @@ $heroi = (new Personagem())->findById($id);
 ## Python (`tools/`)
 
 - Scripts de suporte (PDFs, recorte de imagem) — nao fazem parte do runtime do jogo.
-- Kit de marca: `tools/marca_pdf.py` — todo PDF novo deve importa-lo.
+- Kit de marca: `tools/pdf/marca_pdf.py` — todo PDF novo deve importa-lo.
 - Ambiente isolado para rembg: `tools/.venv-rembg/` (nao versionar o venv).
 - Fontes cacheadas em `tools/.cache/` (nao versionar).

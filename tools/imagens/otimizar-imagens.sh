@@ -12,7 +12,7 @@
 # Uso: bash tools/otimizar-imagens.sh
 set -euo pipefail
 
-BASE="$(cd "$(dirname "$0")/../public/img" && pwd)"
+BASE="$(cd "$(dirname "$0")/../../public/img" && pwd)"
 MAXDIM=1280   # maior lado; só reduz se exceder
 Q=80          # qualidade WebP com perda
 

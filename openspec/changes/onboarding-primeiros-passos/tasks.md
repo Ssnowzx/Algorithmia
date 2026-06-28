@@ -6,7 +6,7 @@
 - [x] 1.3 `app/services/OnboardingService.php`: `montar(flags, nivel)` pura + `primeirosPassos()` defensivo
 
 ## 2. Teste
-- [x] 2.1 `tools/verificar_onboarding.php` (CLI): head start (1/4 quando só herói), progressão, `mostrar` (gate de nível + completude)
+- [x] 2.1 `tools/diagnostico/verificar_onboarding.php` (CLI): head start (1/4 quando só herói), progressão, `mostrar` (gate de nível + completude)
 - [x] 2.2 Rodar — verde
 
 ## 3. Integração (apresentação)

@@ -35,7 +35,7 @@ Este histórico documenta a evolução do jogo **através de imagens**. Vale a r
    coloque ali um snapshot dos PNGs daquele marco (espelhando `public/img/`).
 2. Regere o PDF-galeria:
    ```bash
-   python3 tools/gerar_galeria_evolucao.py
+   python3 tools/pdf/gerar_galeria_evolucao.py
    ```
 3. Atualize a tabela de versões acima.
 

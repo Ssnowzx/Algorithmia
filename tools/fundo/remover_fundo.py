@@ -26,7 +26,7 @@ from collections import deque
 
 from PIL import Image, ImageFilter
 
-RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RAIZ = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 PUB = os.path.join(RAIZ, "public", "img")
 
 GRUPOS = (

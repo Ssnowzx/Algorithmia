@@ -14,7 +14,7 @@ Pipeline padronizado: **preset YAML → keyframes → narração Kokoro → MP4*
 
 - **Vídeo:** horizontal **16:9** (1920×1080) — padrão atual do projeto
 - **Narração:** Kokoro-82M PT-BR (`pm_santa` = narrador grave/sombrio; `pm_alex` = neutro)
-- **Estilo:** `tools/cinematic_intro/marca_visual.py` (paleta navy/roxo/ouro/ciano, magia+código)
+- **Estilo:** `tools/cinematicas/cinematic_intro/marca_visual.py` (paleta navy/roxo/ouro/ciano, magia+código)
 - **Saída:** `docs/cinematics/<slug>/` (fonte) **+** cópia publicada em `public/video/cinematics/<slug>.mp4` (servida pela web)
 
 ## Integração com o mapa do jogo (intro por região)
@@ -32,7 +32,7 @@ basta o arquivo existir com o slug certo:
 | O Abismo (fim) | `abismo-devnull` |
 
 > Testar vídeo **localmente**: o `php -S` não faz streaming de MP4 (sem Range/206).
-> Rode com o router de dev: `php -S 127.0.0.1:8000 tools/dev-server-router.php`
+> Rode com o router de dev: `php -S 127.0.0.1:8000 tools/deploy/dev-server-router.php`
 > (em produção o Apache já trata Range). Se o vídeo travar após uma tentativa
 > falha, limpe o cache do navegador para aquela URL.
 
@@ -40,11 +40,11 @@ basta o arquivo existir com o slug certo:
 
 ### 1. Novo cinematic
 
-1. Copie `tools/cinematic_intro/presets/_template.yaml` → `tools/cinematic_intro/presets/<slug>.yaml`
+1. Copie `tools/cinematicas/cinematic_intro/presets/_template.yaml` → `tools/cinematicas/cinematic_intro/presets/<slug>.yaml`
 2. Preencha `narracao`, `cenas[]` (id, arquivo, duracao, prompt) e `referencias`
 3. Gere prompts completos:
    ```bash
-   python3 tools/gerar_cinematic_intro.py <slug> --prompts
+   python3 tools/cinematicas/gerar_cinematic_intro.py <slug> --prompts
    ```
 4. Gere as imagens com `GenerateImage` (uma por cena), usando:
    - prompt do passo 3
@@ -52,7 +52,7 @@ basta o arquivo existir com o slug certo:
    - Salve em `docs/cinematics/<slug>/keyframes/<arquivo>`
 5. Execute o pipeline:
    ```bash
-   python3 tools/gerar_cinematic_intro.py <slug>
+   python3 tools/cinematicas/gerar_cinematic_intro.py <slug>
    ```
 
 ### 2. Cinemática existente (só remontar)
@@ -60,15 +60,15 @@ basta o arquivo existir com o slug certo:
 Se os PNGs já existem em `docs/cinematics/<slug>/keyframes/`:
 
 ```bash
-python3 tools/gerar_cinematic_intro.py <slug> --somente-video
+python3 tools/cinematicas/gerar_cinematic_intro.py <slug> --somente-video
 ```
 
 ### 3. Importar keyframes de outro lugar
 
 ```bash
-python3 tools/gerar_cinematic_intro.py terras-hello-world \
+python3 tools/cinematicas/gerar_cinematic_intro.py terras-hello-world \
   --importar /caminho/dos/pngs
-python3 tools/gerar_cinematic_intro.py terras-hello-world
+python3 tools/cinematicas/gerar_cinematic_intro.py terras-hello-world
 ```
 
 ## Comandos úteis
@@ -93,7 +93,7 @@ python3 tools/gerar_cinematic_intro.py terras-hello-world
 
 ## Bíblia de estilo
 
-Texto canônico em `tools/cinematic_intro/marca_visual.py` (`BIBLIA_ESTILO`).
+Texto canônico em `tools/cinematicas/cinematic_intro/marca_visual.py` (`BIBLIA_ESTILO`).
 
 | Comando | Uso |
 |---------|-----|
@@ -116,14 +116,14 @@ Texto canônico em `tools/cinematic_intro/marca_visual.py` (`BIBLIA_ESTILO`).
 > mostra o selo ▶ em cada região automaticamente (ver tabela de slugs acima).
 
 ```bash
-python3 tools/gerar_cinematic_intro.py willen --prompts-sora
-python3 tools/gerar_cinematic_intro.py clayton
+python3 tools/cinematicas/gerar_cinematic_intro.py willen --prompts-sora
+python3 tools/cinematicas/gerar_cinematic_intro.py clayton
 ```
 
 ## Preset legado: Terras de Hello World
 
 ```bash
-python3 tools/gerar_cinematic_intro.py terras-hello-world
+python3 tools/cinematicas/gerar_cinematic_intro.py terras-hello-world
 ```
 
 ## Dependências (auto-instaladas no venv)
@@ -146,5 +146,5 @@ docs/cinematics/<slug>/
 
 ## Referência
 
-- Presets: [tools/cinematic_intro/presets/](../../tools/cinematic_intro/presets/)
-- Marca visual: [tools/cinematic_intro/marca_visual.py](../../tools/cinematic_intro/marca_visual.py)
+- Presets: [tools/cinematicas/cinematic_intro/presets/](../../tools/cinematicas/cinematic_intro/presets/)
+- Marca visual: [tools/cinematicas/cinematic_intro/marca_visual.py](../../tools/cinematicas/cinematic_intro/marca_visual.py)

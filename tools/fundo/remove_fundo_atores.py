@@ -10,7 +10,7 @@ from PIL import Image
 
 from ator_pipeline import processar_palco
 
-RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RAIZ = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ATORES = os.path.join(RAIZ, "public", "img", "atores")
 NPCS = ("npc-narrador.png", "npc-anciao.png")
 

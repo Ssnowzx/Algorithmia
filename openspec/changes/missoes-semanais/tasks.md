@@ -6,7 +6,7 @@
 - [x] 1.3 `app/services/MissaoService.php`: `selecionar(indice)`, `avaliar(missao, metricas)` puros + `daSemana()` defensivo
 
 ## 2. Teste
-- [x] 2.1 `tools/verificar_missoes.php` (CLI): seleção determinística (mesma semana → mesmas 3; rotação) + avaliação (contável e precisão, fronteiras, completa)
+- [x] 2.1 `tools/diagnostico/verificar_missoes.php` (CLI): seleção determinística (mesma semana → mesmas 3; rotação) + avaliação (contável e precisão, fronteiras, completa)
 - [x] 2.2 Rodar — verde
 
 ## 3. Integração (apresentação)

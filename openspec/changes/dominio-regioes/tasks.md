@@ -6,7 +6,7 @@
 - [x] 1.3 `app/services/RegiaoService.php`: `faixaDe(total,concluidas,perfeitas,estrelas)` pura + `dominio()` defensivo + `totalDominadas()` + `tituloLenda()`
 
 ## 2. Teste
-- [x] 2.1 `tools/verificar_regioes.php` (CLI): faixaDe nos casos — 0 concluídas (A explorar), parcial (Em jornada), todas 2★ (Conquistada), todas 3★ (Dominada), barra de perfeição
+- [x] 2.1 `tools/diagnostico/verificar_regioes.php` (CLI): faixaDe nos casos — 0 concluídas (A explorar), parcial (Em jornada), todas 2★ (Conquistada), todas 3★ (Dominada), barra de perfeição
 - [x] 2.2 Rodar — verde
 
 ## 3. Integração (apresentação)

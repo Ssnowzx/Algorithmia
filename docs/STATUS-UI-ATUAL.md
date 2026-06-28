@@ -106,7 +106,7 @@ As classes atuais são 6:
 | ENUM do schema | `database/schema.sql` |
 | Migração para banco existente | `database/migrations/20250616-novas-classes.sql` |
 | Mapeamento de retrato HUD/carta | `app/core/helpers.php` (`retratoHud()`) |
-| Sprites pixel art de batalha | `tools/pixelart.py` |
+| Sprites pixel art de batalha | `tools/arte/pixelart.py` |
 
 ### Banco
 Para banco já existente, aplicar:
@@ -137,7 +137,7 @@ mysql -u SEU_USUARIO -p algorithmia < database/migrations/20250616-novas-classes
 - `public/img/herois/hud-draconato.png`
 
 > **Formato servido:** as ilustrações (ui, mestres, fundos, atores, `hud-*`) são entregues em
-> **WebP** otimizado por `tools/otimizar-imagens.sh`; os PNG acima são a fonte/fallback. A
+> **WebP** otimizado por `tools/imagens/otimizar-imagens.sh`; os PNG acima são a fonte/fallback. A
 > pixel art de batalha (`heroi-*`, `inimigos/`, `itens/`) permanece em PNG. O helper
 > `srcImagem()` prefere o `.webp` quando existe.
 

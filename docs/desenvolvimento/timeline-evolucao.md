@@ -47,7 +47,7 @@ Arquivos curados por versao: `docs/evolucao-visual/`.
 - Emblema vetorial SVG: `public/img/ui/logos/emblema-algorithmia.svg`.
 
 **Pipeline de recorte:**
-- Introducao do `tools/recortar_rembg.py` com modelo `isnet-general-use`.
+- Introducao do `tools/fundo/recortar_rembg.py` com modelo `isnet-general-use`.
 - Inimigos e herois recortados com transparencia real (sem fundo branco).
 - 29 sprites finais convertidos para WebP (reducao de ~34 MB por sessao).
 
@@ -55,7 +55,7 @@ Arquivos curados por versao: `docs/evolucao-visual/`.
 - `srcImagem()` prefere `.webp` sobre `.png` com versioning por `filemtime`.
 - `caminhoSvg()` e `svgAtor()` para resolucao de slugs por prefixo.
 - `marcaHtml()` centraliza a logo em todas as variantes (header/auth/splash).
-- Kit de marca PDF: `tools/marca_pdf.py` (emblema, fontes Cinzel/Pixelify/Rubik, paleta).
+- Kit de marca PDF: `tools/pdf/marca_pdf.py` (emblema, fontes Cinzel/Pixelify/Rubik, paleta).
 - Codex narrativo: `docs/codex/` (bestiario, mestres, jornada, evolucao visual).
 - 4 camadas de historia + lore das 6 classes integradas.
 - Novas classes via migration ENUM: `database/migrations/20250616-novas-classes.sql`.

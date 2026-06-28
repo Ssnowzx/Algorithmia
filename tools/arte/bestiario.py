@@ -4,7 +4,7 @@
 import os, math
 from pixelart import Canvas, _mix, _alpha, OUTLINE, WHITE, BROWN
 
-RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RAIZ = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 G = 40
 
 

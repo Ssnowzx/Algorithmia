@@ -33,5 +33,5 @@ XP, ouro, reputação (valor) nem em qualquer regra de jogo. Tudo verificado tel
 - **Mapa:** barra de progresso da jornada + chip "Próximo objetivo"; barras que "enchem"
   ao aparecer; celebração de confete fora da arena (conquista/compra/level-up).
 - **Loja:** correção da duplicação de itens (migration idempotente que vale p/ produção).
-- **Performance:** right-size das imagens (`tools/right_size_imagens.py`) — ≈ −46 MB no que
+- **Performance:** right-size das imagens (`tools/imagens/right_size_imagens.py`) — ≈ −46 MB no que
   é servido, **mesma arte**; PNGs originais preservados em `docs/evolucao-visual`.

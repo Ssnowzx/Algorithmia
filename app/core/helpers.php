@@ -419,7 +419,7 @@ function iconeRegiaoMapa(string $chaveRegiao): ?string
 /**
  * Slug do cinematic (intro em vídeo) de uma região do mapa.
  * Início/fim têm slug fixo; regiões de mestre derivam do svg_slug
- * (ex.: 'mestre-willen' → 'willen'). Casa com tools/cinematic_intro/presets/.
+ * (ex.: 'mestre-willen' → 'willen'). Casa com tools/cinematicas/cinematic_intro/presets/.
  */
 function slugCinematicRegiao(string $chaveRegiao, ?string $svgSlug = null): ?string
 {

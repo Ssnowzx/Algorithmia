@@ -21,7 +21,7 @@ espelhada em `public/img/` (somente PNG no histórico).
 As ilustrações da v2 chegam com fundo, mas o jogo precisa de sprites recortados
 (alpha) para compô-los sobre os cenários. Esse recorte é automatizado com
 **rembg** (remoção de fundo por rede neural) na ferramenta
-[`tools/recortar_rembg.py`](../../tools/recortar_rembg.py), que roda em um
+[`tools/fundo/recortar_rembg.py`](../../tools/fundo/recortar_rembg.py), que roda em um
 ambiente Python isolado — transformando uma ilustração de fundo cheio em um ator
 recortado, pronto para o palco.
 

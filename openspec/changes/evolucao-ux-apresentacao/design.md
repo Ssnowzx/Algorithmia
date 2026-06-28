@@ -38,7 +38,7 @@
 - `dimensoesImagem()` (getimagesize memoizado) injeta `width/height` intrínsecos em `svg()`
   e `marcaHtml()`. Intrínseco = natural → reserva a proporção sem mudar o render.
 
-### Right-size de imagens (`tools/right_size_imagens.py`, idempotente)
+### Right-size de imagens (`tools/imagens/right_size_imagens.py`, idempotente)
 - Reduz a RESOLUÇÃO das `.webp` ilustradas ao maior tamanho de exibição real (×~2.3 retina):
   mapas 384 · inimigos 640 · mestres 720 · atores 900 · herois 720. `fundos/` (full-bleed)
   ficam. Itens (PNG sem webp) ganham um webp menor (cap 600). **A arte não muda**; PNGs

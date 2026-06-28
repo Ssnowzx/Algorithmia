@@ -50,16 +50,16 @@ python3.11 -m venv tools/.venv-rembg
 tools/.venv-rembg/bin/pip install rembg onnxruntime pillow
 
 # Recortar todos os grupos de uma vez
-tools/.venv-rembg/bin/python tools/recortar_rembg.py --grupos
+tools/.venv-rembg/bin/python tools/fundo/recortar_rembg.py --grupos
 
 # Ou arquivos especificos
-tools/.venv-rembg/bin/python tools/recortar_rembg.py public/img/inimigos/inimigo-novo.png
+tools/.venv-rembg/bin/python tools/fundo/recortar_rembg.py public/img/inimigos/inimigo-novo.png
 ```
 
 O script usa o modelo `isnet-general-use` com `post_process_mask=True` (bordas
 anti-aliased, sem sombra de contato). Nao redimensiona — preserva o tamanho original.
 
-**Nao use** `tools/remover_fundo.py` para sprites — ele so apara margens. Use apenas
+**Nao use** `tools/fundo/remover_fundo.py` para sprites — ele so apara margens. Use apenas
 para cartas/molduras onde o fundo nao e transparente.
 
 ### 4. Conversao para WebP
@@ -71,7 +71,7 @@ Apos o recorte, converter para WebP (o jogo prefere `.webp` via `srcImagem()`):
 cwebp -q 90 public/img/inimigos/inimigo-novo.png -o public/img/inimigos/inimigo-novo.webp
 
 # Ou usando o script de otimizacao do projeto
-bash tools/otimizar-imagens.sh
+bash tools/imagens/otimizar-imagens.sh
 ```
 
 O PNG original deve ser mantido como fonte.
@@ -91,7 +91,7 @@ de arte, novo estilo, novo conjunto de personagens):
 3. Atualize a tabela de versoes em `docs/evolucao-visual/README.md`.
 4. Regenere o PDF-galeria:
    ```bash
-   python3 tools/gerar_galeria_evolucao.py
+   python3 tools/pdf/gerar_galeria_evolucao.py
    ```
 
 **Regra de curadoria** (permanente): so imagens que representam um marco real.
@@ -108,7 +108,7 @@ Referencia do que **nao** fazer: item antigo com moldura de ouro sobre fundo esc
 
 ## Logos e identidade visual dos PDFs
 
-A identidade dos PDFs e centralizada em `tools/marca_pdf.py`. Todo PDF novo deve
+A identidade dos PDFs e centralizada em `tools/pdf/marca_pdf.py`. Todo PDF novo deve
 importa-lo — nunca recriar emblema, paleta ou fontes do zero:
 
 ```python
