@@ -35,6 +35,32 @@ CAPS = {
 }
 QUALITY = 82
 
+# itens/ são PNG ilustrado (840–940x1024) SEM webp → servidos enormes na loja
+# (~280px). Geramos um webp menor (servido por srcImagem, que prefere webp),
+# mantendo o PNG original como fonte/fallback.
+ITENS_CAP = 600
+
+
+def gerar_webp_itens() -> None:
+    antes = depois = 0
+    gerados = 0
+    for png in sorted(glob.glob(os.path.join(BASE, 'itens', '*.png'))):
+        antes += os.path.getsize(png)
+        webp = png[:-4] + '.webp'
+        with Image.open(png) as im:
+            w, h = im.size
+            escala = min(1.0, ITENS_CAP / max(w, h))
+            nw, nh = round(w * escala), round(h * escala)
+            novo = im.convert('RGBA').resize((nw, nh), Image.LANCZOS)
+            novo.save(webp, 'WEBP', quality=QUALITY, method=6)
+        depois += os.path.getsize(webp)
+        gerados += 1
+        print(f"  itens/{os.path.basename(webp)}: {w}x{h} png -> {nw}x{nh} webp "
+              f"({os.path.getsize(png) // 1024}KB png -> {os.path.getsize(webp) // 1024}KB webp)")
+    print(f"\n{gerados} webp de itens gerados.")
+    print(f"Itens servidos: {antes // 1024}KB (png) -> {depois // 1024}KB (webp) "
+          f"(-{(antes - depois) // 1024}KB no que é servido)")
+
 
 def main() -> None:
     antes = depois = 0
@@ -61,6 +87,8 @@ def main() -> None:
     print(f"\n{reduzidas} imagens reduzidas.")
     print(f"Total webp (pastas afetadas): {antes // 1024}KB -> {depois // 1024}KB "
           f"(-{(antes - depois) // 1024}KB)")
+    print("\n--- itens (gera webp a partir do png) ---")
+    gerar_webp_itens()
 
 
 if __name__ == '__main__':
