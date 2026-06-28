@@ -63,6 +63,9 @@ Documentação completa: **[`docs/arte/PROMPT-EVOLUCAO-VISUAL.md`](docs/arte/PRO
 > 📖 A **história completa** (lore, mestres, vilão e os três finais) é uma página
 > ilustrada no jogo — rota `historia/lore` (`HistoriaController::lore` →
 > [`app/views/historia/lore.php`](app/views/historia/lore.php)).
+> Para ver **offline (duplo-clique, sem servidor)**, há também
+> [`historia.html`](historia.html) na raiz — cópia estática gerada a partir da view
+> (caminhos de imagem relativos). Se a lore mudar, regere a cópia a partir de `lore.php`.
 
 ---
 
