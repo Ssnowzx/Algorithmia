@@ -44,6 +44,8 @@ class PerfilController extends Controller
             // Domínio das regiões (maestria horizontal): perfeição da jornada por
             // mestre (fases concluídas + estrelas). Read-only, sem migration.
             'regioes' => RegiaoService::dominio((int) $heroi['id']),
+            // Onboarding "Primeiros passos" (endowed progress) — só p/ novato.
+            'onboarding' => OnboardingService::primeirosPassos((int) $heroi['id'], (int) $heroi['nivel']),
         ]);
     }
 }

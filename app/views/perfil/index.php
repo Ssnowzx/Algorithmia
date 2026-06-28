@@ -24,6 +24,26 @@ $classe = CLASSES[$heroi['classe']] ?? [];
 </div>
 <?php endif; ?>
 
+<?php $onboarding = $onboarding ?? []; if (!empty($onboarding['mostrar'])): ?>
+<?php $obPct = $onboarding['total'] > 0 ? round($onboarding['completos'] / $onboarding['total'] * 100) : 0; ?>
+<div class="painel onboarding-passos">
+    <div class="onboarding-cabecalho">
+        <h3 class="onboarding-titulo">🌟 Primeiros passos</h3>
+        <span class="onboarding-resumo"><?= (int) $onboarding['completos'] ?>/<?= (int) $onboarding['total'] ?></span>
+    </div>
+    <p class="subtitulo onboarding-sub">Sua lenda já começou, <?= e($heroi['nome']) ?>. Complete os marcos:</p>
+    <div class="trilha onboarding-trilha"><div class="preenche" style="width:<?= $obPct ?>%"></div></div>
+    <ul class="onboarding-lista">
+        <?php foreach ($onboarding['passos'] as $passo): ?>
+            <li class="onboarding-passo <?= $passo['feito'] ? 'is-feito' : '' ?>">
+                <span class="onboarding-check" aria-hidden="true"><?= $passo['feito'] ? '✓' : '○' ?></span>
+                <span class="onboarding-label"><?= e($passo['label']) ?></span>
+            </li>
+        <?php endforeach; ?>
+    </ul>
+</div>
+<?php endif; ?>
+
 <?php
     $rs = $recapSemana ?? [];
     $rsResp = (int) ($rs['respostas'] ?? 0);

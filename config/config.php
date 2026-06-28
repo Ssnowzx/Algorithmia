@@ -204,6 +204,11 @@ const REGIAO_FAIXAS = [
 // "A Lenda dos Cinco Mestres").
 const REGIAO_TITULO_LENDA = 'Mestre dos Cinco';
 
+// Onboarding "Primeiros passos": o painel de boas-vindas (endowed progress) no
+// perfil aparece só até este nível (novato) e some quando o jogador evolui ou
+// conclui os passos. Read-only.
+const ONBOARDING_NIVEL_MAX = 3;
+
 // Anti-repetição: cada fase tem um POOL de desafios maior do que o sorteado por
 // batalha. A cada início de combate, sorteia-se N do pool priorizando os ainda
 // não vistos pelo personagem (via respostas_log), e os N são ordenados por
