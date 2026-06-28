@@ -1801,3 +1801,27 @@ textarea { min-height: 90px; resize: vertical; }
 .regiao-trilha { height: 8px; background: #0c0d1c; border-radius: 6px; overflow: hidden; border: 1px solid color-mix(in oklab, var(--r-cor) 25%, var(--borda)); }
 .regiao-trilha .preenche { height: 100%; border-radius: inherit; min-width: 2px; background: linear-gradient(90deg, color-mix(in oklab, var(--r-cor) 60%, transparent), var(--r-cor)); }
 .regiao.is-dominada .regiao-trilha .preenche { background: linear-gradient(90deg, color-mix(in oklab, var(--ouro) 70%, transparent), var(--ouro)); }
+
+/* Onboarding "Primeiros passos" — endowed progress p/ o novato (some sozinho
+   quando ele evolui ou conclui). Acento dourado de boas-vindas. */
+.onboarding-passos { margin-bottom: 1.2rem; border: 1px solid color-mix(in oklab, var(--ouro) 30%, var(--borda)); }
+.onboarding-cabecalho { display: flex; align-items: center; justify-content: space-between; gap: .6rem; margin: 0 0 .35rem; }
+.onboarding-titulo { margin: 0; }
+.onboarding-resumo {
+    font-size: .76rem; font-weight: 700; white-space: nowrap;
+    color: var(--navy, #0b0c1d); background: var(--ouro); padding: .15rem .55rem; border-radius: 999px;
+}
+.onboarding-sub { margin: 0 0 .7rem; }
+.onboarding-trilha { height: 8px; background: #0c0d1c; border-radius: 6px; overflow: hidden; border: 1px solid color-mix(in oklab, var(--ouro) 22%, var(--borda)); margin-bottom: .85rem; }
+.onboarding-trilha .preenche { height: 100%; border-radius: inherit; min-width: 2px; background: linear-gradient(90deg, color-mix(in oklab, var(--ouro) 65%, transparent), var(--ouro)); }
+.onboarding-lista { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: .5rem .9rem; }
+.onboarding-passo { display: flex; align-items: center; gap: .5rem; font-size: .9rem; color: var(--texto-fraco); }
+.onboarding-passo.is-feito { color: var(--texto); }
+.onboarding-check {
+    display: inline-flex; align-items: center; justify-content: center; flex: none;
+    width: 1.4rem; height: 1.4rem; border-radius: 50%; font-size: .8rem; line-height: 1;
+    border: 1px solid var(--borda); color: var(--texto-fraco);
+}
+.onboarding-passo.is-feito .onboarding-check {
+    background: var(--ouro); color: var(--navy, #0b0c1d); border-color: transparent; font-weight: 700;
+}

@@ -72,4 +72,14 @@ class Inventario extends Model
         $linha = $this->pegar($personagemId, $itemId);
         return $linha ? (int) $linha['quantidade'] : 0;
     }
+
+    /** Há ao menos um item equipado? (onboarding/leitura, read-only) */
+    public function temEquipado(int $personagemId): bool
+    {
+        $stmt = $this->db->prepare(
+            "SELECT 1 FROM inventario WHERE personagem_id = :p AND equipado = 1 LIMIT 1"
+        );
+        $stmt->execute(['p' => $personagemId]);
+        return (bool) $stmt->fetchColumn();
+    }
 }
