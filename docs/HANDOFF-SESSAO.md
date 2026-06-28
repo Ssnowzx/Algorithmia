@@ -30,8 +30,11 @@ migration, sem cron, sem mexer em perguntas/economia/regra**. Cada uma com spec-
   "X/5 dominadas" + título **"Mestre dos Cinco"** (5/5). `config REGIAO_FAIXAS`/
   `REGIAO_TITULO_LENDA`, `Mestre::progressoPorRegiao` (query parte de FASES → robusta à
   duplicação de `mestres`; só fases não-história), `RegiaoService`, `tools/verificar_regioes.php`
-  (28 asserts). **Débitos só observados (read-only, não corrigidos):** conquistas `mestre_X`
-  órfãs (sem gatilho) + tabela `mestres` duplicada (10 = 5 + 5 órfãos, seed-2×, como a loja).
+  (28 asserts). Ajuste posterior (`2070eef`): o painel conta só `tipo IN ('licao','chefe')`
+  (secundárias opcionais), alinhando com o critério do jogo de "concluir região". **Débito
+  real observado (não corrigido):** tabela `mestres` duplicada (10 = 5 + 5 órfãos, seed-2×,
+  como a loja). *(As conquistas `mestre_X` NÃO estão órfãs — são concedidas ao derrotar o
+  chefe em `BatalhaController::concederConquistaDeRegiao`; afirmar o contrário foi erro meu.)*
 
 **Para retomar / pendências:**
 - **Deploy:** maestria, missões e domínio de regiões NÃO publicados em produção
@@ -40,8 +43,8 @@ migration, sem cron, sem mexer em perguntas/economia/regra**. Cada uma com spec-
 - **Verificação dos painéis** exige dados na conta; foi feita injetando respostas/progresso de
   fases no personagem demo (pers5 = masterboss/Boss Explorer) e **revertendo** — banco intacto.
 - **Próximas opções de mecânica:** ligas/cohorts (exigem cron/reset — bloqueio técnico real),
-  onboarding com progresso dotado. Streak segue desaconselhado. Débitos abertos (de outras
-  frentes): conquistas `mestre_X` órfãs e duplicação de `mestres`.
+  onboarding com progresso dotado. Streak segue desaconselhado. Débito real aberto: duplicação
+  da tabela `mestres` (seed-2×, como a loja teve) — exigiria migration de dedupe.
 - Memória viva: `~/.claude/projects/-Users-snows-AntiGravity-TrabalhoWillen2/memory/auditoria-ux-andamento.md`.
 
 ---
