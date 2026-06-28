@@ -12,6 +12,7 @@
 :root {
     --rail-w:  232px;
     --barra-h: 60px;
+    --topo-h:  96px;   /* altura da top bar; refinada por JS (header.php) */
 }
 
 /* ------------------------------------------------------------------
@@ -82,7 +83,7 @@
         grid-template-columns: var(--rail-w) minmax(0, 1fr);
         grid-template-rows: auto 1fr auto;
         grid-template-areas:
-            "rail topo"
+            "topo topo"
             "rail conteudo"
             "rail rodape";
     }
@@ -92,16 +93,16 @@
 
     .nav-app {
         grid-area: rail;
-        position: sticky; top: 0; bottom: auto; left: auto; right: auto;
-        align-self: start; height: 100vh; height: 100dvh;
+        /* fica ABAIXO da top bar full-width (--topo-h medido por JS) e gruda
+           ao rolar. Menu começa mais embaixo, sem competir com a top bar. */
+        position: sticky; top: var(--topo-h, 96px); bottom: auto; left: auto; right: auto;
+        align-self: start; height: calc(100dvh - var(--topo-h, 96px));
         display: flex; flex-direction: column; gap: .25rem;
         grid-template-columns: none;
-        padding: 1rem .6rem;
-        /* TRANSPARENTE: deixa o fundo cósmico (estrelas/gradiente) aparecer
-           atrás do rail. Só uma borda sutil marca a divisão. */
+        padding: 1.25rem .6rem;
+        /* TRANSPARENTE e SEM borda: o fundo cósmico aparece atrás do rail. */
         background: transparent;
-        border-top: none;
-        border-right: 1px solid color-mix(in oklab, var(--primaria) 14%, transparent);
+        border: none;
         backdrop-filter: none;
         overflow-y: auto;
     }

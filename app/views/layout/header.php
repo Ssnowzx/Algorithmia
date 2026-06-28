@@ -115,6 +115,18 @@ if ($heroi) {
         </a>
     <?php endforeach; ?>
 </nav>
+<script>
+// Mede a altura real da top bar e expõe em --topo-h, p/ o rail (desktop)
+// grudar logo ABAIXO dela. Atualiza no resize/zoom (ResizeObserver).
+(function () {
+    var topo = document.querySelector('.topo');
+    if (!topo) { return; }
+    function medir() { document.documentElement.style.setProperty('--topo-h', topo.offsetHeight + 'px'); }
+    medir();
+    if (window.ResizeObserver) { new ResizeObserver(medir).observe(topo); }
+    else { window.addEventListener('resize', medir); }
+})();
+</script>
 <?php endif; ?>
 
 <?php if ($heroi): ?>
