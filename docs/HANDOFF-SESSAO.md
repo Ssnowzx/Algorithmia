@@ -4,6 +4,39 @@
 
 ---
 
+## 🗓️ Sessão 2026-06-28 (cont.) — Gamificação de MECÂNICA · na `main`
+
+Duas etapas de gamificação de **mecânica** (a apresentação já estava pronta), ambas
+**mergeadas e pushadas na `main`**, no padrão read-only que vinha dando certo: **sem
+migration, sem cron, sem mexer em perguntas/economia/regra**. Cada uma com spec-driven
+(`openspec/changes/…`, validada) + teste CLI puro (o projeto não tem PHPUnit).
+
+- **Maestria por matéria** (`feat/maestria-por-materia` → merge `16fff06`). Evolui o painel
+  "📚 Domínio por matéria" do perfil de % bruta → **faixas** (Não iniciado→Iniciante→Aprendiz
+  →Praticante→Especialista→Mestre) por **volume de acertos + precisão sustentada** (2/2=100%
+  não vira domínio); **barra goal-gradient** ao próximo selo (reflete o fator mais atrasado);
+  resumo "X/8 dominadas". `config MAESTRIA_FAIXAS`/`MAESTRIA_TIER_DOMINADA`,
+  `app/services/MaestriaService.php`, `tools/verificar_maestria.php` (32 asserts).
+- **Missões da semana** (`feat/missoes-semanais` → merge `37704bd`). Painel "🎯 Missões da
+  semana" no perfil: **3 metas rotativas/semana** (pool sorteado determinístico pela data),
+  progresso na **semana ISO** corrente (`YEARWEEK(col,3)`), ✓ dourado ao concluir, "X/3
+  concluídas". `config MISSOES_SEMANAIS`/`MISSOES_POR_SEMANA`, `MissaoService` (seleção/
+  avaliação puras), `RespostaLog::metricasSemana` + `ProgressoFase::fasesSemana`,
+  `tools/verificar_missoes.php` (33 asserts). **NÃO dá recompensa material** (de propósito:
+  recompensa exigiria persistência/migration/economia).
+
+**Para retomar / pendências:**
+- **Deploy:** maestria + missões NÃO publicadas em produção (algorithmia.tars.art.br). Não
+  exigem migration própria, mas o deploy ainda precisa rodar `php database/migrate.php` (dedupe
+  da loja da rodada anterior).
+- **Verificação de faixas/missões** exige dados na conta; foi feita injetando respostas no
+  personagem demo (pers5 = masterboss/Boss Explorer) e **revertendo** — banco fica intacto.
+- **Próximas opções de mecânica:** ligas/cohorts (exigem cron/reset — bloqueio técnico real),
+  maestria horizontal pós-nível, onboarding com progresso dotado. Streak segue desaconselhado.
+- Memória viva: `~/.claude/projects/-Users-snows-AntiGravity-TrabalhoWillen2/memory/auditoria-ux-andamento.md`.
+
+---
+
 ## 🗓️ Sessão 2026-06-28 — Evolução de UX (apresentação) · na `main`
 
 **PR #1** (15 commits) **mergeado** na `main` (`576c5f5`); **PR #2** (recap semanal) na sequência.
