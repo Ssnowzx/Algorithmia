@@ -46,10 +46,10 @@
     display: grid; grid-template-columns: repeat(5, 1fr);
     height: calc(var(--barra-h) + env(safe-area-inset-bottom));
     padding-bottom: env(safe-area-inset-bottom);
-    background: linear-gradient(0deg,
-        color-mix(in oklab, var(--bg) 96%, #000),
-        color-mix(in oklab, var(--bg-2) 92%, transparent));
-    border-top: 1px solid color-mix(in oklab, var(--primaria) 30%, var(--borda));
+    /* translúcida (frosted): deixa o fundo aparecer, mantém legibilidade
+       mesmo com conteúdo rolando atrás da barra */
+    background: color-mix(in oklab, var(--bg) 55%, transparent);
+    border-top: 1px solid color-mix(in oklab, var(--primaria) 26%, transparent);
     backdrop-filter: blur(16px) saturate(1.2);
 }
 .nav-app .nav-item {
@@ -97,12 +97,12 @@
         display: flex; flex-direction: column; gap: .25rem;
         grid-template-columns: none;
         padding: 1rem .6rem;
-        background: linear-gradient(180deg,
-            color-mix(in oklab, var(--bg-2) 94%, transparent),
-            color-mix(in oklab, var(--bg) 96%, #000));
+        /* TRANSPARENTE: deixa o fundo cósmico (estrelas/gradiente) aparecer
+           atrás do rail. Só uma borda sutil marca a divisão. */
+        background: transparent;
         border-top: none;
-        border-right: 1px solid color-mix(in oklab, var(--primaria) 24%, var(--borda));
-        backdrop-filter: blur(14px) saturate(1.1);
+        border-right: 1px solid color-mix(in oklab, var(--primaria) 14%, transparent);
+        backdrop-filter: none;
         overflow-y: auto;
     }
     .nav-app .nav-item {

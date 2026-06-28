@@ -33,9 +33,9 @@ body.pagina-mapa .topo {
 body.pagina-mapa .topo::before {
     background: linear-gradient(90deg, transparent, rgba(140,230,255,.55) 15%, rgba(255,206,71,.65) 50%, rgba(140,230,255,.55) 85%, transparent);
 }
-body.pagina-mapa .marca { max-width: min(46vw, 220px); }
+body.pagina-mapa .marca { max-width: min(46vw, 240px); }
 body.pagina-mapa .logo-marca-header {
-    height: 34px;
+    height: clamp(48px, 6vw, 68px); /* alinhado à logo maior do header global */
     filter: drop-shadow(0 0 10px rgba(124, 92, 255, .35)) drop-shadow(0 3px 8px rgba(0, 0, 0, .35));
 }
 body.pagina-mapa .hud-placa {
