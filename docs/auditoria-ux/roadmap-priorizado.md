@@ -8,6 +8,13 @@ Legenda de risco: 🟢 **seguro/baixo-risco** (CSS/PHP aditivo, zero ou pouco di
 markup/layout** (risco moderado, validar no protótipo) · 🔴 **muda arquitetura/pipeline** (esforço alto,
 depende de validação ou de outro item).
 
+> **STATUS 2026-06-28 — IMPLEMENTADO na `main`** (PR #1/#2; change OpenSpec
+> `evolucao-ux-apresentacao`): toda a frente de **apresentação** das Ondas 0 e 1 + o right-size
+> de imagens (Onda 2 perf) + gamificação visual/endowed-progress + recap semanal. O que NÃO
+> foi feito (fora do escopo "sem dinâmica"): ligas/cohorts no ranking, streak, maestria
+> horizontal e onboarding com progresso dotado no fluxo — itens de **mecânica/dinâmica**, a
+> decidir explicitamente numa próxima etapa.
+
 ---
 
 ## Ordem de execução sugerida (pragmática)
