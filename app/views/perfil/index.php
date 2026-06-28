@@ -179,6 +179,40 @@ $classe = CLASSES[$heroi['classe']] ?? [];
     </div>
 </div>
 
+<?php $regioes = $regioes ?? []; if (!empty($regioes)): ?>
+<?php
+    $regDominadas = RegiaoService::totalDominadas($regioes);
+    $regTotal = count($regioes);
+    $regLenda = RegiaoService::tituloLenda($regioes);
+?>
+<div class="painel dominio-regioes">
+    <div class="regioes-cabecalho">
+        <h3 class="regioes-titulo">🏰 Domínio das Regiões</h3>
+        <?php if ($regLenda !== ''): ?>
+            <span class="regioes-lenda" title="Você dominou todas as regiões">👑 <?= e($regLenda) ?></span>
+        <?php else: ?>
+            <span class="regioes-resumo"><?= $regDominadas ?>/<?= $regTotal ?> dominadas</span>
+        <?php endif; ?>
+    </div>
+    <div class="regioes-lista">
+        <?php foreach ($regioes as $rg): ?>
+            <?php $fx = $rg['faixa']; ?>
+            <div class="regiao is-<?= e($fx['chave']) ?>" style="--r-cor: <?= e($rg['cor_tema']) ?>">
+                <div class="regiao-topo">
+                    <span class="regiao-nome"><?= e($rg['regiao']) ?></span>
+                    <span class="regiao-faixa"><?= $fx['dominada'] ? '👑 ' : '' ?><?= e($fx['rotulo']) ?></span>
+                </div>
+                <div class="regiao-meta">
+                    <span class="regiao-num"><?= (int) $fx['concluidas'] ?>/<?= (int) $fx['total'] ?> fases · <?= (int) $fx['estrelas'] ?>/<?= (int) $fx['max_estrelas'] ?> ★</span>
+                    <span class="regiao-dica"><?= e($fx['dica']) ?></span>
+                </div>
+                <div class="trilha regiao-trilha"><div class="preenche" style="width:<?= (int) $fx['pct'] ?>%"></div></div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+</div>
+<?php endif; ?>
+
 <h2 class="titulo-secao" style="margin-top:1.6rem">🏅 Conquistas (<?= count($obtidas) ?>/<?= count($conquistas) ?>)</h2>
 <div class="grade-itens">
     <?php foreach ($conquistas as $c): ?>
