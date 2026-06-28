@@ -189,6 +189,21 @@ const MISSOES_SEMANAIS = [
 ];
 const MISSOES_POR_SEMANA = 3;
 
+// Domínio das regiões (maestria HORIZONTAL): perfeição da jornada por mestre.
+// Read-only, derivado de fases + progresso_fases (estrelas; 3 = sem erro e sem
+// IA). Estados em ordem crescente de domínio. A cor base de cada região é a
+// cor_tema do mestre (inline); o estado modula no CSS (Dominada = ouro; A
+// explorar = apagado). Fonte única p/ RegiaoService + view do perfil.
+const REGIAO_FAIXAS = [
+    'a_explorar'  => ['rotulo' => 'A explorar',  'cor' => 'inerte'],
+    'em_jornada'  => ['rotulo' => 'Em jornada',  'cor' => 'jornada'],
+    'conquistada' => ['rotulo' => 'Conquistada', 'cor' => 'conquistada'],
+    'dominada'    => ['rotulo' => 'Dominada',    'cor' => 'dominada'],
+];
+// Título exibido quando TODAS as regiões estão dominadas (ressoa com o subtítulo
+// "A Lenda dos Cinco Mestres").
+const REGIAO_TITULO_LENDA = 'Mestre dos Cinco';
+
 // Anti-repetição: cada fase tem um POOL de desafios maior do que o sorteado por
 // batalha. A cada início de combate, sorteia-se N do pool priorizando os ainda
 // não vistos pelo personagem (via respostas_log), e os N são ordenados por

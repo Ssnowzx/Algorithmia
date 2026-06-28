@@ -41,6 +41,9 @@ class PerfilController extends Controller
             // Missões da semana ISO corrente (read-only, sem recompensa/persistência):
             // metas de curto prazo derivadas da atividade da semana.
             'missoes' => MissaoService::daSemana((int) $heroi['id']),
+            // Domínio das regiões (maestria horizontal): perfeição da jornada por
+            // mestre (fases concluídas + estrelas). Read-only, sem migration.
+            'regioes' => RegiaoService::dominio((int) $heroi['id']),
         ]);
     }
 }
