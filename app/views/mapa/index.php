@@ -18,6 +18,12 @@ $iconePorTipo = [
             <?= (int) $concluidas ?> / <?= (int) $totalFases ?> fases concluídas ·
             <span style="color:var(--xp)">★ <?= (int) $totalEstrelas ?> estrelas</span>
         </p>
+        <?php $pctMapa = $totalFases > 0 ? round($concluidas / $totalFases * 100) : 0; ?>
+        <div class="mapa-barra-progresso" role="progressbar"
+             aria-valuenow="<?= (int) $concluidas ?>" aria-valuemin="0" aria-valuemax="<?= (int) $totalFases ?>"
+             aria-label="Progresso da jornada: <?= $pctMapa ?>%">
+            <div class="mapa-barra-fill" style="width: <?= $pctMapa ?>%"></div>
+        </div>
     </div>
 
     <?php foreach ($regioes as $chaveRegiao => $regiao): ?>
