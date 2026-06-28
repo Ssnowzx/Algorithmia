@@ -6,6 +6,19 @@
 class HistoriaController extends Controller
 {
     /**
+     * Página ilustrada da lore do jogo (o mundo, os cinco mestres, as classes e
+     * o vilão). É um documento autossuficiente, então renderiza sem o layout do
+     * app. Pública: não exige login (é a "vitrine" da história).
+     */
+    public function lore(): void
+    {
+        $this->view('historia/lore', [
+            'pageTitle'  => 'A História de Algorithmia',
+            '_semLayout' => true,
+        ]);
+    }
+
+    /**
      * Mostra o diálogo de abertura de uma fase. Em seguida o jogador parte
      * para a batalha (fases de combate) ou conclui (fases de história).
      */

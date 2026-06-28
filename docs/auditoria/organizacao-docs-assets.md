@@ -169,6 +169,9 @@ A otimizacao WebP foi aplicada a `fundos/`, `atores/`, `mestres/`, `mapas/`, `ui
 
 **Acao:** Mover para `docs/historia.html` ou converter para `.md` se for documento de referencia, ou deletar se for protótipo obsoleto.
 
+> ✅ **Resolvido (2026-06-28):** convertido em rota MVC — `historia/lore`
+> (`HistoriaController::lore` → `app/views/historia/lore.php`). Não fica mais solto na raiz.
+
 ---
 
 ### 13. `.DS_Store` nao rastreados mas presentes no disco

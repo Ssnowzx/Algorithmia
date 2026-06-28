@@ -1,7 +1,7 @@
 # 📖 Roteiro Narrativo — Refino da História de Algorithmia
 
 > Documento de **aprovação**. Tudo aqui é **conteúdo de texto** (falas) que vira linhas
-> em `database/seeds.sql` (`dialogos`/`conquistas`) e trechos de `historia.html`.
+> em `database/seeds.sql` (`dialogos`/`conquistas`) e trechos de `app/views/historia/lore.php`.
 > **Não** altera fases, regiões, arte, mecânica de batalha nem os três finais.
 > Tom: ácido/autoconsciente (sabor), mantendo as explicações dos desafios sempre corretas.
 >
@@ -15,7 +15,7 @@
 ## 🧬 Os Povos de Algorithmia — origem das 6 classes
 
 > Lore das classes jogáveis (`config.php` → `CLASSES`). Destino sugerido: seção nova "Os Heróis"
-> em `historia.html` + descrição expandida na tela *Criar herói*. Cada povo tem uma **relação
+> em `app/views/historia/lore.php` + descrição expandida na tela *Criar herói*. Cada povo tem uma **relação
 > própria com o Fragmento/IA** — o que faz a escolha de classe conversar com a mecânica de reputação.
 
 ### 👤 Humanos — os nativos da Vila Hello World *(mago · guerreiro · ranger)*
@@ -158,7 +158,7 @@ escolha em aberto. A IA te trouxe para repetir ou redimir a história dele.
 🆕 `antes`, `padrao` (fecho do beat, ainda antes da fala 4 do Narrador):
 > **Lorde Segfault:** *Então decide, espelho: você vai virar o que eu sou… ou provar que eu poderia ter sido outra coisa?*
 
-> 💡 Pagamento nos epílogos (`historia.html` + tela de final): cada final responde a essa
+> 💡 Pagamento nos epílogos (`app/views/historia/lore.php` + tela de final): cada final responde a essa
 > pergunta — **Sexto Mestre** = "eu poderia ter sido outra coisa"; **Singularidade** = "eu viro
 > o que ele é"; **Copiloto** = "eu reescrevo a pergunta". (Ajustes de 1 frase por card, abaixo.)
 
@@ -203,7 +203,7 @@ para o Eco do Cesar, que é a própria fase 26 (Camada C cobre o reforço dele).
 
 ---
 
-## ✨ Ajustes finos em `historia.html` (epílogos respondem ao "espelho")
+## ✨ Ajustes finos em `app/views/historia/lore.php` (epílogos respondem ao "espelho")
 
 Acréscimo de 1 frase por card de final, fechando a pergunta do Segfault ("vai virar o que eu sou,
 ou provar que eu poderia ter sido outra coisa?"):
@@ -223,7 +223,7 @@ E no bloco **"O Mundo de Algorithmia"**, uma linha nova de gancho da amnésia:
 |---|---|
 | `database/seeds.sql` → `dialogos` | ~24 linhas novas (Voz, Logs, amnésia, Ecos) + 2 ✏️ ajustes; 1 novo falante `O Fragmento` e `Log Recuperado [Zero]` |
 | `database/seeds.sql` → `conquistas` | +1 secreta: `arquivista_do_vazio` |
-| `historia.html` | +3 frases nos finais, +1 linha de lore |
+| `app/views/historia/lore.php` | +3 frases nos finais, +1 linha de lore |
 | Código PHP | **nenhuma** mudança obrigatória (o sistema de `dialogos` já suporta novos falantes/variantes; conquista nova só precisa do gatilho — ver nota) |
 
 > ⚠️ **Nota de gatilho da conquista:** `arquivista_do_vazio` precisa ser concedida ao concluir as

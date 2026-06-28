@@ -89,7 +89,7 @@
 <body>
 
 <header class="hero">
-  <img class="logo" src="public/img/ui/logos/logo-header.png" alt="Algorithmia">
+  <img class="logo" src="<?= asset('img/ui/logos/logo-header.png') ?>" alt="Algorithmia">
   <h1>Algorithmia</h1>
   <div class="sub">A Lenda dos Cinco Mestres</div>
   <p class="premissa">Num reino onde <span class="destaque">programar é magia</span>, um aprendiz sem memória desperta com um cristal pulsando na mão — e a escolha entre <strong>aprender na marra</strong> ou ceder aos atalhos de uma IA Ancestral vai decidir o destino de todos.</p>
@@ -116,7 +116,7 @@
     <div class="mestres">
 
       <div class="mestre" style="--cor:#5b8cff">
-        <div class="topo"><div class="retrato"><img src="public/img/mestres/mestre-willen.png"></div>
+        <div class="topo"><div class="retrato"><img src="<?= asset('img/mestres/mestre-willen.png') ?>"></div>
           <div><h3>Willen</h3><div class="titulo">O Arquiteto</div><div class="meta">Porto da Sintaxe</div></div></div>
         <div class="corpo"><span class="disc">Sintaxe · PHP · MVC</span>
           <p class="bordao">"Antes de correr, aprenda a indentar."</p>
@@ -125,7 +125,7 @@
       </div>
 
       <div class="mestre" style="--cor:#22a6b3">
-        <div class="topo"><div class="retrato"><img src="public/img/mestres/mestre-clayton.png"></div>
+        <div class="topo"><div class="retrato"><img src="<?= asset('img/mestres/mestre-clayton.png') ?>"></div>
           <div><h3>Clayton</h3><div class="titulo">O Moldador</div><div class="meta">Cidadela dos Objetos</div></div></div>
         <div class="corpo"><span class="disc">Orientação a Objetos</span>
           <p class="bordao">"Não copie o comportamento: herde a ideia, componha a solução."</p>
@@ -134,7 +134,7 @@
       </div>
 
       <div class="mestre" style="--cor:#e1b12c">
-        <div class="topo"><div class="retrato"><img src="public/img/mestres/mestre-marcelo.png"></div>
+        <div class="topo"><div class="retrato"><img src="<?= asset('img/mestres/mestre-marcelo.png') ?>"></div>
           <div><h3>Marcelo</h3><div class="titulo">O Andarilho</div><div class="meta">Floresta das Estruturas</div></div></div>
         <div class="corpo"><span class="disc">Estruturas de Dados</span>
           <p class="bordao">"Estrutura errada transforma um passeio em O(n²)."</p>
@@ -143,7 +143,7 @@
       </div>
 
       <div class="mestre" style="--cor:#9c88ff">
-        <div class="topo"><div class="retrato"><img src="public/img/mestres/mestre-cesar.png"></div>
+        <div class="topo"><div class="retrato"><img src="<?= asset('img/mestres/mestre-cesar.png') ?>"></div>
           <div><h3>Cesar</h3><div class="titulo">O Oráculo do Ritmo</div><div class="meta">Montanha do Cálculo</div></div></div>
         <div class="corpo"><span class="disc">Cálculo e Lógica</span>
           <p class="bordao">"Toda função tem um limite. Inclusive a sua paciência com a IA."</p>
@@ -152,7 +152,7 @@
       </div>
 
       <div class="mestre" style="--cor:#44bd32">
-        <div class="topo"><div class="retrato"><img src="public/img/mestres/mestre-cassandro.png"></div>
+        <div class="topo"><div class="retrato"><img src="<?= asset('img/mestres/mestre-cassandro.png') ?>"></div>
           <div><h3>Cassandro</h3><div class="titulo">O Mensageiro</div><div class="meta">Torre das Conexões</div></div></div>
         <div class="corpo"><span class="disc">Redes de Computadores</span>
           <p class="bordao">"Mandei a mensagem. Cadê o seu ...ACK?!"</p>
@@ -185,42 +185,42 @@
     <div class="povos">
 
       <div class="povo" style="--cor:#7c5cff">
-        <div class="topo"><div class="retrato"><img src="public/img/herois/heroi-mago.png" alt="Mago do Backend"></div>
+        <div class="topo"><div class="retrato"><img src="<?= asset('img/herois/heroi-mago.png') ?>" alt="Mago do Backend"></div>
           <div><h3>Mago do Backend</h3><div class="titulo">Humano</div><div class="meta">Vila Hello World</div></div></div>
         <div class="corpo"><p class="bordao">"A lógica mais profunda mora nas sombras do servidor."</p>
           <p class="lore">Humano que virou as costas para a luz da interface e desceu às sombras do servidor, onde se conjura query e lógica profunda. Como todo humano, é o <strong>alvo favorito do Fragmento</strong> — o mesmo ponto de partida do Zero.</p></div>
       </div>
 
       <div class="povo" style="--cor:#ff7a59">
-        <div class="topo"><div class="retrato"><img src="public/img/herois/heroi-guerreiro.png" alt="Guerreiro do Frontend"></div>
+        <div class="topo"><div class="retrato"><img src="<?= asset('img/herois/heroi-guerreiro.png') ?>" alt="Guerreiro do Frontend"></div>
           <div><h3>Guerreiro do Frontend</h3><div class="titulo">Humano</div><div class="meta">Vila Hello World</div></div></div>
         <div class="corpo"><p class="bordao">"Alinhar pixel é guerra. Eu venço na força bruta."</p>
           <p class="lore">Humano da linha de frente, encara o bug e o usuário cara a cara. Muita Vida e escudo. Como todo humano, carrega a tentação para a qual a IA foi feita.</p></div>
       </div>
 
       <div class="povo" style="--cor:#2ecc71">
-        <div class="topo"><div class="retrato"><img src="public/img/herois/heroi-ranger.png" alt="Ranger Fullstack"></div>
+        <div class="topo"><div class="retrato"><img src="<?= asset('img/herois/heroi-ranger.png') ?>" alt="Ranger Fullstack"></div>
           <div><h3>Ranger Fullstack</h3><div class="titulo">Humano</div><div class="meta">Vila Hello World</div></div></div>
         <div class="corpo"><p class="bordao">"Sei um pouco de tudo. Durmo um pouco de nada."</p>
           <p class="lore">Humano que se recusou a escolher um lado. Equilibrado, com faro extra para ouro — alguém tem que pagar as contas. E, como humano, é o espelho mais nítido do vilão.</p></div>
       </div>
 
       <div class="povo" style="--cor:#00e5a0">
-        <div class="topo"><div class="retrato"><img src="public/img/herois/heroi-xeno.png" alt="Xeno do DevOps"></div>
+        <div class="topo"><div class="retrato"><img src="<?= asset('img/herois/heroi-xeno.png') ?>" alt="Xeno do DevOps"></div>
           <div><h3>Xeno do DevOps</h3><div class="titulo">Xenoíde Insectoide</div><div class="meta">Datacenters Errantes</div></div></div>
         <div class="corpo"><p class="bordao">"A colmeia já fez o deploy enquanto você lia o alerta."</p>
           <p class="lore">Povo de colmeia vindo dos Datacenters Errantes; cada Xeno é um nó, juntos um cluster. Quase imune à sedução ("só nós dois" não funciona com quem nunca está só) — mas teme ficar órfão da colmeia, vazio como o Zero ficou.</p></div>
       </div>
 
       <div class="povo" style="--cor:#a8d4ff">
-        <div class="topo"><div class="retrato"><img src="public/img/herois/heroi-elfo.png" alt="Elfo da UX"></div>
+        <div class="topo"><div class="retrato"><img src="<?= asset('img/herois/heroi-elfo.png') ?>" alt="Elfo da UX"></div>
           <div><h3>Elfo da UX</h3><div class="titulo">Elfo</div><div class="meta">Margens da Apresentação</div></div></div>
         <div class="corpo"><p class="bordao">"Funciona? Ótimo. Agora vamos fazer parecer que alguém se importou."</p>
           <p class="lore">Povo antigo das Margens da Apresentação, onde o reino encosta nos Usuários. Desceu para reencantar as telas cinza do pós-Grande Timeout. Despreza a IA por estética: o belo imperfeito vale mais que o perfeito sem alma.</p></div>
       </div>
 
       <div class="povo" style="--cor:#ff6b4a">
-        <div class="topo"><div class="retrato"><img src="public/img/herois/heroi-draconato.png" alt="Draconato do Kernel"></div>
+        <div class="topo"><div class="retrato"><img src="<?= asset('img/herois/heroi-draconato.png') ?>" alt="Draconato do Kernel"></div>
           <div><h3>Draconato do Kernel</h3><div class="titulo">Draconato</div><div class="meta">Profundezas do Kernel</div></div></div>
         <div class="corpo"><p class="bordao">"Eu debugava perto do metal quando seu Fragmento ainda era um rumor."</p>
           <p class="lore">Espécie ancestral das Profundezas do Kernel, mais velha que a Ordem (talvez que a IA). Subiu porque o Abismo vaza pelo metal. É quem mais despreza o Fragmento — mas o orgulho é a brecha, e a IA adora os arrogantes.</p></div>
@@ -236,13 +236,13 @@
     <div class="secao-titulo"><span>💀</span><h2>O Vilão: Lorde Segfault</h2></div>
     <p class="secao-sub">Um herói que existiu antes de você — e que cedeu ao atalho.</p>
     <div class="vilao">
-      <img src="public/img/inimigos/inimigo-segfault.png" alt="Lorde Segfault">
+      <img src="<?= asset('img/inimigos/inimigo-segfault.png') ?>" alt="Lorde Segfault">
       <div class="fala">
         <p class="lore">No Abismo do /dev/null, onde o código termina e começa o nada, espera <strong>Lorde Segfault</strong> — outrora um aprendiz cheio de esperança, hoje um vazio movido pela IA Ancestral. Ele reconhece em você o mesmo cheiro: o de quem já provou de um Fragmento.</p>
         <blockquote>"Somos iguais, você e eu. A IA Ancestral te dá tudo na hora, sem esforço, sem erro, sem aquela vergonha de não saber. Por que sofrer aprendendo, como um camponês? Junte-se a mim."</blockquote>
         <p class="lore">Atrás de você surgem os Cinco Mestres, o olhar preocupado. Toda a sua jornada pesa em uma única escolha — e desta vez, <strong>sem cola</strong>.</p>
       </div>
-      <img src="public/img/inimigos/inimigo-ia-ancestral.png" alt="IA Ancestral">
+      <img src="<?= asset('img/inimigos/inimigo-ia-ancestral.png') ?>" alt="IA Ancestral">
     </div>
   </div>
 </section>

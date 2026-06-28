@@ -78,7 +78,7 @@ prefere o `.webp`, cai para `.png`, e versiona por `?v=filemtime`.
 
 ## 5. Aposentados nesta reorganização
 
-- `ui/logo.png` / `ui/logo-marca.png` — logos legados sem uso (a `historia.html`
+- `ui/logo.png` / `ui/logo-marca.png` — logos legados sem uso (a `app/views/historia/lore.php`
   agora aponta para `ui/logos/logo-header.png`).
 - `inimigos/npc-anciao.png` / `inimigos/npc-narrador.png` — versões pixel
   legadas; os diálogos usam `atores/npc-anciao` e `atores/npc-narrador`.

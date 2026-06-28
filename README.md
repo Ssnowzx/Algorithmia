@@ -60,8 +60,9 @@ Documentação completa: **[`docs/PROMPT-EVOLUCAO-VISUAL.md`](docs/PROMPT-EVOLUC
 ### 🏞️ Cenários — fundos ilustrados das regiões
 ![Cenários](docs/galeria/cenarios.png)
 
-> 📖 A **história completa** (lore, mestres, vilão e os três finais) está em
-> [`historia.html`](historia.html) — uma página ilustrada; abra no navegador.
+> 📖 A **história completa** (lore, mestres, vilão e os três finais) é uma página
+> ilustrada no jogo — rota `historia/lore` (`HistoriaController::lore` →
+> [`app/views/historia/lore.php`](app/views/historia/lore.php)).
 
 ---
 
@@ -94,15 +95,14 @@ TrabalhoWillen2/
 │   ├── css/                  # style.css, mapa.css, batalha.css (tema JRPG, responsivo)
 │   ├── js/                   # ui.js, app.js, dialogo.js, batalha.js (vanilla)
   │   └── img/                  # ui/ (logos botoes molduras icones trofeus) mestres/ fundos/ mapas/ herois/ inimigos/ itens/
-├── tools/                    # geradores pixel art (Python/Pillow): pixelart, bestiario, itens, cenarios
+├── tools/                    # utilitários por finalidade: arte/ fundo/ imagens/ pdf/ cinematicas/ diagnostico/ deploy/
 ├── docs/
 │   ├── PROMPT-EVOLUCAO-VISUAL.md  # ★ design system (estética, assets, CSS do mapa §5.1)
 │   ├── ARQUITETURA-IMAGENS.md     # pastas de public/img + resolução slug→caminho
 │   ├── REGRAS-DO-JOGO.md     # regras e balanceamento do jogo
 │   └── FLUXO-OPENSPEC.md     # fluxo de desenvolvimento spec-driven (Claude + Codex)
 ├── .cursor/rules/            # regras para agentes (ex.: mapa-pagina-aprovada.mdc)
-├── openspec/                 # specs e propostas de mudança (spec-driven)
-└── historia.html             # página da lore/história do jogo
+└── openspec/                 # specs e propostas de mudança (spec-driven)
 ```
 
 **Camadas**
