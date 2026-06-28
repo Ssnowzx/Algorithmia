@@ -30,19 +30,27 @@ section{padding:26px 0;border-top:1px solid rgba(42,51,95,.5);scroll-margin-top:
 .sec-tit .cont{color:var(--ouro);font-size:.85rem;font-weight:700}
 .sec-sub{color:var(--fraco);margin:.2rem 0 16px;font-size:.9rem}
 .grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
-figure{margin:0;background:var(--painel2);border:1px solid var(--borda);border-radius:12px;
-  overflow:hidden;transition:.15s}
+figure{margin:0;background:var(--painel2);border:1px solid var(--borda);border-radius:12px;overflow:hidden;transition:.15s}
 figure:hover{border-color:var(--roxo);transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,.45)}
-figure .tile{height:150px;display:flex;align-items:center;justify-content:center;
-  background:radial-gradient(circle at 50% 30%,#15183200,#0c0d1c);padding:8px}
+figure .tile{height:150px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 30%,#15183200,#0c0d1c);padding:8px}
 figure img{max-width:100%;max-height:100%;object-fit:contain;display:block}
-figcaption{padding:7px 9px;font-size:.72rem;color:var(--fraco);border-top:1px solid var(--borda);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+figcaption{padding:7px 9px;font-size:.72rem;color:var(--fraco);border-top:1px solid var(--borda);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hero{padding:40px 20px;text-align:center;background:linear-gradient(180deg,rgba(124,92,255,.10),transparent)}
 .hero h1{font-family:var(--titulo);font-size:2rem;margin:.2rem 0;color:#fff}
 .hero p{color:var(--fraco);margin:.2rem 0 0}
-.hero .cta{display:inline-block;margin-top:14px;padding:9px 16px;border-radius:999px;
-  background:color-mix(in srgb,var(--roxo) 26%,transparent);border:1px solid var(--roxo);color:#fff}
+.acoes{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:16px}
+.acoes a{padding:9px 16px;border-radius:999px;background:color-mix(in srgb,var(--roxo) 22%,transparent);
+  border:1px solid var(--roxo);color:#fff;font-size:.9rem}
+.acoes a.pdf{background:color-mix(in srgb,var(--ouro) 16%,transparent);border-color:var(--ouro);color:#ffe9a8}
+.acoes a:hover{filter:brightness(1.15)}
+/* Cinemáticas por região */
+.cine-reg{margin:0 0 22px;background:rgba(18,21,44,.5);border:1px solid var(--borda);border-radius:14px;padding:14px 16px}
+.cine-reg-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between;margin-bottom:12px}
+.cine-reg-top h3{font-family:var(--titulo);font-size:1.1rem;margin:0;color:#fff}
+.btnvid{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:999px;
+  background:radial-gradient(circle at 35% 30%,#ffe79a,var(--ouro));color:#0b0c1d;font-weight:700;
+  font-size:.85rem;border:1px solid color-mix(in srgb,var(--roxo) 50%,#0b0c1d)}
+.btnvid:hover{filter:brightness(1.08);transform:translateY(-1px)}
 footer{text-align:center;color:var(--fraco);padding:30px;border-top:1px solid var(--borda);font-size:.82rem}
 </style></head><body>
 <div class="topo"><div class="marca">
@@ -57,10 +65,14 @@ footer{text-align:center;color:var(--fraco);padding:30px;border-top:1px solid va
 <a href="#mapa">🗺️ Mapa — Regiões &amp; Fases</a>
 <a href="#atores">🎭 Atores de Diálogo</a>
 <a href="#ui">🧩 UI — Ícones, Botões, Molduras, Troféus</a>
-<a href="#cinematicas">🎬 Cinemáticas — Keyframes</a>
+<a href="#cinematicas">🎬 Cinemáticas — Intros das Fases</a>
 <a href="#evolucao">👾 Evolução — v1 Pixel Art</a>
 </div></div>
-<div class="hero"><h1>🎨 Códex Visual de Algorithmia</h1><p>Toda a arte do jogo em um só lugar — mestres, monstros, itens, cenários e a evolução visual.</p><a class="cta" href="app/views/historia/historia.html">📖 Ler a História ilustrada →</a></div>
+<div class="hero"><h1>🎨 Códex Visual de Algorithmia</h1><p>Toda a arte do jogo em um só lugar — mestres, monstros, itens, cenários e a evolução visual.</p>
+<div class="acoes"><a href="app/views/historia/historia.html">📖 Ler a História ilustrada</a>
+<a class="pdf" href="docs/Fases-e-Topicos-por-Mestre.pdf" target="_blank">📘 Códex dos Mestres (PDF)</a>
+<a class="pdf" href="docs/evolucao-visual/Evolucao-Visual.pdf" target="_blank">📗 Evolução Visual (PDF)</a>
+</div></div>
 <div class="wrap">
 <section id="marca"><div class="sec-tit"><h2>🪙 Marca &amp; Logos</h2><span class="cont">5 itens</span></div>
 <p class="sec-sub">A identidade visual do jogo.</p>
@@ -70,7 +82,8 @@ footer{text-align:center;color:var(--fraco);padding:30px;border-top:1px solid va
 <figure><div class="tile"><img loading="lazy" src="public/img/ui/logos/logo-marca-ilustrado.png" alt="logo-marca-ilustrado"></div><figcaption title="logo-marca-ilustrado">logo-marca-ilustrado</figcaption></figure>
 <figure><div class="tile"><img loading="lazy" src="public/img/ui/placeholder.png" alt="placeholder"></div><figcaption title="placeholder">placeholder</figcaption></figure>
 <figure><div class="tile"><img loading="lazy" src="public/img/ui/splash-cena.png" alt="splash-cena"></div><figcaption title="splash-cena">splash-cena</figcaption></figure>
-</div></section>
+</div>
+</section>
 <section id="mestres"><div class="sec-tit"><h2>⚔️ Os Cinco Mestres</h2><span class="cont">5 itens</span></div>
 <p class="sec-sub">Os professores que guardam cada região.</p>
 <div class="grade">
@@ -79,7 +92,8 @@ footer{text-align:center;color:var(--fraco);padding:30px;border-top:1px solid va
 <figure><div class="tile"><img loading="lazy" src="public/img/mestres/mestre-clayton.png" alt="mestre-clayton"></div><figcaption title="mestre-clayton">mestre-clayton</figcaption></figure>
 <figure><div class="tile"><img loading="lazy" src="public/img/mestres/mestre-marcelo.png" alt="mestre-marcelo"></div><figcaption title="mestre-marcelo">mestre-marcelo</figcaption></figure>
 <figure><div class="tile"><img loading="lazy" src="public/img/mestres/mestre-willen.png" alt="mestre-willen"></div><figcaption title="mestre-willen">mestre-willen</figcaption></figure>
-</div></section>
+</div>
+</section>
 <section id="herois"><div class="sec-tit"><h2>🧝 Heróis &amp; Classes</h2><span class="cont">13 itens</span></div>
 <p class="sec-sub">As 6 classes jogáveis (cartas, sprites e HUD).</p>
 <div class="grade">
@@ -96,7 +110,8 @@ footer{text-align:center;color:var(--fraco);padding:30px;border-top:1px solid va
 <figure><div class="tile"><img loading="lazy" src="public/img/herois/hud-mago.png" alt="hud-mago"></div><figcaption title="hud-mago">hud-mago</figcaption></figure>
 <figure><div class="tile"><img loading="lazy" src="public/img/herois/hud-ranger.png" alt="hud-ranger"></div><figcaption title="hud-ranger">hud-ranger</figcaption></figure>
 <figure><div class="tile"><img loading="lazy" src="public/img/herois/hud-xeno.png" alt="hud-xeno"></div><figcaption title="hud-xeno">hud-xeno</figcaption></figure>
-</div></section>
+</div>
+</section>
 <section id="bestiario"><div class="sec-tit"><h2>👹 Bestiário — Monstros</h2><span class="cont">23 itens</span></div>
 <p class="sec-sub">Cada inimigo é um erro de código corrompido.</p>
 <div class="grade">
@@ -123,7 +138,8 @@ footer{text-align:center;color:var(--fraco);padding:30px;border-top:1px solid va
 <figure><div class="tile"><img loading="lazy" src="public/img/inimigos/inimigo-sentinela.png" alt="inimigo-sentinela"></div><figcaption title="inimigo-sentinela">inimigo-sentinela</figcaption></figure>
 <figure><div class="tile"><img loading="lazy" src="public/img/inimigos/inimigo-serpente.png" alt="inimigo-serpente"></div><figcaption title="inimigo-serpente">inimigo-serpente</figcaption></figure>
 <figure><div class="tile"><img loading="lazy" src="public/img/inimigos/inimigo-slime.png" alt="inimigo-slime"></div><figcaption title="inimigo-slime">inimigo-slime</figcaption></figure>
-</div></section>
+</div>
+</section>
 <section id="itens"><div class="sec-tit"><h2>💍 Itens</h2><span class="cont">19 itens</span></div>
 <p class="sec-sub">Armas, escudos, acessórios e poções.</p>
 <div class="grade">
@@ -146,7 +162,8 @@ footer{text-align:center;color:var(--fraco);padding:30px;border-top:1px solid va
 <figure><div class="tile"><img loading="lazy" src="public/img/itens/item-pocao-hp2.webp" alt="item-pocao-hp2"></div><figcaption title="item-pocao-hp2">item-pocao-hp2</figcaption></figure>
 <figure><div class="tile"><img loading="lazy" src="public/img/itens/item-pocao-hp3.webp" alt="item-pocao-hp3"></div><figcaption title="item-pocao-hp3">item-pocao-hp3</figcaption></figure>
 <figure><div class="tile"><img loading="lazy" src="public/img/itens/item-pocao-mp.webp" alt="item-pocao-mp"></div><figcaption title="item-pocao-mp">item-pocao-mp</figcaption></figure>
-</div></section>
+</div>
+</section>
 <section id="cenarios"><div class="sec-tit"><h2>🏞️ Cenários &amp; Fundos</h2><span class="cont">9 itens</span></div>
 <p class="sec-sub">Os biomas e telas do reino.</p>
 <div class="grade">
@@ -159,7 +176,8 @@ footer{text-align:center;color:var(--fraco);padding:30px;border-top:1px solid va
 <figure><div class="tile"><img loading="lazy" src="public/img/fundos/fundo-porto.png" alt="fundo-porto"></div><figcaption title="fundo-porto">fundo-porto</figcaption></figure>
 <figure><div class="tile"><img loading="lazy" src="public/img/fundos/fundo-torre.png" alt="fundo-torre"></div><figcaption title="fundo-torre">fundo-torre</figcaption></figure>
 <figure><div class="tile"><img loading="lazy" src="public/img/fundos/fundo-vila.png" alt="fundo-vila"></div><figcaption title="fundo-vila">fundo-vila</figcaption></figure>
-</div></section>
+</div>
+</section>
 <section id="mapa"><div class="sec-tit"><h2>🗺️ Mapa — Regiões &amp; Fases</h2><span class="cont">37 itens</span></div>
 <p class="sec-sub">Emblemas das regiões e ícones das 35 fases.</p>
 <div class="grade">
@@ -200,14 +218,16 @@ footer{text-align:center;color:var(--fraco);padding:30px;border-top:1px solid va
 <figure><div class="tile"><img loading="lazy" src="public/img/mapas/fase-verdade-zero.png" alt="fase-verdade-zero"></div><figcaption title="fase-verdade-zero">fase-verdade-zero</figcaption></figure>
 <figure><div class="tile"><img loading="lazy" src="public/img/mapas/regiao-abismo.png" alt="regiao-abismo"></div><figcaption title="regiao-abismo">regiao-abismo</figcaption></figure>
 <figure><div class="tile"><img loading="lazy" src="public/img/mapas/regiao-hello-world.png" alt="regiao-hello-world"></div><figcaption title="regiao-hello-world">regiao-hello-world</figcaption></figure>
-</div></section>
+</div>
+</section>
 <section id="atores"><div class="sec-tit"><h2>🎭 Atores de Diálogo</h2><span class="cont">3 itens</span></div>
 <p class="sec-sub">Retratos usados nas cenas de história.</p>
 <div class="grade">
 <figure><div class="tile"><img loading="lazy" src="public/img/atores/npc-anciao.png" alt="npc-anciao"></div><figcaption title="npc-anciao">npc-anciao</figcaption></figure>
 <figure><div class="tile"><img loading="lazy" src="public/img/atores/npc-fragmento.png" alt="npc-fragmento"></div><figcaption title="npc-fragmento">npc-fragmento</figcaption></figure>
 <figure><div class="tile"><img loading="lazy" src="public/img/atores/npc-narrador.png" alt="npc-narrador"></div><figcaption title="npc-narrador">npc-narrador</figcaption></figure>
-</div></section>
+</div>
+</section>
 <section id="ui"><div class="sec-tit"><h2>🧩 UI — Ícones, Botões, Molduras, Troféus</h2><span class="cont">19 itens</span></div>
 <p class="sec-sub">Peças da interface.</p>
 <div class="grade">
@@ -230,32 +250,60 @@ footer{text-align:center;color:var(--fraco);padding:30px;border-top:1px solid va
 <figure><div class="tile"><img loading="lazy" src="public/img/ui/trofeus/troxeu-bronze.png" alt="troxeu-bronze"></div><figcaption title="troxeu-bronze">troxeu-bronze</figcaption></figure>
 <figure><div class="tile"><img loading="lazy" src="public/img/ui/trofeus/troxeu-ouro.png" alt="troxeu-ouro"></div><figcaption title="troxeu-ouro">troxeu-ouro</figcaption></figure>
 <figure><div class="tile"><img loading="lazy" src="public/img/ui/trofeus/troxeu-prata.png" alt="troxeu-prata"></div><figcaption title="troxeu-prata">troxeu-prata</figcaption></figure>
-</div></section>
-<section id="cinematicas"><div class="sec-tit"><h2>🎬 Cinemáticas — Keyframes</h2><span class="cont">21 itens</span></div>
-<p class="sec-sub">Os quadros-fonte das 7 intros narradas.</p>
-<div class="grade">
-<figure><div class="tile"><img loading="lazy" src="docs/cinematics/abismo-devnull/keyframes/cena-1-descida-abismo.png" alt="abismo-devnull/keyframes/cena-1-descida-abismo"></div><figcaption title="abismo-devnull/keyframes/cena-1-descida-abismo">abismo-devnull/keyframes/cena-1-descida-abismo</figcaption></figure>
-<figure><div class="tile"><img loading="lazy" src="docs/cinematics/abismo-devnull/keyframes/cena-2-lorde-vazio.png" alt="abismo-devnull/keyframes/cena-2-lorde-vazio"></div><figcaption title="abismo-devnull/keyframes/cena-2-lorde-vazio">abismo-devnull/keyframes/cena-2-lorde-vazio</figcaption></figure>
-<figure><div class="tile"><img loading="lazy" src="docs/cinematics/abismo-devnull/keyframes/cena-3-confronto-final.png" alt="abismo-devnull/keyframes/cena-3-confronto-final"></div><figcaption title="abismo-devnull/keyframes/cena-3-confronto-final">abismo-devnull/keyframes/cena-3-confronto-final</figcaption></figure>
-<figure><div class="tile"><img loading="lazy" src="docs/cinematics/cassandro/keyframes/cena-1-torre.png" alt="cassandro/keyframes/cena-1-torre"></div><figcaption title="cassandro/keyframes/cena-1-torre">cassandro/keyframes/cena-1-torre</figcaption></figure>
-<figure><div class="tile"><img loading="lazy" src="docs/cinematics/cassandro/keyframes/cena-2-cassandro-mensageiro.png" alt="cassandro/keyframes/cena-2-cassandro-mensageiro"></div><figcaption title="cassandro/keyframes/cena-2-cassandro-mensageiro">cassandro/keyframes/cena-2-cassandro-mensageiro</figcaption></figure>
-<figure><div class="tile"><img loading="lazy" src="docs/cinematics/cassandro/keyframes/cena-3-chamado-silenciado.png" alt="cassandro/keyframes/cena-3-chamado-silenciado"></div><figcaption title="cassandro/keyframes/cena-3-chamado-silenciado">cassandro/keyframes/cena-3-chamado-silenciado</figcaption></figure>
-<figure><div class="tile"><img loading="lazy" src="docs/cinematics/cesar/keyframes/cena-1-montanha.png" alt="cesar/keyframes/cena-1-montanha"></div><figcaption title="cesar/keyframes/cena-1-montanha">cesar/keyframes/cena-1-montanha</figcaption></figure>
-<figure><div class="tile"><img loading="lazy" src="docs/cinematics/cesar/keyframes/cena-2-cesar-oraculo.png" alt="cesar/keyframes/cena-2-cesar-oraculo"></div><figcaption title="cesar/keyframes/cena-2-cesar-oraculo">cesar/keyframes/cena-2-cesar-oraculo</figcaption></figure>
-<figure><div class="tile"><img loading="lazy" src="docs/cinematics/cesar/keyframes/cena-3-ameaca-distancia.png" alt="cesar/keyframes/cena-3-ameaca-distancia"></div><figcaption title="cesar/keyframes/cena-3-ameaca-distancia">cesar/keyframes/cena-3-ameaca-distancia</figcaption></figure>
-<figure><div class="tile"><img loading="lazy" src="docs/cinematics/clayton/keyframes/cena-1-entrada-cidadela.png" alt="clayton/keyframes/cena-1-entrada-cidadela"></div><figcaption title="clayton/keyframes/cena-1-entrada-cidadela">clayton/keyframes/cena-1-entrada-cidadela</figcaption></figure>
-<figure><div class="tile"><img loading="lazy" src="docs/cinematics/clayton/keyframes/cena-2-clayton-moldador.png" alt="clayton/keyframes/cena-2-clayton-moldador"></div><figcaption title="clayton/keyframes/cena-2-clayton-moldador">clayton/keyframes/cena-2-clayton-moldador</figcaption></figure>
-<figure><div class="tile"><img loading="lazy" src="docs/cinematics/clayton/keyframes/cena-3-praca-central.png" alt="clayton/keyframes/cena-3-praca-central"></div><figcaption title="clayton/keyframes/cena-3-praca-central">clayton/keyframes/cena-3-praca-central</figcaption></figure>
-<figure><div class="tile"><img loading="lazy" src="docs/cinematics/marcelo/keyframes/cena-1-floresta.png" alt="marcelo/keyframes/cena-1-floresta"></div><figcaption title="marcelo/keyframes/cena-1-floresta">marcelo/keyframes/cena-1-floresta</figcaption></figure>
-<figure><div class="tile"><img loading="lazy" src="docs/cinematics/marcelo/keyframes/cena-2-marcelo-andarilho.png" alt="marcelo/keyframes/cena-2-marcelo-andarilho"></div><figcaption title="marcelo/keyframes/cena-2-marcelo-andarilho">marcelo/keyframes/cena-2-marcelo-andarilho</figcaption></figure>
-<figure><div class="tile"><img loading="lazy" src="docs/cinematics/marcelo/keyframes/cena-3-dois-caminhos.png" alt="marcelo/keyframes/cena-3-dois-caminhos"></div><figcaption title="marcelo/keyframes/cena-3-dois-caminhos">marcelo/keyframes/cena-3-dois-caminhos</figcaption></figure>
+</div>
+</section>
+<section id="cinematicas"><div class="sec-tit"><h2>🎬 Cinemáticas — Intros das Fases</h2><span class="cont">21 itens</span></div>
+<p class="sec-sub">Keyframes das 7 intros — clique em ▶ para assistir o vídeo.</p>
+<div class="cine-reg"><div class="cine-reg-top"><h3>🌅 Terras de Hello World</h3>
+<a class="btnvid" href="public/video/cinematics/terras-hello-world.mp4" target="_blank">▶ Assistir o vídeo</a>
+</div><div class="grade">
 <figure><div class="tile"><img loading="lazy" src="docs/cinematics/terras-hello-world/keyframes/plano-1-despertar.png" alt="terras-hello-world/keyframes/plano-1-despertar"></div><figcaption title="terras-hello-world/keyframes/plano-1-despertar">terras-hello-world/keyframes/plano-1-despertar</figcaption></figure>
 <figure><div class="tile"><img loading="lazy" src="docs/cinematics/terras-hello-world/keyframes/plano-2-fragmento.png" alt="terras-hello-world/keyframes/plano-2-fragmento"></div><figcaption title="terras-hello-world/keyframes/plano-2-fragmento">terras-hello-world/keyframes/plano-2-fragmento</figcaption></figure>
 <figure><div class="tile"><img loading="lazy" src="docs/cinematics/terras-hello-world/keyframes/plano-3-panorama.png" alt="terras-hello-world/keyframes/plano-3-panorama"></div><figcaption title="terras-hello-world/keyframes/plano-3-panorama">terras-hello-world/keyframes/plano-3-panorama</figcaption></figure>
+</div></div>
+<div class="cine-reg"><div class="cine-reg-top"><h3>⚓ Porto da Sintaxe — Willen</h3>
+<a class="btnvid" href="public/video/cinematics/willen.mp4" target="_blank">▶ Assistir o vídeo</a>
+</div><div class="grade">
 <figure><div class="tile"><img loading="lazy" src="docs/cinematics/willen/keyframes/cena-1-chegada-porto.png" alt="willen/keyframes/cena-1-chegada-porto"></div><figcaption title="willen/keyframes/cena-1-chegada-porto">willen/keyframes/cena-1-chegada-porto</figcaption></figure>
 <figure><div class="tile"><img loading="lazy" src="docs/cinematics/willen/keyframes/cena-2-willen-arquiteto.png" alt="willen/keyframes/cena-2-willen-arquiteto"></div><figcaption title="willen/keyframes/cena-2-willen-arquiteto">willen/keyframes/cena-2-willen-arquiteto</figcaption></figure>
 <figure><div class="tile"><img loading="lazy" src="docs/cinematics/willen/keyframes/cena-3-panorama-porto.png" alt="willen/keyframes/cena-3-panorama-porto"></div><figcaption title="willen/keyframes/cena-3-panorama-porto">willen/keyframes/cena-3-panorama-porto</figcaption></figure>
-</div></section>
+</div></div>
+<div class="cine-reg"><div class="cine-reg-top"><h3>🏛️ Cidadela dos Objetos — Clayton</h3>
+<a class="btnvid" href="public/video/cinematics/clayton.mp4" target="_blank">▶ Assistir o vídeo</a>
+</div><div class="grade">
+<figure><div class="tile"><img loading="lazy" src="docs/cinematics/clayton/keyframes/cena-1-entrada-cidadela.png" alt="clayton/keyframes/cena-1-entrada-cidadela"></div><figcaption title="clayton/keyframes/cena-1-entrada-cidadela">clayton/keyframes/cena-1-entrada-cidadela</figcaption></figure>
+<figure><div class="tile"><img loading="lazy" src="docs/cinematics/clayton/keyframes/cena-2-clayton-moldador.png" alt="clayton/keyframes/cena-2-clayton-moldador"></div><figcaption title="clayton/keyframes/cena-2-clayton-moldador">clayton/keyframes/cena-2-clayton-moldador</figcaption></figure>
+<figure><div class="tile"><img loading="lazy" src="docs/cinematics/clayton/keyframes/cena-3-praca-central.png" alt="clayton/keyframes/cena-3-praca-central"></div><figcaption title="clayton/keyframes/cena-3-praca-central">clayton/keyframes/cena-3-praca-central</figcaption></figure>
+</div></div>
+<div class="cine-reg"><div class="cine-reg-top"><h3>🌲 Floresta das Estruturas — Marcelo</h3>
+<a class="btnvid" href="public/video/cinematics/marcelo.mp4" target="_blank">▶ Assistir o vídeo</a>
+</div><div class="grade">
+<figure><div class="tile"><img loading="lazy" src="docs/cinematics/marcelo/keyframes/cena-1-floresta.png" alt="marcelo/keyframes/cena-1-floresta"></div><figcaption title="marcelo/keyframes/cena-1-floresta">marcelo/keyframes/cena-1-floresta</figcaption></figure>
+<figure><div class="tile"><img loading="lazy" src="docs/cinematics/marcelo/keyframes/cena-2-marcelo-andarilho.png" alt="marcelo/keyframes/cena-2-marcelo-andarilho"></div><figcaption title="marcelo/keyframes/cena-2-marcelo-andarilho">marcelo/keyframes/cena-2-marcelo-andarilho</figcaption></figure>
+<figure><div class="tile"><img loading="lazy" src="docs/cinematics/marcelo/keyframes/cena-3-dois-caminhos.png" alt="marcelo/keyframes/cena-3-dois-caminhos"></div><figcaption title="marcelo/keyframes/cena-3-dois-caminhos">marcelo/keyframes/cena-3-dois-caminhos</figcaption></figure>
+</div></div>
+<div class="cine-reg"><div class="cine-reg-top"><h3>⛰️ Montanha do Cálculo — César</h3>
+<a class="btnvid" href="public/video/cinematics/cesar.mp4" target="_blank">▶ Assistir o vídeo</a>
+</div><div class="grade">
+<figure><div class="tile"><img loading="lazy" src="docs/cinematics/cesar/keyframes/cena-1-montanha.png" alt="cesar/keyframes/cena-1-montanha"></div><figcaption title="cesar/keyframes/cena-1-montanha">cesar/keyframes/cena-1-montanha</figcaption></figure>
+<figure><div class="tile"><img loading="lazy" src="docs/cinematics/cesar/keyframes/cena-2-cesar-oraculo.png" alt="cesar/keyframes/cena-2-cesar-oraculo"></div><figcaption title="cesar/keyframes/cena-2-cesar-oraculo">cesar/keyframes/cena-2-cesar-oraculo</figcaption></figure>
+<figure><div class="tile"><img loading="lazy" src="docs/cinematics/cesar/keyframes/cena-3-ameaca-distancia.png" alt="cesar/keyframes/cena-3-ameaca-distancia"></div><figcaption title="cesar/keyframes/cena-3-ameaca-distancia">cesar/keyframes/cena-3-ameaca-distancia</figcaption></figure>
+</div></div>
+<div class="cine-reg"><div class="cine-reg-top"><h3>🗼 Torre das Conexões — Cassandro</h3>
+<a class="btnvid" href="public/video/cinematics/cassandro.mp4" target="_blank">▶ Assistir o vídeo</a>
+</div><div class="grade">
+<figure><div class="tile"><img loading="lazy" src="docs/cinematics/cassandro/keyframes/cena-1-torre.png" alt="cassandro/keyframes/cena-1-torre"></div><figcaption title="cassandro/keyframes/cena-1-torre">cassandro/keyframes/cena-1-torre</figcaption></figure>
+<figure><div class="tile"><img loading="lazy" src="docs/cinematics/cassandro/keyframes/cena-2-cassandro-mensageiro.png" alt="cassandro/keyframes/cena-2-cassandro-mensageiro"></div><figcaption title="cassandro/keyframes/cena-2-cassandro-mensageiro">cassandro/keyframes/cena-2-cassandro-mensageiro</figcaption></figure>
+<figure><div class="tile"><img loading="lazy" src="docs/cinematics/cassandro/keyframes/cena-3-chamado-silenciado.png" alt="cassandro/keyframes/cena-3-chamado-silenciado"></div><figcaption title="cassandro/keyframes/cena-3-chamado-silenciado">cassandro/keyframes/cena-3-chamado-silenciado</figcaption></figure>
+</div></div>
+<div class="cine-reg"><div class="cine-reg-top"><h3>🕳️ O Abismo — Lorde Segfault</h3>
+<a class="btnvid" href="public/video/cinematics/abismo-devnull.mp4" target="_blank">▶ Assistir o vídeo</a>
+</div><div class="grade">
+<figure><div class="tile"><img loading="lazy" src="docs/cinematics/abismo-devnull/keyframes/cena-1-descida-abismo.png" alt="abismo-devnull/keyframes/cena-1-descida-abismo"></div><figcaption title="abismo-devnull/keyframes/cena-1-descida-abismo">abismo-devnull/keyframes/cena-1-descida-abismo</figcaption></figure>
+<figure><div class="tile"><img loading="lazy" src="docs/cinematics/abismo-devnull/keyframes/cena-2-lorde-vazio.png" alt="abismo-devnull/keyframes/cena-2-lorde-vazio"></div><figcaption title="abismo-devnull/keyframes/cena-2-lorde-vazio">abismo-devnull/keyframes/cena-2-lorde-vazio</figcaption></figure>
+<figure><div class="tile"><img loading="lazy" src="docs/cinematics/abismo-devnull/keyframes/cena-3-confronto-final.png" alt="abismo-devnull/keyframes/cena-3-confronto-final"></div><figcaption title="abismo-devnull/keyframes/cena-3-confronto-final">abismo-devnull/keyframes/cena-3-confronto-final</figcaption></figure>
+</div></div>
+</section>
 <section id="evolucao"><div class="sec-tit"><h2>👾 Evolução — v1 Pixel Art</h2><span class="cont">72 itens</span></div>
 <p class="sec-sub">A arte antiga (pixel art). O v2 atual está nas seções acima. Histórico completo em docs/evolucao-visual/.</p>
 <div class="grade">
@@ -331,7 +379,8 @@ footer{text-align:center;color:var(--fraco);padding:30px;border-top:1px solid va
 <figure><div class="tile"><img loading="lazy" src="docs/evolucao-visual/v1-pixel-art/ui/troxeu-bronze.png" alt="ui/troxeu-bronze"></div><figcaption title="ui/troxeu-bronze">ui/troxeu-bronze</figcaption></figure>
 <figure><div class="tile"><img loading="lazy" src="docs/evolucao-visual/v1-pixel-art/ui/troxeu-ouro.png" alt="ui/troxeu-ouro"></div><figcaption title="ui/troxeu-ouro">ui/troxeu-ouro</figcaption></figure>
 <figure><div class="tile"><img loading="lazy" src="docs/evolucao-visual/v1-pixel-art/ui/troxeu-prata.png" alt="ui/troxeu-prata"></div><figcaption title="ui/troxeu-prata">ui/troxeu-prata</figcaption></figure>
-</div></section>
+</div>
+</section>
 </div>
 <footer>Gerado por <code>tools/preview/gerar-galeria-imagens.py</code> · Algorithmia — A Lenda dos Cinco Mestres</footer>
 </body></html>
