@@ -32,6 +32,9 @@ class PerfilController extends Controller
             'totalEstrelas' => (new ProgressoFase())->totalEstrelas((int) $heroi['id']),
             // Progresso parcial das conquistas contáveis (goal-gradient na ficha).
             'progressoConquistas' => (new ConquistaService())->progressoParcial((int) $heroi['id'], (int) $heroi['nivel']),
+            // Recap dos últimos 7 dias (respostas/acertos/usos_ia + fases/estrelas).
+            'recapSemana' => $logModel->resumoSemana((int) $heroi['id'])
+                + (new ProgressoFase())->resumoSemana((int) $heroi['id']),
         ]);
     }
 }

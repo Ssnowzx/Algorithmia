@@ -57,4 +57,22 @@ class ProgressoFase extends Model
         $stmt->execute(['p' => $personagemId]);
         return (int) $stmt->fetchColumn();
     }
+
+    /**
+     * Resumo da última semana (7 dias) para o recap do perfil: fases
+     * concluídas/melhoradas e estrelas dessas fases. Read-only.
+     *
+     * @return array{fases:int,estrelas:int}
+     */
+    public function resumoSemana(int $personagemId): array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT COUNT(*) AS fases, COALESCE(SUM(estrelas), 0) AS estrelas
+             FROM progresso_fases
+             WHERE personagem_id = :p AND concluida_em >= (NOW() - INTERVAL 7 DAY)"
+        );
+        $stmt->execute(['p' => $personagemId]);
+        $r = $stmt->fetch() ?: [];
+        return ['fases' => (int) ($r['fases'] ?? 0), 'estrelas' => (int) ($r['estrelas'] ?? 0)];
+    }
 }
