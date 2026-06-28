@@ -1,0 +1,4 @@
+# Segredos e estado local — nunca commitar.
+.env
+.state.json
+*.log
