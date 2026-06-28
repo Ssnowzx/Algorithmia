@@ -122,7 +122,7 @@ reload do Apache. Tudo idempotente e nao-destrutivo.
 
 **v3 — Itens redesenhados + Seguranca**
 
-- Redesign dos 19 itens: objeto transparente, sem moldura (briefing v3: `docs/briefing-arte-v3.md`).
+- Redesign dos 19 itens: objeto transparente, sem moldura (briefing v3: `docs/arte/briefing-arte-v3.md`).
 - Lote de seguranca: CSRF completo, transacoes, UPDATE atomico.
 - Balanceamento: Elfo, especial das classes, triggers das conquistas.
 - Design system: `public/css/tokens.css` + componentes unificados de card/botao.

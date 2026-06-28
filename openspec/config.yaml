@@ -33,7 +33,7 @@ context: |
 rules:
   proposal:
     - Manter PHP puro + MVC + MySQL; sem framework nem dependências de runtime.
-    - Respeitar as regras em docs/REGRAS-DO-JOGO.md (ex.: a batalha só é vencida derrotando o inimigo).
+    - Respeitar as regras em docs/canon/REGRAS-DO-JOGO.md (ex.: a batalha só é vencida derrotando o inimigo).
     - Incluir uma seção "Fora de escopo".
   design:
     - Indicar em qual camada MVC a mudança entra (model / service / controller / view).

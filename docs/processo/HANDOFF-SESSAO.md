@@ -135,7 +135,7 @@ sessão — a reorganização das imagens e a remoção da moldura do título (v
 - **`public/img/ui/` subdividida** em `logos/`, `botoes/`, `molduras/`, `icones/`,
   `trofeus/` (raiz só com `splash-cena` e `placeholder`). A resolução por slug foi
   atualizada em `helpers.php` (`caminhoSvg`/`marcaHtml`) + views/CSS + geradores
-  `tools/`. **Doc canônica: [`docs/ARQUITETURA-IMAGENS.md`](ARQUITETURA-IMAGENS.md).**
+  `tools/`. **Doc canônica: [`docs/arte/ARQUITETURA-IMAGENS.md`](../arte/ARQUITETURA-IMAGENS.md).**
 - **Removidos (mortos):** `ui/logo.png`, `ui/logo-marca.png`,
   `inimigos/npc-anciao.png`, `inimigos/npc-narrador.png` (diálogos usam `atores/`).
 - **Título do mapa LIMPO:** removida a moldura ornamental (`border-image` do
@@ -182,6 +182,6 @@ Tela: **Mapa de Algorithmia** (`app/views/mapa/index.php` → `.mapa-cabecalho h
 - **Há mudanças não commitadas** desta sessão (reorg de imagens + título do mapa).
   Decidir com o usuário se commita (sugestão: um commit para a reorg de assets,
   outro para a remoção da moldura) e se faz **push/PR**.
-- Arquitetura de imagens: **`docs/ARQUITETURA-IMAGENS.md`** (mapa de pastas +
-  resolução slug→caminho). Estado de UI: `docs/STATUS-UI-ATUAL.md` e
+- Arquitetura de imagens: **`docs/arte/ARQUITETURA-IMAGENS.md`** (mapa de pastas +
+  resolução slug→caminho). Estado de UI: `docs/processo/STATUS-UI-ATUAL.md` e
   `openspec/changes/entrada-e-selecao-ux/`.

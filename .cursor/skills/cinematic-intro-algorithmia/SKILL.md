@@ -146,5 +146,5 @@ docs/cinematics/<slug>/
 
 ## Referência
 
-- Presets: [tools/cinematicas/cinematic_intro/presets/](../../tools/cinematicas/cinematic_intro/presets/)
-- Marca visual: [tools/cinematicas/cinematic_intro/marca_visual.py](../../tools/cinematicas/cinematic_intro/marca_visual.py)
+- Presets: [tools/cinematicas/cinematic_intro/presets/](../../../tools/cinematicas/cinematic_intro/presets/)
+- Marca visual: [tools/cinematicas/cinematic_intro/marca_visual.py](../../../tools/cinematicas/cinematic_intro/marca_visual.py)

@@ -4,9 +4,9 @@ Um **RPG educativo** estilo *Duolingo + JRPG*, desenvolvido em **PHP puro** com 
 
 > Projeto acadêmico (Laboratório de Programação II). Sistema novo, construído sobre o mesmo servidor MySQL do projeto anterior, sem frameworks — apenas PHP, PDO, HTML, CSS e JavaScript vanilla. Arte **100% ilustrada (v2)**, estilo cyber-fantasia: mestres e cenários como cartas/cenas, heróis e inimigos recortados (fundo transparente via `rembg`) e itens como cartas. O pixel art da v1 fica preservado só no histórico (`docs/evolucao-visual/v1-pixel-art/`).
 
-> **Design system (estética, assets, CSS):** [`docs/PROMPT-EVOLUCAO-VISUAL.md`](docs/PROMPT-EVOLUCAO-VISUAL.md)  
-> **Status visual atual (splash, home, seleção de personagens):** [`docs/STATUS-UI-ATUAL.md`](docs/STATUS-UI-ATUAL.md)  
-> **Arquitetura de imagens (pastas + resolução por slug):** [`docs/ARQUITETURA-IMAGENS.md`](docs/ARQUITETURA-IMAGENS.md)
+> **Design system (estética, assets, CSS):** [`docs/arte/PROMPT-EVOLUCAO-VISUAL.md`](docs/arte/PROMPT-EVOLUCAO-VISUAL.md)  
+> **Status visual atual (splash, home, seleção de personagens):** [`docs/processo/STATUS-UI-ATUAL.md`](docs/processo/STATUS-UI-ATUAL.md)  
+> **Arquitetura de imagens (pastas + resolução por slug):** [`docs/arte/ARQUITETURA-IMAGENS.md`](docs/arte/ARQUITETURA-IMAGENS.md)
 
 ---
 
@@ -43,10 +43,10 @@ Cada uso do **Fragmento da IA Ancestral** (que acerta um desafio automaticamente
 | Camada | Onde | Estilo |
 |--------|------|--------|
 | Mestres, fundos de região, ícones de fase | `public/img/mestres/`, `fundos/`, `mapas/` | Ilustração cyber-fantasia |
-| Splash/home e seleção de personagens | `public/img/ui/`, `public/img/herois/hud-*.png` | Cartas ilustradas fantasy-tech — ver `docs/STATUS-UI-ATUAL.md` |
+| Splash/home e seleção de personagens | `public/img/ui/`, `public/img/herois/hud-*.png` | Cartas ilustradas fantasy-tech — ver `docs/processo/STATUS-UI-ATUAL.md` |
 | Batalha/inventário/loja | `public/img/herois/heroi-*.png`, `inimigos/`, `itens/` | Ilustrações v2 — recortes transparentes (heróis/inimigos) e cartas (itens), via `rembg` |
 
-Documentação completa: **[`docs/PROMPT-EVOLUCAO-VISUAL.md`](docs/PROMPT-EVOLUCAO-VISUAL.md)** (paleta, tamanhos, CSS, checklist para IA).
+Documentação completa: **[`docs/arte/PROMPT-EVOLUCAO-VISUAL.md`](docs/arte/PROMPT-EVOLUCAO-VISUAL.md)** (paleta, tamanhos, CSS, checklist para IA).
 
 ### 👥 Personagens — os 5 Mestres (ilustrados) e 6 classes jogáveis
 ![Personagens](docs/galeria/personagens.png)
@@ -96,11 +96,7 @@ TrabalhoWillen2/
 │   ├── js/                   # ui.js, app.js, dialogo.js, batalha.js (vanilla)
   │   └── img/                  # ui/ (logos botoes molduras icones trofeus) mestres/ fundos/ mapas/ herois/ inimigos/ itens/
 ├── tools/                    # utilitários por finalidade: arte/ fundo/ imagens/ pdf/ cinematicas/ diagnostico/ deploy/
-├── docs/
-│   ├── PROMPT-EVOLUCAO-VISUAL.md  # ★ design system (estética, assets, CSS do mapa §5.1)
-│   ├── ARQUITETURA-IMAGENS.md     # pastas de public/img + resolução slug→caminho
-│   ├── REGRAS-DO-JOGO.md     # regras e balanceamento do jogo
-│   └── FLUXO-OPENSPEC.md     # fluxo de desenvolvimento spec-driven (Claude + Codex)
+├── docs/                     # arte/ canon/ processo/ desenvolvimento/ codex/ auditoria/ … (índice: docs/README.md)
 ├── .cursor/rules/            # regras para agentes (ex.: mapa-pagina-aprovada.mdc)
 └── openspec/                 # specs e propostas de mudança (spec-driven)
 ```
@@ -157,7 +153,7 @@ O projeto é PHP puro, sem dependências externas (não usa Composer), então ro
 
 1. **Envie os arquivos** para o host (FTP/Git). Aponte o *document root* para a **raiz do projeto** (onde está o `index.php`).
 2. **Banco de dados**: crie um MySQL no painel do host e configure as credenciais por variáveis de ambiente (`DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS`) ou editando os padrões em `config/db.php`.
-3. **Inicialize o banco** uma vez: rode `php database/migrate.php` via SSH (recomendado — popula tudo, inclusive as 157 perguntas, as questões de relacionar e o banco completo de desafios) **ou** importe pelo phpMyAdmin nesta ordem: `database/schema.sql` → `database/seeds.sql` → `database/banco-questoes.sql` → `database/relacionar.sql` → `database/desafios.sql`. Guia completo de VPS em [`docs/DEPLOY.md`](docs/DEPLOY.md).
+3. **Inicialize o banco** uma vez: rode `php database/migrate.php` via SSH (recomendado — popula tudo, inclusive as 157 perguntas, as questões de relacionar e o banco completo de desafios) **ou** importe pelo phpMyAdmin nesta ordem: `database/schema.sql` → `database/seeds.sql` → `database/banco-questoes.sql` → `database/relacionar.sql` → `database/desafios.sql`. Guia completo de VPS em [`docs/processo/DEPLOY.md`](docs/processo/DEPLOY.md).
 4. **Apache**: o `.htaccess` na raiz já faz o rewrite para o front controller. Em **Nginx**, direcione as requisições não-encontradas para `index.php`. O `BASE_URL` é detectado automaticamente, então funciona inclusive em subpastas.
 5. **HTTPS**: recomendado em produção (a sessão e o login se beneficiam de cookies seguros).
 
@@ -227,8 +223,8 @@ openspec --version
 | Arquivar | `/opsx:archive` | skill `openspec-archive-change` |
 | Ver estado (CLI) | `openspec list` · `openspec view` | (igual) |
 
-📖 Guia completo: **[`docs/FLUXO-OPENSPEC.md`](docs/FLUXO-OPENSPEC.md)** ·
-📜 Regras do jogo: **[`docs/REGRAS-DO-JOGO.md`](docs/REGRAS-DO-JOGO.md)**
+📖 Guia completo: **[`docs/processo/FLUXO-OPENSPEC.md`](docs/processo/FLUXO-OPENSPEC.md)** ·
+📜 Regras do jogo: **[`docs/canon/REGRAS-DO-JOGO.md`](docs/canon/REGRAS-DO-JOGO.md)**
 
 ---
 

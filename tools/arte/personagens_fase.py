@@ -3,7 +3,7 @@
 """
 NÃO USAR — recorte de ícones de mapa gera arte ruim.
 
-Regra do jogo (docs/PROMPT-EVOLUCAO-VISUAL.md §5.2):
+Regra do jogo (docs/arte/PROMPT-EVOLUCAO-VISUAL.md §5.2):
   • mapas/fase-*.png  → só nós do mapa (cenário incluso, OK)
   • inimigos/*.png    → inimigos no diálogo/batalha (pixel art, alpha nativo via tools/bestiario.py)
   • atores/*.png      → NPCs/mestres no diálogo (ilustração, alpha nativo na geração)

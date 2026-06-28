@@ -115,7 +115,7 @@ Abra PR apontando para `main`. Descreva o que muda e como testar.
 
 ## 7. Deploy (producao)
 
-Ver `docs/DEPLOY.md` para o fluxo completo de VPS Ubuntu/Apache.
+Ver `docs/processo/DEPLOY.md` para o fluxo completo de VPS Ubuntu/Apache.
 
 Resumo de update:
 ```bash

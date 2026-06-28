@@ -129,7 +129,7 @@ Banco
 ## Pipeline de assets
 
 ```
-[ ] Briefing consultado (docs/briefing-arte-v2.md ou v3.md)
+[ ] Briefing consultado (docs/arte/briefing-arte-v2.md ou v3.md)
 [ ] Slug planejado segue convencao (prefixo-descricao, lowercase-com-hifen)
 [ ] Para sprites (inimigos/herois/icones): recorte com tools/fundo/recortar_rembg.py
 [ ] WebP gerado (cwebp -q 90 entrada.png -o saida.webp)

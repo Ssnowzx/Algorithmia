@@ -28,8 +28,8 @@ O helper `caminhoSvg()` em `helpers.php` mapeia prefixo do slug para a subpasta 
 
 Antes de gerar, consulte o briefing de arte vigente:
 
-- `docs/briefing-arte-v2.md` — estilo geral, bib de paleta, tipografia proibida.
-- `docs/briefing-arte-v3.md` — correcao especifica dos itens (objeto transparente, sem moldura).
+- `docs/arte/briefing-arte-v2.md` — estilo geral, bib de paleta, tipografia proibida.
+- `docs/arte/briefing-arte-v3.md` — correcao especifica dos itens (objeto transparente, sem moldura).
 
 Regra de ouro: **fantasia epica fundida com tecnologia arcana**. Paleta:
 navy `#0b0c1d`, roxo `#7c5cff`/`#9d83ff`, ouro `#ffce47`, runa ciano `#8ce6ff`.

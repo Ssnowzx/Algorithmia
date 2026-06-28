@@ -57,7 +57,7 @@ public/img/
 
 **Mapas de região/fase:** `fundoRegiao()`, `iconeFaseMapa()`, `iconeRegiaoMapa()` no mesmo arquivo.
 
-**Status visual recente:** ver também `docs/STATUS-UI-ATUAL.md` para splash/home, seleção de personagem, cartas e assets aprovados.
+**Status visual recente:** ver também `docs/processo/STATUS-UI-ATUAL.md` para splash/home, seleção de personagem, cartas e assets aprovados.
 
 ---
 
@@ -264,7 +264,7 @@ Som: ver specs em `openspec/changes/som-e-juice-batalha/` (Web Audio procedural)
 - Mestres já aprovados — não regenerar sem pedido explícito
 - **UI da página do mapa (§5.1):** `fundo-mapa.png`, `icone-mapa.png`, `bodyClass pagina-mapa`, cards translúcidos
 - **Seleção de personagem (§7.1):** cartas com moldura integrada, painel externo ornamentado e botão final em imagem
-- Fluxo OpenSpec para mudanças grandes (`docs/FLUXO-OPENSPEC.md`)
+- Fluxo OpenSpec para mudanças grandes (`docs/processo/FLUXO-OPENSPEC.md`)
 
 ---
 
@@ -279,7 +279,7 @@ Som: ver specs em `openspec/changes/som-e-juice-batalha/` (Web Audio procedural)
 - [ ] Registrar slug em `helpers.php` se nova fase/região especial
 - [ ] Mapa (§5.1): manter `pagina-mapa`, `icone-mapa.png`, `fundo-mapa.png`, cards translúcidos
 - [ ] Diálogo (§5.2): palco usa `fundos/` + sprite com alpha (`inimigos/` ou `atores/`) — **nunca** `mapas/fase-*.png`
-- [ ] Splash/home/personagens (§7.1): seguir `docs/STATUS-UI-ATUAL.md`
+- [ ] Splash/home/personagens (§7.1): seguir `docs/processo/STATUS-UI-ATUAL.md`
 
 ---
 
@@ -292,7 +292,7 @@ Som: ver specs em `openspec/changes/som-e-juice-batalha/` (Web Audio procedural)
 | View do mapa | `app/views/mapa/index.php` |
 | Slugs de fundo/ícone | `app/core/helpers.php` |
 | UI página mapa (§5.1) | `MapaController.php`, `mapa.css` (`body.pagina-mapa`), `ui/icones/icone-mapa.png`, `fundos/fundo-mapa.png` |
-| Status visual atual | `docs/STATUS-UI-ATUAL.md` |
+| Status visual atual | `docs/processo/STATUS-UI-ATUAL.md` |
 | Seleção de personagem | `app/views/auth/criar-personagem.php`, `public/css/style.css`, `public/img/ui/molduras/moldura-selecao-classes.png`, `public/img/herois/hud-*.png` |
 | Geradores pixel art legado | `tools/arte/pixelart.py`, `tools/arte/cenarios.py` |
-| Regras de jogo | `docs/REGRAS-DO-JOGO.md` |
+| Regras de jogo | `docs/canon/REGRAS-DO-JOGO.md` |

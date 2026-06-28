@@ -5,7 +5,7 @@ player ao clicar no ícone da região (selo ▶). Formato 16:9, narração PT-BR
 `pm_santa`), ~30s.
 
 > **Como funciona / como regerar:** [`docs/desenvolvimento/cinematicas.md`](../desenvolvimento/cinematicas.md)
-> · **Roteiro da história:** [`docs/ROTEIRO-NARRATIVO.md`](../ROTEIRO-NARRATIVO.md)
+> · **Roteiro da história:** [`docs/canon/ROTEIRO-NARRATIVO.md`](../canon/ROTEIRO-NARRATIVO.md)
 > · Esta pasta guarda a **fonte** (keyframes + narração + manifest). O vídeo servido
 > pelo jogo fica em `public/video/cinematics/<slug>.mp4`.
 

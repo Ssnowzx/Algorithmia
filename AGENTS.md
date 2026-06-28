@@ -26,7 +26,7 @@ artesanal) + **PDO/MySQL**, sem Composer/dependências externas.
   o OPcache continua servindo o código antigo.
 
 > Dev local (Ubuntu/Apache, `php -S localhost:8001`) está documentado em
-> [`docs/DEPLOY.md`](docs/DEPLOY.md); produção usa `httpd`.
+> [`docs/processo/DEPLOY.md`](docs/processo/DEPLOY.md); produção usa `httpd`.
 
 ---
 
@@ -103,6 +103,6 @@ sudo systemctl restart httpd
 ## 📚 Onde ler antes de agir
 
 - [`CLAUDE.md`](CLAUDE.md) — convenções de código, nomenclatura, testes e git.
-- [`docs/DEPLOY.md`](docs/DEPLOY.md) — deploy (com a nota de `httpd`/cPanel).
+- [`docs/processo/DEPLOY.md`](docs/processo/DEPLOY.md) — deploy (com a nota de `httpd`/cPanel).
 - [`docs/desenvolvimento/`](docs/desenvolvimento/) — arquitetura, padrões, QA, releases.
 - [`README.md`](README.md) — visão geral e setup do banco.

@@ -81,7 +81,7 @@ PDO `EMULATE_PREPARES=false` (sem SQLi), `password_hash/verify`, `session_regene
 6. **Frontend:** **design system** (tokens + componente único de card/botão); fallback de `color-mix()`; corrigir fontes/a11y do `registro` e do form do mestre.
 
 ## 4) Débitos técnicos restantes
-IDs de fase hardcoded (acoplamento conteúdo↔código); ausência de testes automatizados; `schema.sql` e `migrations/` exigem disciplina manual de sincronização; itens da loja ainda no formato errado (redesign via [briefing-arte-v3](../briefing-arte-v3.md)); changes OpenSpec não arquivadas; docs em SCREAMING_CASE.
+IDs de fase hardcoded (acoplamento conteúdo↔código); ausência de testes automatizados; `schema.sql` e `migrations/` exigem disciplina manual de sincronização; itens da loja ainda no formato errado (redesign via [briefing-arte-v3](../arte/briefing-arte-v3.md)); changes OpenSpec não arquivadas; docs em SCREAMING_CASE.
 
 ## 5) Mudanças de arquitetura (propostas, não aplicadas)
 - **Camada transacional** nos services que fazem múltiplas escritas (Batalha/Loja/Inventário).

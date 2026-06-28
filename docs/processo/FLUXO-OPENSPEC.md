@@ -98,4 +98,4 @@ openspec archive <nome>  # arquiva uma mudança concluída
 - Antes de começar algo grande, rode `openspec list` para ver se já não há
   uma proposta aberta sobre o mesmo assunto.
 - Padrões de código do projeto continuam valendo: **PHP puro + MVC + MySQL**,
-  PHPDoc nas funções, nomes em português no domínio. Veja `docs/REGRAS-DO-JOGO.md`.
+  PHPDoc nas funções, nomes em português no domínio. Veja `docs/canon/REGRAS-DO-JOGO.md`.

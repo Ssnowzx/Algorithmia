@@ -1,6 +1,12 @@
 # Auditoria: Organização, Docs e Assets — Algorithmia
 
 > Data: 2026-06-18 | Branch: `refactor/auditoria-qualidade-producao` | Status: READ-ONLY
+>
+> 📌 **Snapshot histórico.** Vários achados aqui já foram resolvidos depois (2026-06-28):
+> `tools/` foi organizada em subpastas, `historia.html` virou rota MVC (`historia/lore`),
+> e os `.md` soltos da raiz de `docs/` foram agrupados em `arte/ canon/ processo/`.
+> Estrutura atual: [`docs/README.md`](../README.md). Os caminhos citados abaixo refletem
+> o estado de 18/06 e podem estar desatualizados.
 
 ---
 

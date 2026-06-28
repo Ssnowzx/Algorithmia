@@ -102,4 +102,4 @@ Determinados pela escolha final + reputação (`ReputacaoService::finalDetermina
 - **Padrões:** PHPDoc nas funções públicas; nomes de domínio em português;
   `declare(strict_types=1)` no PHP.
 - **Dois colaboradores, duas IAs:** o fluxo completo (Claude Code **e** Codex)
-  está em **[`docs/FLUXO-OPENSPEC.md`](FLUXO-OPENSPEC.md)**.
+  está em **[`docs/processo/FLUXO-OPENSPEC.md`](../processo/FLUXO-OPENSPEC.md)**.

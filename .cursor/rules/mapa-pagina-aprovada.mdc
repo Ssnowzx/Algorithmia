@@ -1,12 +1,12 @@
 ---
 description: UI aprovada da página do mapa — fundo, ícone do título e cards translúcidos. Não sobrescrever sem pedido explícito.
-globs: public/css/mapa.css,app/views/mapa/**,app/controllers/MapaController.php,public/img/fundos/fundo-mapa.png,public/img/ui/icone-mapa.png,docs/PROMPT-EVOLUCAO-VISUAL.md
+globs: public/css/mapa.css,app/views/mapa/**,app/controllers/MapaController.php,public/img/fundos/fundo-mapa.png,public/img/ui/icone-mapa.png,docs/arte/PROMPT-EVOLUCAO-VISUAL.md
 alwaysApply: false
 ---
 
 # Página do mapa-múndi — UI aprovada
 
-Leia **`docs/PROMPT-EVOLUCAO-VISUAL.md` §5.1** antes de editar estes arquivos.
+Leia **`docs/arte/PROMPT-EVOLUCAO-VISUAL.md` §5.1** antes de editar estes arquivos.
 
 ## Três peças distintas (não confundir)
 

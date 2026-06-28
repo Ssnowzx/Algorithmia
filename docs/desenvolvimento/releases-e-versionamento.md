@@ -26,7 +26,7 @@ feature/* ou fix/* ou refactor/*
       |  Testes manuais (qa-e-testes.md)
       |  Tag de versao
       v
-   Deploy VPS (docs/DEPLOY.md)
+   Deploy VPS (docs/processo/DEPLOY.md)
 ```
 
 ## Checklist de publicacao (release)
@@ -39,7 +39,7 @@ feature/* ou fix/* ou refactor/*
 [ ] Sem console.log em public/js/
 [ ] Sem var_dump / print_r no PHP
 [ ] Sem credenciais ou .env commitados
-[ ] docs/HANDOFF-SESSAO.md atualizado com o que mudou (se sessao relevante)
+[ ] docs/processo/HANDOFF-SESSAO.md atualizado com o que mudou (se sessao relevante)
 [ ] Se mudanca visual relevante: snapshot em docs/evolucao-visual/
 [ ] Deploy: git pull + php database/migrate.php + apache reload
 [ ] Verificar no navegador em producao
@@ -68,4 +68,4 @@ sudo -u www-data DB_HOST=127.0.0.1 DB_NAME=algorithmia \
 sudo systemctl reload apache2
 ```
 
-Para adicionar HTTPS depois: ver secao em `docs/DEPLOY.md`.
+Para adicionar HTTPS depois: ver secao em `docs/processo/DEPLOY.md`.

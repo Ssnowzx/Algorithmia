@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Símbolo e wordmark oficiais do Algorithmia.
-Paleta alinhada a :root em public/css/style.css e docs/PROMPT-EVOLUCAO-VISUAL.md
+Paleta alinhada a :root em public/css/style.css e docs/arte/PROMPT-EVOLUCAO-VISUAL.md
 """
 import os
 import urllib.request
