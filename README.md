@@ -48,6 +48,10 @@ Cada uso do **Fragmento da IA Ancestral** (que acerta um desafio automaticamente
 
 Documentação completa: **[`docs/arte/PROMPT-EVOLUCAO-VISUAL.md`](docs/arte/PROMPT-EVOLUCAO-VISUAL.md)** (paleta, tamanhos, CSS, checklist para IA).
 
+> 🖼️ **Galeria visual completa (offline, duplo-clique):** [`galeria.html`](galeria.html) na raiz —
+> toda a arte do jogo (mestres, monstros, itens, cenários, mapa, UI, cinemáticas, evolução)
+> num índice com menu. Gerada por `tools/preview/gerar-galeria-imagens.py` (rode para atualizar).
+
 ### 👥 Personagens — os 5 Mestres (ilustrados) e 6 classes jogáveis
 ![Personagens](docs/galeria/personagens.png)
 
