@@ -33,6 +33,7 @@ if ($heroi) {
     <link rel="stylesheet" href="<?= assetV('css/cena.css') ?>">
     <link rel="stylesheet" href="<?= assetV('css/mapa.css') ?>">
     <link rel="stylesheet" href="<?= assetV('css/batalha.css') ?>">
+    <link rel="stylesheet" href="<?= assetV('css/shell.css') ?>">
 </head>
 <body class="<?= e($bodyClass ?? '') ?>">
 <?php $temMolduraBarra = is_file(__DIR__ . '/../../../public/img/ui/molduras/moldura-barra-fina.png'); ?>
@@ -81,13 +82,8 @@ if ($heroi) {
             <button type="button" id="btnSom" class="btn-som" aria-label="Ligar ou desligar o som" title="Som">🔊</button>
             <input type="range" id="volSom" class="som-volume" min="0" max="1" step="0.05" value="0.6" aria-label="Volume do som">
         </span>
-        <?php if ($heroi): ?>
-            <a href="<?= url('mapa') ?>"<?= $navAtual('mapa') ?>>Mapa</a>
-            <a href="<?= url('inventario') ?>"<?= $navAtual('inventario') ?>>Inventário</a>
-            <a href="<?= url('loja') ?>"<?= $navAtual('loja') ?>>Loja</a>
-            <a href="<?= url('perfil') ?>"<?= $navAtual('perfil') ?>>Perfil</a>
-            <a href="<?= url('ranking') ?>"<?= $navAtual('ranking') ?>>Ranking</a>
-        <?php endif; ?>
+        <?php /* Os 5 setores principais migraram para o rail/barra (.nav-app, abaixo).
+                 A top nav guarda só as ações utilitárias: Painel (mestre) e Sair. */ ?>
         <?php if ($ehMestre): ?>
             <a href="<?= url('mestre') ?>" class="link-mestre"<?= $navAtual('mestre') ?>>⚙ Painel</a>
         <?php endif; ?>
@@ -96,6 +92,30 @@ if ($heroi) {
         <?php endif; ?>
     </nav>
 </header>
+
+<?php if ($heroi): ?>
+<?php
+    // Navegação principal: rail à esquerda no desktop, barra inferior no mobile
+    // (posições aprovadas — docs/prototipo/). Ícones SVG inline + rótulo, com
+    // aria-current="page" no setor atual. Ações utilitárias (som/Painel/Sair)
+    // continuam na top bar.
+    $setores = [
+        ['mapa',       'Mapa',       '<path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2Z"/><path d="M9 3v16M15 5v16"/>'],
+        ['inventario', 'Inventário', '<path d="M4 9h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M4 9l1.5-4h13L20 9"/><path d="M10 13h4"/>'],
+        ['loja',       'Loja',       '<path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8a3 3 0 0 1 6 0"/>'],
+        ['perfil',     'Perfil',     '<circle cx="12" cy="8" r="3.2"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/>'],
+        ['ranking',    'Ranking',    '<path d="M8 4h8v4a4 4 0 0 1-8 0Z"/><path d="M8 6H5a2 2 0 0 0 2 3h1M16 6h3a2 2 0 0 1-2 3h-1"/><path d="M12 12v3M9 20h6l-.5-4h-5Z"/>'],
+    ];
+?>
+<nav class="nav-app" aria-label="Navegação principal">
+    <?php foreach ($setores as [$rota, $rotulo, $icone]): ?>
+        <a class="nav-item" href="<?= url($rota) ?>"<?= $navAtual($rota) ?>>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><?= $icone ?></svg>
+            <span><?= $rotulo ?></span>
+        </a>
+    <?php endforeach; ?>
+</nav>
+<?php endif; ?>
 
 <?php if ($heroi): ?>
 <?php
