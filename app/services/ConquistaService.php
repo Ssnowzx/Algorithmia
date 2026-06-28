@@ -122,6 +122,36 @@ class ConquistaService
         return $distintos >= 8 ? $this->conceder($personagemId, 'colecionador') : null;
     }
 
+    /**
+     * Progresso PARCIAL das conquistas contáveis e NÃO-secretas, calculado
+     * on-the-fly a partir das tabelas que já existem (inventário, nível) —
+     * sem dado novo, sem migration. Serve só para mostrar "X/Y" na ficha
+     * (goal-gradient / endowed progress) nas metas hoje 100% binárias.
+     * Usa as MESMAS fontes/alvos da concessão (single source of truth), com
+     * clamp atual<=alvo. Defensivo: qualquer falha devolve [] (a view só
+     * desenha a barra se a chave existir, então nunca quebra o perfil).
+     *
+     * Conquistas secretas (ex.: arquivista_do_vazio) NÃO entram aqui — não
+     * vazar progresso de segredo.
+     *
+     * @return array<string,array{atual:int,alvo:int}>
+     */
+    public function progressoParcial(int $personagemId, int $nivel): array
+    {
+        try {
+            $itensDistintos = count((new Inventario())->doPersonagem($personagemId));
+            $passo = static fn (int $atual, int $alvo): array =>
+                ['atual' => max(0, min($atual, $alvo)), 'alvo' => $alvo];
+            return [
+                'colecionador'      => $passo($itensDistintos, 8),  // 8 itens distintos
+                'aprendiz_veterano' => $passo($nivel, 5),           // nível 5
+                'lenda_viva'        => $passo($nivel, 10),          // nível 10
+            ];
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
     private function coletar(array &$lista, ?array $conquista): void
     {
         if ($conquista !== null) {

@@ -97,6 +97,17 @@ $classe = CLASSES[$heroi['classe']] ?? [];
             <div>
                 <strong><?= $secretaOculta ? '??? (Secreta)' : e($c['nome']) ?></strong>
                 <div class="subtitulo" style="font-size:.82rem;margin:0"><?= $secretaOculta ? 'Conquista secreta — descubra jogando.' : e($c['descricao']) ?></div>
+                <?php
+                    // Progresso parcial (X/Y) só em conquista contável, não-obtida e não-secreta.
+                    $pgc = (!$temConquista && !$secretaOculta) ? ($progressoConquistas[$c['codigo']] ?? null) : null;
+                ?>
+                <?php if ($pgc): ?>
+                    <?php $pgcPct = $pgc['alvo'] > 0 ? round($pgc['atual'] / $pgc['alvo'] * 100) : 0; ?>
+                    <div class="conquista-progresso">
+                        <div class="trilha"><div class="preenche" style="width:<?= $pgcPct ?>%"></div></div>
+                        <span class="conquista-progresso-txt"><?= (int) $pgc['atual'] ?>/<?= (int) $pgc['alvo'] ?></span>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     <?php endforeach; ?>

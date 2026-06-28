@@ -1634,3 +1634,19 @@ textarea { min-height: 90px; resize: vertical; }
         to   { transform: scaleX(1); }
     }
 }
+
+/* Progresso parcial das conquistas (X/Y) — endowed progress na ficha.
+   Auto-contido (não depende do escopo de .barra-stat). */
+.conquista-progresso { display: flex; align-items: center; gap: .5rem; margin-top: .4rem; }
+.conquista-progresso .trilha {
+    flex: 1; height: 8px; border-radius: 6px; overflow: hidden;
+    background: #0c0d1c; border: 1px solid color-mix(in oklab, var(--xp) 22%, var(--borda));
+}
+.conquista-progresso .preenche {
+    height: 100%; border-radius: inherit; min-width: 2px;
+    background: linear-gradient(90deg, var(--primaria-2), var(--xp));
+}
+.conquista-progresso-txt {
+    font-size: .68rem; font-family: var(--hud, var(--titulo));
+    color: var(--texto-fraco); white-space: nowrap;
+}
