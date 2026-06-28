@@ -5,7 +5,8 @@ abre num player ao clicar no ícone da região. Pipeline reutilizável: **preset
 keyframes ilustrados → narração PT-BR (Kokoro) → montagem FFmpeg**.
 
 > Workflow detalhado para agentes: `.cursor/skills/cinematic-intro-algorithmia/SKILL.md`.
-> Este doc é o resumo para humanos.
+> Este doc é o resumo para humanos. **Galeria visual das 7 intros:**
+> [`docs/cinematics/README.md`](../cinematics/README.md).
 
 ## Onde mora o quê
 
