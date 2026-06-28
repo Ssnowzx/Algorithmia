@@ -166,6 +166,17 @@ class BatalhaService
     }
 
     /**
+     * Marca a batalha como já recompensada, para a vitória não conceder XP/ouro
+     * mais de uma vez. O estado em sessão é responsabilidade deste serviço.
+     */
+    public function marcarRecompensado(): void
+    {
+        if (isset($_SESSION['batalha'])) {
+            $_SESSION['batalha']['recompensado'] = true;
+        }
+    }
+
+    /**
      * Versão do estado segura para enviar ao cliente: sem o gabarito dos desafios.
      */
     public function estadoPublico(?array $estado = null): array

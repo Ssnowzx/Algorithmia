@@ -20,6 +20,15 @@ function url(string $rota = ''): string
 }
 
 /**
+ * Seção ativa da navegação (1º segmento da rota atual), para destacar o menu.
+ * Centraliza a leitura de $_GET['url'] no núcleo, fora das views.
+ */
+function secaoAtual(): string
+{
+    return strtok((string) ($_GET['url'] ?? ''), '/') ?: 'mapa';
+}
+
+/**
  * Caminho para um asset estático em /public.
  */
 function asset(string $caminho): string

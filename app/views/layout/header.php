@@ -6,7 +6,7 @@ $flash = $_SESSION['flash'] ?? null;
 unset($_SESSION['flash']);
 // Seção atual (1º segmento da rota) — marca o link de nav ativo com
 // aria-current="page" (orientação + leitor de tela + destaque visual).
-$secao = strtok((string) ($_GET['url'] ?? ''), '/') ?: 'mapa';
+$secao = secaoAtual();
 $navAtual = static fn (string $rota): string => $secao === $rota ? ' aria-current="page"' : '';
 // Carta do herói usada TANTO no avatar da barra QUANTO no popup (mesma imagem,
 // para não mostrar artes diferentes do mesmo personagem). Prefere a carta
