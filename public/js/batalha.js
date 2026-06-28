@@ -445,7 +445,13 @@
             som('vitoria');
             if (J && J.movimento) { J.explosao('spriteInimigo'); J.shake(0.9); atraso = 700; }
             setTimeout(function () { if (rec.ouro && J) { J.ouro(); som('ouro'); } }, 360);
-            if (rec.niveis > 0) { setTimeout(function () { som('nivel'); }, 720); }
+            if (rec.niveis > 0) {
+                setTimeout(function () {
+                    som('nivel');
+                    // Confete de level-up (som já tocou aqui + vitória acima).
+                    if (window.celebrar) { window.celebrar({ som: false }); }
+                }, 720);
+            }
         } else {
             som('derrota');
             if (J && J.movimento) { J.shake(0.8); atraso = 500; }

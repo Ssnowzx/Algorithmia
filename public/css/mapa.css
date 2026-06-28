@@ -80,6 +80,20 @@ body.pagina-mapa .conteudo { padding-top: 1.2rem; }
     box-shadow: 0 0 12px color-mix(in oklab, var(--xp) 40%, transparent);
     transition: width var(--dur-tela, .5s) var(--ease-out, ease);
 }
+/* Chip do próximo objetivo (clareza de meta — goal-gradient). */
+.mapa-objetivo {
+    display: inline-flex; align-items: center; gap: .5rem;
+    margin-top: .9rem; padding: .5rem .95rem;
+    border-radius: 999px; text-decoration: none;
+    color: var(--texto); font-family: var(--titulo); font-size: .9rem;
+    background: color-mix(in oklab, var(--primaria) 16%, var(--painel-2));
+    border: 1px solid color-mix(in oklab, var(--primaria) 40%, transparent);
+    transition: transform var(--dur-padrao, .18s) var(--ease-out, ease),
+                box-shadow var(--dur-padrao, .18s) var(--ease-out, ease);
+}
+.mapa-objetivo:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(124, 92, 255, .28); }
+.mapa-objetivo strong { color: var(--primaria-2); }
+.mapa-objetivo-seta { color: var(--texto-fraco); }
 
 /* Cada região (capítulo) recebe um bioma colorido. */
 .regiao {

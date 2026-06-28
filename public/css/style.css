@@ -1608,3 +1608,29 @@ textarea { min-height: 90px; resize: vertical; }
 .rep-extremos .rep-ia   { color: var(--hp); }
 .rep-extremos .rep-disc { color: var(--cor-ciano, #8ce6ff); }
 .rep-meta { font-size: .82rem; }
+
+
+/* ============================================================
+   GAMIFICAÇÃO VISUAL — animação de preenchimento das barras
+   As barras "enchem" da esquerda ao aparecer (scaleX 0->1). Estado final
+   é sempre o width:X% (scaleX(1)), então sem JS e à prova de falha: se a
+   animação não rodar (reduced-motion / browser antigo), a barra já mostra
+   o valor certo. O HUD persistente (.topo) fica de fora — não deve
+   re-animar a cada navegação.
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+    .barra-fill,
+    .barra-stat .preenche,
+    .mapa-barra-fill {
+        transform-origin: left;
+        animation: barraEnche var(--dur-tela, .5s) var(--ease-out, cubic-bezier(.2, .8, .3, 1)) both;
+    }
+    /* HUD (top bar) e popup da ficha não re-animam a cada página */
+    .topo .barra-fill,
+    .ficha-modal-overlay .barra-fill { animation: none; }
+
+    @keyframes barraEnche {
+        from { transform: scaleX(0); }
+        to   { transform: scaleX(1); }
+    }
+}
