@@ -85,25 +85,65 @@ $classe = CLASSES[$heroi['classe']] ?? [];
     </div>
 
     <div class="painel">
-        <h3 style="margin-top:0">📚 Domínio por matéria</h3>
-        <?php if (empty($estatisticas)): ?>
+        <?php
+            $maestria = $maestria ?? [];
+            $temMaestria = !empty($maestria);
+            $temDados = !empty($estatisticas);
+            $dominadas = $temMaestria ? MaestriaService::totalDominadas($maestria) : 0;
+        ?>
+        <div class="maestria-cabecalho">
+            <h3 style="margin:0">📚 Domínio por matéria</h3>
+            <?php if ($temDados && $dominadas > 0): ?>
+                <span class="maestria-resumo" title="Matérias dominadas (Especialista ou acima)"><?= $dominadas ?>/<?= count(ASSUNTOS) ?> dominadas</span>
+            <?php endif; ?>
+        </div>
+
+        <?php if (!$temDados): ?>
             <p class="subtitulo">Responda desafios para acompanhar seu domínio em cada matéria.</p>
-        <?php endif; ?>
-        <?php foreach (ASSUNTOS as $chave => $rotulo): ?>
-            <?php
-                $st = $estatisticas[$chave] ?? null;
-                $total = $st['total'] ?? 0;
-                $acertos = $st['acertos'] ?? 0;
-                $pct = $total > 0 ? round($acertos / $total * 100) : 0;
-            ?>
-            <div class="barra-stat">
-                <div class="topo-stat">
-                    <span><?= e($rotulo) ?></span>
-                    <span><?= $acertos ?>/<?= $total ?> (<?= $pct ?>%)</span>
-                </div>
-                <div class="trilha"><div class="preenche" style="width:<?= $pct ?>%"></div></div>
+        <?php elseif ($temMaestria): ?>
+            <div class="maestria-lista">
+                <?php foreach ($maestria as $m): ?>
+                    <?php $fx = $m['faixa']; $prox = $fx['proximo']; ?>
+                    <div class="maestria-item maestria-cor-<?= e($fx['cor']) ?> <?= $fx['maximo'] ? 'is-max' : '' ?>">
+                        <div class="maestria-topo">
+                            <span class="maestria-selo" aria-hidden="true"><?= $fx['icone'] ?></span>
+                            <span class="maestria-nome"><?= e($m['rotulo']) ?></span>
+                            <span class="maestria-faixa"><?= e($fx['rotulo']) ?></span>
+                        </div>
+                        <?php if ($fx['tier'] > 0): ?>
+                            <div class="maestria-meta">
+                                <span class="maestria-num"><?= (int) $fx['acertos'] ?>/<?= (int) $fx['total'] ?> · <?= (int) $fx['precisao'] ?>%</span>
+                                <?php if ($fx['maximo']): ?>
+                                    <span class="maestria-dica maestria-dica-max">Maestria máxima 👑</span>
+                                <?php elseif ($prox): ?>
+                                    <span class="maestria-dica"><?= e($prox['dica']) ?></span>
+                                <?php endif; ?>
+                            </div>
+                            <div class="trilha maestria-trilha">
+                                <div class="preenche" style="width:<?= $fx['maximo'] ? 100 : (int) ($prox['pct'] ?? 0) ?>%"></div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
             </div>
-        <?php endforeach; ?>
+        <?php else: ?>
+            <?php /* Fallback se o service de maestria falhar: painel cru anterior, nunca quebra. */ ?>
+            <?php foreach (ASSUNTOS as $chave => $rotulo): ?>
+                <?php
+                    $st = $estatisticas[$chave] ?? null;
+                    $total = $st['total'] ?? 0;
+                    $acertos = $st['acertos'] ?? 0;
+                    $pct = $total > 0 ? round($acertos / $total * 100) : 0;
+                ?>
+                <div class="barra-stat">
+                    <div class="topo-stat">
+                        <span><?= e($rotulo) ?></span>
+                        <span><?= $acertos ?>/<?= $total ?> (<?= $pct ?>%)</span>
+                    </div>
+                    <div class="trilha"><div class="preenche" style="width:<?= $pct ?>%"></div></div>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
     </div>
 </div>
 

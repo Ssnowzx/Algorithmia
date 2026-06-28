@@ -152,6 +152,25 @@ const ASSUNTOS = [
     'calculo'    => 'Cálculo',
 ];
 
+// Maestria por matéria (derivada de respostas_log; read-only, sem migration nem
+// dado novo). Cada faixa exige volume de ACERTOS e um piso de PRECISÃO sustentada
+// — não a % bruta — para que "domínio" signifique competência consistente
+// (mastery learning) e não sorte com poucas respostas. Os alvos de acerto são
+// modestos de propósito: funcionam tanto para matérias de pool grande
+// (estruturas) quanto pequeno (sql), pois os acertos acumulam por RESPOSTA.
+// Fonte única: MaestriaService e a view do perfil leem daqui.
+const MAESTRIA_FAIXAS = [
+    // [rótulo, ícone, classe de cor (CSS), mín. de acertos, piso de precisão 0..1]
+    ['rotulo' => 'Não iniciado', 'icone' => '○',  'cor' => 'inerte',      'min_acertos' => 0,  'piso' => 0.00],
+    ['rotulo' => 'Iniciante',    'icone' => '🌱', 'cor' => 'iniciante',   'min_acertos' => 0,  'piso' => 0.00],
+    ['rotulo' => 'Aprendiz',     'icone' => '📘', 'cor' => 'aprendiz',    'min_acertos' => 3,  'piso' => 0.00],
+    ['rotulo' => 'Praticante',   'icone' => '🔷', 'cor' => 'praticante',  'min_acertos' => 6,  'piso' => 0.60],
+    ['rotulo' => 'Especialista', 'icone' => '🎖️', 'cor' => 'especialista', 'min_acertos' => 10, 'piso' => 0.75],
+    ['rotulo' => 'Mestre',       'icone' => '👑', 'cor' => 'mestre',      'min_acertos' => 15, 'piso' => 0.85],
+];
+// A partir deste tier a matéria conta como "dominada" (resumo X/8 no perfil).
+const MAESTRIA_TIER_DOMINADA = 4;
+
 // Anti-repetição: cada fase tem um POOL de desafios maior do que o sorteado por
 // batalha. A cada início de combate, sorteia-se N do pool priorizando os ainda
 // não vistos pelo personagem (via respostas_log), e os N são ordenados por
