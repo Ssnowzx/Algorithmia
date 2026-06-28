@@ -1,0 +1,9 @@
+{
+  "slug": "willen",
+  "titulo": "Porto da Sintaxe — Willen, o Arquiteto",
+  "aspecto": "16:9",
+  "voz": "pm_santa",
+  "narracao": "docs/cinematics/willen/narracao.mp3",
+  "video": "docs/cinematics/willen/willen.mp4",
+  "video_publico": "public/video/cinematics/willen.mp4"
+}

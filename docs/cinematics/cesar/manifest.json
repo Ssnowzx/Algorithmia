@@ -1,0 +1,9 @@
+{
+  "slug": "cesar",
+  "titulo": "Montanha do Cálculo — César, o Oráculo",
+  "aspecto": "16:9",
+  "voz": "pm_santa",
+  "narracao": "docs/cinematics/cesar/narracao.mp3",
+  "video": "docs/cinematics/cesar/cesar.mp4",
+  "video_publico": "public/video/cinematics/cesar.mp4"
+}

@@ -1,0 +1,24 @@
+slug: meu-cinematic
+titulo: Título da cinemática
+aspecto: "16:9"
+largura: 1920
+altura: 1080
+fps: 30
+
+# Vozes Kokoro PT-BR: pm_alex (neutro), pm_santa (mais grave/sombrio), pf_dora (feminina)
+voz: pm_santa
+velocidade_voz: 0.92
+lang_code: p
+
+referencias: []
+
+narracao: |
+  Texto da narração aqui.
+  Use parágrafos em branco para pausas naturais.
+
+cenas:
+  - id: cena-1
+    arquivo: cena-1.png
+    duracao: 8.0
+    prompt: |
+      Descrição visual da cena 1 para o agente gerar a imagem.

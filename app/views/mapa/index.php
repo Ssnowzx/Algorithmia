@@ -65,13 +65,34 @@ $iconePorTipo = [
             <?php else: ?>
                 <?php $bioma = $biomaReg; require __DIR__ . '/../layout/cena-bioma.php'; ?>
             <?php endif; ?>
+            <?php
+                // Intro em vídeo da região (cinematic): se houver, o retrato vira
+                // um botão que abre o player; senão, fica o retrato estático.
+                $videoIntro = videoIntroRegiao((string) $chaveRegiao, $regiao['svg_slug'] ?? null);
+                if (!empty($regiao['svg_slug'])) {
+                    $retratoInner = '<div class="retrato-mestre">' . svg('mestres/' . $regiao['svg_slug']) . '</div>';
+                    $posterIntro = srcImagem('mestres/' . $regiao['svg_slug']);
+                } elseif ($iconeRegiao) {
+                    $retratoInner = '<div class="retrato-mestre retrato-icone">' . svg($iconeRegiao) . '</div>';
+                    $posterIntro = srcImagem($iconeRegiao);
+                } else {
+                    $retratoInner = '<div class="retrato-mestre"><span style="font-size:1.6rem">' . ($regiao['emoji'] ?? '🌍') . '</span></div>';
+                    $posterIntro = null;
+                }
+                $tituloRegiao = $regiao['regiao'] ?? 'Terras de Hello World';
+            ?>
             <div class="regiao-cabecalho">
-                <?php if (!empty($regiao['svg_slug'])): ?>
-                    <div class="retrato-mestre"><?= svg('mestres/' . $regiao['svg_slug']) ?></div>
-                <?php elseif ($iconeRegiao): ?>
-                    <div class="retrato-mestre retrato-icone"><?= svg($iconeRegiao) ?></div>
+                <?php if ($videoIntro): ?>
+                    <button type="button" class="regiao-intro-trigger js-intro-trigger"
+                            data-video-src="<?= e($videoIntro['url']) ?>"
+                            data-video-titulo="<?= e($tituloRegiao) ?>"
+                            <?= $posterIntro ? 'data-video-poster="' . e($posterIntro) . '"' : '' ?>
+                            aria-label="Assistir à introdução: <?= e($tituloRegiao) ?>">
+                        <?= $retratoInner ?>
+                        <span class="regiao-intro-play" aria-hidden="true">▶</span>
+                    </button>
                 <?php else: ?>
-                    <div class="retrato-mestre"><span style="font-size:1.6rem"><?= $regiao['emoji'] ?? '🌍' ?></span></div>
+                    <?= $retratoInner ?>
                 <?php endif; ?>
                 <div>
                     <h2><?= e($regiao['regiao'] ?? 'Terras de Hello World') ?></h2>
@@ -132,6 +153,18 @@ $iconePorTipo = [
         </section>
     <?php endforeach; ?>
 </div>
+
+<?php /* Player de intro cinematográfica (vídeo horizontal por região). */ ?>
+<div id="cineModal" class="cine-modal-overlay" aria-hidden="true">
+    <div class="cine-modal-card" role="dialog" aria-modal="true" aria-label="Introdução da fase">
+        <button type="button" class="cine-modal-fechar" aria-label="Fechar introdução">✕</button>
+        <div class="cine-modal-video-wrap">
+            <video id="cineVideo" class="cine-modal-video" controls playsinline preload="none"></video>
+        </div>
+        <div class="cine-modal-titulo" id="cineTitulo"></div>
+    </div>
+</div>
+
 <script>
 // Rola suavemente até a próxima fase disponível, para o jogador não se perder.
 (function () {
@@ -141,5 +174,47 @@ $iconePorTipo = [
             atual.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }, 600);
     }
+})();
+
+// Player de intro: clicar no retrato da região abre o vídeo daquela fase.
+(function () {
+    var modal = document.getElementById('cineModal');
+    var video = document.getElementById('cineVideo');
+    var titulo = document.getElementById('cineTitulo');
+    if (!modal || !video) { return; }
+    var ultimoFoco = null;
+
+    function abrir(trigger) {
+        ultimoFoco = trigger;
+        var src = trigger.getAttribute('data-video-src');
+        var poster = trigger.getAttribute('data-video-poster');
+        titulo.textContent = trigger.getAttribute('data-video-titulo') || '';
+        if (poster) { video.setAttribute('poster', poster); } else { video.removeAttribute('poster'); }
+        video.src = src;
+        modal.classList.add('aberto');
+        modal.setAttribute('aria-hidden', 'false');
+        if (window.SOM && window.SOM.modalAbrir) { window.SOM.modalAbrir(); }
+        var p = video.play();
+        if (p && p.catch) { p.catch(function () {}); } // se o navegador barrar o autoplay, ficam os controles
+    }
+
+    function fechar() {
+        modal.classList.remove('aberto');
+        modal.setAttribute('aria-hidden', 'true');
+        video.pause();
+        video.removeAttribute('src');
+        video.load(); // descarrega o buffer para não seguir baixando
+        if (window.SOM && window.SOM.modalFechar) { window.SOM.modalFechar(); }
+        if (ultimoFoco && ultimoFoco.focus) { ultimoFoco.focus(); }
+    }
+
+    document.querySelectorAll('.js-intro-trigger').forEach(function (btn) {
+        btn.addEventListener('click', function () { abrir(btn); });
+    });
+    modal.querySelector('.cine-modal-fechar').addEventListener('click', fechar);
+    modal.addEventListener('click', function (e) { if (e.target === modal) { fechar(); } });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal.classList.contains('aberto')) { fechar(); }
+    });
 })();
 </script>

@@ -1,0 +1,9 @@
+{
+  "slug": "marcelo",
+  "titulo": "Floresta das Estruturas — Marcelo, o Andarilho",
+  "aspecto": "16:9",
+  "voz": "pm_santa",
+  "narracao": "docs/cinematics/marcelo/narracao.mp3",
+  "video": "docs/cinematics/marcelo/marcelo.mp4",
+  "video_publico": "public/video/cinematics/marcelo.mp4"
+}

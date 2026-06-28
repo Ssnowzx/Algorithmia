@@ -1,0 +1,9 @@
+{
+  "slug": "clayton",
+  "titulo": "Cidadela dos Objetos — Clayton, o Moldador",
+  "aspecto": "16:9",
+  "voz": "pm_santa",
+  "narracao": "docs/cinematics/clayton/narracao.mp3",
+  "video": "docs/cinematics/clayton/clayton.mp4",
+  "video_publico": "public/video/cinematics/clayton.mp4"
+}

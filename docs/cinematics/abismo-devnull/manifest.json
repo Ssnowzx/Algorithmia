@@ -1,0 +1,9 @@
+{
+  "slug": "abismo-devnull",
+  "titulo": "O Abismo — O Lorde do Vazio",
+  "aspecto": "16:9",
+  "voz": "pm_santa",
+  "narracao": "docs/cinematics/abismo-devnull/narracao.mp3",
+  "video": "docs/cinematics/abismo-devnull/abismo-devnull.mp4",
+  "video_publico": "public/video/cinematics/abismo-devnull.mp4"
+}

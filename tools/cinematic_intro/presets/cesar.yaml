@@ -1,0 +1,49 @@
+slug: cesar
+titulo: "Montanha do Cálculo — César, o Oráculo"
+aspecto: "16:9"
+largura: 1920
+altura: 1080
+fps: 30
+acento_tema: "#9c88ff"
+
+voz: pm_santa
+velocidade_voz: 0.92
+lang_code: p
+
+referencias:
+  - public/img/mestres/mestre-cesar.png
+  - public/img/fundos/fundo-montanha.png
+
+narracao: |
+  A trilha sobe até o alto gelado da Montanha do Cálculo, onde tudo no mundo tem um limite.
+
+  César, o Oráculo, escuta o ritmo dos números, e foi o primeiro a sentir o frio que sobe do abismo lá embaixo.
+
+  É aqui que ele conta a verdade que os outros calaram.
+
+  O senhor do vazio, que ameaça o reino, um dia foi um aluno. O melhor de todos.
+
+  E quando César olha pra você, vê o mesmo olhar faminto. Reze pra que seja só coincidência.
+
+cenas:
+  - id: cena-1-montanha
+    arquivo: cena-1-montanha.png
+    duracao: 11.0
+    prompt: |
+      Cena 1 — Pico gelado da Montanha do Cálculo ao crepúsculo: neve, aurora roxa no céu, sequências
+      de números e padrões luminosos formando constelações e espirais que convergem suavemente. Câmera
+      subindo a encosta nevada rumo ao topo.
+  - id: cena-2-cesar-oraculo
+    arquivo: cena-2-cesar-oraculo.png
+    duracao: 11.5
+    prompt: |
+      Cena 2 — César, o Oráculo: mestre careca e sereno, de olhos fechados, headphones rúnicos,
+      meditando enquanto ondas de luz pulsam no ritmo dos números ao redor dele. Acento roxo #9c88ff.
+      Câmera lenta circundando o rosto tranquilo.
+  - id: cena-3-ameaca-distancia
+    arquivo: cena-3-ameaca-distancia.png
+    duracao: 12.0
+    prompt: |
+      Cena 3 — Do alto, César aponta para baixo: muito longe, no vale, uma fenda escura e gélida vaza
+      um brilho vermelho doentio (o abismo se aproximando). O aprendiz olha para o próprio Fragmento,
+      com o mesmo brilho. Câmera afastando para revelar a montanha e a ameaça distante.

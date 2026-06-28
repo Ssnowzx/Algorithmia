@@ -586,3 +586,98 @@ body.pagina-mapa .regiao > .trilha {
     }
 }
 
+/* ============================================================
+   Intro cinematográfica — retrato vira botão de "play"
+   ============================================================ */
+.regiao-intro-trigger {
+    position: relative;
+    padding: 0; margin: 0; border: 0; background: none;
+    cursor: pointer; display: block; flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+    border-radius: 18px;
+    transition: transform .18s ease, filter .18s ease;
+}
+.regiao-intro-trigger:hover { transform: translateY(-3px) scale(1.02); }
+.regiao-intro-trigger:focus-visible {
+    outline: 3px solid var(--ouro, #ffce47);
+    outline-offset: 4px;
+}
+/* O retrato dentro do botão herda a animação de flutuar normalmente. */
+.regiao-intro-trigger .retrato-mestre { animation: retratoFlutua 3.4s ease-in-out infinite; }
+
+/* Selo "▶" sobre o retrato, na cor de acento da região. */
+.regiao-intro-play {
+    position: absolute; right: -6px; bottom: -6px; z-index: 3;
+    width: 34px; height: 34px; border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: .82rem; color: #0b0c1d; padding-left: 2px;
+    background: radial-gradient(circle at 35% 30%, #ffe79a, var(--ouro, #ffce47));
+    border: 2px solid color-mix(in oklab, var(--cor-regiao, #7c5cff) 55%, #0b0c1d);
+    box-shadow: 0 4px 12px rgba(0,0,0,.5), 0 0 14px color-mix(in oklab, var(--ouro, #ffce47) 55%, transparent);
+    animation: introPulsa 2.2s ease-in-out infinite;
+}
+@keyframes introPulsa {
+    0%, 100% { box-shadow: 0 4px 12px rgba(0,0,0,.5), 0 0 0 0 color-mix(in oklab, var(--ouro,#ffce47) 60%, transparent); }
+    60% { box-shadow: 0 4px 12px rgba(0,0,0,.5), 0 0 0 10px transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .regiao-intro-trigger .retrato-mestre,
+    .regiao-intro-play { animation: none; }
+    .regiao-intro-trigger:hover { transform: none; }
+}
+
+/* ============================================================
+   Modal do player (vídeo horizontal 16:9)
+   ============================================================ */
+.cine-modal-overlay {
+    position: fixed; inset: 0; z-index: 1400;
+    display: none; place-items: center;
+    padding: 1.2rem;
+    background: rgba(4, 6, 16, .82);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+}
+.cine-modal-overlay.aberto { display: grid; animation: loreFade .2s ease both; }
+.cine-modal-card {
+    position: relative;
+    width: min(96vw, 980px);
+    background: linear-gradient(180deg, #0b0c1d 0%, #12152c 100%);
+    border: 2px solid color-mix(in oklab, var(--ouro, #ffce47) 60%, #7c5cff);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow:
+        0 0 0 3px rgba(124, 92, 255, .22),
+        0 28px 70px rgba(0, 0, 0, .65),
+        0 0 50px rgba(124, 92, 255, .28);
+    animation: lorePop .26s cubic-bezier(.2, .8, .3, 1.2) both;
+}
+.cine-modal-video-wrap {
+    aspect-ratio: 16 / 9;
+    background: #000;
+    display: block;
+}
+.cine-modal-video {
+    width: 100%; height: 100%;
+    display: block; object-fit: contain;
+    background: #000;
+}
+.cine-modal-titulo {
+    padding: .7rem 1.1rem;
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: 1.02rem; letter-spacing: .3px;
+    color: #fff; text-align: center;
+    text-shadow: 0 2px 8px rgba(0,0,0,.82), 0 0 12px rgba(255, 206, 71, .3);
+    border-top: 1px solid rgba(255, 206, 71, .22);
+    background: rgba(8, 6, 20, .4);
+}
+.cine-modal-fechar {
+    position: absolute; top: .55rem; right: .55rem; z-index: 4;
+    width: 2.1rem; height: 2.1rem; border-radius: 50%;
+    display: grid; place-items: center;
+    background: rgba(0, 0, 0, .6);
+    border: 1px solid rgba(255, 255, 255, .25);
+    color: #fff; font-size: 1rem; line-height: 1; cursor: pointer;
+    transition: .15s;
+}
+.cine-modal-fechar:hover { background: rgba(0, 0, 0, .9); transform: scale(1.08); }
+

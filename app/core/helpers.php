@@ -417,6 +417,48 @@ function iconeRegiaoMapa(string $chaveRegiao): ?string
 }
 
 /**
+ * Slug do cinematic (intro em vídeo) de uma região do mapa.
+ * Início/fim têm slug fixo; regiões de mestre derivam do svg_slug
+ * (ex.: 'mestre-willen' → 'willen'). Casa com tools/cinematic_intro/presets/.
+ */
+function slugCinematicRegiao(string $chaveRegiao, ?string $svgSlug = null): ?string
+{
+    if ($chaveRegiao === 'inicio') {
+        return 'terras-hello-world';
+    }
+    if ($chaveRegiao === 'fim') {
+        return 'abismo-devnull';
+    }
+    if ($svgSlug !== null && str_starts_with($svgSlug, 'mestre-')) {
+        return substr($svgSlug, strlen('mestre-'));
+    }
+    return null;
+}
+
+/**
+ * Intro cinematográfica de uma região, se houver vídeo publicado em
+ * public/video/cinematics/<slug>.mp4. Retorna URL versionada (cache-busting)
+ * + slug, ou null quando ainda não existe vídeo para a região.
+ *
+ * @return array{slug:string, url:string}|null
+ */
+function videoIntroRegiao(string $chaveRegiao, ?string $svgSlug = null): ?array
+{
+    $slug = slugCinematicRegiao($chaveRegiao, $svgSlug);
+    if ($slug === null) {
+        return null;
+    }
+    $arquivo = __DIR__ . '/../../public/video/cinematics/' . $slug . '.mp4';
+    if (!is_file($arquivo)) {
+        return null;
+    }
+    return [
+        'slug' => $slug,
+        'url'  => asset('video/cinematics/' . $slug . '.mp4') . '?v=' . filemtime($arquivo),
+    ];
+}
+
+/**
  * Campo escondido com o token CSRF para formulários POST.
  */
 function csrf_token(): string

@@ -1,0 +1,9 @@
+{
+  "slug": "cassandro",
+  "titulo": "Torre das Conexões — Cassandro, o Mensageiro",
+  "aspecto": "16:9",
+  "voz": "pm_santa",
+  "narracao": "docs/cinematics/cassandro/narracao.mp3",
+  "video": "docs/cinematics/cassandro/cassandro.mp4",
+  "video_publico": "public/video/cinematics/cassandro.mp4"
+}

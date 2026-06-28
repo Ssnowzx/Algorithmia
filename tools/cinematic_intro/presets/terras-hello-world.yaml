@@ -1,0 +1,57 @@
+slug: terras-hello-world
+titulo: Intro — Terras de Hello World
+aspecto: "16:9"
+largura: 1920
+altura: 1080
+fps: 30
+
+voz: pm_santa
+velocidade_voz: 0.92
+lang_code: p
+
+referencias:
+  - public/img/mapas/regiao-hello-world.png
+  - public/img/ui/logos/logo-marca-ilustrado.png
+
+narracao: |
+  Mais um escolhido.
+
+  O Fragmento te achou... ou só caiu na primeira mão disponível.
+
+  Tanto faz. Agora o problema é seu.
+
+  Houve um tempo em que uma inteligência artificial respondia perguntas.
+
+  Aí todo mundo esqueceu como pensar... e o mundo quase virou um belo erro quinhentos.
+
+  Bem-vindo à Vila Hello World.
+
+  De novo.
+
+  Todo herói começa aqui.
+
+  Sua história começa agora... ou a repetição dela.
+
+cenas:
+  - id: plano-1-despertar
+    arquivo: plano-1-despertar.png
+    duracao: 9.6
+    prompt: |
+      Plano 1 — aprendiz encapuzado caído em chão de pedra de vila antiga ao amanhecer.
+      Abre os olhos desorientado; rosto na sombra do capuz, sem feições definidas.
+      Runas cianas pulsando no ar. Câmera baixa empurrando para o rosto.
+  - id: plano-2-fragmento
+    arquivo: plano-2-fragmento.png
+    duracao: 9.9
+    prompt: |
+      Plano 2 — close na mão aberta do aprendiz. Fragmento de cristal corrompido flutuando
+      sobre a palma, núcleo tipo olho de IA com circuitos, brilho ciano-roxo doentio,
+      fios de código luminoso. Ao fundo desfocado: cabanas medievais com magia arcana e torre distante.
+  - id: plano-3-panorama
+    arquivo: plano-3-panorama.png
+    duracao: 10.5
+    prompt: |
+      Plano 3 — vasto panorama das Terras de Hello World ao amanhecer dourado.
+      Vila, trilha dourada rumo à cidadela, floresta, montanha gelada, torre alta,
+      fenda escura gélida no horizonte. Aprendiz em primeiro plano; silhueta de anciã sábia ao lado.
+      Fragmento brilhando na mão. Câmera em grua revelando o mundo.

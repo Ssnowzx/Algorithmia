@@ -1,0 +1,49 @@
+slug: cassandro
+titulo: "Torre das Conexões — Cassandro, o Mensageiro"
+aspecto: "16:9"
+largura: 1920
+altura: 1080
+fps: 30
+acento_tema: "#44bd32"
+
+voz: pm_santa
+velocidade_voz: 0.92
+lang_code: p
+
+referencias:
+  - public/img/mestres/mestre-cassandro.png
+  - public/img/fundos/fundo-torre.png
+
+narracao: |
+  A estrada termina numa torre de sete andares: a Torre das Conexões, por onde passa toda mensagem do reino.
+
+  Cassandro, o Mensageiro, garante que nada se perca no caminho. Fala alto, ri fácil.
+
+  E pede só uma coisa: que você responda quando for chamado.
+
+  Porque a pior perda da vida dele foi um aluno que parou de responder.
+
+  Mandou mensagem, mandou mais, mandou a torre inteira. Só recebeu silêncio. Não vire mais um silêncio.
+
+cenas:
+  - id: cena-1-torre
+    arquivo: cena-1-torre.png
+    duracao: 11.0
+    prompt: |
+      Cena 1 — A Torre das Conexões: torre altíssima de sete andares iluminados, feixes de luz e
+      pequenas mensagens-de-luz (como aves luminosas) viajando entre os andares e rumo ao céu noturno.
+      Câmera subindo a fachada da torre em direção ao topo.
+  - id: cena-2-cassandro-mensageiro
+    arquivo: cena-2-cassandro-mensageiro.png
+    duracao: 11.5
+    prompt: |
+      Cena 2 — Cassandro, o Mensageiro: mestre extrovertido de óculos e sorriso largo, braços abertos,
+      cercado por correntes de luz que entram e saem, despachando mensagens pelo reino. Acento verde
+      #44bd32. Câmera aproximando do gesto enérgico e do sorriso.
+  - id: cena-3-chamado-silenciado
+    arquivo: cena-3-chamado-silenciado.png
+    duracao: 12.0
+    prompt: |
+      Cena 3 — No topo da torre, uma única linha de luz se rompe e se apaga no escuro — um chamado que
+      nunca foi respondido. Cassandro estende a mão para o aprendiz, que segura o Fragmento. Câmera em
+      grua revelando a torre e o horizonte que leva ao abismo.

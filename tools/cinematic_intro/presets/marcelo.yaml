@@ -1,0 +1,51 @@
+slug: marcelo
+titulo: "Floresta das Estruturas — Marcelo, o Andarilho"
+aspecto: "16:9"
+largura: 1920
+altura: 1080
+fps: 30
+acento_tema: "#e1b12c"
+
+voz: pm_santa
+velocidade_voz: 0.92
+lang_code: p
+
+referencias:
+  - public/img/mestres/mestre-marcelo.png
+  - public/img/fundos/fundo-floresta.png
+
+narracao: |
+  A jornada entra na Floresta das Estruturas, e dela só atravessa quem respeita a ordem das coisas.
+
+  Marcelo, o Andarilho, cruza essas matas no seu velho carro quadrado e cinza.
+
+  Ele mede cada caminho pelo preço que cobra, porque a escolha errada transforma um passeio numa eternidade.
+
+  Marcelo já levou um aluno nessa estrada. Esperto, mas só queria o atalho, nunca o trajeto.
+
+  Hoje esse aluno mora lá embaixo, no fundo do buraco. Aperte o cinto.
+
+cenas:
+  - id: cena-1-floresta
+    arquivo: cena-1-floresta.png
+    duracao: 11.0
+    prompt: |
+      Cena 1 — Floresta das Estruturas: árvores cujos galhos formam ramificações perfeitas e
+      simétricas, trilhas que se dividem como caminhos de decisão, nós luminosos ligados por fios de
+      luz dourada serpenteando entre as árvores. Câmera deslizando por entre a mata mágica.
+  - id: cena-2-marcelo-andarilho
+    arquivo: cena-2-marcelo-andarilho.png
+    duracao: 11.5
+    prompt: |
+      Cena 2 — Marcelo, o Andarilho: mestre aventureiro e bem-humorado ao volante de uma
+      Volkswagen Saveiro CL 1.6 1994 (picape quadrada cinza chumbo), runas douradas de velocidade
+      na lataria, motorista corretamente dentro da cabine (sem clipping no vidro), atravessando a
+      floresta encantada.
+      Acento ouro/âmbar #e1b12c. Câmera acompanhando o carro em movimento.
+  - id: cena-3-dois-caminhos
+    arquivo: cena-3-dois-caminhos.png
+    duracao: 12.0
+    prompt: |
+      Cena 3 — Clareira com dois caminhos: uma trilha longa e bem traçada que se acende em ouro, e um
+      atalho que desce para um buraco escuro e gélido no chão da floresta. O aprendiz hesita, Fragmento
+      pulsando. Câmera em grua revelando os dois destinos.

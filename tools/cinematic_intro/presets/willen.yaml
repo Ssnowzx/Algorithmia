@@ -1,0 +1,51 @@
+slug: willen
+titulo: "Porto da Sintaxe — Willen, o Arquiteto"
+aspecto: "16:9"
+largura: 1920
+altura: 1080
+fps: 30
+acento_tema: "#5b8cff"
+
+voz: pm_santa
+velocidade_voz: 0.92
+lang_code: p
+
+referencias:
+  - public/img/mestres/mestre-willen.png
+  - public/img/fundos/fundo-porto.png
+  - public/img/mapas/regiao-hello-world.png
+
+narracao: |
+  A estrada deixa a vila para trás e leva ao Porto da Sintaxe, erguido sobre os escombros do dia em que tudo quase ruiu.
+
+  Aqui vive Willen, o Arquiteto. Dizem que ele lê um sistema inteiro só de olhar.
+
+  A regra dele é simples, e ninguém gosta de ouvir: antes de sair correndo, aprenda a alinhar cada passo.
+
+  Willen já teve um aluno como você. Brilhante. Rápido demais. Nunca alinhou a própria vida, e desabou.
+
+  O Fragmento ainda sussurra no seu ouvido. Cabe a você decidir se escuta.
+
+cenas:
+  - id: cena-1-chegada-porto
+    arquivo: cena-1-chegada-porto.png
+    duracao: 11.0
+    prompt: |
+      Cena 1 — Chegada ao Porto da Sintaxe ao entardecer azulado: docas erguidas sobre blocos de
+      código luminoso, faróis com runas cianas, navios feitos de linhas de texto arcano. O aprendiz
+      encapuzado caminha pelo cais. Câmera baixa avançando pela doca. Acento azul arcano #5b8cff
+      nas luzes do porto.
+  - id: cena-2-willen-arquiteto
+    arquivo: cena-2-willen-arquiteto.png
+    duracao: 11.5
+    prompt: |
+      Cena 2 — Willen, o Arquiteto: mestre maduro de túnica azul-arcana, sereno e severo, segurando
+      um pergaminho-projeto de runas douradas que se reorganizam no ar como uma planta de construção.
+      Acento azul #5b8cff. Câmera lenta subindo até o rosto dele. Referência visual do mestre Willen.
+  - id: cena-3-panorama-porto
+    arquivo: cena-3-panorama-porto.png
+    duracao: 12.0
+    prompt: |
+      Cena 3 — Panorama do porto: torres de sintaxe perfeitamente alinhadas, pontes de código,
+      e ao longe a silhueta de uma estrutura que desabou (a queda do antigo aluno). O Fragmento roxo
+      pulsa na mão do aprendiz em primeiro plano. Câmera em grua revelando o porto inteiro.

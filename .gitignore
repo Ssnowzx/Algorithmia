@@ -6,5 +6,13 @@ config/db.local.php
 
 # Caches e artefatos de build das ferramentas Python (tools/)
 tools/.cache/
-tools/__pycache__/
+__pycache__/
+*.pyc
 tools/.venv-rembg/
+tools/.venvs/
+
+# Cinemáticas — artefatos regeneráveis. Versiona-se a FONTE (keyframes/, mp3,
+# manifest) e o vídeo SERVIDO (public/video/cinematics/). O resto é derivado:
+docs/cinematics/*/frames/
+docs/cinematics/*/narracao-raw.wav
+docs/cinematics/*/*.mp4

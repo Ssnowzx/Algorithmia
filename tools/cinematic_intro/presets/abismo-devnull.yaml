@@ -1,0 +1,49 @@
+slug: abismo-devnull
+titulo: "O Abismo — O Lorde do Vazio"
+aspecto: "16:9"
+largura: 1920
+altura: 1080
+fps: 30
+acento_tema: "#ff4444"
+
+voz: pm_santa
+velocidade_voz: 0.92
+lang_code: p
+
+referencias:
+  - public/img/fundos/fundo-abismo.png
+  - public/img/mapas/regiao-abismo.png
+
+narracao: |
+  No fim de tudo, onde o código termina, abre-se o Abismo: o vazio que engole quem entrega a própria alma.
+
+  Lá no fundo espera Márcio. Um dia ele foi Zero, o primeiro aluno dos cinco mestres.
+
+  Brilhante, e tão dependente das respostas prontas que, quando elas se calaram, não restou ninguém por dentro.
+
+  Ele é o espelho do que você ainda pode se tornar. O Fragmento continua sussurrando.
+
+  A última escolha é só sua: repetir a história dele, ou provar que ela podia terminar de outro jeito.
+
+cenas:
+  - id: cena-1-descida-abismo
+    arquivo: cena-1-descida-abismo.png
+    duracao: 11.0
+    prompt: |
+      Cena 1 — A descida ao Abismo: o chão se quebra e revela um vazio infinito vazando luz vermelha
+      doentia por entre fendas, runas de erro flutuando, todo o brilho dourado do reino se apagando.
+      Câmera descendo lentamente para dentro da escuridão.
+  - id: cena-2-lorde-vazio
+    arquivo: cena-2-lorde-vazio.png
+    duracao: 11.5
+    prompt: |
+      Cena 2 — O Lorde do Vazio: figura imponente com rosto humano sob uma coroa de energia corrompida,
+      runas vermelhas de falha ao redor, trono de circuitos mortos. Misto de tristeza e ameaça.
+      Câmera baixa revelando o vilão no centro do vazio.
+  - id: cena-3-confronto-final
+    arquivo: cena-3-confronto-final.png
+    duracao: 12.0
+    prompt: |
+      Cena 3 — O confronto final: o aprendiz encapuzado, Fragmento brilhando na mão, frente a frente
+      com o Lorde do Vazio — os dois quase idênticos, como reflexos. Atrás do aprendiz, cinco silhuetas
+      de luz (os mestres) surgem em apoio. Câmera afastando para o duelo de espelhos.

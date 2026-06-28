@@ -1,0 +1,50 @@
+slug: clayton
+titulo: "Cidadela dos Objetos — Clayton, o Moldador"
+aspecto: "16:9"
+largura: 1920
+altura: 1080
+fps: 30
+acento_tema: "#22a6b3"
+
+voz: pm_santa
+velocidade_voz: 0.92
+lang_code: p
+
+referencias:
+  - public/img/mestres/mestre-clayton.png
+  - public/img/fundos/fundo-cidadela.png
+  - public/img/mapas/regiao-hello-world.png
+
+narracao: |
+  Depois do porto, ergue-se a Cidadela dos Objetos, onde tudo nasce de um molde e ganha forma própria.
+
+  Quem governa aqui é Clayton, o Moldador, de sorriso tranquilo e paciência infinita.
+
+  Ele ensina a não copiar o pronto: herde a ideia, mas componha a sua própria solução.
+
+  Clayton se lembra de um pupilo que nunca compôs nada. Só repetia respostas de uma fonte que não entendia.
+
+  Fazia tudo, e não era ninguém. Não seja apenas o molde dos moldes dos outros.
+
+cenas:
+  - id: cena-1-entrada-cidadela
+    arquivo: cena-1-entrada-cidadela.png
+    duracao: 11.0
+    prompt: |
+      Cena 1 — Entrada na Cidadela dos Objetos: cidade de cristal e geometria, edifícios idênticos
+      brotando de moldes flutuantes, formas se duplicando em fileiras ordenadas, magia ciano-marinha.
+      Câmera atravessando os portões para dentro da cidadela. Acento ciano #22a6b3.
+  - id: cena-2-clayton-moldador
+    arquivo: cena-2-clayton-moldador.png
+    duracao: 11.5
+    prompt: |
+      Cena 2 — Clayton, o Moldador: mestre acolhedor de moletom azul e sorriso calmo, moldando no ar
+      uma figura de luz que se compõe a partir de peças menores que se encaixam. Acento ciano #22a6b3.
+      Câmera aproximando do gesto das mãos e do rosto. Referência visual do mestre Clayton.
+  - id: cena-3-praca-central
+    arquivo: cena-3-praca-central.png
+    duracao: 12.0
+    prompt: |
+      Cena 3 — Praça central: à direita, construções vivas e bem compostas; à esquerda, uma estátua
+      monstruosa de braços e bocas em excesso, deformada por fazer tudo ao mesmo tempo (eco do antigo
+      pupilo). O aprendiz observa, Fragmento brilhando. Câmera em grua revelando o contraste.

@@ -13,6 +13,7 @@ projeto: cita caminhos reais, patterns reais, decisoes ja tomadas.
 | [fluxo-de-desenvolvimento.md](fluxo-de-desenvolvimento.md) | Branch -> codigo -> commit -> migrations -> push |
 | [criacao-de-conteudo.md](criacao-de-conteudo.md) | Fases, desafios, questoes, bestiario/lore |
 | [criacao-de-assets.md](criacao-de-assets.md) | Pipeline de arte: briefing -> IA -> rembg -> webp -> snapshot |
+| [cinematicas.md](cinematicas.md) | Intros em video das fases: preset -> keyframes -> narracao -> FFmpeg; integracao no mapa |
 | [qa-e-testes.md](qa-e-testes.md) | Checagens manuais hoje, proposta PHPUnit, o que validar |
 | [releases-e-versionamento.md](releases-e-versionamento.md) | Versionamento, fluxo de release, checklist de publicacao |
 | [checklists.md](checklists.md) | Checklists acionaveis para features, bugs, reviews, publicacao, conteudo |
