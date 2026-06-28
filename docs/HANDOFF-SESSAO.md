@@ -6,7 +6,7 @@
 
 ## 🗓️ Sessão 2026-06-28 (cont.) — Gamificação de MECÂNICA · na `main`
 
-Duas etapas de gamificação de **mecânica** (a apresentação já estava pronta), ambas
+Três etapas de gamificação de **mecânica** (a apresentação já estava pronta), todas
 **mergeadas e pushadas na `main`**, no padrão read-only que vinha dando certo: **sem
 migration, sem cron, sem mexer em perguntas/economia/regra**. Cada uma com spec-driven
 (`openspec/changes/…`, validada) + teste CLI puro (o projeto não tem PHPUnit).
@@ -24,15 +24,24 @@ migration, sem cron, sem mexer em perguntas/economia/regra**. Cada uma com spec-
   avaliação puras), `RespostaLog::metricasSemana` + `ProgressoFase::fasesSemana`,
   `tools/verificar_missoes.php` (33 asserts). **NÃO dá recompensa material** (de propósito:
   recompensa exigiria persistência/migration/economia).
+- **Domínio das regiões** (`feat/dominio-regioes` → merge `3f94c40`). Painel "🏰 Domínio das
+  Regiões" no perfil — maestria **HORIZONTAL**: perfeição da jornada por mestre, 4 estados
+  (A explorar→Em jornada→Conquistada→**Dominada** = todas as fases com 3★), barra estrelas/máx,
+  "X/5 dominadas" + título **"Mestre dos Cinco"** (5/5). `config REGIAO_FAIXAS`/
+  `REGIAO_TITULO_LENDA`, `Mestre::progressoPorRegiao` (query parte de FASES → robusta à
+  duplicação de `mestres`; só fases não-história), `RegiaoService`, `tools/verificar_regioes.php`
+  (28 asserts). **Débitos só observados (read-only, não corrigidos):** conquistas `mestre_X`
+  órfãs (sem gatilho) + tabela `mestres` duplicada (10 = 5 + 5 órfãos, seed-2×, como a loja).
 
 **Para retomar / pendências:**
-- **Deploy:** maestria + missões NÃO publicadas em produção (algorithmia.tars.art.br). Não
-  exigem migration própria, mas o deploy ainda precisa rodar `php database/migrate.php` (dedupe
-  da loja da rodada anterior).
-- **Verificação de faixas/missões** exige dados na conta; foi feita injetando respostas no
-  personagem demo (pers5 = masterboss/Boss Explorer) e **revertendo** — banco fica intacto.
+- **Deploy:** maestria, missões e domínio de regiões NÃO publicados em produção
+  (algorithmia.tars.art.br). Não exigem migration própria, mas o deploy ainda precisa rodar
+  `php database/migrate.php` (dedupe da loja da rodada anterior).
+- **Verificação dos painéis** exige dados na conta; foi feita injetando respostas/progresso de
+  fases no personagem demo (pers5 = masterboss/Boss Explorer) e **revertendo** — banco intacto.
 - **Próximas opções de mecânica:** ligas/cohorts (exigem cron/reset — bloqueio técnico real),
-  maestria horizontal pós-nível, onboarding com progresso dotado. Streak segue desaconselhado.
+  onboarding com progresso dotado. Streak segue desaconselhado. Débitos abertos (de outras
+  frentes): conquistas `mestre_X` órfãs e duplicação de `mestres`.
 - Memória viva: `~/.claude/projects/-Users-snows-AntiGravity-TrabalhoWillen2/memory/auditoria-ux-andamento.md`.
 
 ---
