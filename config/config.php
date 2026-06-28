@@ -171,6 +171,24 @@ const MAESTRIA_FAIXAS = [
 // A partir deste tier a matéria conta como "dominada" (resumo X/8 no perfil).
 const MAESTRIA_TIER_DOMINADA = 4;
 
+// Missões da semana: objetivos de curto prazo no perfil. Read-only, derivadas da
+// atividade da SEMANA ISO corrente (sem cron, sem recompensa, sem persistência —
+// ver MissaoService). O conjunto da semana é sorteado de forma determinística pela
+// data; texto de sabor no tom ácido do jogo. Fonte única p/ service + view.
+// metrica ∈ respostas | acertos | acertos_sem_ia | respostas_sem_ia | materias |
+//          fases | precisao  (precisao usa 'alvo' como % e 'min' como volume mínimo).
+const MISSOES_SEMANAIS = [
+    ['codigo' => 'maratona',     'titulo' => 'Maratona de Código',  'icone' => '🏃', 'metrica' => 'respostas',        'alvo' => 20,              'desc' => 'Responda 20 desafios esta semana. O sofá que espere.'],
+    ['codigo' => 'tiro_certo',   'titulo' => 'Tiro Certeiro',       'icone' => '🎯', 'metrica' => 'acertos',          'alvo' => 15,              'desc' => 'Acerte 15 desafios. Chutar não conta como talento.'],
+    ['codigo' => 'mente_afiada', 'titulo' => 'Mente Afiada',        'icone' => '🧠', 'metrica' => 'precisao',         'alvo' => 80, 'min' => 10, 'desc' => 'Mantenha 80% de acerto em pelo menos 10 respostas. Sem desculpas.'],
+    ['codigo' => 'avanco',       'titulo' => 'Avanço no Reino',     'icone' => '🗺️', 'metrica' => 'fases',            'alvo' => 3,               'desc' => 'Conclua 3 fases. O reino não se salva sozinho.'],
+    ['codigo' => 'sem_muletas',  'titulo' => 'Sem Muletas',         'icone' => '💪', 'metrica' => 'acertos_sem_ia',   'alvo' => 10,              'desc' => 'Acerte 10 desafios sem implorar para a IA. Orgulho tem preço.'],
+    ['codigo' => 'polimata',     'titulo' => 'Polímata',            'icone' => '📚', 'metrica' => 'materias',         'alvo' => 4,               'desc' => 'Pratique 4 matérias diferentes. Variedade é tempero.'],
+    ['codigo' => 'aquecimento',  'titulo' => 'Aquecimento',         'icone' => '🔥', 'metrica' => 'respostas',        'alvo' => 8,               'desc' => 'Responda 8 desafios. O mínimo do mínimo, vai.'],
+    ['codigo' => 'disciplina',   'titulo' => 'Disciplina de Ferro', 'icone' => '⚔️', 'metrica' => 'respostas_sem_ia', 'alvo' => 12,              'desc' => 'Responda 12 desafios sem tocar na IA. Prove que tem coluna.'],
+];
+const MISSOES_POR_SEMANA = 3;
+
 // Anti-repetição: cada fase tem um POOL de desafios maior do que o sorteado por
 // batalha. A cada início de combate, sorteia-se N do pool priorizando os ainda
 // não vistos pelo personagem (via respostas_log), e os N são ordenados por

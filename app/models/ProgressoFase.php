@@ -75,4 +75,18 @@ class ProgressoFase extends Model
         $r = $stmt->fetch() ?: [];
         return ['fases' => (int) ($r['fases'] ?? 0), 'estrelas' => (int) ($r['estrelas'] ?? 0)];
     }
+
+    /**
+     * Fases concluídas/melhoradas na SEMANA ISO corrente — para as missões da
+     * semana. Read-only.
+     */
+    public function fasesSemana(int $personagemId): int
+    {
+        $stmt = $this->db->prepare(
+            "SELECT COUNT(*) FROM progresso_fases
+             WHERE personagem_id = :p AND YEARWEEK(concluida_em, 3) = YEARWEEK(NOW(), 3)"
+        );
+        $stmt->execute(['p' => $personagemId]);
+        return (int) $stmt->fetchColumn();
+    }
 }

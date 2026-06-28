@@ -46,6 +46,38 @@ $classe = CLASSES[$heroi['classe']] ?? [];
     <?php endif; ?>
 </div>
 
+<?php $missoes = $missoes ?? []; if (!empty($missoes)): ?>
+<?php $missCompletas = MissaoService::totalCompletas($missoes); $missTotal = count($missoes); ?>
+<div class="painel missoes-semana">
+    <div class="missoes-cabecalho">
+        <h3 class="missoes-titulo">🎯 Missões da semana</h3>
+        <span class="missoes-resumo <?= $missCompletas === $missTotal ? 'is-tudo' : '' ?>"><?= $missCompletas ?>/<?= $missTotal ?> concluídas</span>
+    </div>
+    <div class="missoes-lista">
+        <?php foreach ($missoes as $ms): ?>
+            <?php
+                $u = $ms['unidade'];
+                $numTxt = $u === '%' ? ($ms['atual'] . '% / ' . $ms['alvo'] . '%')
+                        : ($u === 'respostas' ? ($ms['atual'] . '/' . $ms['alvo'] . ' resp.')
+                        : ($ms['atual'] . '/' . $ms['alvo']));
+            ?>
+            <div class="missao <?= $ms['completa'] ? 'is-completa' : '' ?>">
+                <div class="missao-selo" aria-hidden="true"><?= $ms['completa'] ? '✓' : $ms['icone'] ?></div>
+                <div class="missao-corpo">
+                    <div class="missao-topo">
+                        <span class="missao-titulo"><?= e($ms['titulo']) ?></span>
+                        <span class="missao-num"><?= e($numTxt) ?></span>
+                    </div>
+                    <div class="missao-desc"><?= e($ms['desc']) ?></div>
+                    <div class="trilha missao-trilha"><div class="preenche" style="width:<?= (int) $ms['pct'] ?>%"></div></div>
+                    <?php if (!empty($ms['nota'])): ?><div class="missao-nota"><?= e($ms['nota']) ?></div><?php endif; ?>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+</div>
+<?php endif; ?>
+
 <div class="grid-2">
     <div class="painel">
         <div class="perfil-id">

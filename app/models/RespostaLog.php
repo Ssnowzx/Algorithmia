@@ -78,4 +78,33 @@ class RespostaLog extends Model
             'usos_ia'   => (int) ($r['usos_ia'] ?? 0),
         ];
     }
+
+    /**
+     * Métricas da SEMANA ISO corrente (segunda→domingo) para as missões da
+     * semana — read-only, derivado, numa única query agregada.
+     *
+     * @return array{respostas:int,acertos:int,respostas_sem_ia:int,acertos_sem_ia:int,materias:int}
+     */
+    public function metricasSemana(int $personagemId): array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT COUNT(*) AS respostas,
+                    COALESCE(SUM(r.correta), 0) AS acertos,
+                    COALESCE(SUM(CASE WHEN r.usou_ia = 0 THEN 1 ELSE 0 END), 0) AS respostas_sem_ia,
+                    COALESCE(SUM(CASE WHEN r.usou_ia = 0 AND r.correta = 1 THEN 1 ELSE 0 END), 0) AS acertos_sem_ia,
+                    COUNT(DISTINCT d.assunto) AS materias
+             FROM respostas_log r
+             JOIN desafios d ON d.id = r.desafio_id
+             WHERE r.personagem_id = :p AND YEARWEEK(r.respondido_em, 3) = YEARWEEK(NOW(), 3)"
+        );
+        $stmt->execute(['p' => $personagemId]);
+        $r = $stmt->fetch() ?: [];
+        return [
+            'respostas'        => (int) ($r['respostas'] ?? 0),
+            'acertos'          => (int) ($r['acertos'] ?? 0),
+            'respostas_sem_ia' => (int) ($r['respostas_sem_ia'] ?? 0),
+            'acertos_sem_ia'   => (int) ($r['acertos_sem_ia'] ?? 0),
+            'materias'         => (int) ($r['materias'] ?? 0),
+        ];
+    }
 }
