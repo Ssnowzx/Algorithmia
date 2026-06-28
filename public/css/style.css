@@ -3,7 +3,8 @@
    Design system: docs/PROMPT-EVOLUCAO-VISUAL.md
    Pixel art: .no-bolha:not(.no-bolha-arte) img — ver §5 do design system
    ============================================================ */
-@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Rubik:wght@400;500;700;800&display=swap');
+/* Fontes carregadas via <link> no <head> de cada página (header.php, login,
+   registro, criar-personagem) — evita o @import render-blocking duplicado. */
 
 :root {
     --bg:        #0b0c1d;
@@ -95,7 +96,7 @@ code, pre { font-family: var(--pixel); }
     gap: .85rem 1rem;
     padding: .55rem 1rem .55rem 1.1rem;
     background: linear-gradient(180deg, rgba(14,16,36,.96), rgba(10,11,28,.88));
-    border-bottom: 1px solid color-mix(in srgb, var(--primaria) 28%, var(--borda));
+    border-bottom: 1px solid color-mix(in oklab, var(--primaria) 28%, var(--borda));
     box-shadow: 0 4px 28px rgba(0,0,0,.45), inset 0 1px 0 rgba(157,131,255,.1);
     position: sticky; top: 0; z-index: 50;
     backdrop-filter: blur(14px) saturate(1.15);
@@ -167,9 +168,9 @@ code, pre { font-family: var(--pixel); }
     padding: .42rem .7rem .42rem .42rem;
     border-radius: 16px;
     background: linear-gradient(155deg, rgba(20,22,48,.94), rgba(8,10,26,.9));
-    border: 1px solid color-mix(in srgb, var(--hud-cor, var(--primaria)) 40%, rgba(255,255,255,.1));
+    border: 1px solid color-mix(in oklab, var(--hud-cor, var(--primaria)) 40%, rgba(255,255,255,.1));
     box-shadow:
-        0 0 22px color-mix(in srgb, var(--hud-cor, var(--primaria)) 22%, transparent),
+        0 0 22px color-mix(in oklab, var(--hud-cor, var(--primaria)) 22%, transparent),
         inset 0 1px 0 rgba(255,255,255,.08),
         inset 0 -1px 0 rgba(0,0,0,.35);
     position: relative; overflow: hidden;
@@ -177,15 +178,15 @@ code, pre { font-family: var(--pixel); }
 .hud-placa::before {
     content: ""; position: absolute; inset: 0; pointer-events: none;
     background:
-        linear-gradient(135deg, color-mix(in srgb, var(--hud-cor, var(--primaria)) 14%, transparent), transparent 50%),
+        linear-gradient(135deg, color-mix(in oklab, var(--hud-cor, var(--primaria)) 14%, transparent), transparent 50%),
         linear-gradient(90deg, rgba(140,230,255,.06), transparent 30%, transparent 70%, rgba(255,206,71,.05));
 }
 .hud-placa > * { position: relative; z-index: 1; }
 .hud-avatar {
     width: 54px; height: 54px; border-radius: 12px; flex-shrink: 0;
-    background: radial-gradient(circle at 50% 20%, color-mix(in srgb, var(--hud-cor) 25%, #14162c), #0a0c1d);
-    border: 2px solid color-mix(in srgb, var(--hud-cor, var(--primaria)) 55%, rgba(255,255,255,.15));
-    box-shadow: 0 0 16px color-mix(in srgb, var(--hud-cor) 35%, transparent);
+    background: radial-gradient(circle at 50% 20%, color-mix(in oklab, var(--hud-cor) 25%, #14162c), #0a0c1d);
+    border: 2px solid color-mix(in oklab, var(--hud-cor, var(--primaria)) 55%, rgba(255,255,255,.15));
+    box-shadow: 0 0 16px color-mix(in oklab, var(--hud-cor) 35%, transparent);
     position: relative; overflow: hidden;
 }
 .hud-retrato {
@@ -197,7 +198,7 @@ code, pre { font-family: var(--pixel); }
     font-family: var(--hud); font-size: .56rem; font-weight: 700; letter-spacing: .02em;
     padding: .12rem .32rem .1rem .38rem;
     border-radius: 8px 0 10px 0;
-    background: linear-gradient(180deg, color-mix(in srgb, var(--hud-cor) 80%, #000), rgba(0,0,0,.85));
+    background: linear-gradient(180deg, color-mix(in oklab, var(--hud-cor) 80%, #000), rgba(0,0,0,.85));
     color: #fff; line-height: 1; text-shadow: 0 1px 2px rgba(0,0,0,.6);
     border-top: 1px solid rgba(255,255,255,.15);
 }
@@ -206,7 +207,7 @@ code, pre { font-family: var(--pixel); }
 .hud-nome { display: flex; flex-direction: column; line-height: 1.15; margin-bottom: .28rem; gap: .05rem; }
 .hud-nome strong { font-size: .92rem; letter-spacing: .02em; }
 .hud-classe {
-    font-size: .68rem; color: color-mix(in srgb, var(--hud-cor, var(--primaria-2)) 65%, var(--texto-fraco));
+    font-size: .68rem; color: color-mix(in oklab, var(--hud-cor, var(--primaria-2)) 65%, var(--texto-fraco));
     font-weight: 600;
 }
 .hud-barras { display: flex; flex-direction: column; gap: 4px; }
@@ -226,7 +227,7 @@ code, pre { font-family: var(--pixel); }
 .hud-placa-click:hover {
     transform: translateY(-1px);
     box-shadow:
-        0 0 28px color-mix(in srgb, var(--hud-cor, var(--primaria)) 40%, transparent),
+        0 0 28px color-mix(in oklab, var(--hud-cor, var(--primaria)) 40%, transparent),
         inset 0 1px 0 rgba(255,255,255,.12), inset 0 -1px 0 rgba(0,0,0,.35);
 }
 .hud-placa-click:focus-visible { outline: 2px solid var(--hud-cor, var(--primaria)); outline-offset: 2px; }
@@ -242,12 +243,12 @@ code, pre { font-family: var(--pixel); }
     position: relative; width: min(94vw, 400px); max-height: 90vh; overflow: hidden;
     display: flex; flex-direction: column;
     background: linear-gradient(180deg, #12152c, #0f1126);
-    border: 2px solid color-mix(in srgb, var(--hud-cor, var(--primaria)) 55%, var(--ouro));
+    border: 2px solid color-mix(in oklab, var(--hud-cor, var(--primaria)) 55%, var(--ouro));
     border-radius: 18px;
     box-shadow:
-        0 0 0 3px color-mix(in srgb, var(--hud-cor, var(--primaria)) 26%, transparent),
+        0 0 0 3px color-mix(in oklab, var(--hud-cor, var(--primaria)) 26%, transparent),
         0 24px 64px rgba(0,0,0,.6),
-        0 0 42px color-mix(in srgb, var(--hud-cor, var(--primaria)) 30%, transparent);
+        0 0 42px color-mix(in oklab, var(--hud-cor, var(--primaria)) 30%, transparent);
     animation: lorePop .24s cubic-bezier(.2,.8,.3,1.2) both;
 }
 /* Quando há ficha-fundo, a arte cobre o CARD inteiro (não só o topo). */
@@ -264,12 +265,12 @@ code, pre { font-family: var(--pixel); }
     position: absolute; top: .6rem; right: .6rem;
     font-family: var(--titulo); font-size: .8rem; font-weight: 700; letter-spacing: .03em;
     color: #fff; padding: .2rem .6rem; border-radius: 999px;
-    background: color-mix(in srgb, var(--hud-cor, var(--primaria)) 30%, rgba(0,0,0,.55));
-    border: 1px solid color-mix(in srgb, var(--hud-cor, var(--primaria)) 50%, rgba(255,255,255,.12));
+    background: color-mix(in oklab, var(--hud-cor, var(--primaria)) 30%, rgba(0,0,0,.55));
+    border: 1px solid color-mix(in oklab, var(--hud-cor, var(--primaria)) 50%, rgba(255,255,255,.12));
 }
 .ficha-corpo { padding: 1rem 1.3rem 1.35rem; text-align: center; overflow-y: auto; }
-.ficha-corpo h3 { margin: 0 0 .25rem; font-family: var(--titulo); font-size: 1.35rem; color: #fff; text-shadow: 0 0 12px color-mix(in srgb, var(--hud-cor, var(--primaria)) 34%, transparent), 0 2px 6px rgba(0,0,0,.6); }
-.ficha-classe-linha { color: color-mix(in srgb, var(--hud-cor, var(--primaria-2)) 70%, var(--texto-fraco)); font-weight: 700; font-size: .82rem; margin-bottom: .9rem; }
+.ficha-corpo h3 { margin: 0 0 .25rem; font-family: var(--titulo); font-size: 1.35rem; color: #fff; text-shadow: 0 0 12px color-mix(in oklab, var(--hud-cor, var(--primaria)) 34%, transparent), 0 2px 6px rgba(0,0,0,.6); }
+.ficha-classe-linha { color: color-mix(in oklab, var(--hud-cor, var(--primaria-2)) 70%, var(--texto-fraco)); font-weight: 700; font-size: .82rem; margin-bottom: .9rem; }
 .ficha-stats { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin-bottom: 1.1rem; }
 .ficha-stat {
     display: flex; flex-direction: column; gap: .12rem; align-items: flex-start;
@@ -352,8 +353,8 @@ code, pre { font-family: var(--pixel); }
     transition: color .15s, background .15s, transform .15s, box-shadow .15s, border-color .15s;
 }
 .navegacao a:hover {
-    background: color-mix(in srgb, var(--primaria) 18%, var(--painel-2));
-    border-color: color-mix(in srgb, var(--primaria) 40%, transparent);
+    background: color-mix(in oklab, var(--primaria) 18%, var(--painel-2));
+    border-color: color-mix(in oklab, var(--primaria) 40%, transparent);
     color: #fff;
     transform: translateY(-1px);
     box-shadow: 0 4px 16px rgba(124,92,255,.24);
@@ -367,7 +368,7 @@ code, pre { font-family: var(--pixel); }
 .navegacao a:hover::after { opacity: 1; }
 .link-mestre { color: var(--xp) !important; }
 .link-sair { color: var(--hp) !important; }
-.link-sair:hover { background: color-mix(in srgb, var(--hp) 18%, var(--painel-2)); border-color: color-mix(in srgb, var(--hp) 40%, transparent); box-shadow: 0 4px 16px rgba(255,107,107,.22); }
+.link-sair:hover { background: color-mix(in oklab, var(--hp) 18%, var(--painel-2)); border-color: color-mix(in oklab, var(--hp) 40%, transparent); box-shadow: 0 4px 16px rgba(255,107,107,.22); }
 
 /* ---------- Barras (HP/MP/XP) ---------- */
 .barra {
@@ -750,10 +751,10 @@ textarea { min-height: 90px; resize: vertical; }
 .classe-card input { position: absolute; opacity: 0; }
 .classe-card .corpo {
     background:
-        linear-gradient(135deg, color-mix(in srgb, var(--classe-cor, var(--primaria)) 48%, var(--ouro)) 0 2px, transparent 2px 20px),
-        radial-gradient(circle at 50% 0, color-mix(in srgb, var(--classe-cor, var(--primaria)) 22%, transparent), transparent 44%),
+        linear-gradient(135deg, color-mix(in oklab, var(--classe-cor, var(--primaria)) 48%, var(--ouro)) 0 2px, transparent 2px 20px),
+        radial-gradient(circle at 50% 0, color-mix(in oklab, var(--classe-cor, var(--primaria)) 22%, transparent), transparent 44%),
         linear-gradient(180deg, #12152c 0%, #171a36 100%);
-    border: 2px solid color-mix(in srgb, var(--classe-cor, var(--primaria)) 42%, var(--ouro));
+    border: 2px solid color-mix(in oklab, var(--classe-cor, var(--primaria)) 42%, var(--ouro));
     border-radius: 18px;
     padding: .42rem;
     text-align: center;
@@ -765,16 +766,16 @@ textarea { min-height: 90px; resize: vertical; }
     box-shadow:
         inset 0 0 0 1px rgba(255,255,255,.10),
         inset 0 0 28px rgba(0,0,0,.34),
-        0 0 22px color-mix(in srgb, var(--classe-cor, var(--primaria)) 20%, transparent);
+        0 0 22px color-mix(in oklab, var(--classe-cor, var(--primaria)) 20%, transparent);
 }
-.classe-card:hover .corpo { border-color: color-mix(in srgb, var(--classe-cor, var(--primaria-2)) 55%, var(--primaria-2)); }
+.classe-card:hover .corpo { border-color: color-mix(in oklab, var(--classe-cor, var(--primaria-2)) 55%, var(--primaria-2)); }
 .classe-card input:checked + .corpo {
     border-color: var(--classe-cor, var(--primaria));
     box-shadow:
-        0 0 0 3px color-mix(in srgb, var(--classe-cor, var(--primaria)) 35%, transparent),
+        0 0 0 3px color-mix(in oklab, var(--classe-cor, var(--primaria)) 35%, transparent),
         inset 0 0 0 1px rgba(255,255,255,.12),
         inset 0 0 30px rgba(0,0,0,.28),
-        0 0 30px color-mix(in srgb, var(--classe-cor, var(--primaria)) 32%, transparent);
+        0 0 30px color-mix(in oklab, var(--classe-cor, var(--primaria)) 32%, transparent);
     background: var(--painel-2);
 }
 .classe-retrato-wrap {
@@ -786,7 +787,7 @@ textarea { min-height: 90px; resize: vertical; }
     border-radius: 13px 13px 5px 5px;
     border: 1px solid rgba(255,255,255,.14);
     box-shadow:
-        0 0 18px color-mix(in srgb, var(--classe-cor, var(--primaria)) 24%, transparent),
+        0 0 18px color-mix(in oklab, var(--classe-cor, var(--primaria)) 24%, transparent),
         inset 0 -24px 28px rgba(0,0,0,.18);
     line-height: 0;
     overflow: hidden;
@@ -806,14 +807,14 @@ textarea { min-height: 90px; resize: vertical; }
     padding: 1.18rem 1.65rem 1.12rem;
     background:
         radial-gradient(ellipse 46% 58% at 50% 54%, rgba(6,8,22,.82), rgba(6,8,22,.38) 62%, transparent 74%),
-        radial-gradient(circle at 50% 8%, color-mix(in srgb, var(--classe-cor, var(--primaria)) 18%, transparent), transparent 54%),
+        radial-gradient(circle at 50% 8%, color-mix(in oklab, var(--classe-cor, var(--primaria)) 18%, transparent), transparent 54%),
         linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.20)),
         url("../img/ui/molduras/card-texto-bg.png") center / 100% 100% no-repeat;
     border-radius: 8px 8px 13px 13px;
     box-shadow:
-        inset 0 0 0 1px color-mix(in srgb, var(--classe-cor, var(--primaria)) 22%, rgba(255,255,255,.08)),
+        inset 0 0 0 1px color-mix(in oklab, var(--classe-cor, var(--primaria)) 22%, rgba(255,255,255,.08)),
         0 -1px 0 rgba(255,255,255,.08),
-        0 0 18px color-mix(in srgb, var(--classe-cor, var(--primaria)) 16%, transparent);
+        0 0 18px color-mix(in oklab, var(--classe-cor, var(--primaria)) 16%, transparent);
 }
 .classe-info::before {
     content: "";
@@ -824,8 +825,8 @@ textarea { min-height: 90px; resize: vertical; }
     width: 68%;
     height: .6rem;
     clip-path: polygon(0 50%, 8% 0, 92% 0, 100% 50%, 92% 100%, 8% 100%);
-    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--classe-cor, var(--primaria)) 72%, var(--ouro)), var(--ouro), color-mix(in srgb, var(--classe-cor, var(--primaria)) 72%, var(--ouro)), transparent);
-    box-shadow: 0 0 12px color-mix(in srgb, var(--classe-cor, var(--primaria)) 45%, transparent);
+    background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--classe-cor, var(--primaria)) 72%, var(--ouro)), var(--ouro), color-mix(in oklab, var(--classe-cor, var(--primaria)) 72%, var(--ouro)), transparent);
+    box-shadow: 0 0 12px color-mix(in oklab, var(--classe-cor, var(--primaria)) 45%, transparent);
 }
 .classe-info::after {
     content: "";
@@ -835,7 +836,7 @@ textarea { min-height: 90px; resize: vertical; }
     margin: 0 auto .54rem;
     border-radius: 999px;
     background: linear-gradient(90deg, transparent, var(--classe-cor, var(--primaria)), var(--ouro), transparent);
-    box-shadow: 0 0 12px color-mix(in srgb, var(--classe-cor, var(--primaria)) 55%, transparent);
+    box-shadow: 0 0 12px color-mix(in oklab, var(--classe-cor, var(--primaria)) 55%, transparent);
 }
 .classe-texto {
     position: relative;
@@ -849,7 +850,7 @@ textarea { min-height: 90px; resize: vertical; }
     font-size: .96rem;
     color: #fff;
     letter-spacing: .02em;
-    text-shadow: 0 2px 8px rgba(0,0,0,.82), 0 0 12px color-mix(in srgb, var(--classe-cor, var(--primaria)) 34%, transparent);
+    text-shadow: 0 2px 8px rgba(0,0,0,.82), 0 0 12px color-mix(in oklab, var(--classe-cor, var(--primaria)) 34%, transparent);
 }
 .classe-especie {
     display: inline-flex;
@@ -859,16 +860,16 @@ textarea { min-height: 90px; resize: vertical; }
     padding: .12rem .5rem;
     border-radius: 999px;
     font-size: .66rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
-    color: color-mix(in srgb, var(--classe-cor, var(--primaria-2)) 78%, #fff);
-    background: color-mix(in srgb, var(--classe-cor, var(--primaria)) 14%, rgba(0,0,0,.28));
-    border: 1px solid color-mix(in srgb, var(--classe-cor, var(--primaria)) 35%, rgba(255,255,255,.08));
+    color: color-mix(in oklab, var(--classe-cor, var(--primaria-2)) 78%, #fff);
+    background: color-mix(in oklab, var(--classe-cor, var(--primaria)) 14%, rgba(0,0,0,.28));
+    border: 1px solid color-mix(in oklab, var(--classe-cor, var(--primaria)) 35%, rgba(255,255,255,.08));
     margin-bottom: .5rem;
     box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
 }
 .classe-card .desc {
     font-size: .73rem;
     line-height: 1.24;
-    color: color-mix(in srgb, var(--texto-fraco) 82%, #fff);
+    color: color-mix(in oklab, var(--texto-fraco) 82%, #fff);
     min-height: 3.72em;
     text-shadow: 0 1px 5px rgba(0,0,0,.78);
 }
@@ -893,9 +894,9 @@ textarea { min-height: 90px; resize: vertical; }
     padding: .34rem .8rem;
     font: inherit;
     font-size: .66rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
-    color: color-mix(in srgb, var(--classe-cor, var(--primaria-2)) 82%, #fff);
-    background: color-mix(in srgb, var(--classe-cor, var(--primaria)) 14%, rgba(0,0,0,.32));
-    border: 1px solid color-mix(in srgb, var(--classe-cor, var(--primaria)) 36%, rgba(255,255,255,.1));
+    color: color-mix(in oklab, var(--classe-cor, var(--primaria-2)) 82%, #fff);
+    background: color-mix(in oklab, var(--classe-cor, var(--primaria)) 14%, rgba(0,0,0,.32));
+    border: 1px solid color-mix(in oklab, var(--classe-cor, var(--primaria)) 36%, rgba(255,255,255,.1));
     border-radius: 999px;
     cursor: pointer;
     transition: .15s;
@@ -903,8 +904,8 @@ textarea { min-height: 90px; resize: vertical; }
 }
 .classe-lore-btn:hover {
     transform: translateY(-1px);
-    background: color-mix(in srgb, var(--classe-cor, var(--primaria)) 28%, rgba(0,0,0,.32));
-    box-shadow: 0 0 14px color-mix(in srgb, var(--classe-cor, var(--primaria)) 40%, transparent);
+    background: color-mix(in oklab, var(--classe-cor, var(--primaria)) 28%, rgba(0,0,0,.32));
+    box-shadow: 0 0 14px color-mix(in oklab, var(--classe-cor, var(--primaria)) 40%, transparent);
 }
 
 /* ---------- Popup de lore (origem do povo) ---------- */
@@ -925,12 +926,12 @@ textarea { min-height: 90px; resize: vertical; }
     display: flex; flex-direction: column;
     overflow: hidden;
     background: linear-gradient(180deg, #12152c 0%, #171a36 100%);
-    border: 2px solid color-mix(in srgb, var(--classe-cor, var(--primaria)) 55%, var(--ouro));
+    border: 2px solid color-mix(in oklab, var(--classe-cor, var(--primaria)) 55%, var(--ouro));
     border-radius: 18px;
     box-shadow:
-        0 0 0 3px color-mix(in srgb, var(--classe-cor, var(--primaria)) 26%, transparent),
+        0 0 0 3px color-mix(in oklab, var(--classe-cor, var(--primaria)) 26%, transparent),
         0 24px 64px rgba(0, 0, 0, .6),
-        0 0 42px color-mix(in srgb, var(--classe-cor, var(--primaria)) 30%, transparent);
+        0 0 42px color-mix(in oklab, var(--classe-cor, var(--primaria)) 30%, transparent);
     animation: lorePop .24s cubic-bezier(.2, .8, .3, 1.2) both;
 }
 @keyframes lorePop { from { transform: scale(.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -939,7 +940,7 @@ textarea { min-height: 90px; resize: vertical; }
     flex-shrink: 0;
     overflow: hidden;
     background: #0f1228;
-    border-bottom: 1px solid color-mix(in srgb, var(--classe-cor, var(--primaria)) 30%, rgba(255,255,255,.1));
+    border-bottom: 1px solid color-mix(in oklab, var(--classe-cor, var(--primaria)) 30%, rgba(255,255,255,.1));
 }
 .lore-modal-retrato img {
     width: 100%; height: 100%;
@@ -954,13 +955,13 @@ textarea { min-height: 90px; resize: vertical; }
 .lore-modal-corpo h3 {
     margin: 0 0 .45rem;
     font-size: 1.18rem; color: #fff;
-    text-shadow: 0 2px 8px rgba(0,0,0,.82), 0 0 12px color-mix(in srgb, var(--classe-cor, var(--primaria)) 34%, transparent);
+    text-shadow: 0 2px 8px rgba(0,0,0,.82), 0 0 12px color-mix(in oklab, var(--classe-cor, var(--primaria)) 34%, transparent);
 }
 .lore-modal-corpo p {
     margin: .75rem 0 0;
     text-align: left;
     font-size: .86rem; line-height: 1.58;
-    color: color-mix(in srgb, var(--texto-fraco) 90%, #fff);
+    color: color-mix(in oklab, var(--texto-fraco) 90%, #fff);
 }
 .lore-modal-fechar {
     position: absolute; top: .55rem; right: .55rem; z-index: 2;
@@ -1152,7 +1153,7 @@ textarea { min-height: 90px; resize: vertical; }
     text-align: center;
 }
 .vitrine-nome { font-family: var(--titulo); font-weight: 700; font-size: 5cqw; line-height: 1; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,.75); }
-.vitrine-classe { font-size: 2.6cqw; color: color-mix(in srgb, var(--hud-cor, var(--primaria-2)) 72%, #fff); font-weight: 700; }
+.vitrine-classe { font-size: 2.6cqw; color: color-mix(in oklab, var(--hud-cor, var(--primaria-2)) 72%, #fff); font-weight: 700; }
 .vitrine-barras { width: 96%; display: flex; flex-direction: column; gap: 1.2cqw; }
 .vitrine-barras .barra { height: 3.4cqw; border-radius: 2cqw; }
 .vitrine-barras .barra-label { font-size: 1.9cqw; }
@@ -1203,10 +1204,10 @@ textarea { min-height: 90px; resize: vertical; }
 /* Floresta das Estruturas — folhas caindo + balanço. */
 .bioma-floresta .cena-ambiente::before {
     background-image:
-        radial-gradient(3px 3px at 15% 10%, color-mix(in srgb, var(--sucesso) 80%, #fff), transparent),
-        radial-gradient(2px 2px at 45% 5%, color-mix(in srgb, var(--sucesso) 65%, transparent), transparent),
-        radial-gradient(3px 3px at 72% 8%, color-mix(in srgb, var(--xp) 55%, var(--sucesso)), transparent),
-        radial-gradient(2px 2px at 88% 12%, color-mix(in srgb, var(--sucesso) 70%, #fff), transparent);
+        radial-gradient(3px 3px at 15% 10%, color-mix(in oklab, var(--sucesso) 80%, #fff), transparent),
+        radial-gradient(2px 2px at 45% 5%, color-mix(in oklab, var(--sucesso) 65%, transparent), transparent),
+        radial-gradient(3px 3px at 72% 8%, color-mix(in oklab, var(--xp) 55%, var(--sucesso)), transparent),
+        radial-gradient(2px 2px at 88% 12%, color-mix(in oklab, var(--sucesso) 70%, #fff), transparent);
     background-size: 100% 100%; opacity: .55;
     animation: ambFolhas 9s linear infinite;
 }
@@ -1215,10 +1216,10 @@ textarea { min-height: 90px; resize: vertical; }
 /* Montanha do Cálculo — brasas subindo. */
 .bioma-montanha .cena-ambiente::before {
     background-image:
-        radial-gradient(2px 2px at 20% 90%, color-mix(in srgb, var(--aviso) 85%, #fff), transparent),
-        radial-gradient(3px 3px at 50% 95%, color-mix(in srgb, var(--hp) 70%, var(--aviso)), transparent),
-        radial-gradient(2px 2px at 76% 88%, color-mix(in srgb, var(--aviso) 80%, transparent), transparent),
-        radial-gradient(2px 2px at 90% 92%, color-mix(in srgb, var(--xp) 60%, var(--hp)), transparent);
+        radial-gradient(2px 2px at 20% 90%, color-mix(in oklab, var(--aviso) 85%, #fff), transparent),
+        radial-gradient(3px 3px at 50% 95%, color-mix(in oklab, var(--hp) 70%, var(--aviso)), transparent),
+        radial-gradient(2px 2px at 76% 88%, color-mix(in oklab, var(--aviso) 80%, transparent), transparent),
+        radial-gradient(2px 2px at 90% 92%, color-mix(in oklab, var(--xp) 60%, var(--hp)), transparent);
     opacity: .6; animation: ambBrasas 6s linear infinite;
 }
 @keyframes ambBrasas { from { transform: translateY(20%); opacity: .65; } to { transform: translateY(-120%); opacity: 0; } }
@@ -1226,13 +1227,13 @@ textarea { min-height: 90px; resize: vertical; }
 /* Torre das Conexões — pacotes/luz de rede subindo + linhas. */
 .bioma-torre .cena-ambiente::before {
     background-image:
-        radial-gradient(2px 2px at 25% 80%, color-mix(in srgb, var(--mp) 85%, #fff), transparent),
-        radial-gradient(3px 3px at 55% 70%, color-mix(in srgb, var(--mp) 70%, transparent), transparent),
-        radial-gradient(2px 2px at 80% 85%, color-mix(in srgb, var(--primaria-2) 70%, var(--mp)), transparent);
+        radial-gradient(2px 2px at 25% 80%, color-mix(in oklab, var(--mp) 85%, #fff), transparent),
+        radial-gradient(3px 3px at 55% 70%, color-mix(in oklab, var(--mp) 70%, transparent), transparent),
+        radial-gradient(2px 2px at 80% 85%, color-mix(in oklab, var(--primaria-2) 70%, var(--mp)), transparent);
     opacity: .6; animation: ambPacotes 5s linear infinite;
 }
 .bioma-torre .cena-ambiente::after {
-    background-image: repeating-linear-gradient(90deg, transparent 0 38px, color-mix(in srgb, var(--mp) 22%, transparent) 38px 39px);
+    background-image: repeating-linear-gradient(90deg, transparent 0 38px, color-mix(in oklab, var(--mp) 22%, transparent) 38px 39px);
     opacity: .18; animation: ambRede 8s linear infinite;
 }
 @keyframes ambPacotes { from { transform: translateY(15%); opacity: .7; } to { transform: translateY(-120%); opacity: 0; } }
@@ -1241,9 +1242,9 @@ textarea { min-height: 90px; resize: vertical; }
 /* Porto da Sintaxe — maresia/respingo deslizando. */
 .bioma-porto .cena-ambiente::before {
     background-image:
-        radial-gradient(2px 2px at 10% 60%, color-mix(in srgb, var(--mp) 60%, #fff), transparent),
-        radial-gradient(2px 2px at 50% 75%, color-mix(in srgb, var(--mp) 45%, transparent), transparent),
-        radial-gradient(3px 3px at 85% 65%, color-mix(in srgb, #fff 70%, var(--mp)), transparent);
+        radial-gradient(2px 2px at 10% 60%, color-mix(in oklab, var(--mp) 60%, #fff), transparent),
+        radial-gradient(2px 2px at 50% 75%, color-mix(in oklab, var(--mp) 45%, transparent), transparent),
+        radial-gradient(3px 3px at 85% 65%, color-mix(in oklab, #fff 70%, var(--mp)), transparent);
     opacity: .45; animation: ambMaresia 11s linear infinite;
 }
 @keyframes ambMaresia { from { transform: translateX(-8%) translateY(0); } to { transform: translateX(8%) translateY(-10px); } }
@@ -1251,9 +1252,9 @@ textarea { min-height: 90px; resize: vertical; }
 /* Cidadela dos Objetos — runas/motas arcanas flutuando. */
 .bioma-cidadela .cena-ambiente::before {
     background-image:
-        radial-gradient(2px 2px at 18% 70%, color-mix(in srgb, var(--primaria-2) 85%, #fff), transparent),
-        radial-gradient(3px 3px at 52% 60%, color-mix(in srgb, var(--primaria-2) 65%, transparent), transparent),
-        radial-gradient(2px 2px at 82% 75%, color-mix(in srgb, var(--xp) 50%, var(--primaria-2)), transparent);
+        radial-gradient(2px 2px at 18% 70%, color-mix(in oklab, var(--primaria-2) 85%, #fff), transparent),
+        radial-gradient(3px 3px at 52% 60%, color-mix(in oklab, var(--primaria-2) 65%, transparent), transparent),
+        radial-gradient(2px 2px at 82% 75%, color-mix(in oklab, var(--xp) 50%, var(--primaria-2)), transparent);
     opacity: .5; animation: ambRunas 8s ease-in-out infinite alternate;
 }
 @keyframes ambRunas { from { transform: translateY(6%); opacity: .4; } to { transform: translateY(-8%); opacity: .6; } }
@@ -1261,8 +1262,8 @@ textarea { min-height: 90px; resize: vertical; }
 /* Vila / Abismo / batalha genérica — motas suaves neutras. */
 .bioma-vila .cena-ambiente::before, .bioma-batalha .cena-ambiente::before, .bioma-abismo .cena-ambiente::before {
     background-image:
-        radial-gradient(2px 2px at 22% 65%, color-mix(in srgb, var(--primaria-2) 60%, #fff), transparent),
-        radial-gradient(2px 2px at 70% 72%, color-mix(in srgb, var(--xp) 40%, transparent), transparent);
+        radial-gradient(2px 2px at 22% 65%, color-mix(in oklab, var(--primaria-2) 60%, #fff), transparent),
+        radial-gradient(2px 2px at 70% 72%, color-mix(in oklab, var(--xp) 40%, transparent), transparent);
     opacity: .35; animation: ambRunas 10s ease-in-out infinite alternate;
 }
 
@@ -1469,3 +1470,59 @@ textarea { min-height: 90px; resize: vertical; }
 /* Trilha das barras de domínio por matéria: navy + preenche com brilho. */
 .barra-stat .trilha { background: #0b0c1d; border: 1px solid rgba(124, 92, 255, .18); }
 .barra-stat .preenche { background: linear-gradient(90deg, var(--primaria-2), var(--ouro)); box-shadow: 0 0 8px rgba(255, 206, 71, .25); }
+
+
+/* ============================================================
+   ONDA 0 — Acessibilidade & Motion (apresentação, aditivo)
+   Auditoria UX: docs/auditoria-ux/. Regras de baixo risco que só
+   ADICIONAM (foco de teclado, indicador de seção, alvos de toque e
+   uma rede de segurança de reduced-motion). Não alteram o layout
+   padrão nem a aparência no mouse.
+   ============================================================ */
+
+/* Foco visível e tokenizado para navegação por teclado.
+   :focus-visible só dispara no foco por teclado — invisível p/ mouse.
+   Usa :where() (especificidade 0) p/ não brigar com estilos de componente.
+   Campos já têm anel próprio (box-shadow em :focus), então ali removemos. */
+:where(a, button, [role="button"], [tabindex], summary, .botao, .botao-sm):focus-visible {
+    outline: 2px solid var(--cor-foco, #8ce6ff);
+    outline-offset: 2px;
+}
+.campo input:focus-visible,
+.campo select:focus-visible,
+.campo textarea:focus-visible { outline: none; }
+
+/* Indicador da seção atual no menu — generaliza para TODAS as seções o
+   destaque que antes só o mapa tinha (mapa.css), agora via aria-current
+   marcado no header. Espelha exatamente aquele tratamento visual. */
+.navegacao a[aria-current="page"] {
+    color: var(--texto);
+    background: color-mix(in oklab, var(--primaria) 22%, transparent);
+    border-color: color-mix(in oklab, var(--primaria) 45%, transparent);
+    box-shadow: 0 0 12px rgba(124, 92, 255, .22);
+}
+.navegacao a[aria-current="page"]::after { opacity: 1; }
+
+/* Alvos de toque confortáveis no mobile (WCAG 2.5.5, ~44px).
+   min-* apenas CRESCE o que estiver menor; nada encolhe no desktop. */
+@media (max-width: 720px) {
+    .navegacao a,
+    .botao, .botao-sm,
+    .btn-som,
+    button { min-height: 44px; }
+    .navegacao a { display: inline-flex; align-items: center; }
+    .btn-som { min-width: 44px; }
+}
+
+/* Rede de segurança global para prefers-reduced-motion: reduce.
+   Reforça os blocos pontuais já existentes (style/mapa/batalha/cena) para
+   que QUALQUER animação/transição nova passe a respeitar a preferência.
+   Afeta só quem pediu menos movimento — o default permanece intacto. */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

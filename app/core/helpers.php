@@ -76,6 +76,35 @@ function srcImagem(string $slug): ?string
     return $cache[$slug] = null;
 }
 
+/**
+ * Largura/altura intrínsecas (px) do asset servido por srcImagem(), lidas do
+ * cabeçalho do arquivo (webp preferido, senão png) e memoizadas por requisição.
+ * Servem para o navegador reservar a proporção da imagem e eliminar o CLS
+ * (layout shift). Como o valor é o tamanho NATURAL, não altera o render: o CSS
+ * continua mandando no tamanho exibido (a outra dimensão escala pela proporção).
+ *
+ * @return array{0:int,1:int}|null [largura, altura] em px, ou null se não existir.
+ */
+function dimensoesImagem(string $slug): ?array
+{
+    static $cache = [];
+    if (array_key_exists($slug, $cache)) {
+        return $cache[$slug];
+    }
+    $dir = __DIR__ . '/../../public/img/';
+    foreach (['webp', 'png'] as $ext) {
+        $arquivo = $dir . $slug . '.' . $ext;
+        if (is_file($arquivo)) {
+            $info = @getimagesize($arquivo);
+            if ($info !== false && (int) $info[0] > 0 && (int) $info[1] > 0) {
+                return $cache[$slug] = [(int) $info[0], (int) $info[1]];
+            }
+            break;
+        }
+    }
+    return $cache[$slug] = null;
+}
+
 function svg(string $slug, string $classe = '', string $attrs = ''): string
 {
     $src = srcImagem($slug);
@@ -85,8 +114,13 @@ function svg(string $slug, string $classe = '', string $attrs = ''): string
     }
     $classeAttr = $classe !== '' ? ' class="' . e($classe) . '"' : '';
     $extra = $attrs !== '' ? ' ' . $attrs : '';
+    // width/height intrínsecos (anti-CLS), só quando o chamador não os definiu.
+    $dim = dimensoesImagem($slug);
+    $dimAttr = ($dim !== null && stripos($attrs, 'width') === false)
+        ? ' width="' . $dim[0] . '" height="' . $dim[1] . '"'
+        : '';
     return '<img src="' . $src . '"'
-        . $classeAttr . $extra . ' alt="' . e($slug) . '" loading="lazy">';
+        . $classeAttr . $dimAttr . $extra . ' alt="' . e($slug) . '" loading="lazy">';
 }
 
 /**
@@ -115,7 +149,9 @@ function marcaHtml(string $variante = 'header'): string
         return '<span class="svg-faltando" title="ui/logos/' . e($arquivo) . '">▢</span>';
     }
     $lazy = $variante === 'splash' ? 'eager' : 'lazy';
-    return '<img src="' . $src . '" class="' . e($classe) . '" alt="' . e(NOME_JOGO) . '" loading="' . $lazy . '">';
+    $dim = dimensoesImagem('ui/logos/' . pathinfo($arquivo, PATHINFO_FILENAME));
+    $dimAttr = $dim !== null ? ' width="' . $dim[0] . '" height="' . $dim[1] . '"' : '';
+    return '<img src="' . $src . '" class="' . e($classe) . '"' . $dimAttr . ' alt="' . e(NOME_JOGO) . '" loading="' . $lazy . '">';
 }
 
 /**

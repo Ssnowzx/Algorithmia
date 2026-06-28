@@ -4,6 +4,10 @@ $heroi = Auth::personagem();
 $ehMestre = Auth::ehMestre();
 $flash = $_SESSION['flash'] ?? null;
 unset($_SESSION['flash']);
+// Seção atual (1º segmento da rota) — marca o link de nav ativo com
+// aria-current="page" (orientação + leitor de tela + destaque visual).
+$secao = strtok((string) ($_GET['url'] ?? ''), '/') ?: 'mapa';
+$navAtual = static fn (string $rota): string => $secao === $rota ? ' aria-current="page"' : '';
 // Carta do herói usada TANTO no avatar da barra QUANTO no popup (mesma imagem,
 // para não mostrar artes diferentes do mesmo personagem). Prefere a carta
 // dedicada herois/card-<classe>; senão cai na carta hud-<classe>.
@@ -78,14 +82,14 @@ if ($heroi) {
             <input type="range" id="volSom" class="som-volume" min="0" max="1" step="0.05" value="0.6" aria-label="Volume do som">
         </span>
         <?php if ($heroi): ?>
-            <a href="<?= url('mapa') ?>">Mapa</a>
-            <a href="<?= url('inventario') ?>">Inventário</a>
-            <a href="<?= url('loja') ?>">Loja</a>
-            <a href="<?= url('perfil') ?>">Perfil</a>
-            <a href="<?= url('ranking') ?>">Ranking</a>
+            <a href="<?= url('mapa') ?>"<?= $navAtual('mapa') ?>>Mapa</a>
+            <a href="<?= url('inventario') ?>"<?= $navAtual('inventario') ?>>Inventário</a>
+            <a href="<?= url('loja') ?>"<?= $navAtual('loja') ?>>Loja</a>
+            <a href="<?= url('perfil') ?>"<?= $navAtual('perfil') ?>>Perfil</a>
+            <a href="<?= url('ranking') ?>"<?= $navAtual('ranking') ?>>Ranking</a>
         <?php endif; ?>
         <?php if ($ehMestre): ?>
-            <a href="<?= url('mestre') ?>" class="link-mestre">⚙ Painel</a>
+            <a href="<?= url('mestre') ?>" class="link-mestre"<?= $navAtual('mestre') ?>>⚙ Painel</a>
         <?php endif; ?>
         <?php if (Auth::logado()): ?>
             <a href="<?= url('auth/logout') ?>" class="link-sair">Sair</a>
