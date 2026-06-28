@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Loja — Algorithmia (protótipo)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Rubik:wght@400;500;700;800&display=swap">
+  <link rel="stylesheet" href="prototipo.css">
+</head>
+<body data-setor="loja" class="tem-lateral">
+  <header class="topo">
+    <a class="marca" href="index.html"><img src="../../public/img/ui/logos/logo-header.webp" alt="Algorithmia"></a>
+    <div class="hud-mini"><span class="moeda">◈ <b data-contador="888">0</b></span><img class="avatar" src="../../public/img/herois/hud-guerreiro.webp" alt="Herói" onerror="this.style.display='none'"></div>
+  </header>
+
+  <aside class="rail">
+    <a class="rail-logo" href="index.html"><img src="../../public/img/ui/logos/logo-header.webp" alt="Algorithmia"></a>
+    <nav class="nav-app" aria-label="Navegação principal">
+      <a class="nav-item" href="mapa.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2Z"/><path d="M9 3v16M15 5v16"/></svg><span>Mapa</span></a>
+      <a class="nav-item" href="inventario.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M4 9l1.5-4h13L20 9"/><path d="M10 13h4"/></svg><span>Inventário</span></a>
+      <a class="nav-item is-ativo" href="loja.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg><span>Loja</span></a>
+      <a class="nav-item" href="perfil.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg><span>Perfil</span></a>
+      <a class="nav-item" href="ranking.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v4a4 4 0 0 1-8 0Z"/><path d="M8 6H5a2 2 0 0 0 2 3h1M16 6h3a2 2 0 0 1-2 3h-1"/><path d="M12 12v3M9 20h6l-.5-4h-5Z"/></svg><span>Ranking</span></a>
+    </nav>
+    <div class="rail-rodape"><span class="moeda">◈ <b data-contador="888">0</b></span></div>
+  </aside>
+
+  <main class="conteudo">
+    <h1 class="secao-titulo revelar" style="--i:0">🏪 Loja do Reino</h1>
+    <p class="subtitulo revelar" style="--i:0">Cartas de equipamento e poção para a jornada. A venda devolve metade do valor.</p>
+
+    <div class="grade-loja revelar" style="--i:1;margin-top:1rem">
+      <div class="carta carta-item">
+        <div class="arte"><img src="../../public/img/itens/item-adaga.png" alt=""><span class="raridade">Comum</span></div>
+        <div class="corpo"><div class="nome">Adaga de Depuração</div><div class="efeito">Curta, afiada e fareja bug a um console.log de distância.</div>
+          <div class="cmp"><span class="delta-neg">⚔ 17 → 13 (−4)</span> · vs. Espada equipada</div>
+          <div class="rodape"><span class="preco">◈ 40</span><button class="botao" type="button">Comprar</button></div></div>
+      </div>
+      <div class="carta carta-item rar-epico">
+        <div class="arte"><img src="../../public/img/itens/item-machado.png" alt=""><span class="raridade">Épico</span></div>
+        <div class="corpo"><div class="nome">Machado do Refactor</div><div class="efeito">Derruba código morto de uma só vez. +11 de ataque.</div>
+          <div class="cmp"><span class="delta-pos">⚔ 17 → 21 (+4)</span> · 💪 Poder +4</div>
+          <div class="rodape"><span class="preco">◈ 260</span><button class="botao" type="button">Comprar</button></div></div>
+      </div>
+      <div class="carta carta-item rar-epico">
+        <div class="arte"><img src="../../public/img/itens/item-egide.png" alt=""><span class="raridade">Épico</span></div>
+        <div class="corpo"><div class="nome">Égide do Firewall</div><div class="efeito">Bloqueia pacotes maliciosos. +13 de defesa.</div>
+          <div class="cmp"><span class="delta-pos">🛡 9 → 13 (+4)</span> · 💪 Poder +4</div>
+          <div class="rodape"><span class="preco">◈ 400</span><button class="botao" type="button">Comprar</button></div></div>
+      </div>
+      <div class="carta carta-item rar-raro">
+        <div class="arte"><img src="../../public/img/itens/item-broquel.png" alt=""><span class="raridade">Raro</span></div>
+        <div class="corpo"><div class="nome">Broquel do Validador</div><div class="efeito">Rejeita entradas inválidas. +8 de defesa.</div>
+          <div class="rodape"><span class="preco">◈ 220</span><button class="botao" type="button">Comprar</button></div></div>
+      </div>
+      <div class="carta carta-item">
+        <div class="arte"><img src="../../public/img/itens/item-pocao-hp.png" alt=""><span class="raridade">Comum</span></div>
+        <div class="corpo"><div class="nome">Poção de Vida Menor</div><div class="efeito">Restaura 40 de HP. Gosto de morango artificial, garantem os alquimistas.</div>
+          <div class="rodape"><span class="preco">◈ 25</span><button class="botao" type="button">Comprar</button></div></div>
+      </div>
+      <div class="carta carta-item rar-raro">
+        <div class="arte"><img src="../../public/img/itens/item-amuleto.png" alt=""><span class="raridade">Raro</span></div>
+        <div class="corpo"><div class="nome">Amuleto Big-O</div><div class="efeito">Otimiza cada golpe. +5 de ataque.</div>
+          <div class="cmp"><span class="delta-pos">⚔ +5</span> · 💪 Poder +5</div>
+          <div class="rodape"><span class="preco">◈ 180</span><button class="botao" type="button">Comprar</button></div></div>
+      </div>
+      <div class="carta carta-item">
+        <div class="arte"><img src="../../public/img/itens/item-pocao-mp.png" alt=""><span class="raridade">Comum</span></div>
+        <div class="corpo"><div class="nome">Éter de Mana</div><div class="efeito">Restaura 30 de MP.</div>
+          <div class="rodape"><span class="preco">◈ 45</span><button class="botao" type="button">Comprar</button></div></div>
+      </div>
+      <div class="carta carta-item rar-lendario">
+        <div class="arte"><img src="../../public/img/itens/item-espada-lendaria.png" alt=""><span class="raridade">Lendário</span></div>
+        <div class="corpo"><div class="nome">Espada Lendária do Hello World</div><div class="efeito">A primeiríssima arma do reino. Só imprime "Olá, Mundo", mas com autoridade devastadora. +20 de ataque.</div>
+          <div class="cmp"><span class="delta-pos">⚔ 17 → 30 (+13)</span> · 💪 Poder +13</div>
+          <div class="rodape"><span class="preco">◈ 900</span><button class="botao fantasma" type="button">Caro</button></div></div>
+      </div>
+    </div>
+  </main>
+
+  <aside class="lateral">
+    <div class="painel revelar" style="--i:1">
+      <h3>◈ Seu ouro</h3>
+      <p style="margin:.25rem 0 0;font-size:var(--texto-lg);color:var(--ouro);font-family:var(--titulo)"><b data-contador="888">0</b> de ouro</p>
+      <p class="subtitulo" style="margin:.25rem 0 0">💪 Poder atual: <strong style="color:var(--primaria-2)">19</strong>. Vender devolve 50%.</p>
+    </div>
+    <div class="painel revelar" style="--i:2">
+      <h3>🧠 Intel</h3>
+      <p class="subtitulo" style="margin-top:0">O <strong>Parse Error, o Kraken</strong> (chefe do Porto) bate forte (13 de ataque, 130 HP). Priorize <strong>Defesa</strong> — a Égide do Firewall dá o maior salto agora.</p>
+    </div>
+  </aside>
+
+  <nav class="nav-inferior" aria-label="Navegação principal">
+    <a class="nav-item" href="mapa.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2Z"/><path d="M9 3v16M15 5v16"/></svg><span>Mapa</span></a>
+    <a class="nav-item" href="inventario.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M4 9l1.5-4h13L20 9"/><path d="M10 13h4"/></svg><span>Inventário</span></a>
+    <a class="nav-item is-ativo" href="loja.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg><span>Loja</span></a>
+    <a class="nav-item" href="perfil.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg><span>Perfil</span></a>
+    <a class="nav-item" href="ranking.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v4a4 4 0 0 1-8 0Z"/><path d="M8 6H5a2 2 0 0 0 2 3h1M16 6h3a2 2 0 0 1-2 3h-1"/><path d="M12 12v3M9 20h6l-.5-4h-5Z"/></svg><span>Ranking</span></a>
+  </nav>
+
+  <div class="recompensa-fx" id="fx" aria-hidden="true"></div>
+  <script src="prototipo.js" defer></script>
+</body>
+</html>

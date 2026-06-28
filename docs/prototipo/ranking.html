@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Ranking — Algorithmia (protótipo)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Rubik:wght@400;500;700;800&display=swap">
+  <link rel="stylesheet" href="prototipo.css">
+</head>
+<body data-setor="ranking" class="tem-lateral">
+  <header class="topo">
+    <a class="marca" href="index.html"><img src="../../public/img/ui/logos/logo-header.webp" alt="Algorithmia"></a>
+    <div class="hud-mini"><span class="moeda">◈ <b data-contador="420">0</b></span><img class="avatar" src="../../public/img/herois/hud-mago.webp" alt="Herói" onerror="this.style.display='none'"></div>
+  </header>
+
+  <aside class="rail">
+    <a class="rail-logo" href="index.html"><img src="../../public/img/ui/logos/logo-header.webp" alt="Algorithmia"></a>
+    <nav class="nav-app" aria-label="Navegação principal">
+      <a class="nav-item" href="mapa.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2Z"/><path d="M9 3v16M15 5v16"/></svg><span>Mapa</span></a>
+      <a class="nav-item" href="inventario.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M4 9l1.5-4h13L20 9"/><path d="M10 13h4"/></svg><span>Inventário</span></a>
+      <a class="nav-item" href="loja.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg><span>Loja</span></a>
+      <a class="nav-item" href="perfil.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg><span>Perfil</span></a>
+      <a class="nav-item is-ativo" href="ranking.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v4a4 4 0 0 1-8 0Z"/><path d="M8 6H5a2 2 0 0 0 2 3h1M16 6h3a2 2 0 0 1-2 3h-1"/><path d="M12 12v3M9 20h6l-.5-4h-5Z"/></svg><span>Ranking</span></a>
+    </nav>
+    <div class="rail-rodape"><span class="moeda">◈ <b data-contador="420">0</b></span></div>
+  </aside>
+
+  <main class="conteudo">
+    <h1 class="secao-titulo revelar" style="--i:0">🏆 Liga Prata</h1>
+    <p class="subtitulo revelar" style="--i:0">Você compete só com <strong>~30 pares</strong> da sua semana — não contra o servidor inteiro. <strong>Top 7 sobe</strong> para Ouro; foco no seu <strong>avanço pessoal</strong>.</p>
+
+    <section class="painel revelar" style="--i:1;margin-top:.75rem">
+      <div class="liga-cab"><div class="liga-emblema">🥈</div><div><h2 style="margin:0">Prata · Semana 3</h2><div class="subtitulo">Reinicia em 4 dias · 30 aprendizes</div></div></div>
+    </section>
+
+    <section class="painel revelar" style="--i:2;margin-top:1rem;padding:0;overflow:hidden">
+      <div class="rank-lista">
+        <div class="rank-linha promove"><span class="pos">1</span><span class="quem">🐉 Kaeloth</span><span class="xp">980 XP</span><span class="delta">▲ promove</span></div>
+        <div class="rank-linha promove"><span class="pos">2</span><span class="quem">🧝 Sylvara</span><span class="xp">910 XP</span><span class="delta">▲ promove</span></div>
+        <div class="rank-linha promove"><span class="pos">3</span><span class="quem">👾 Xy'tra</span><span class="xp">845 XP</span><span class="delta">▲ promove</span></div>
+        <div class="rank-linha promove"><span class="pos">4</span><span class="quem">🛡️ Bjorn</span><span class="xp">720 XP</span><span class="delta">▲ promove</span></div>
+        <div class="rank-linha eu"><span class="pos">5</span><span class="quem"><img src="../../public/img/herois/hud-mago.webp" alt="" onerror="this.style.display='none'">Aurelia (você)</span><span class="xp">690 XP</span><span class="delta">▲ subiu 3</span></div>
+        <div class="rank-linha"><span class="pos">6</span><span class="quem">🏹 Lyra</span><span class="xp">640 XP</span><span class="delta desce">▼ 1</span></div>
+        <div class="rank-linha"><span class="pos">7</span><span class="quem">⚙️ Cogsworth</span><span class="xp">610 XP</span><span class="delta">—</span></div>
+        <div class="rank-linha"><span class="pos">8</span><span class="quem">🔮 Mira</span><span class="xp">580 XP</span><span class="delta">▲ 2</span></div>
+        <div class="rank-linha"><span class="pos">9</span><span class="quem">📚 Edda</span><span class="xp">540 XP</span><span class="delta">—</span></div>
+      </div>
+    </section>
+    <p class="subtitulo revelar" style="--i:3;margin-top:.75rem;text-align:center">Faltam <strong style="color:var(--xp)">30 XP</strong> para entrar na zona de promoção. Resolva 1 fase hoje.</p>
+  </main>
+
+  <aside class="lateral">
+    <div class="painel revelar" style="--i:1">
+      <h3>📈 Seu avanço</h3>
+      <p class="subtitulo" style="margin-top:0">+690 XP nesta semana · subiu <strong style="color:var(--sucesso)">3 posições</strong>. Melhor liga já alcançada: <strong>Prata</strong>.</p>
+    </div>
+    <div class="painel revelar" style="--i:2">
+      <h3>🤝 Por que ligas pequenas?</h3>
+      <p class="subtitulo" style="margin-top:0">Num grupo de ~30, o topo é <em>alcançável</em> e ninguém fica exposto no fundo de um ranking global. Ranking opcional — pode sair nas configurações.</p>
+    </div>
+  </aside>
+
+  <nav class="nav-inferior" aria-label="Navegação principal">
+    <a class="nav-item" href="mapa.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2Z"/><path d="M9 3v16M15 5v16"/></svg><span>Mapa</span></a>
+    <a class="nav-item" href="inventario.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path d="M4 9l1.5-4h13L20 9"/><path d="M10 13h4"/></svg><span>Inventário</span></a>
+    <a class="nav-item" href="loja.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg><span>Loja</span></a>
+    <a class="nav-item" href="perfil.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg><span>Perfil</span></a>
+    <a class="nav-item is-ativo" href="ranking.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v4a4 4 0 0 1-8 0Z"/><path d="M8 6H5a2 2 0 0 0 2 3h1M16 6h3a2 2 0 0 1-2 3h-1"/><path d="M12 12v3M9 20h6l-.5-4h-5Z"/></svg><span>Ranking</span></a>
+  </nav>
+
+  <div class="recompensa-fx" id="fx" aria-hidden="true"></div>
+  <script src="prototipo.js" defer></script>
+</body>
+</html>

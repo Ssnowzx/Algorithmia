@@ -11,5 +11,6 @@
 <script src="<?= assetV('js/som.js') ?>"></script>
 <script src="<?= assetV('js/ui.js') ?>"></script>
 <script src="<?= assetV('js/app.js') ?>"></script>
+<script src="<?= assetV('js/celebracao.js') ?>"></script>
 </body>
 </html>

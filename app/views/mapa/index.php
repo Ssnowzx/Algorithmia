@@ -18,6 +18,28 @@ $iconePorTipo = [
             <?= (int) $concluidas ?> / <?= (int) $totalFases ?> fases concluídas ·
             <span style="color:var(--xp)">★ <?= (int) $totalEstrelas ?> estrelas</span>
         </p>
+        <?php $pctMapa = $totalFases > 0 ? round($concluidas / $totalFases * 100) : 0; ?>
+        <div class="mapa-barra-progresso" role="progressbar"
+             aria-valuenow="<?= (int) $concluidas ?>" aria-valuemin="0" aria-valuemax="<?= (int) $totalFases ?>"
+             aria-label="Progresso da jornada: <?= $pctMapa ?>%">
+            <div class="mapa-barra-fill" style="width: <?= $pctMapa ?>%"></div>
+        </div>
+        <?php
+            // Próximo objetivo: a primeira fase liberada e não concluída ('atual').
+            $proximaFase = null;
+            foreach ($regioes as $rgObj) {
+                foreach (($rgObj['fases'] ?? []) as $fzObj) {
+                    if (($fzObj['estado'] ?? '') === 'atual') { $proximaFase = $fzObj; break 2; }
+                }
+            }
+        ?>
+        <?php if ($proximaFase): ?>
+            <a class="mapa-objetivo" href="<?= url('historia/ver/' . (int) $proximaFase['id']) ?>">
+                <span class="mapa-objetivo-ic">🎯</span>
+                <span>Próximo: <strong><?= e($proximaFase['nome']) ?></strong></span>
+                <span class="mapa-objetivo-seta" aria-hidden="true">→</span>
+            </a>
+        <?php endif; ?>
     </div>
 
     <?php foreach ($regioes as $chaveRegiao => $regiao): ?>

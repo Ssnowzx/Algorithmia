@@ -1,0 +1,137 @@
+/* ============================================================
+   Algorithmia — Shell de navegação (shell.css)
+   Posições APROVADAS (docs/prototipo/ + docs/auditoria-ux/pesquisa/01):
+     • MOBILE  (<1000px): barra de navegação INFERIOR (zona do polegar).
+     • DESKTOP (≥1000px): RAIL lateral à esquerda (estilo Duolingo).
+   Nunca os dois juntos. A top bar (.topo) com HUD do herói + som é
+   PRESERVADA — só os 5 setores principais migram para o rail/barra.
+   Carregado só nas páginas com layout (header.php); nas standalone
+   (auth/home) o arquivo nem entra, então elas não ganham rail/barra.
+   ============================================================ */
+
+:root {
+    --rail-w:  232px;
+    --barra-h: 60px;
+    --topo-h:  96px;   /* altura da top bar; refinada por JS (header.php) */
+}
+
+/* ------------------------------------------------------------------
+   nav-app — os 5 setores principais (mapa/inventário/loja/perfil/ranking)
+   Base comum aos dois layouts; o posicionamento muda por breakpoint.
+   ------------------------------------------------------------------ */
+.nav-app .nav-item {
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    gap: .35rem; text-decoration: none;
+    color: var(--texto-fraco); font-family: var(--titulo); font-weight: 600;
+    transition: color var(--dur-padrao, .18s) var(--ease-out, ease),
+                background var(--dur-padrao, .18s) var(--ease-out, ease),
+                border-color var(--dur-padrao, .18s) var(--ease-out, ease);
+}
+.nav-app .nav-item svg {
+    width: 24px; height: 24px; flex: none;
+    fill: none; stroke: currentColor; stroke-width: 1.8;
+    stroke-linecap: round; stroke-linejoin: round;
+}
+.nav-app .nav-item:hover { color: var(--texto); }
+.nav-app .nav-item[aria-current="page"] { color: var(--xp); }
+.nav-app .nav-item[aria-current="page"] svg {
+    filter: drop-shadow(0 0 8px color-mix(in oklab, var(--xp) 55%, transparent));
+}
+
+/* ==================================================================
+   MOBILE (padrão, <1000px): barra inferior fixa na zona do polegar
+   ================================================================== */
+.nav-app {
+    position: fixed; inset: auto 0 0 0; z-index: 60;
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    height: calc(var(--barra-h) + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+    /* translúcida (frosted): deixa o fundo aparecer, mantém legibilidade
+       mesmo com conteúdo rolando atrás da barra */
+    background: color-mix(in oklab, var(--bg) 55%, transparent);
+    border-top: 1px solid color-mix(in oklab, var(--primaria) 26%, transparent);
+    backdrop-filter: blur(16px) saturate(1.2);
+}
+.nav-app .nav-item {
+    flex-direction: column; gap: 3px;
+    min-height: 44px; font-size: var(--texto-xs, .7rem);
+}
+/* sublinhado animado do item ativo (só na barra) */
+.nav-app .nav-item::after {
+    content: ""; position: absolute; top: 5px; left: 50%;
+    width: 30px; height: 3px; border-radius: 999px;
+    background: linear-gradient(90deg, var(--primaria-2), var(--xp));
+    transform: translateX(-50%) scaleX(0); transform-origin: center;
+    transition: transform var(--dur-padrao, .18s) var(--ease-pop, cubic-bezier(.2, .9, .3, 1.2));
+}
+.nav-app .nav-item[aria-current="page"]::after { transform: translateX(-50%) scaleX(1); }
+
+/* a barra não pode cobrir conteúdo nem rodapé */
+.conteudo { padding-bottom: calc(var(--barra-h) + env(safe-area-inset-bottom) + 1.5rem); }
+.rodape   { margin-bottom: calc(var(--barra-h) + env(safe-area-inset-bottom)); }
+
+/* ==================================================================
+   DESKTOP (≥1000px): rail lateral à esquerda (Duolingo-style)
+   body vira grid [rail | conteúdo]; a top bar passa a cobrir só a
+   coluna de conteúdo. body:has() garante que o grid só vale quando o
+   rail existe (jogador logado) — sem rail, layout normal.
+   ================================================================== */
+@media (min-width: 1000px) {
+    body:has(.nav-app) {
+        display: grid;
+        grid-template-columns: var(--rail-w) minmax(0, 1fr);
+        grid-template-rows: auto 1fr auto;
+        grid-template-areas:
+            "topo topo"
+            "rail conteudo"
+            "rail rodape";
+    }
+    body:has(.nav-app) .topo     { grid-area: topo; }
+    body:has(.nav-app) .conteudo { grid-area: conteudo; padding-bottom: 3rem; }
+    body:has(.nav-app) .rodape   { grid-area: rodape; margin-bottom: 0; }
+
+    .nav-app {
+        grid-area: rail;
+        /* fica ABAIXO da top bar full-width (--topo-h medido por JS) e gruda
+           ao rolar. Menu começa mais embaixo, sem competir com a top bar. */
+        position: sticky; top: var(--topo-h, 96px); bottom: auto; left: auto; right: auto;
+        align-self: start; height: calc(100dvh - var(--topo-h, 96px));
+        display: flex; flex-direction: column; gap: .25rem;
+        grid-template-columns: none;
+        padding: 1.25rem .6rem;
+        /* TRANSPARENTE e SEM borda: o fundo cósmico aparece atrás do rail. */
+        background: transparent;
+        border: none;
+        backdrop-filter: none;
+        overflow-y: auto;
+    }
+    .nav-app .nav-item {
+        flex-direction: row; justify-content: flex-start;
+        gap: .7rem; padding: .6rem .8rem; min-height: 48px;
+        border: 1px solid transparent; border-radius: var(--raio-md, 12px);
+        font-size: var(--texto-md, 1rem);
+    }
+    .nav-app .nav-item svg { width: 26px; height: 26px; }
+    .nav-app .nav-item::after { display: none; }
+    .nav-app .nav-item:hover {
+        background: color-mix(in oklab, var(--primaria) 12%, transparent);
+    }
+    .nav-app .nav-item[aria-current="page"] {
+        color: var(--texto);
+        background: color-mix(in oklab, var(--primaria) 22%, var(--painel-2));
+        border-color: color-mix(in oklab, var(--primaria) 45%, transparent);
+    }
+    .nav-app .nav-item[aria-current="page"] svg {
+        color: var(--xp);
+        filter: drop-shadow(0 0 8px color-mix(in oklab, var(--xp) 45%, transparent));
+    }
+}
+
+/* ------------------------------------------------------------------
+   Acessibilidade: respeita quem pede menos movimento
+   ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+    .nav-app .nav-item,
+    .nav-app .nav-item::after { transition-duration: .01ms; }
+}

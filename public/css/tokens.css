@@ -14,48 +14,55 @@
 :root {
 
     /* ------------------------------------------------------------------
-       CORES BASE (puxadas do :root de style.css — documentadas aqui)
+       CORES BASE — ALIAS UNIDIRECIONAL do :root de style.css.
+       Fonte única da verdade = as variáveis curtas (--bg, --primaria…) de
+       style.css. Aqui elas ganham um nome semântico (--cor-*) que aponta
+       de volta com `var(--curta, <literal>)`. O literal é só fallback caso
+       tokens.css seja carregado sem style.css. Mudou a cor lá, propaga aqui.
        ------------------------------------------------------------------ */
 
     /* Fundos */
-    --cor-bg:          #0b0c1d;   /* body background profundo */
-    --cor-bg-2:        #14162c;   /* camada ligeiramente mais clara */
-    --cor-painel:      #1a1d38;   /* cards, painéis primários */
-    --cor-painel-2:    #23274a;   /* cards hover, camada secundária */
+    --cor-bg:          var(--bg, #0b0c1d);        /* body background profundo */
+    --cor-bg-2:        var(--bg-2, #14162c);      /* camada ligeiramente mais clara */
+    --cor-painel:      var(--painel, #1a1d38);    /* cards, painéis primários */
+    --cor-painel-2:    var(--painel-2, #23274a);  /* cards hover, camada secundária */
 
     /* Bordas */
-    --cor-borda:       #353c6b;   /* borda padrão */
-    --cor-borda-luz:   #4a54a0;   /* borda iluminada (hover/foco) */
+    --cor-borda:       var(--borda, #353c6b);     /* borda padrão */
+    --cor-borda-luz:   var(--borda-luz, #4a54a0); /* borda iluminada (hover/foco) */
 
     /* Texto */
-    --cor-texto:       #eef0fb;
-    --cor-texto-fraco: #9aa0c9;
+    --cor-texto:       var(--texto, #eef0fb);
+    --cor-texto-fraco: var(--texto-fraco, #9aa0c9);
 
     /* Marca — primária (roxo arcano) */
-    --cor-primaria:    #7c5cff;
-    --cor-primaria-2:  #9d83ff;   /* variante mais clara */
+    --cor-primaria:    var(--primaria, #7c5cff);
+    --cor-primaria-2:  var(--primaria-2, #9d83ff); /* variante mais clara */
 
     /* Recursos de jogo */
-    --cor-hp:    #ff5d6c;
-    --cor-mp:    #4aa3ff;
-    --cor-xp:    #ffd23f;
-    --cor-ouro:  #ffce47;
+    --cor-hp:    var(--hp, #ff5d6c);
+    --cor-mp:    var(--mp, #4aa3ff);
+    --cor-xp:    var(--xp, #ffd23f);
+    --cor-ouro:  var(--ouro, #ffce47);
 
     /* Feedback */
-    --cor-sucesso: #2ecc71;
-    --cor-erro:    #ff6b6b;
-    --cor-aviso:   #ffb142;
+    --cor-sucesso: var(--sucesso, #2ecc71);
+    --cor-erro:    var(--erro, #ff6b6b);
+    --cor-aviso:   var(--aviso, #ffb142);
 
-    /* Ciano (runa / detalhe arcano) — NOVO como alias explícito */
+    /* Ciano (runa / detalhe arcano) — sem equivalente curto em style.css */
     --cor-ciano:   #8ce6ff;
+
+    /* Foco de teclado (anel :focus-visible) — NOVO, tematizável */
+    --cor-foco:    var(--cor-ciano, #8ce6ff);
 
 
     /* ------------------------------------------------------------------
        SOMBRAS & BRILHOS (puxadas de style.css)
        ------------------------------------------------------------------ */
 
-    --sombra-base:    0 10px 34px rgba(0, 0, 0, .5);
-    --sombra-brilho:  0 0 22px rgba(124, 92, 255, .35);
+    --sombra-base:    var(--sombra, 0 10px 34px rgba(0, 0, 0, .5));
+    --sombra-brilho:  var(--brilho, 0 0 22px rgba(124, 92, 255, .35));
 
     /* NOVO — variações de sombra para cards */
     --sombra-card:    0 12px 28px rgba(0, 0, 0, .42), 0 0 22px rgba(124, 92, 255, .18);
@@ -207,5 +214,21 @@
     --transicao-padrao:  .18s ease;
     --transicao-suave:   .25s ease;
     --transicao-modal:   .22s ease;
+
+
+    /* ------------------------------------------------------------------
+       MOTION — durações e easings semânticos (NOVO — Onda 0 UX)
+       Tokens prontos para futuras microinterações. Mantêm todo movimento
+       sob ~Doherty (<400ms) e centralizam o easing "saída" já usado no
+       projeto (cubic-bezier(.2,.8,.3,1)).
+       ------------------------------------------------------------------ */
+
+    --dur-rapido:  .12s;   /* hovers, toggles */
+    --dur-padrao:  .18s;   /* transições de UI padrão */
+    --dur-tela:    .35s;   /* transições de página/cena */
+
+    --ease-out:    cubic-bezier(.2, .8, .3, 1);   /* desaceleração suave */
+    --ease-suave:  ease;
+    --ease-pop:    cubic-bezier(.2, .9, .3, 1.2);  /* leve overshoot (modais) */
 
 }
