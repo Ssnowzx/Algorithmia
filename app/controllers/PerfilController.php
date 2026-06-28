@@ -38,6 +38,9 @@ class PerfilController extends Controller
             // Maestria por matéria derivada das MESMAS estatísticas (read-only,
             // sem query nova): faixa de domínio + progresso rumo ao próximo selo.
             'maestria' => MaestriaService::porMateria($estatisticas),
+            // Missões da semana ISO corrente (read-only, sem recompensa/persistência):
+            // metas de curto prazo derivadas da atividade da semana.
+            'missoes' => MissaoService::daSemana((int) $heroi['id']),
         ]);
     }
 }

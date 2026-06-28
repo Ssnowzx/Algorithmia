@@ -1715,3 +1715,46 @@ textarea { min-height: 90px; resize: vertical; }
 .recap-item span { font-size: .68rem; color: var(--texto-fraco); text-transform: uppercase; letter-spacing: .4px; }
 .recap-item.recap-ia strong { color: var(--hp); }
 .recap-vazio a { color: var(--primaria-2); }
+
+/* Missões da semana — metas de curto prazo (read-only, derivado da semana ISO).
+   Concluída vira dourada; reusa .trilha/.preenche. */
+.missoes-semana { margin-bottom: 1.2rem; }
+.missoes-cabecalho { display: flex; align-items: center; justify-content: space-between; gap: .6rem; margin: 0 0 .9rem; }
+.missoes-titulo { margin: 0; }
+.missoes-resumo {
+    font-size: .72rem; font-weight: 700; letter-spacing: .2px; white-space: nowrap;
+    color: var(--texto-fraco); background: color-mix(in oklab, var(--painel-2) 70%, transparent);
+    border: 1px solid var(--borda); padding: .2rem .55rem; border-radius: 999px;
+}
+.missoes-resumo.is-tudo { color: var(--navy, #0b0c1d); background: var(--ouro); border-color: transparent; }
+.missoes-lista { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: .8rem; }
+.missao {
+    display: flex; gap: .7rem; align-items: flex-start;
+    padding: .7rem .8rem; border-radius: var(--raio-card, 14px);
+    background: color-mix(in oklab, var(--primaria-2) 6%, var(--painel-2, #14162b));
+    border: 1px solid var(--borda);
+}
+.missao.is-completa {
+    border-color: color-mix(in oklab, var(--ouro) 55%, var(--borda));
+    background: color-mix(in oklab, var(--ouro) 9%, var(--painel-2, #14162b));
+}
+.missao-selo {
+    display: inline-flex; align-items: center; justify-content: center; flex: none;
+    width: 2rem; height: 2rem; font-size: 1.05rem; border-radius: 9px; line-height: 1;
+    background: color-mix(in oklab, var(--primaria-2) 18%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--primaria-2) 40%, transparent);
+}
+.missao.is-completa .missao-selo {
+    color: var(--navy, #0b0c1d); background: var(--ouro); font-weight: 700;
+    box-shadow: 0 0 8px color-mix(in oklab, var(--ouro) 40%, transparent);
+}
+.missao-corpo { flex: 1; min-width: 0; }
+.missao-topo { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; }
+.missao-titulo { font-weight: 600; color: var(--texto); }
+.missao-num { font-size: .76rem; color: var(--texto-fraco); white-space: nowrap; }
+.missao.is-completa .missao-num { color: var(--ouro); }
+.missao-desc { font-size: .72rem; color: var(--texto-fraco); margin: .15rem 0 .45rem; line-height: 1.25; }
+.missao-trilha { height: 8px; background: #0c0d1c; border-radius: 6px; overflow: hidden; border: 1px solid color-mix(in oklab, var(--primaria-2) 22%, var(--borda)); }
+.missao-trilha .preenche { height: 100%; border-radius: inherit; min-width: 2px; background: linear-gradient(90deg, var(--primaria-2), var(--xp)); }
+.missao.is-completa .missao-trilha .preenche { background: linear-gradient(90deg, color-mix(in oklab, var(--ouro) 70%, transparent), var(--ouro)); }
+.missao-nota { font-size: .68rem; color: var(--texto-fraco); margin-top: .3rem; font-style: italic; }
