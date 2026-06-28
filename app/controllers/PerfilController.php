@@ -35,6 +35,9 @@ class PerfilController extends Controller
             // Recap dos últimos 7 dias (respostas/acertos/usos_ia + fases/estrelas).
             'recapSemana' => $logModel->resumoSemana((int) $heroi['id'])
                 + (new ProgressoFase())->resumoSemana((int) $heroi['id']),
+            // Maestria por matéria derivada das MESMAS estatísticas (read-only,
+            // sem query nova): faixa de domínio + progresso rumo ao próximo selo.
+            'maestria' => MaestriaService::porMateria($estatisticas),
         ]);
     }
 }
