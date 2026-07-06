@@ -5,12 +5,14 @@ Nova base tecnica do Algorithmia, isolada do legado PHP/MVC/MySQL.
 ## Execucao local
 
 ```bash
+./bin/platform bootstrap
 ./bin/platform up
 ```
 
 ## Comandos auxiliares
 
 ```bash
+./bin/platform bootstrap
 ./bin/platform down
 ./bin/platform logs
 ./bin/platform test
@@ -29,3 +31,9 @@ Nova base tecnica do Algorithmia, isolada do legado PHP/MVC/MySQL.
 
 Esta pasta nao substitui o legado nesta etapa. O legado permanece na raiz do
 repositorio.
+
+## Bootstrap e lock
+
+- `bootstrap` executa Composer dentro do container `app`.
+- A primeira execucao Docker deve gerar ou atualizar `platform/composer.lock`.
+- `up` nao resolve dependencias silenciosamente e nao substitui o bootstrap.
