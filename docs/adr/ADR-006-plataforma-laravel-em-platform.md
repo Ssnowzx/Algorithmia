@@ -24,6 +24,8 @@ regras de jogo.
 - Evita conflito estrutural com o legado.
 - Permite evolucao incremental com fronteira clara de responsabilidade.
 - Exige disciplina para nao misturar credenciais, rotas ou bancos.
+- Exige um bootstrap inicial em Docker para gerar e versionar `composer.lock`
+  antes da homologacao completa.
 
 ## Riscos
 - Confusao entre instrucoes do legado e da plataforma nova.
