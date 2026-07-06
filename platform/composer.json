@@ -45,6 +45,15 @@
       "@php artisan migrate --force"
     ]
   },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true,
+      "pestphp/pest-plugin-arch": true,
+      "pestphp/pest-plugin-laravel": true,
+      "pestphp/pest-plugin-mutate": true,
+      "pestphp/pest-plugin-profanity": true
+    }
+  },
   "extra": {
     "laravel": {
       "dont-discover": []
