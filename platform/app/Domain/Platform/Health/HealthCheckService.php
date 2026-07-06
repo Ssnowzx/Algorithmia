@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Domain\Platform\Health;
@@ -9,6 +10,9 @@ use Throwable;
 
 final class HealthCheckService
 {
+    /**
+     * @return array{status: 'ok'|'degraded', checks: array{app: 'ok', database: 'ok'|'down', redis: 'ok'|'down'}}
+     */
     public function payload(): array
     {
         $databaseOk = $this->databaseOk();
@@ -24,6 +28,9 @@ final class HealthCheckService
         ];
     }
 
+    /**
+     * @param  array{status?: 'ok'|'degraded'}  $payload
+     */
     public function statusCode(array $payload): int
     {
         return ($payload['status'] ?? 'degraded') === 'ok' ? 200 : 503;
@@ -33,6 +40,7 @@ final class HealthCheckService
     {
         try {
             DB::connection()->selectOne('select 1');
+
             return true;
         } catch (Throwable) {
             return false;
@@ -43,6 +51,7 @@ final class HealthCheckService
     {
         try {
             Redis::connection()->ping();
+
             return true;
         } catch (Throwable) {
             return false;

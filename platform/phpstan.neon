@@ -1,5 +1,7 @@
 includes:
   - vendor/nunomaduro/larastan/extension.neon
+  - vendor/pestphp/pest/extension.neon
+  - vendor/pestphp/pest/phpstan-pest-extension.neon
 
 parameters:
   level: max
@@ -10,8 +12,6 @@ parameters:
     - database
     - routes
     - tests
-  checkMissingIterableValueType: true
-  checkGenericClassInNonGenericObjectType: true
   treatPhpDocTypesAsCertain: true
   reportUnmatchedIgnoredErrors: true
 
