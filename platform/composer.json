@@ -2,6 +2,7 @@
   "name": "algorithmia/platform",
   "type": "project",
   "description": "Nova plataforma Laravel do Algorithmia",
+  "license": "proprietary",
   "require": {
     "php": "^8.4",
     "ext-pdo_pgsql": "*",
