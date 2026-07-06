@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Domain\Platform\Health;
@@ -53,6 +54,7 @@ final class HealthCheckService
     {
         try {
             DB::connection()->selectOne('select 1');
+
             return true;
         } catch (Throwable) {
             return false;
@@ -63,6 +65,7 @@ final class HealthCheckService
     {
         try {
             Redis::connection()->ping();
+
             return true;
         } catch (Throwable) {
             return false;
