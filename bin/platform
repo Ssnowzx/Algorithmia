@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PLATFORM_DIR="$ROOT_DIR/platform"
+ENV_EXAMPLE="$PLATFORM_DIR/.env.example"
+ENV_FILE="$PLATFORM_DIR/.env"
+COMPOSE_FILE="$PLATFORM_DIR/compose.yaml"
+
+usage() {
+  cat <<'EOF'
+Usage: ./bin/platform <up|down|logs|test|lint|analyse|migrate>
+EOF
+}
+
+require_cmd() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    echo "Missing required command: $1" >&2
+    exit 1
+  fi
+}
+
+generate_app_key() {
+  if command -v openssl >/dev/null 2>&1; then
+    printf 'base64:%s' "$(openssl rand -base64 32)"
+  elif command -v php >/dev/null 2>&1; then
+    php -r "echo 'base64:'.base64_encode(random_bytes(32));"
+  else
+    echo "Unable to generate APP_KEY: openssl or php not found." >&2
+    exit 1
+  fi
+}
+
+generate_db_password() {
+  if command -v openssl >/dev/null 2>&1; then
+    openssl rand -hex 16
+  elif command -v php >/dev/null 2>&1; then
+    php -r "echo bin2hex(random_bytes(16));"
+  else
+    echo "Unable to generate DB password: openssl or php not found." >&2
+    exit 1
+  fi
+}
+
+set_env_value() {
+  local key="$1"
+  local value="$2"
+  if grep -q "^${key}=" "$ENV_FILE"; then
+    sed -i "s|^${key}=.*|${key}=${value}|" "$ENV_FILE"
+  else
+    printf '%s=%s\n' "$key" "$value" >>"$ENV_FILE"
+  fi
+}
+
+ensure_env() {
+  if [ ! -f "$ENV_EXAMPLE" ]; then
+    echo "Missing platform/.env.example" >&2
+    exit 1
+  fi
+
+  if [ ! -f "$ENV_FILE" ]; then
+    cp "$ENV_EXAMPLE" "$ENV_FILE"
+  fi
+
+  if grep -q '^APP_KEY=base64:CHANGE_ME' "$ENV_FILE" || ! grep -q '^APP_KEY=base64:' "$ENV_FILE"; then
+    set_env_value "APP_KEY" "$(generate_app_key)"
+  fi
+
+  if grep -q '^DB_PASSWORD=change_me' "$ENV_FILE" || ! grep -q '^DB_PASSWORD=' "$ENV_FILE"; then
+    set_env_value "DB_PASSWORD" "$(generate_db_password)"
+  fi
+
+  chmod 600 "$ENV_FILE"
+}
+
+compose() {
+  docker compose --env-file "$ENV_FILE" --project-directory "$PLATFORM_DIR" -f "$COMPOSE_FILE" "$@"
+}
+
+validate_prereqs() {
+  require_cmd docker
+  if ! docker compose version >/dev/null 2>&1; then
+    echo "Docker Compose plugin is required." >&2
+    exit 1
+  fi
+}
+
+cmd="${1:-}"
+case "$cmd" in
+  up)
+    validate_prereqs
+    ensure_env
+    compose up -d --build
+    echo "Platform up."
+    echo "Web:    http://localhost:8080"
+    echo "Health: http://localhost:8080/healthz"
+    echo "Mailpit http://localhost:8025"
+    ;;
+  down)
+    validate_prereqs
+    compose down
+    ;;
+  logs)
+    validate_prereqs
+    compose logs -f
+    ;;
+  test)
+    validate_prereqs
+    ensure_env
+    compose exec -T app php artisan test
+    ;;
+  lint)
+    validate_prereqs
+    ensure_env
+    compose exec -T app vendor/bin/pint --test
+    ;;
+  analyse)
+    validate_prereqs
+    ensure_env
+    compose exec -T app vendor/bin/phpstan analyse
+    ;;
+  migrate)
+    validate_prereqs
+    ensure_env
+    compose exec -T app php artisan migrate --force
+    ;;
+  *)
+    usage
+    exit 1
+    ;;
+esac

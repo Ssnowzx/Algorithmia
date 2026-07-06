@@ -1,0 +1,17 @@
+includes:
+  - vendor/nunomaduro/larastan/extension.neon
+
+parameters:
+  level: max
+  paths:
+    - app
+    - bootstrap
+    - config
+    - database
+    - routes
+    - tests
+  checkMissingIterableValueType: true
+  checkGenericClassInNonGenericObjectType: true
+  treatPhpDocTypesAsCertain: true
+  reportUnmatchedIgnoredErrors: true
+

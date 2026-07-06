@@ -16,3 +16,12 @@ tools/.venvs/
 docs/cinematics/*/frames/
 docs/cinematics/*/narracao-raw.wav
 docs/cinematics/*/*.mp4
+# Nova plataforma Laravel em /platform
+/platform/.env
+/platform/vendor/
+/platform/.phpunit.result.cache
+/platform/storage/logs/*.log
+/platform/storage/framework/cache/*
+/platform/storage/framework/sessions/*
+/platform/storage/framework/views/*
+/platform/bootstrap/cache/*.php

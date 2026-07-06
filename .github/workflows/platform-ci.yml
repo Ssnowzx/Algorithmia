@@ -1,0 +1,93 @@
+name: Platform CI
+
+on:
+  push:
+    paths:
+      - 'platform/**'
+      - 'bin/platform'
+      - '.github/workflows/platform-ci.yml'
+  pull_request:
+    paths:
+      - 'platform/**'
+      - 'bin/platform'
+      - '.github/workflows/platform-ci.yml'
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: algorithmia_platform
+          POSTGRES_USER: algorithmia
+          POSTGRES_PASSWORD: secret
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U algorithmia -d algorithmia_platform"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+      redis:
+        image: redis:7.4-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_pgsql, redis, mbstring, intl, zip
+          coverage: none
+
+      - name: Validate composer.json
+        working-directory: platform
+        run: composer validate --strict
+
+      - name: Install dependencies
+        working-directory: platform
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Prepare env
+        working-directory: platform
+        run: cp .env.example .env
+
+      - name: Run tests
+        working-directory: platform
+        env:
+          APP_ENV: testing
+          APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+          APP_URL: http://localhost:8080
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: algorithmia_platform
+          DB_USERNAME: algorithmia
+          DB_PASSWORD: secret
+          REDIS_HOST: 127.0.0.1
+          REDIS_PORT: 6379
+          MAIL_MAILER: array
+          CACHE_STORE: redis
+          QUEUE_CONNECTION: redis
+          SESSION_DRIVER: redis
+        run: php artisan test
+
+      - name: Pint
+        working-directory: platform
+        run: vendor/bin/pint --test
+
+      - name: PHPStan
+        working-directory: platform
+        run: vendor/bin/phpstan analyse

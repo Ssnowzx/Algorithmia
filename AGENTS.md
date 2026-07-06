@@ -106,3 +106,13 @@ sudo systemctl restart httpd
 - [`docs/processo/DEPLOY.md`](docs/processo/DEPLOY.md) — deploy (com a nota de `httpd`/cPanel).
 - [`docs/desenvolvimento/`](docs/desenvolvimento/) — arquitetura, padrões, QA, releases.
 - [`README.md`](README.md) — visão geral e setup do banco.
+## Escopo da nova plataforma `/platform`
+
+- A nova base usa Laravel, PostgreSQL e Redis, com execucao local via Docker.
+- Nao aplicar as instrucoes de MySQL, `httpd` ou `php -S` do legado dentro de
+  `/platform`.
+- Nao tocar no legado quando a tarefa disser respeito apenas a plataforma nova.
+- Credenciais e `.env` da nova plataforma ficam isolados em `platform/.env` e
+  `platform/.env.example`.
+- Nesta etapa, nao criar tenancy, RLS, autenticacao institucional nem seeds de
+  usuarios.

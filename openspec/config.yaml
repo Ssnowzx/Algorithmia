@@ -39,3 +39,10 @@ rules:
     - Indicar em qual camada MVC a mudança entra (model / service / controller / view).
   tasks:
     - Tarefas pequenas e verificáveis; citar o arquivo/camada de cada passo.
+  Coexistencia tecnica:
+    - legado = raiz do repositÃ³rio, PHP puro + MySQL.
+    - platform = /platform, Laravel 13+ + PHP 8.4+ + PostgreSQL 17+ + Redis.
+    - mudanÃ§as em /platform nunca alteram o comportamento do legado sem uma
+      proposta propria e explicita.
+    - Quando a mudanÃ§a for em /platform, aplicar a proposta ao novo nucleo e
+      nao ao legado; documentar a convivencia.

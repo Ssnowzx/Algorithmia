@@ -1,0 +1,55 @@
+{
+  "name": "algorithmia/platform",
+  "type": "project",
+  "description": "Nova plataforma Laravel do Algorithmia",
+  "require": {
+    "php": "^8.4",
+    "ext-pdo_pgsql": "*",
+    "ext-redis": "*",
+    "laravel/framework": "^13.0"
+  },
+  "require-dev": {
+    "laravel/pint": "^1.24",
+    "nunomaduro/larastan": "^3.6",
+    "pestphp/pest": "^3.8",
+    "pestphp/pest-plugin-laravel": "^3.1",
+    "phpstan/phpstan": "^2.1",
+    "phpunit/phpunit": "^11.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/",
+      "Database\\Factories\\": "database/factories/",
+      "Database\\Seeders\\": "database/seeders/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "post-autoload-dump": [
+      "@php artisan package:discover --ansi"
+    ],
+    "test": [
+      "@php artisan test"
+    ],
+    "lint": [
+      "@php vendor/bin/pint --test"
+    ],
+    "analyse": [
+      "@php vendor/bin/phpstan analyse"
+    ],
+    "migrate": [
+      "@php artisan migrate --force"
+    ]
+  },
+  "extra": {
+    "laravel": {
+      "dont-discover": []
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}

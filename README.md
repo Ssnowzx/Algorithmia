@@ -238,3 +238,8 @@ openspec --version
 ---
 
 *Algorithmia — A Lenda dos Cinco Mestres · Projeto MVC em PHP puro.*
+## Coexistencia
+
+- Legado atual: PHP/MVC/MySQL.
+- Nova plataforma em evolucao: `/platform`, Laravel/PostgreSQL/Redis.
+- A nova plataforma nao substitui nem migra automaticamente o legado nesta etapa.

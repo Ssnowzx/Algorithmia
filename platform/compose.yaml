@@ -1,0 +1,82 @@
+services:
+  app:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/var/www/platform
+      - platform_vendor:/var/www/platform/vendor
+      - platform_storage:/var/www/platform/storage
+      - platform_bootstrap_cache:/var/www/platform/bootstrap/cache
+    env_file:
+      - .env
+    environment:
+      APP_ENV: local
+      PHP_OPCACHE_VALIDATE_TIMESTAMPS: "1"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - platform
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/platform:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks:
+      - platform
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: algorithmia_platform
+      POSTGRES_USER: algorithmia
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U algorithmia -d algorithmia_platform"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - platform
+
+  redis:
+    image: redis:7.4-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - redis_data:/data
+    networks:
+      - platform
+
+  mailpit:
+    image: axllent/mailpit:v1.21.8
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    networks:
+      - platform
+
+volumes:
+  postgres_data:
+  redis_data:
+  platform_vendor:
+  platform_storage:
+  platform_bootstrap_cache:
+
+networks:
+  platform:
+    driver: bridge
