@@ -9,6 +9,16 @@ use Throwable;
 
 final class HealthCheckService
 {
+    /**
+     * @return array{
+     *     status: 'ok'|'degraded',
+     *     checks: array{
+     *         app: 'ok',
+     *         database: 'ok'|'down',
+     *         redis: 'ok'|'down'
+     *     }
+     * }
+     */
     public function payload(): array
     {
         $databaseOk = $this->databaseOk();
@@ -24,6 +34,16 @@ final class HealthCheckService
         ];
     }
 
+    /**
+     * @param array{
+     *     status: 'ok'|'degraded',
+     *     checks: array{
+     *         app: 'ok',
+     *         database: 'ok'|'down',
+     *         redis: 'ok'|'down'
+     *     }
+     * } $payload
+     */
     public function statusCode(array $payload): int
     {
         return ($payload['status'] ?? 'degraded') === 'ok' ? 200 : 503;
