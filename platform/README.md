@@ -31,6 +31,8 @@ Nova base tecnica do Algorithmia, isolada do legado PHP/MVC/MySQL.
 
 Esta pasta nao substitui o legado nesta etapa. O legado permanece na raiz do
 repositorio.
+O `platform/composer.json` usa `license: proprietary` porque nao existe licenca
+aberta aprovada para a plataforma.
 
 ## Bootstrap e lock
 
