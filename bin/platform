@@ -9,7 +9,7 @@ COMPOSE_FILE="$PLATFORM_DIR/compose.yaml"
 
 usage() {
   cat <<'EOF'
-Usage: ./bin/platform <up|down|logs|test|lint|analyse|migrate>
+Usage: ./bin/platform <bootstrap|up|down|logs|test|lint|analyse|migrate>
 EOF
 }
 
@@ -21,25 +21,11 @@ require_cmd() {
 }
 
 generate_app_key() {
-  if command -v openssl >/dev/null 2>&1; then
-    printf 'base64:%s' "$(openssl rand -base64 32)"
-  elif command -v php >/dev/null 2>&1; then
-    php -r "echo 'base64:'.base64_encode(random_bytes(32));"
-  else
-    echo "Unable to generate APP_KEY: openssl or php not found." >&2
-    exit 1
-  fi
+  compose run --rm --no-deps app php -r 'echo "base64:".base64_encode(random_bytes(32));'
 }
 
 generate_db_password() {
-  if command -v openssl >/dev/null 2>&1; then
-    openssl rand -hex 16
-  elif command -v php >/dev/null 2>&1; then
-    php -r "echo bin2hex(random_bytes(16));"
-  else
-    echo "Unable to generate DB password: openssl or php not found." >&2
-    exit 1
-  fi
+  compose run --rm --no-deps app php -r 'echo bin2hex(random_bytes(16));'
 }
 
 set_env_value() {
@@ -87,14 +73,22 @@ validate_prereqs() {
 
 cmd="${1:-}"
 case "$cmd" in
+  bootstrap)
+    validate_prereqs
+    ensure_env
+    echo "Bootstrapping dependencies inside the app container..."
+    compose run --rm --no-deps app composer install --no-interaction --prefer-dist
+    echo "Bootstrap complete."
+    echo "composer.lock generated or updated inside platform/."
+    ;;
   up)
     validate_prereqs
     ensure_env
     compose up -d --build
     echo "Platform up."
-    echo "Web:    http://localhost:8080"
-    echo "Health: http://localhost:8080/healthz"
-    echo "Mailpit http://localhost:8025"
+    echo "Web:    http://127.0.0.1:8080"
+    echo "Health: http://127.0.0.1:8080/healthz"
+    echo "Mailpit http://127.0.0.1:8025"
     ;;
   down)
     validate_prereqs

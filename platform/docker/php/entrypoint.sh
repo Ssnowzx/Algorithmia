@@ -3,8 +3,6 @@ set -eu
 
 cd /var/www/platform
 
-if [ ! -f vendor/autoload.php ]; then
-  composer install --no-interaction --prefer-dist --no-progress
-fi
+mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache
 
 exec docker-php-entrypoint "$@"

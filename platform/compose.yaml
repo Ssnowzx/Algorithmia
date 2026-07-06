@@ -1,3 +1,5 @@
+name: algorithmia_platform_staging
+
 services:
   app:
     build:
@@ -13,6 +15,10 @@ services:
     environment:
       APP_ENV: local
       PHP_OPCACHE_VALIDATE_TIMESTAMPS: "1"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
     depends_on:
       postgres:
         condition: service_healthy
@@ -24,10 +30,14 @@ services:
   nginx:
     image: nginx:1.27-alpine
     ports:
-      - "8080:80"
+      - "127.0.0.1:8080:80"
     volumes:
       - ./:/var/www/platform:ro
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    deploy:
+      resources:
+        limits:
+          memory: 128M
     depends_on:
       - app
     networks:
@@ -46,6 +56,10 @@ services:
       retries: 10
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          memory: 512M
     networks:
       - platform
 
@@ -59,14 +73,21 @@ services:
       retries: 10
     volumes:
       - redis_data:/data
+    deploy:
+      resources:
+        limits:
+          memory: 128M
     networks:
       - platform
 
   mailpit:
     image: axllent/mailpit:v1.21.8
     ports:
-      - "8025:8025"
-      - "1025:1025"
+      - "127.0.0.1:8025:8025"
+    deploy:
+      resources:
+        limits:
+          memory: 128M
     networks:
       - platform
 
