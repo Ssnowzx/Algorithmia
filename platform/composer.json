@@ -14,7 +14,7 @@
     "pestphp/pest": "^4.4.1",
     "pestphp/pest-plugin-laravel": "^4.1.0",
     "phpstan/phpstan": "^2.1",
-    "phpunit/phpunit": "^11.5"
+    "phpunit/phpunit": "^12.5.31"
   },
   "autoload": {
     "psr-4": {
