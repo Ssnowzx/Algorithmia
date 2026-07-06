@@ -7,7 +7,6 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./:/var/www/platform
-      - platform_vendor:/var/www/platform/vendor
       - platform_storage:/var/www/platform/storage
       - platform_bootstrap_cache:/var/www/platform/bootstrap/cache
     env_file:
@@ -94,7 +93,6 @@ services:
 volumes:
   postgres_data:
   redis_data:
-  platform_vendor:
   platform_storage:
   platform_bootstrap_cache:
 
