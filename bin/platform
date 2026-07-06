@@ -77,7 +77,7 @@ case "$cmd" in
     validate_prereqs
     ensure_env
     echo "Bootstrapping dependencies inside the app container..."
-    compose run --rm --no-deps app composer install --no-interaction --prefer-dist
+    compose run --rm --no-deps app composer update --no-interaction --prefer-dist
     echo "Bootstrap complete."
     echo "composer.lock generated or updated inside platform/."
     ;;
