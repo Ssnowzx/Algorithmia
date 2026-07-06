@@ -21,11 +21,11 @@ require_cmd() {
 }
 
 generate_app_key() {
-  compose run --rm --no-deps app php -r 'echo "base64:".base64_encode(random_bytes(32));'
+  compose run --rm --no-deps -T app php -r 'echo "base64:".base64_encode(random_bytes(32));' | tail -n 1 | tr -d '\r'
 }
 
 generate_db_password() {
-  compose run --rm --no-deps app php -r 'echo bin2hex(random_bytes(16));'
+  compose run --rm --no-deps -T app php -r 'echo bin2hex(random_bytes(16));' | tail -n 1 | tr -d '\r'
 }
 
 set_env_value() {
