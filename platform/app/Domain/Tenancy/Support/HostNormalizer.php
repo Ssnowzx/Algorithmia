@@ -40,6 +40,12 @@ final class HostNormalizer
                 throw new InvalidArgumentException('Host must be a simple hostname.');
             }
 
+            $port = (int) $portPart;
+
+            if ($port < 1 || $port > 65535) {
+                throw new InvalidArgumentException('Host port is invalid.');
+            }
+
             $candidate = $hostPart;
         }
 

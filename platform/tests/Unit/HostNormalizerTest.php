@@ -44,6 +44,7 @@ final class HostNormalizerTest extends TestCase
         yield 'path' => ['tenant.example.test/healthz'];
         yield 'query' => ['tenant.example.test?foo=bar'];
         yield 'fragment' => ['tenant.example.test#section'];
+        yield 'port out of range' => ['tenant.example.test:65536'];
         yield 'invalid ip' => ['999.999.999.999'];
         yield 'unicode' => ["t\u{00EA}nant.example.test"];
         yield 'trailing whitespace' => ['tenant.example.test '];
