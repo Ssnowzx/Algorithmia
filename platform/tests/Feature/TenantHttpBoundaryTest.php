@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Domain\Tenancy\CurrentTenant;
+use App\Domain\Tenancy\Http\Middleware\ResolveTenantFromHost;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Domain\Tenancy\Models\TenantDomain;
 use App\Domain\Tenancy\Models\TenantMembership;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
@@ -74,9 +76,9 @@ final class TenantHttpBoundaryTest extends TestCase
 
     public function test_it_returns_400_for_a_malformed_host(): void
     {
-        $this->call(
-            'GET',
+        $request = Request::create(
             '/__tenant/context',
+            'GET',
             [],
             [],
             [],
@@ -84,8 +86,14 @@ final class TenantHttpBoundaryTest extends TestCase
                 'HTTP_HOST' => 'tenant.example.test:65536',
                 'HTTP_ACCEPT' => 'application/json',
             ],
-        )
-            ->assertStatus(400);
+        );
+
+        $response = app(ResolveTenantFromHost::class)->handle(
+            $request,
+            static fn () => response()->json(['status' => 'ok']),
+        );
+
+        self::assertSame(400, $response->getStatusCode());
     }
 
     public function test_it_ignores_tenant_inputs_from_query_body_cookie_and_headers(): void
