@@ -31,7 +31,7 @@ generate_db_password() {
 get_env_value() {
   local key="$1"
   if [ -f "$ENV_FILE" ]; then
-    grep -E "^${key}=" "$ENV_FILE" | head -n 1 | cut -d= -f2-
+    grep -E "^${key}=" "$ENV_FILE" | head -n 1 | cut -d= -f2- || true
   fi
 }
 
