@@ -146,8 +146,8 @@ final class TenantHttpBoundaryTest extends TestCase
      */
     private function tenantJson(string $host, string $uri, array $headers = [], array $cookies = []): TestResponse
     {
+        $fullUri = sprintf('http://%s%s', $host, $uri);
         $server = [
-            'HTTP_HOST' => $host,
             'HTTP_ACCEPT' => 'application/json',
         ];
 
@@ -155,7 +155,7 @@ final class TenantHttpBoundaryTest extends TestCase
             $server['HTTP_'.strtoupper(str_replace('-', '_', $name))] = $value;
         }
 
-        return $this->call('GET', $uri, [], $cookies, [], $server);
+        return $this->call('GET', $fullUri, [], $cookies, [], $server);
     }
 
     /**
