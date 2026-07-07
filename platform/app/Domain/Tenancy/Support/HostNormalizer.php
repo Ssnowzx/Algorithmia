@@ -25,10 +25,22 @@ final class HostNormalizer
             || str_contains($candidate, '/')
             || str_contains($candidate, '?')
             || str_contains($candidate, '#')
-            || str_contains($candidate, ':')
             || str_contains($candidate, '@')
         ) {
             throw new InvalidArgumentException('Host must be a simple hostname.');
+        }
+
+        $portPosition = strrpos($candidate, ':');
+
+        if ($portPosition !== false) {
+            $hostPart = substr($candidate, 0, $portPosition);
+            $portPart = substr($candidate, $portPosition + 1);
+
+            if ($hostPart === '' || $portPart === '' || str_contains($hostPart, ':') || ! ctype_digit($portPart)) {
+                throw new InvalidArgumentException('Host must be a simple hostname.');
+            }
+
+            $candidate = $hostPart;
         }
 
         if (str_ends_with($candidate, '.')) {
@@ -44,6 +56,10 @@ final class HostNormalizer
         }
 
         if (filter_var($candidate, FILTER_VALIDATE_IP) !== false) {
+            return $candidate;
+        }
+
+        if (preg_match('/\A\d+(?:\.\d+){3}\z/', $candidate) === 1) {
             throw new InvalidArgumentException('IP addresses are not accepted as tenant hosts.');
         }
 
