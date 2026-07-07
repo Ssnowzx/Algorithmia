@@ -433,12 +433,12 @@ final class TenantAuthenticationTest extends TestCase
             $server['HTTP_'.strtoupper(str_replace('-', '_', $name))] = $value;
         }
 
-        if ($includeCsrf) {
-            $csrfToken = csrf_token();
+        if ($includeCsrf && strtoupper($method) === 'POST') {
+            [$csrfToken, $bootstrapCookies] = $this->bootstrapCsrfState($host);
             $data['_token'] = $csrfToken;
-
-            return $this->withSession(['_token' => $csrfToken])
-                ->call($method, $fullUri, $data, $cookies, [], $server);
+            $server['HTTP_X_CSRF_TOKEN'] = $csrfToken;
+            $server['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+            $cookies = array_merge($bootstrapCookies, $cookies);
         }
 
         return $this->call($method, $fullUri, $data, $cookies, [], $server);
@@ -476,6 +476,25 @@ final class TenantAuthenticationTest extends TestCase
         }
 
         return $this->call($method, $fullUri, $data, $cookies, [], $server);
+    }
+
+    /**
+     * @return array{0: string, 1: array<string, string>}
+     */
+    private function bootstrapCsrfState(string $host): array
+    {
+        $response = $this->tenantHtml('GET', $host, '/login', [], [], [], false);
+
+        if (! preg_match('/name="_token" value="([^"]+)"/', (string) $response->getContent(), $matches)) {
+            throw new RuntimeException('Unable to extract CSRF token from the login form.');
+        }
+
+        return [
+            $matches[1],
+            [
+                (string) config('session.cookie') => $this->sessionCookieValue($response),
+            ],
+        ];
     }
 
     private function sessionCookieValue(TestResponse $response): string
