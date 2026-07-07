@@ -11,6 +11,7 @@ use App\Domain\Tenancy\Models\Tenant;
 use App\Domain\Tenancy\Models\TenantDomain;
 use App\Domain\Tenancy\Models\TenantMembership;
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
@@ -434,6 +435,7 @@ final class TenantAuthenticationTest extends TestCase
         }
 
         if ($includeCsrf) {
+            $this->withoutMiddleware(ValidateCsrfToken::class);
             $data['_token'] = csrf_token();
         }
 
@@ -464,6 +466,7 @@ final class TenantAuthenticationTest extends TestCase
         }
 
         if ($includeCsrf) {
+            $this->withoutMiddleware(ValidateCsrfToken::class);
             $data['_token'] = csrf_token();
         }
 
