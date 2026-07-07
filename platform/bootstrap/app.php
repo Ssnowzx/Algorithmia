@@ -16,14 +16,6 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        /** @var array<int, string> $trustedProxies */
-        $trustedProxies = array_values(array_filter(array_map(
-            static fn (string $proxy): string => trim($proxy),
-            (array) config('tenancy.trusted_proxies', []),
-        )));
-
-        $middleware->trustProxies(at: $trustedProxies);
-
         $middleware->alias([
             'resolve.tenant' => ResolveTenantFromHost::class,
         ]);
