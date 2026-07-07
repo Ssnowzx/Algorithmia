@@ -47,7 +47,7 @@ services:
     environment:
       POSTGRES_DB: algorithmia_platform
       POSTGRES_USER: algorithmia
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_PASSWORD: ${MIGRATOR_DB_PASSWORD}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U algorithmia -d algorithmia_platform"]
       interval: 5s

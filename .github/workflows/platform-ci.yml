@@ -64,6 +64,48 @@ jobs:
         working-directory: platform
         run: cp .env.example .env
 
+      - name: Provision runtime database role
+        working-directory: platform
+        env:
+          APP_ENV: testing
+          APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+          APP_URL: http://localhost:8080
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: algorithmia_platform
+          DB_USERNAME: algorithmia_runtime
+          DB_PASSWORD: runtime-secret
+          MIGRATOR_DB_HOST: 127.0.0.1
+          MIGRATOR_DB_PORT: 5432
+          MIGRATOR_DB_DATABASE: algorithmia_platform
+          MIGRATOR_DB_USERNAME: algorithmia
+          MIGRATOR_DB_PASSWORD: secret
+          REDIS_HOST: 127.0.0.1
+          REDIS_PORT: 6379
+        run: php artisan platform:database:provision-runtime-role
+
+      - name: Run migrations
+        working-directory: platform
+        env:
+          APP_ENV: testing
+          APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+          APP_URL: http://localhost:8080
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: algorithmia_platform
+          DB_USERNAME: algorithmia_runtime
+          DB_PASSWORD: runtime-secret
+          MIGRATOR_DB_HOST: 127.0.0.1
+          MIGRATOR_DB_PORT: 5432
+          MIGRATOR_DB_DATABASE: algorithmia_platform
+          MIGRATOR_DB_USERNAME: algorithmia
+          MIGRATOR_DB_PASSWORD: secret
+          REDIS_HOST: 127.0.0.1
+          REDIS_PORT: 6379
+        run: php artisan migrate --database=pgsql_migrator --force
+
       - name: Run tests
         working-directory: platform
         env:
@@ -74,8 +116,13 @@ jobs:
           DB_HOST: 127.0.0.1
           DB_PORT: 5432
           DB_DATABASE: algorithmia_platform
-          DB_USERNAME: algorithmia
-          DB_PASSWORD: secret
+          DB_USERNAME: algorithmia_runtime
+          DB_PASSWORD: runtime-secret
+          MIGRATOR_DB_HOST: 127.0.0.1
+          MIGRATOR_DB_PORT: 5432
+          MIGRATOR_DB_DATABASE: algorithmia_platform
+          MIGRATOR_DB_USERNAME: algorithmia
+          MIGRATOR_DB_PASSWORD: secret
           REDIS_HOST: 127.0.0.1
           REDIS_PORT: 6379
           MAIL_MAILER: array

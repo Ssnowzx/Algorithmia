@@ -28,6 +28,13 @@ generate_db_password() {
   compose run --rm --no-deps -T app php -r 'echo bin2hex(random_bytes(16));' | tail -n 1 | tr -d '\r'
 }
 
+get_env_value() {
+  local key="$1"
+  if [ -f "$ENV_FILE" ]; then
+    grep -E "^${key}=" "$ENV_FILE" | head -n 1 | cut -d= -f2-
+  fi
+}
+
 set_env_value() {
   local key="$1"
   local value="$2"
@@ -48,11 +55,56 @@ ensure_env() {
     cp "$ENV_EXAMPLE" "$ENV_FILE"
   fi
 
+  local current_db_username current_db_password current_db_host current_db_port current_db_database current_migrator_username current_migrator_password current_migrator_host current_migrator_port current_migrator_database
+  current_db_username="$(get_env_value DB_USERNAME)"
+  current_db_password="$(get_env_value DB_PASSWORD)"
+  current_db_host="$(get_env_value DB_HOST)"
+  current_db_port="$(get_env_value DB_PORT)"
+  current_db_database="$(get_env_value DB_DATABASE)"
+  current_migrator_username="$(get_env_value MIGRATOR_DB_USERNAME)"
+  current_migrator_password="$(get_env_value MIGRATOR_DB_PASSWORD)"
+  current_migrator_host="$(get_env_value MIGRATOR_DB_HOST)"
+  current_migrator_port="$(get_env_value MIGRATOR_DB_PORT)"
+  current_migrator_database="$(get_env_value MIGRATOR_DB_DATABASE)"
+
   if grep -q '^APP_KEY=base64:CHANGE_ME' "$ENV_FILE" || ! grep -q '^APP_KEY=base64:' "$ENV_FILE"; then
     set_env_value "APP_KEY" "$(generate_app_key)"
   fi
 
-  if grep -q '^DB_PASSWORD=change_me' "$ENV_FILE" || ! grep -q '^DB_PASSWORD=' "$ENV_FILE"; then
+  if [ "$current_db_username" != "algorithmia_runtime" ]; then
+    set_env_value "DB_USERNAME" "algorithmia_runtime"
+  fi
+
+  if [ -z "$current_migrator_username" ] || [ "$current_migrator_username" = "change_me_migrator" ]; then
+    set_env_value "MIGRATOR_DB_USERNAME" "algorithmia"
+  fi
+
+  if [ -n "$current_db_host" ] && [ -z "$current_migrator_host" ]; then
+    set_env_value "MIGRATOR_DB_HOST" "$current_db_host"
+  elif [ -z "$current_migrator_host" ]; then
+    set_env_value "MIGRATOR_DB_HOST" "postgres"
+  fi
+
+  if [ -n "$current_db_port" ] && [ -z "$current_migrator_port" ]; then
+    set_env_value "MIGRATOR_DB_PORT" "$current_db_port"
+  elif [ -z "$current_migrator_port" ]; then
+    set_env_value "MIGRATOR_DB_PORT" "5432"
+  fi
+
+  if [ -n "$current_db_database" ] && [ -z "$current_migrator_database" ]; then
+    set_env_value "MIGRATOR_DB_DATABASE" "$current_db_database"
+  elif [ -z "$current_migrator_database" ]; then
+    set_env_value "MIGRATOR_DB_DATABASE" "algorithmia_platform"
+  fi
+
+  if [ -z "$current_migrator_password" ] || [ "$current_migrator_password" = "change_me_migrator" ]; then
+    if [ -n "$current_db_password" ] && [ "$current_db_password" != "change_me_runtime" ]; then
+      set_env_value "MIGRATOR_DB_PASSWORD" "$current_db_password"
+    else
+      set_env_value "MIGRATOR_DB_PASSWORD" "$(generate_db_password)"
+    fi
+    set_env_value "DB_PASSWORD" "$(generate_db_password)"
+  elif [ -z "$current_db_password" ] || [ "$current_db_password" = "change_me_runtime" ]; then
     set_env_value "DB_PASSWORD" "$(generate_db_password)"
   fi
 
@@ -77,7 +129,7 @@ case "$cmd" in
     validate_prereqs
     ensure_env
     echo "Bootstrapping dependencies inside the app container..."
-    compose run --rm --no-deps app composer update --no-interaction --prefer-dist
+    compose run --rm --no-deps -T app composer install --no-interaction --prefer-dist
     echo "Bootstrap complete."
     echo "composer.lock generated or updated inside platform/."
     ;;
@@ -116,7 +168,8 @@ case "$cmd" in
   migrate)
     validate_prereqs
     ensure_env
-    compose exec -T app php artisan migrate --force
+    compose exec -T app php artisan platform:database:provision-runtime-role
+    compose exec -T app php artisan migrate --database=pgsql_migrator --force
     ;;
   *)
     usage
