@@ -81,7 +81,7 @@ final class TenantHttpBoundaryTest extends TestCase
             [],
             [],
             [
-                'HTTP_HOST' => 'https://tenant.example.test',
+                'HTTP_HOST' => 'ten ant.example.test',
                 'HTTP_ACCEPT' => 'application/json',
             ],
         )
