@@ -27,7 +27,7 @@ final class ResolveTenantFromHost
 
     public function handle(Request $request, Closure $next): Response|JsonResponse
     {
-        $rawHost = (string) $request->headers->get('host', '');
+        $rawHost = (string) $request->server->get('HTTP_HOST', $request->headers->get('host', ''));
 
         try {
             $normalizedHost = $this->hostNormalizer->normalize($rawHost);

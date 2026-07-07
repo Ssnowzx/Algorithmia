@@ -18,8 +18,7 @@ final class TenantHttpBoundaryTest extends TestCase
     {
         $this->assertTenantContextAbsent();
 
-        $this->withHeader('Host', 'localhost')
-            ->getJson('/healthz')
+        $this->getJson('/healthz')
             ->assertOk()
             ->assertExactJson([
                 'status' => 'ok',
@@ -37,7 +36,7 @@ final class TenantHttpBoundaryTest extends TestCase
     {
         [$tenant, $domain] = $this->createTenantWithDomain('active');
 
-        $this->withHeader('Host', $domain->host)
+        $this->withServerVariables(['HTTP_HOST' => $domain->host])
             ->getJson('/__tenant/context')
             ->assertOk()
             ->assertExactJson(['status' => 'ok']);
@@ -47,7 +46,7 @@ final class TenantHttpBoundaryTest extends TestCase
 
     public function test_it_returns_404_for_an_unknown_tenant_domain(): void
     {
-        $this->withHeader('Host', 'missing-'.Str::uuid()->toString().'.example.test')
+        $this->withServerVariables(['HTTP_HOST' => 'missing-'.Str::uuid()->toString().'.example.test'])
             ->getJson('/__tenant/context')
             ->assertNotFound();
     }
@@ -56,7 +55,7 @@ final class TenantHttpBoundaryTest extends TestCase
     {
         [$tenant, $domain] = $this->createTenantWithDomain('active', false);
 
-        $this->withHeader('Host', $domain->host)
+        $this->withServerVariables(['HTTP_HOST' => $domain->host])
             ->getJson('/__tenant/context')
             ->assertNotFound();
     }
@@ -65,21 +64,21 @@ final class TenantHttpBoundaryTest extends TestCase
     {
         [$tenant, $domain] = $this->createTenantWithDomain('suspended');
 
-        $this->withHeader('Host', $domain->host)
+        $this->withServerVariables(['HTTP_HOST' => $domain->host])
             ->getJson('/__tenant/context')
             ->assertNotFound();
     }
 
     public function test_it_returns_404_when_a_platform_host_hits_a_tenant_route(): void
     {
-        $this->withHeader('Host', '127.0.0.1:8080')
+        $this->withServerVariables(['HTTP_HOST' => '127.0.0.1:8080'])
             ->getJson('/__tenant/context')
             ->assertNotFound();
     }
 
     public function test_it_returns_400_for_a_malformed_host(): void
     {
-        $this->withHeader('Host', 'https://tenant.example.test')
+        $this->withServerVariables(['HTTP_HOST' => 'https://tenant.example.test'])
             ->getJson('/__tenant/context')
             ->assertStatus(400);
     }
@@ -88,7 +87,7 @@ final class TenantHttpBoundaryTest extends TestCase
     {
         [, $domain] = $this->createTenantWithDomain('active');
 
-        $this->withHeader('Host', $domain->host)
+        $this->withServerVariables(['HTTP_HOST' => $domain->host])
             ->withHeader('X-Tenant-ID', (string) Str::uuid())
             ->withHeader('X-Tenant', 'another-tenant')
             ->withHeader('X-Forwarded-Host', 'localhost')
@@ -102,7 +101,7 @@ final class TenantHttpBoundaryTest extends TestCase
     {
         [, $domain] = $this->createTenantWithDomain('active');
 
-        $this->withHeader('Host', 'localhost')
+        $this->withServerVariables(['HTTP_HOST' => 'localhost'])
             ->withHeader('X-Forwarded-Host', $domain->host)
             ->getJson('/__tenant/context')
             ->assertNotFound();
@@ -113,13 +112,13 @@ final class TenantHttpBoundaryTest extends TestCase
         [, $domainA] = $this->createTenantWithDomain('active', true, 'tenant-a');
         [, $domainB] = $this->createTenantWithDomain('active', true, 'tenant-b');
 
-        $this->withHeader('Host', $domainA->host)
+        $this->withServerVariables(['HTTP_HOST' => $domainA->host])
             ->getJson('/__tenant/context')
             ->assertOk();
 
         $this->assertTenantContextAbsent();
 
-        $this->withHeader('Host', $domainB->host)
+        $this->withServerVariables(['HTTP_HOST' => $domainB->host])
             ->getJson('/__tenant/context')
             ->assertOk();
 
