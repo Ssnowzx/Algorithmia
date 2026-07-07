@@ -11,8 +11,6 @@ use App\Domain\Tenancy\Models\Tenant;
 use App\Domain\Tenancy\Models\TenantDomain;
 use App\Domain\Tenancy\Models\TenantMembership;
 use Illuminate\Http\Request;
-use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
@@ -436,9 +434,11 @@ final class TenantAuthenticationTest extends TestCase
         }
 
         if ($includeCsrf) {
-            $this->withoutMiddleware(ValidateCsrfToken::class);
-            $this->withoutMiddleware(VerifyCsrfToken::class);
-            $data['_token'] = csrf_token();
+            $csrfToken = csrf_token();
+            $data['_token'] = $csrfToken;
+
+            return $this->withSession(['_token' => $csrfToken])
+                ->call($method, $fullUri, $data, $cookies, [], $server);
         }
 
         return $this->call($method, $fullUri, $data, $cookies, [], $server);
@@ -468,9 +468,11 @@ final class TenantAuthenticationTest extends TestCase
         }
 
         if ($includeCsrf) {
-            $this->withoutMiddleware(ValidateCsrfToken::class);
-            $this->withoutMiddleware(VerifyCsrfToken::class);
-            $data['_token'] = csrf_token();
+            $csrfToken = csrf_token();
+            $data['_token'] = $csrfToken;
+
+            return $this->withSession(['_token' => $csrfToken])
+                ->call($method, $fullUri, $data, $cookies, [], $server);
         }
 
         return $this->call($method, $fullUri, $data, $cookies, [], $server);
