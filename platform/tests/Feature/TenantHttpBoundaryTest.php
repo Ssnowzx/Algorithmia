@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
+use Symfony\Component\HttpFoundation\Response;
 
 final class TenantHttpBoundaryTest extends TestCase
 {
@@ -111,9 +112,6 @@ final class TenantHttpBoundaryTest extends TestCase
             [
                 'tenant_id' => (string) Str::uuid(),
             ],
-            [
-                'tenant_id' => (string) Str::uuid(),
-            ],
         )
             ->assertOk()
             ->assertExactJson(['status' => 'ok']);
@@ -161,6 +159,7 @@ final class TenantHttpBoundaryTest extends TestCase
     /**
      * @param array<string, string> $headers
      * @param array<string, string> $cookies
+     * @return TestResponse<Response>
      */
     private function tenantJson(string $host, string $uri, array $headers = [], array $cookies = []): TestResponse
     {

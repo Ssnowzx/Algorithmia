@@ -27,7 +27,11 @@ final class ResolveTenantFromHost
 
     public function handle(Request $request, Closure $next): Response|JsonResponse
     {
-        $rawHost = (string) $request->server->get('HTTP_HOST', $request->headers->get('host', ''));
+        $rawHost = $request->server->get('HTTP_HOST', $request->headers->get('host', ''));
+
+        if (! is_string($rawHost)) {
+            $rawHost = '';
+        }
 
         try {
             $normalizedHost = $this->hostNormalizer->normalize($rawHost);
@@ -51,7 +55,18 @@ final class ResolveTenantFromHost
         app()->instance(CurrentTenant::class, $currentTenant);
 
         try {
-            return $this->tenantDatabaseContext->run($currentTenant, static fn () => $next($request));
+            $response = $this->tenantDatabaseContext->run(
+                $currentTenant,
+                static function () use ($next, $request): Response|JsonResponse {
+                    $response = $next($request);
+
+                    /** @var Response|JsonResponse $response */
+                    return $response;
+                },
+            );
+
+            /** @var Response|JsonResponse $response */
+            return $response;
         } finally {
             app()->forgetInstance(CurrentTenant::class);
         }
