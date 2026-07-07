@@ -30,13 +30,23 @@ Essas rotas podem responder em hosts globais como `localhost`, `127.0.0.1` e
 
 ## Rotas tenant-scoped
 
-Rotas tenant-scoped exigem host resolvido e contexto ativo. Nesta etapa existe uma rota
-interna minima de prova tecnica:
+Rotas tenant-scoped exigem host resolvido e contexto ativo. Nesta etapa existem rotas
+de prova tecnica e de autenticacao:
 
+- `GET /login`
+- `POST /login`
+- `POST /logout`
 - `GET /__tenant/context`
+- `GET /__tenant/auth-context`
 
-Essa rota responde com payload generico e nao expoe `tenant_id`, memberships ou dados
-sensiveis.
+O login, logout e o contexto autenticado compartilham o middleware `resolve.tenant`.
+As rotas autenticadas tambem passam por `auth` e `ensure.active.membership`.
+
+`GET /__tenant/context` continua como rota tecnica de prova e responde com payload
+generico sem expor `tenant_id`, memberships ou dados sensiveis.
+
+`GET /__tenant/auth-context` confirma, de forma segura, que o usuario autenticado possui
+membership ativa no tenant resolvido e que o contexto de banco esta ativo.
 
 ## Normalizacao e rejeicao de host
 
@@ -87,6 +97,22 @@ TENANCY_TRUSTED_PROXIES=
 - rollback acontece quando a rota falha
 - a limpeza e automatico ao final da requisicao
 
+## Ordem dos middlewares institucionais autenticados
+
+Para rotas autenticadas do tenant, a ordem efetiva e:
+
+1. `resolve.tenant`
+2. `auth`
+3. `ensure.active.membership`
+4. controller
+
+Essa ordem garante que:
+
+- o tenant vem apenas do Host
+- a sessao e validada depois do tenant resolvido
+- a membership e revalidada a cada requisicao
+- o contexto RLS permanece na transacao da requisicao
+
 ## Limitacoes conhecidas
 
 - streaming, downloads e SSE nao foram modelados nesta etapa
@@ -104,4 +130,3 @@ curl -i -H 'Host: tenant-a.algorithmia.test' http://127.0.0.1:8080/__tenant/cont
 curl -i -H 'Host: host-inexistente.algorithmia.test' http://127.0.0.1:8080/__tenant/context
 curl -i -H 'Host: localhost' http://127.0.0.1:8080/__tenant/context
 ```
-

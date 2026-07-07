@@ -16,6 +16,6 @@ return [
     'path' => '/',
     'domain' => env('SESSION_DOMAIN'),
     'secure' => env('SESSION_SECURE_COOKIE'),
-    'http_only' => true,
-    'same_site' => 'lax',
+    'http_only' => env('SESSION_HTTP_ONLY', true),
+    'same_site' => env('SESSION_SAME_SITE', 'lax'),
 ];

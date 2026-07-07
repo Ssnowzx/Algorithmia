@@ -48,7 +48,7 @@ final class User extends Authenticatable
     protected function email(): Attribute
     {
         return Attribute::make(
-            set: static fn (string $value): string => mb_strtolower($value),
+            set: static fn (string $value): string => mb_strtolower(trim($value)),
         );
     }
 

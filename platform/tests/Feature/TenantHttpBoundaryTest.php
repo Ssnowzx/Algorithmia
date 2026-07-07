@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
@@ -142,6 +143,36 @@ final class TenantHttpBoundaryTest extends TestCase
 
         $this->tenantJson($domainB->host, '/__tenant/context')
             ->assertOk();
+
+        $this->assertTenantContextAbsent();
+    }
+
+    public function test_it_clears_context_when_tenant_resolution_throws(): void
+    {
+        [, $domain] = $this->createTenantWithDomain('active');
+
+        $request = Request::create(
+            '/__tenant/context',
+            'GET',
+            [],
+            [],
+            [],
+            [
+                'HTTP_HOST' => $domain->host,
+                'HTTP_ACCEPT' => 'application/json',
+            ],
+        );
+
+        try {
+            app(ResolveTenantFromHost::class)->handle(
+                $request,
+                static function (): Response {
+                    throw new RuntimeException('Forced exception for cleanup test.');
+                },
+            );
+        } catch (RuntimeException) {
+            // expected
+        }
 
         $this->assertTenantContextAbsent();
     }
