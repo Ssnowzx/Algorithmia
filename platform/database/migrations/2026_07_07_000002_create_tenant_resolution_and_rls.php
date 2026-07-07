@@ -39,7 +39,10 @@ create policy tenant_memberships_isolation on tenant_memberships
     with check (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid)
 SQL);
 
-        $runtimeRole = (string) config('database.connections.pgsql.username', 'algorithmia_runtime');
+        $configuredRuntimeRole = config('database.connections.pgsql.username', 'algorithmia_runtime');
+        $runtimeRole = is_string($configuredRuntimeRole) && $configuredRuntimeRole !== ''
+            ? $configuredRuntimeRole
+            : 'algorithmia_runtime';
 
         DB::connection('pgsql_migrator')->statement(sprintf('grant execute on function public.resolve_active_tenant(text) to %s', $this->quoteIdentifier($runtimeRole)));
         DB::connection('pgsql_migrator')->statement(sprintf('grant select, insert, update, delete on tenant_memberships to %s', $this->quoteIdentifier($runtimeRole)));

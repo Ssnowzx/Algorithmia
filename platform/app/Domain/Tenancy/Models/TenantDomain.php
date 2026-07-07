@@ -6,13 +6,19 @@ namespace App\Domain\Tenancy\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property string $id
+ * @property string $tenant_id
+ * @property string $host
+ * @property bool $is_primary
+ * @property bool $is_active
+ * @property string|null $verified_at
+ */
 final class TenantDomain extends Model
 {
-    use HasFactory;
     use HasUuids;
 
     protected $table = 'tenant_domains';
@@ -31,6 +37,7 @@ final class TenantDomain extends Model
         'verified_at' => 'datetime',
     ];
 
+    /** @return Attribute<string, string> */
     protected function host(): Attribute
     {
         return Attribute::make(
@@ -43,6 +50,9 @@ final class TenantDomain extends Model
      */
     public function tenant(): BelongsTo
     {
-        return $this->belongsTo(Tenant::class);
+        /** @var BelongsTo<Tenant, self> $relation */
+        $relation = $this->belongsTo(Tenant::class);
+
+        return $relation;
     }
 }

@@ -7,14 +7,20 @@ namespace App\Domain\Identity\Models;
 use App\Domain\Tenancy\Models\TenantMembership;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * @property string $id
+ * @property string $name
+ * @property string $email
+ * @property string|null $email_verified_at
+ * @property string $password
+ * @property string|null $remember_token
+ */
 final class User extends Authenticatable
 {
-    use HasFactory;
     use HasUuids;
     use Notifiable;
 
@@ -38,6 +44,7 @@ final class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+    /** @return Attribute<string, string> */
     protected function email(): Attribute
     {
         return Attribute::make(
@@ -50,6 +57,9 @@ final class User extends Authenticatable
      */
     public function memberships(): HasMany
     {
-        return $this->hasMany(TenantMembership::class);
+        /** @var HasMany<TenantMembership, self> $relation */
+        $relation = $this->hasMany(TenantMembership::class);
+
+        return $relation;
     }
 }

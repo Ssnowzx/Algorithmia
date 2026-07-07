@@ -44,14 +44,16 @@ final class DatabaseRoleProvisioner
 
     private function runtimeRoleName(): string
     {
-        return (string) config('database.connections.pgsql.username', 'algorithmia_runtime');
+        $value = config('database.connections.pgsql.username', 'algorithmia_runtime');
+
+        return is_string($value) && $value !== '' ? $value : 'algorithmia_runtime';
     }
 
     private function runtimeRolePassword(): string
     {
-        $password = (string) config('database.connections.pgsql.password', '');
+        $password = config('database.connections.pgsql.password', '');
 
-        if ($password === '') {
+        if (! is_string($password) || $password === '') {
             throw new RuntimeException('Missing runtime database password.');
         }
 
@@ -148,11 +150,11 @@ final class DatabaseRoleProvisioner
 
     private function quoteIdentifier(string $identifier): string
     {
-        return '"' . str_replace('"', '""', $identifier) . '"';
+        return '"'.str_replace('"', '""', $identifier).'"';
     }
 
     private function quoteLiteral(string $value): string
     {
-        return "'" . str_replace("'", "''", $value) . "'";
+        return "'".str_replace("'", "''", $value)."'";
     }
 }

@@ -61,6 +61,7 @@ final class TenantResolverTest extends TestCase
         );
 
         self::assertNotNull($result);
+        /** @var object{tenant_id: string|null} $result */
         self::assertSame($tenant->id, $result->tenant_id);
     }
 
@@ -74,6 +75,7 @@ final class TenantResolverTest extends TestCase
             throw new RuntimeException('Unable to inspect the runtime database role.');
         }
 
+        /** @var object{rolsuper: bool, rolbypassrls: bool, rolcreaterole: bool, rolcreatedb: bool} $result */
         self::assertFalse((bool) $result->rolsuper);
         self::assertFalse((bool) $result->rolbypassrls);
         self::assertFalse((bool) $result->rolcreaterole);

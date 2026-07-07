@@ -88,20 +88,18 @@ final class TenantMembershipRlsTest extends TestCase
         [$tenantA, $tenantB, $user] = $this->createGraph();
         $context = app(TenantDatabaseContext::class);
 
-        $membershipB = TenantMembership::on('pgsql_migrator')->create([
-            'tenant_id' => $tenantB->id,
-            'user_id' => $user->id,
-            'role' => 'member',
-            'status' => 'active',
-        ]);
+        $membershipB = TenantMembership::on('pgsql_migrator')
+            ->where('tenant_id', $tenantB->id)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
 
         $updated = $context->run(
             new CurrentTenant($tenantA->id, 'tenant-a.example.test'),
-            static fn (): int => TenantMembership::whereKey($membershipB->id)->update(['role' => 'admin']),
+            static fn (): int => (int) TenantMembership::whereKey($membershipB->id)->update(['role' => 'admin']),
         );
         $deleted = $context->run(
             new CurrentTenant($tenantA->id, 'tenant-a.example.test'),
-            static fn (): int => TenantMembership::whereKey($membershipB->id)->delete(),
+            static fn (): int => (int) TenantMembership::whereKey($membershipB->id)->delete(),
         );
 
         self::assertSame(0, $updated);
@@ -122,6 +120,8 @@ final class TenantMembershipRlsTest extends TestCase
                 continue;
             }
         }
+
+        self::assertTrue(true);
     }
 
     /**

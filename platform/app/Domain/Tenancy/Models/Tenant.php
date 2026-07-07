@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace App\Domain\Tenancy\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
+/**
+ * @property string $id
+ * @property string $name
+ * @property string $slug
+ * @property string $status
+ */
 final class Tenant extends Model
 {
-    use HasFactory;
     use HasUuids;
 
     protected $table = 'tenants';
@@ -23,6 +27,7 @@ final class Tenant extends Model
         'status',
     ];
 
+    /** @return Attribute<string, string> */
     protected function slug(): Attribute
     {
         return Attribute::make(
@@ -35,7 +40,10 @@ final class Tenant extends Model
      */
     public function domains(): HasMany
     {
-        return $this->hasMany(TenantDomain::class);
+        /** @var HasMany<TenantDomain, self> $relation */
+        $relation = $this->hasMany(TenantDomain::class);
+
+        return $relation;
     }
 
     /**
@@ -43,6 +51,9 @@ final class Tenant extends Model
      */
     public function memberships(): HasMany
     {
-        return $this->hasMany(TenantMembership::class);
+        /** @var HasMany<TenantMembership, self> $relation */
+        $relation = $this->hasMany(TenantMembership::class);
+
+        return $relation;
     }
 }

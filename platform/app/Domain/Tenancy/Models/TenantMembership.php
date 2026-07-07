@@ -7,13 +7,18 @@ namespace App\Domain\Tenancy\Models;
 use App\Domain\Identity\Models\User;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property string $id
+ * @property string $tenant_id
+ * @property string $user_id
+ * @property string $role
+ * @property string $status
+ */
 final class TenantMembership extends Model
 {
-    use HasFactory;
     use HasUuids;
 
     protected $table = 'tenant_memberships';
@@ -25,6 +30,7 @@ final class TenantMembership extends Model
         'status',
     ];
 
+    /** @return Attribute<string, string> */
     protected function role(): Attribute
     {
         return Attribute::make(
@@ -32,6 +38,7 @@ final class TenantMembership extends Model
         );
     }
 
+    /** @return Attribute<string, string> */
     protected function status(): Attribute
     {
         return Attribute::make(
@@ -44,7 +51,10 @@ final class TenantMembership extends Model
      */
     public function tenant(): BelongsTo
     {
-        return $this->belongsTo(Tenant::class);
+        /** @var BelongsTo<Tenant, self> $relation */
+        $relation = $this->belongsTo(Tenant::class);
+
+        return $relation;
     }
 
     /**
@@ -52,6 +62,9 @@ final class TenantMembership extends Model
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        /** @var BelongsTo<User, self> $relation */
+        $relation = $this->belongsTo(User::class);
+
+        return $relation;
     }
 }

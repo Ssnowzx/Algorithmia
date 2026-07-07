@@ -16,10 +16,15 @@ final class TenantResolver
             [$normalizedHost],
         );
 
-        if ($result === null || ! isset($result->tenant_id) || $result->tenant_id === null) {
+        if ($result === null) {
             return null;
         }
 
-        return new CurrentTenant((string) $result->tenant_id, $normalizedHost);
+        /** @var object{tenant_id: string|null} $result */
+        if ($result->tenant_id === null) {
+            return null;
+        }
+
+        return new CurrentTenant($result->tenant_id, $normalizedHost);
     }
 }
