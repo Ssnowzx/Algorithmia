@@ -437,6 +437,7 @@ final class TenantAuthenticationTest extends TestCase
             [$csrfToken, $bootstrapCookies] = $this->bootstrapCsrfState($host);
             $data['_token'] = $csrfToken;
             $server['HTTP_X_CSRF_TOKEN'] = $csrfToken;
+            $server['HTTP_X_XSRF_TOKEN'] = $csrfToken;
             $server['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
             $cookies = array_merge($bootstrapCookies, $cookies);
         }
@@ -484,8 +485,19 @@ final class TenantAuthenticationTest extends TestCase
     private function bootstrapCsrfState(string $host): array
     {
         $response = $this->tenantHtml('GET', $host, '/login', [], [], [], false);
+        $xsrfToken = $this->cookieValue($response, 'XSRF-TOKEN');
 
-        if (! preg_match('/name="_token" value="([^"]+)"/', (string) $response->getContent(), $matches)) {
+        if ($xsrfToken !== null && $xsrfToken !== '') {
+            return [
+                $xsrfToken,
+                [
+                    (string) config('session.cookie') => $this->sessionCookieValue($response),
+                    'XSRF-TOKEN' => $xsrfToken,
+                ],
+            ];
+        }
+
+        if (! preg_match('/<input\b[^>]*name=["\']_token["\'][^>]*value=["\']([^"\']+)["\'][^>]*>/i', (string) $response->getContent(), $matches)) {
             throw new RuntimeException('Unable to extract CSRF token from the login form.');
         }
 
@@ -493,6 +505,7 @@ final class TenantAuthenticationTest extends TestCase
             $matches[1],
             [
                 (string) config('session.cookie') => $this->sessionCookieValue($response),
+                'XSRF-TOKEN' => $matches[1],
             ],
         ];
     }
@@ -508,6 +521,17 @@ final class TenantAuthenticationTest extends TestCase
         }
 
         throw new RuntimeException(sprintf('Session cookie "%s" not found in response.', $cookieName));
+    }
+
+    private function cookieValue(TestResponse $response, string $cookieName): ?string
+    {
+        foreach ($response->headers->getCookies() as $cookie) {
+            if ($cookie->getName() === $cookieName) {
+                return $cookie->getValue();
+            }
+        }
+
+        return null;
     }
 
     /**

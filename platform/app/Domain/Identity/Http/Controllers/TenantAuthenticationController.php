@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Identity\Http\Controllers;
 
 use App\Domain\Identity\Models\User;
+use App\Domain\Tenancy\CurrentTenant;
 use App\Domain\Tenancy\Models\TenantMembership;
 use Illuminate\Auth\AuthManager;
 use Illuminate\Http\JsonResponse;
@@ -83,7 +84,15 @@ final class TenantAuthenticationController
 
     private function membershipIsActive(User $user): bool
     {
+        if (! app()->bound(CurrentTenant::class)) {
+            return false;
+        }
+
+        /** @var CurrentTenant $currentTenant */
+        $currentTenant = app(CurrentTenant::class);
+
         return TenantMembership::query()
+            ->where('tenant_id', $currentTenant->tenantId)
             ->where('user_id', $user->id)
             ->where('status', 'active')
             ->exists();

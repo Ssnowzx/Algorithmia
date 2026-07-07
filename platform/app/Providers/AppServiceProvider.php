@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Domain\Tenancy\CurrentTenant;
+use App\Domain\Tenancy\Support\HostNormalizer;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -25,7 +26,7 @@ final class AppServiceProvider extends ServiceProvider
                 $currentTenant = app(CurrentTenant::class);
                 $tenantId = $currentTenant->tenantId;
             } else {
-                $tenantId = 'global';
+                $tenantId = $this->tenantKeyFromHost($request);
             }
 
             $normalizedEmail = mb_strtolower(trim((string) $request->input('email', '')));
@@ -37,5 +38,17 @@ final class AppServiceProvider extends ServiceProvider
                 hash('sha256', $normalizedEmail),
             ));
         });
+    }
+
+    private function tenantKeyFromHost(Request $request): string
+    {
+        try {
+            /** @var HostNormalizer $hostNormalizer */
+            $hostNormalizer = app(HostNormalizer::class);
+
+            return $hostNormalizer->normalize((string) $request->server->get('HTTP_HOST', $request->headers->get('host', '')));
+        } catch (\Throwable) {
+            return 'global';
+        }
     }
 }
