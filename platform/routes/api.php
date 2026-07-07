@@ -2,4 +2,7 @@
 
 declare(strict_types=1);
 
-// API routes reserved for future platform endpoints.
+use App\Domain\Platform\Http\Controllers\HealthzController;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/healthz', HealthzController::class);

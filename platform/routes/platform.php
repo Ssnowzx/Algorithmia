@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Domain\Platform\Http\Controllers\HealthzController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', static function () {
@@ -11,5 +10,3 @@ Route::get('/', static function () {
         'service' => 'Algorithmia Platform',
     ]);
 });
-
-Route::get('/healthz', HealthzController::class);
