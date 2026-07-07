@@ -8,6 +8,7 @@ use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 use stdClass;
+use Throwable;
 
 final class DatabaseRoleProvisioner
 {
@@ -28,10 +29,14 @@ final class DatabaseRoleProvisioner
             throw new RuntimeException('The migrator connection cannot provision database roles.');
         }
 
-        if ($this->roleExists($connection, $runtimeRole)) {
-            $this->alterRuntimeRole($connection, $runtimeRole, $runtimePassword);
-        } else {
-            $this->createRuntimeRole($connection, $runtimeRole, $runtimePassword);
+        try {
+            if ($this->roleExists($connection, $runtimeRole)) {
+                $this->alterRuntimeRole($connection, $runtimeRole, $runtimePassword);
+            } else {
+                $this->createRuntimeRole($connection, $runtimeRole, $runtimePassword);
+            }
+        } catch (Throwable) {
+            throw new RuntimeException('Unable to provision the runtime database role.');
         }
 
         $this->assertRuntimeRoleIsRestricted($connection, $runtimeRole);
@@ -107,10 +112,10 @@ final class DatabaseRoleProvisioner
     {
         $connection->statement(
             sprintf(
-                'create role %s with login nosuperuser nocreatedb nocreaterole noinherit nobypassrls password ?',
+                'create role %s with login nosuperuser nocreatedb nocreaterole noinherit nobypassrls password %s',
                 $this->quoteIdentifier($roleName),
+                $this->quoteLiteral($password),
             ),
-            [$password],
         );
     }
 
@@ -118,10 +123,10 @@ final class DatabaseRoleProvisioner
     {
         $connection->statement(
             sprintf(
-                'alter role %s with login nosuperuser nocreatedb nocreaterole noinherit nobypassrls password ?',
+                'alter role %s with login nosuperuser nocreatedb nocreaterole noinherit nobypassrls password %s',
                 $this->quoteIdentifier($roleName),
+                $this->quoteLiteral($password),
             ),
-            [$password],
         );
     }
 
@@ -144,5 +149,10 @@ final class DatabaseRoleProvisioner
     private function quoteIdentifier(string $identifier): string
     {
         return '"' . str_replace('"', '""', $identifier) . '"';
+    }
+
+    private function quoteLiteral(string $value): string
+    {
+        return "'" . str_replace("'", "''", $value) . "'";
     }
 }
