@@ -8,8 +8,8 @@ use App\Domain\Tenancy\CurrentTenant;
 use App\Domain\Tenancy\Support\HostNormalizer;
 use App\Domain\Tenancy\Support\TenantDatabaseContext;
 use App\Domain\Tenancy\Support\TenantResolver;
-use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Closure;
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
@@ -22,8 +22,7 @@ final class ResolveTenantFromHost
         private readonly TenantResolver $tenantResolver,
         private readonly TenantDatabaseContext $tenantDatabaseContext,
         private readonly ConfigRepository $config,
-    ) {
-    }
+    ) {}
 
     public function handle(Request $request, Closure $next): Response|JsonResponse
     {

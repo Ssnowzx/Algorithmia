@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Domain\Identity\Models\User;
 use App\Domain\Tenancy\CurrentTenant;
 use App\Domain\Tenancy\Http\Middleware\ResolveTenantFromHost;
 use App\Domain\Tenancy\Models\Tenant;
@@ -13,8 +14,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
-use Tests\TestCase;
 use Symfony\Component\HttpFoundation\Response;
+use Tests\TestCase;
 
 final class TenantHttpBoundaryTest extends TestCase
 {
@@ -157,8 +158,8 @@ final class TenantHttpBoundaryTest extends TestCase
     }
 
     /**
-     * @param array<string, string> $headers
-     * @param array<string, string> $cookies
+     * @param  array<string, string>  $headers
+     * @param  array<string, string>  $cookies
      * @return TestResponse<Response>
      */
     private function tenantJson(string $host, string $uri, array $headers = [], array $cookies = []): TestResponse
@@ -193,7 +194,7 @@ final class TenantHttpBoundaryTest extends TestCase
             'is_active' => $isActive,
         ]);
 
-        $user = \App\Domain\Identity\Models\User::on('pgsql_migrator')->create([
+        $user = User::on('pgsql_migrator')->create([
             'name' => 'User '.Str::uuid()->toString(),
             'email' => 'user-'.Str::uuid()->toString().'@example.test',
             'password' => 'secret-password',
