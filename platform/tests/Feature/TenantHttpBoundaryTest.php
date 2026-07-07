@@ -74,7 +74,17 @@ final class TenantHttpBoundaryTest extends TestCase
 
     public function test_it_returns_400_for_a_malformed_host(): void
     {
-        $this->tenantJson('https://tenant.example.test', '/__tenant/context')
+        $this->call(
+            'GET',
+            '/__tenant/context',
+            [],
+            [],
+            [],
+            [
+                'HTTP_HOST' => 'https://tenant.example.test',
+                'HTTP_ACCEPT' => 'application/json',
+            ],
+        )
             ->assertStatus(400);
     }
 
