@@ -5,8 +5,7 @@ declare(strict_types=1);
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-return new class extends Migration
-{
+return new class extends Migration {
     public function up(): void
     {
         DB::connection('pgsql_migrator')->statement(<<<'SQL'
@@ -30,7 +29,7 @@ SQL);
 
         DB::connection('pgsql_migrator')->statement('alter table tenant_memberships enable row level security');
         DB::connection('pgsql_migrator')->statement('alter table tenant_memberships force row level security');
-        DB::connection('pgsql_migrator')->statement("drop policy if exists tenant_memberships_isolation on tenant_memberships");
+        DB::connection('pgsql_migrator')->statement('drop policy if exists tenant_memberships_isolation on tenant_memberships');
         DB::connection('pgsql_migrator')->statement(<<<'SQL'
 create policy tenant_memberships_isolation on tenant_memberships
     for all
@@ -59,6 +58,6 @@ SQL);
 
     private function quoteIdentifier(string $identifier): string
     {
-        return '"' . str_replace('"', '""', $identifier) . '"';
+        return '"'.str_replace('"', '""', $identifier).'"';
     }
 };

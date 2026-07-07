@@ -34,7 +34,7 @@ final class HostNormalizer
         if (str_ends_with($candidate, '.')) {
             $candidate = substr($candidate, 0, -1);
 
-            if (strlen($candidate) === 0 || str_ends_with($candidate, '.')) {
+            if (str_ends_with($candidate, '.')) {
                 throw new InvalidArgumentException('Host cannot contain repeated trailing dots.');
             }
         }

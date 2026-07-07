@@ -13,7 +13,7 @@ final class HostNormalizerTest extends TestCase
 {
     public function test_it_normalizes_a_valid_hostname_and_removes_one_trailing_dot(): void
     {
-        $normalizer = new HostNormalizer();
+        $normalizer = new HostNormalizer;
 
         self::assertSame('tenant.example.test', $normalizer->normalize('Tenant.Example.Test.'));
     }
@@ -21,7 +21,7 @@ final class HostNormalizerTest extends TestCase
     #[DataProvider('invalidHosts')]
     public function test_it_rejects_invalid_hosts(string $host): void
     {
-        $normalizer = new HostNormalizer();
+        $normalizer = new HostNormalizer;
 
         $this->expectException(InvalidArgumentException::class);
 
@@ -39,7 +39,7 @@ final class HostNormalizerTest extends TestCase
         yield 'query' => ['tenant.example.test?foo=bar'];
         yield 'fragment' => ['tenant.example.test#section'];
         yield 'ip address' => ['127.0.0.1'];
-        yield 'unicode' => ['tênant.example.test'];
+        yield 'unicode' => ["t\u{00EA}nant.example.test"];
         yield 'trailing whitespace' => ['tenant.example.test '];
     }
 }

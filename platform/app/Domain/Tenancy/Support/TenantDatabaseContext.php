@@ -12,9 +12,7 @@ final class TenantDatabaseContext
 {
     /**
      * @template TReturn
-     *
      * @param Closure():TReturn $callback
-     *
      * @return TReturn
      */
     public function run(CurrentTenant $currentTenant, Closure $callback)

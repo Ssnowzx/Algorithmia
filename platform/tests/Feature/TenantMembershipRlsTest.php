@@ -6,8 +6,8 @@ namespace Tests\Feature;
 
 use App\Domain\Identity\Models\User;
 use App\Domain\Tenancy\CurrentTenant;
-use App\Domain\Tenancy\Models\TenantDomain;
 use App\Domain\Tenancy\Models\Tenant;
+use App\Domain\Tenancy\Models\TenantDomain;
 use App\Domain\Tenancy\Models\TenantMembership;
 use App\Domain\Tenancy\Support\TenantDatabaseContext;
 use Illuminate\Database\QueryException;
