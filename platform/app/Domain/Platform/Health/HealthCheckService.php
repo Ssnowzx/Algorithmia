@@ -47,7 +47,7 @@ final class HealthCheckService
      */
     public function statusCode(array $payload): int
     {
-        return ($payload['status'] ?? 'degraded') === 'ok' ? 200 : 503;
+        return $payload['status'] === 'ok' ? 200 : 503;
     }
 
     private function databaseOk(): bool
