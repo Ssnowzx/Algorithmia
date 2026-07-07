@@ -95,11 +95,21 @@ final class TenantMembershipRlsTest extends TestCase
 
         $updated = $context->run(
             new CurrentTenant($tenantA->id, 'tenant-a.example.test'),
-            static fn (): int => (int) TenantMembership::whereKey($membershipB->id)->update(['role' => 'admin']),
+            static function () use ($membershipB): int {
+                /** @var int $affectedRows */
+                $affectedRows = TenantMembership::whereKey($membershipB->id)->update(['role' => 'admin']);
+
+                return $affectedRows;
+            },
         );
         $deleted = $context->run(
             new CurrentTenant($tenantA->id, 'tenant-a.example.test'),
-            static fn (): int => (int) TenantMembership::whereKey($membershipB->id)->delete(),
+            static function () use ($membershipB): int {
+                /** @var int $affectedRows */
+                $affectedRows = TenantMembership::whereKey($membershipB->id)->delete();
+
+                return $affectedRows;
+            },
         );
 
         self::assertSame(0, $updated);
@@ -121,7 +131,7 @@ final class TenantMembershipRlsTest extends TestCase
             }
         }
 
-        self::assertTrue(true);
+        self::addToAssertionCount(1);
     }
 
     /**

@@ -39,7 +39,7 @@ final class HostNormalizer
             }
         }
 
-        if ($candidate === '' || strlen($candidate) > 253) {
+        if (strlen($candidate) === 0 || strlen($candidate) > 253) {
             throw new InvalidArgumentException('Host length is invalid.');
         }
 
