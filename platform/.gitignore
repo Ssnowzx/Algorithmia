@@ -29,3 +29,10 @@ Thumbs.db
 # Arte do jogo: symlink para ../../public/img no desenvolvimento.
 # No deploy (Fase 5), os arquivos são copiados para dentro de platform/public/.
 /public/img
+
+# Ambientes de produção: nunca versionados.
+/.env.producao
+/.env.producao.postgres
+
+# Estado do deploy (tag anterior, para o rollback).
+/.deploy/

@@ -7,6 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int $id
@@ -44,6 +45,12 @@ final class Fase extends Model
             'inimigo_hp' => 'integer', 'inimigo_ataque' => 'integer',
             'xp_recompensa' => 'integer', 'ouro_recompensa' => 'integer',
         ];
+    }
+
+    /** @return HasMany<Desafio,$this> */
+    public function desafios(): HasMany
+    {
+        return $this->hasMany(Desafio::class, 'fase_id');
     }
 
     /** @return BelongsTo<Mestre,$this> */

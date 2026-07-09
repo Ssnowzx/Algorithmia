@@ -19,3 +19,6 @@ docs/cinematics/*/*.mp4
 
 # Cache do PHPUnit (testes de caracterização)
 /.phpunit.cache/
+
+# Dumps do banco. Nunca versionados: contêm dados de alunos.
+/backups/

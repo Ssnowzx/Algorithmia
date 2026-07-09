@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Suporte;
 
+use App\Dominio\Combate\BatalhaEmMemoria;
 use App\Dominio\Combate\CorretorDeRespostas;
 use App\Dominio\Combate\MotorDeBatalha;
 use App\Dominio\Progressao\ServicoDeConquistas;

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Tests\Suporte;
-
-use App\Dominio\Combate\EstadoDeBatalha;
-use App\Dominio\Combate\RepositorioDeBatalha;
+namespace App\Dominio\Combate;
 
 /**
- * Guarda a batalha num campo, não na sessão. É o que permite exercitar o motor
- * inteiro sem levantar uma requisição HTTP.
+ * Guarda a batalha num campo, não na sessão.
+ *
+ * É o que permite exercitar o motor inteiro sem uma requisição HTTP: os testes o
+ * usam para medir a aritmética, e o comando `algorithmia:smoke` o usa para jogar
+ * uma fase real após o deploy, dentro de uma transação que é desfeita.
  */
 final class BatalhaEmMemoria implements RepositorioDeBatalha
 {

@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Algorithmia — Estratégia de Migração Multitenant</title>
+  <style>
+    :root {
+      --bg: #080b16;
+      --panel: #10162a;
+      --panel-2: #151d36;
+      --line: rgba(175, 192, 255, .18);
+      --text: #eaf0ff;
+      --muted: #aab7d7;
+      --accent: #7d6cff;
+      --accent-2: #2fd7c4;
+      --gold: #f8c85b;
+      --danger: #ff7b8a;
+      --code: #0a1020;
+      --shadow: 0 18px 60px rgba(0,0,0,.34);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 7% 3%, rgba(125,108,255,.23), transparent 33rem),
+        radial-gradient(circle at 94% 12%, rgba(47,215,196,.14), transparent 30rem),
+        linear-gradient(180deg, #090d1b 0%, #080b16 100%);
+      line-height: 1.55;
+    }
+    a { color: #c4bcff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .shell { max-width: 1220px; margin: 0 auto; padding: 0 26px 72px; }
+    .hero {
+      padding: 74px 0 44px;
+      border-bottom: 1px solid var(--line);
+    }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; letter-spacing: .13em; text-transform: uppercase;
+      color: var(--accent-2); font-weight: 800;
+    }
+    .eyebrow::before { content: ""; width: 30px; height: 2px; background: var(--accent-2); }
+    h1 { margin: 16px 0 16px; font-size: clamp(34px, 5vw, 66px); line-height: .98; letter-spacing: -.045em; max-width: 960px; }
+    .subtitle { max-width: 875px; font-size: 19px; color: var(--muted); margin: 0; }
+    .chips { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 24px; }
+    .chip { border: 1px solid var(--line); background: rgba(20,28,54,.72); padding: 7px 11px; border-radius: 999px; color: #dce4ff; font-size: 13px; }
+    .meta { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 18px; color: var(--muted); font-size: 13px; }
+
+    .toc { margin: 30px 0 42px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 15px; background: rgba(16,22,42,.8); }
+    .toc strong { display: block; margin-bottom: 8px; color: #fff; }
+    .toc nav { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 14px; }
+
+    section { margin-top: 54px; }
+    h2 { font-size: 28px; letter-spacing: -.025em; margin: 0 0 13px; }
+    h3 { font-size: 19px; margin: 0 0 9px; }
+    h4 { font-size: 14px; text-transform: uppercase; letter-spacing: .08em; color: var(--accent-2); margin: 0 0 7px; }
+    .lead { max-width: 940px; color: var(--muted); margin: 0 0 22px; font-size: 16px; }
+    .grid { display: grid; gap: 16px; }
+    .grid.two { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .card { background: linear-gradient(180deg, rgba(21,29,54,.92), rgba(14,19,37,.92)); border: 1px solid var(--line); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); }
+    .card p:last-child { margin-bottom: 0; }
+    .muted { color: var(--muted); }
+    .kpi { font-size: 28px; font-weight: 800; letter-spacing: -.04em; color: #fff; margin: 4px 0; }
+    .kpi-label { font-size: 13px; color: var(--muted); }
+    .callout { border-left: 4px solid var(--gold); padding: 15px 17px; background: rgba(248,200,91,.085); border-radius: 10px; color: #f5e4b8; }
+    .callout strong { color: #fff7d9; }
+    .warning { border-left-color: var(--danger); background: rgba(255,123,138,.08); color: #ffd4db; }
+    .success { border-left-color: var(--accent-2); background: rgba(47,215,196,.075); color: #ccfff5; }
+
+    .architecture { overflow-x: auto; }
+    .architecture pre, .code { margin: 0; padding: 18px; border-radius: 14px; background: var(--code); border: 1px solid rgba(175,192,255,.12); color: #dce9ff; font: 13px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 15px; }
+    table { width: 100%; border-collapse: collapse; min-width: 760px; background: rgba(15,21,40,.84); }
+    th, td { padding: 13px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+    th { background: rgba(125,108,255,.10); color: #f0edff; font-size: 13px; text-transform: uppercase; letter-spacing: .045em; }
+    td { color: #d2dbf4; font-size: 14px; }
+    tr:last-child td { border-bottom: 0; }
+
+    .phase { position: relative; padding: 24px; background: linear-gradient(180deg, rgba(21,29,54,.92), rgba(14,19,37,.92)); border: 1px solid var(--line); border-radius: 18px; margin: 20px 0; box-shadow: var(--shadow); }
+    .phase-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 15px; }
+    .phase-num { min-width: 48px; height: 48px; display: grid; place-items: center; border-radius: 14px; background: linear-gradient(135deg, var(--accent), #5142bf); color: #fff; font-size: 18px; font-weight: 900; box-shadow: 0 8px 22px rgba(125,108,255,.34); }
+    .phase-title-wrap { flex: 1; }
+    .phase-title { margin: 0; font-size: 23px; }
+    .tag { flex: none; display: inline-block; font-size: 12px; color: #dcd7ff; border: 1px solid rgba(125,108,255,.38); background: rgba(125,108,255,.12); padding: 5px 8px; border-radius: 999px; }
+    .phase-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 18px; }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+    li { margin: 5px 0; color: #d5def8; }
+    .acceptance { padding: 13px 14px; background: rgba(47,215,196,.07); border: 1px solid rgba(47,215,196,.22); border-radius: 12px; }
+    .acceptance strong { color: var(--accent-2); }
+    .prompt { margin-top: 16px; }
+    .prompt-label { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 800; color: #ffdc86; margin-bottom: 7px; }
+    .prompt-label::before { content: "CODEx"; font-size: 10px; letter-spacing: .09em; color: #19120a; background: var(--gold); border-radius: 4px; padding: 2px 5px; }
+    .prompt .code { color: #e8e4ff; }
+
+    .checklist { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+    .check { background: rgba(17,24,45,.86); border: 1px solid var(--line); padding: 13px 14px; border-radius: 12px; }
+    .check b { display: block; margin-bottom: 4px; }
+    .check span { color: var(--muted); font-size: 14px; }
+    .footer { margin-top: 62px; padding-top: 22px; border-top: 1px solid var(--line); color: #8f9bbc; font-size: 13px; }
+
+    @media (max-width: 850px) {
+      .grid.two, .grid.three, .phase-grid, .checklist { grid-template-columns: 1fr; }
+      .phase-head { align-items: flex-start; }
+      .tag { display: none; }
+    }
+    @media print {
+      body { background: #fff; color: #1e263b; }
+      .hero, .toc, .phase, .card, .table-wrap { box-shadow: none; }
+      .hero, .toc, .phase, .card, .table-wrap { background: #fff; border-color: #ccd4e5; }
+      .muted, .subtitle, td, li { color: #47536b; }
+      h1, h2, h3, .kpi { color: #10182b; }
+      .code, .architecture pre { background: #f4f6fb; color: #18233c; }
+      .phase { break-inside: avoid; }
+      a { color: #3a57ba; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div class="eyebrow">Plano de evolução de produto</div>
+      <h1>Algorithmia<br>Estratégia de Migração para Laravel, PostgreSQL e Redis com Multitenancy</h1>
+      <p class="subtitle">Proposta de transformação gradual do RPG educacional em uma plataforma SaaS multi-institucional, segura, observável e preparada para expansão por domínios, turmas, personalizações e operações em escala.</p>
+      <div class="chips">
+        <span class="chip">Laravel 13+</span>
+        <span class="chip">PHP 8.4+</span>
+        <span class="chip">PostgreSQL 17+</span>
+        <span class="chip">Redis</span>
+        <span class="chip">RLS</span>
+        <span class="chip">API-first</span>
+        <span class="chip">Monólito modular</span>
+      </div>
+      <div class="meta">
+        <span>Documento estratégico</span>
+        <span>Versão 1.0</span>
+        <span>Foco: migração + multitenancy</span>
+      </div>
+    </header>
+
+    <div class="toc">
+      <strong>Índice</strong>
+      <nav>
+        <a href="#decisao">Decisão arquitetural</a>
+        <a href="#principios">Princípios</a>
+        <a href="#alvo">Arquitetura-alvo</a>
+        <a href="#tenancy">Modelo multitenant</a>
+        <a href="#dados">Estratégia de dados</a>
+        <a href="#fases">Etapas e prompts Codex</a>
+        <a href="#riscos">Riscos e controles</a>
+        <a href="#go-live">Piloto e entrada em operação</a>
+      </nav>
+    </div>
+
+    <section id="decisao">
+      <h2>1. Decisão arquitetural</h2>
+      <p class="lead">A plataforma será reconstruída como um <strong>monólito modular Laravel</strong>, utilizando PostgreSQL como banco transacional principal e Redis para cache, filas, rate limiting, sessões e eventos em tempo real. O multitenancy será implementado com banco compartilhado, coluna <code>tenant_id</code>, resolução por domínio e proteção complementar via <strong>Row-Level Security</strong>.</p>
+      <div class="grid three">
+        <article class="card"><h4>Backend</h4><div class="kpi">Laravel</div><div class="kpi-label">API, autenticação, políticas, jobs, eventos, migrations, testes e administração.</div></article>
+        <article class="card"><h4>Dados</h4><div class="kpi">PostgreSQL</div><div class="kpi-label">Integridade relacional, JSONB, relatórios e RLS para reforçar isolamento entre tenants.</div></article>
+        <article class="card"><h4>Desempenho</h4><div class="kpi">Redis</div><div class="kpi-label">Filas, cache, sessões, rate limiting, locks e suporte a funcionalidades em tempo real.</div></article>
+      </div>
+      <div class="callout success" style="margin-top:18px;"><strong>Diretriz central:</strong> não migrar tela por tela sem preservar regras. Primeiro se consolida o domínio do jogo e suas provas automatizadas; depois se substitui a camada de apresentação e a operação.</div>
+    </section>
+
+    <section id="principios">
+      <h2>2. Princípios de projeto</h2>
+      <div class="grid two">
+        <article class="card"><h3>Isolamento por padrão</h3><p class="muted">Toda entidade institucional ou pertencente a uma instituição terá <code>tenant_id</code>. A aplicação definirá o contexto do tenant a cada requisição e o PostgreSQL aplicará políticas RLS como barreira adicional.</p></article>
+        <article class="card"><h3>Domínio antes de interface</h3><p class="muted">Motor de batalha, progressão, reputação, inventário, missões e correção de desafios serão tratados como módulos de domínio testáveis, sem dependência do frontend.</p></article>
+        <article class="card"><h3>API-first, sem microserviços prematuros</h3><p class="muted">O produto terá uma API interna consistente desde o início, mas permanecerá em um monólito modular até que haja evidência concreta para separar serviços.</p></article>
+        <article class="card"><h3>Migração reversível</h3><p class="muted">A coexistência temporária do sistema legado e do novo produto deve ser planejada. Dados e funcionalidades serão migrados em ondas com validação, logs e rollback operacional.</p></article>
+      </div>
+    </section>
+
+    <section id="alvo">
+      <h2>3. Arquitetura-alvo</h2>
+      <p class="lead">A arquitetura deve suportar múltiplas instituições, domínios personalizados, papéis diferentes por instituição, conteúdo comum e conteúdo customizado, além de relatórios e operações assíncronas.</p>
+      <div class="architecture"><pre>┌───────────────────────────────────────────────────────────────┐
+│                WEB / MOBILE / PAINEL INSTITUCIONAL              │
+│  Frontend atual evolutivo · React/Inertia ou Blade + Livewire   │
+└───────────────────────────────┬───────────────────────────────┘
+                                │ HTTPS / API
+┌───────────────────────────────▼───────────────────────────────┐
+│                         LARAVEL CORE                            │
+│ Tenant Resolver · Auth · Policies · API · Admin · Jobs          │
+│                                                                   │
+│  Módulos:                                                        │
+│  Tenancy | Identity | Content | Game Engine | Progress           │
+│  Classrooms | Reports | Rankings | Notifications | Billing       │
+└───────────────┬───────────────────────────┬───────────────────┘
+                │                           │
+      ┌─────────▼─────────┐       ┌─────────▼─────────┐
+      │   PostgreSQL      │       │      Redis        │
+      │ dados + RLS       │       │ cache/fila/evento │
+      └─────────┬─────────┘       └─────────┬─────────┘
+                │                           │
+      ┌─────────▼─────────┐       ┌─────────▼─────────┐
+      │ Object Storage    │       │ Horizon / Reverb   │
+      │ arte, anexos      │       │ jobs / realtime    │
+      └───────────────────┘       └───────────────────┘</pre></div>
+    </section>
+
+    <section id="tenancy">
+      <h2>4. Modelo multitenant</h2>
+      <p class="lead">O modelo inicial recomendado é <strong>shared database, shared schema</strong>: todos os tenants utilizam o mesmo banco e o mesmo conjunto de tabelas, com isolamento garantido por <code>tenant_id</code>, middleware, políticas de aplicação, testes e RLS.</p>
+      <div class="grid two">
+        <article class="card">
+          <h3>Entidades globais</h3>
+          <ul>
+            <li>Usuários globais e identidade de acesso.</li>
+            <li>Catálogo base de conteúdos, assets e regras do motor.</li>
+            <li>Planos comerciais, catálogo de funcionalidades e parâmetros de plataforma.</li>
+            <li>Logs técnicos, auditoria global e dados internos de operação.</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>Entidades por tenant</h3>
+          <ul>
+            <li>Instituição, domínios, branding e configurações pedagógicas.</li>
+            <li>Membros, papéis, turmas, matrículas e convites.</li>
+            <li>Personagens, progresso, inventário, respostas, rankings e relatórios.</li>
+            <li>Overrides de conteúdo, missões, regras de gamificação e campanhas.</li>
+          </ul>
+        </article>
+      </div>
+      <div class="callout" style="margin-top:18px;"><strong>Regra de segurança:</strong> a aplicação nunca deve aceitar <code>tenant_id</code> diretamente do navegador. O tenant será resolvido a partir do domínio/subdomínio autenticado ou de um contexto administrativo explícito e auditado.</div>
+    </section>
+
+    <section id="dados">
+      <h2>5. Estratégia de dados e mapeamento do legado</h2>
+      <p class="lead">O banco atual é uma boa fonte de domínio, mas não deve ser copiado sem revisão. A migração deve normalizar responsabilidades, acrescentar auditoria, separar identidade de vínculo institucional e introduzir versionamento de conteúdo.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Legado</th><th>Destino proposto</th><th>Tratamento na migração</th></tr></thead>
+          <tbody>
+            <tr><td>usuarios</td><td>users + tenant_memberships</td><td>Usuário global; vínculo, papel e estado passam para memberships.</td></tr>
+            <tr><td>personagens</td><td>characters</td><td>Adicionar tenant_id, origem de matrícula, histórico e chaves de auditoria.</td></tr>
+            <tr><td>mestres</td><td>mentors / content_characters</td><td>Transformar em conteúdo global versionado, com possibilidade de override por tenant.</td></tr>
+            <tr><td>fases + desafios</td><td>content_packages, stages, challenges, challenge_versions</td><td>Versionar e separar publicação de edição, permitindo personalização institucional segura.</td></tr>
+            <tr><td>progresso_fases + respostas_log</td><td>stage_progress + answer_attempts</td><td>Preservar histórico e incluir tenant_id, turma, tentativa e metadados analíticos.</td></tr>
+            <tr><td>inventario + itens</td><td>inventory_entries + item_catalog</td><td>Catálogo global ou por tenant; inventário sempre tenant-scoped.</td></tr>
+            <tr><td>conquistas + escolhas + diálogos</td><td>achievements, narrative_choices, dialogue_sets</td><td>Manter regras narrativas; criar versões e publicação por pacote de conteúdo.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="fases">
+      <h2>6. Estratégia de migração por etapas</h2>
+      <p class="lead">Cada fase só deve avançar após cumprir seus critérios de aceite. Os prompts abaixo são orientados a execução no repositório pelo Codex: eles exigem inspeção inicial, proposta de alteração, testes e documentação das decisões.</p>
+
+      <article class="phase">
+        <div class="phase-head"><div class="phase-num">0</div><div class="phase-title-wrap"><h3 class="phase-title">Governança técnica e inventário do domínio</h3><p class="muted">Transformar o projeto atual em uma base de conhecimento verificável antes de iniciar a reescrita.</p></div><span class="tag">Fundação</span></div>
+        <div class="phase-grid">
+          <div><h4>Escopo</h4><ul><li>Catalogar rotas, controllers, services, models, tabelas, seeds e regras de negócio.</li><li>Identificar comportamento crítico: batalha, correção, progresso, reputação, recompensas, desbloqueios e painel mestre.</li><li>Registrar riscos, inconsistências e credenciais de demonstração que não podem seguir para produção.</li><li>Definir ADRs: tenancy, autenticação, RLS, versionamento de conteúdo e API.</li></ul></div>
+          <div><div class="acceptance"><strong>Critério de aceite:</strong><br>Documento de domínio, matriz de rastreabilidade de regras e lista priorizada de testes de regressão do legado.</div></div>
+        </div>
+        <div class="prompt"><div class="prompt-label">Prompt para Codex</div><pre class="code">Analise integralmente o repositório Algorithmia e crie em docs/migracao/ um inventário técnico do domínio. Mapeie rotas, controllers, models, services, tabelas, seeds, fluxo de autenticação, motor de batalha, progressão, reputação, recompensas, conteúdo e painel administrativo. Diferencie comportamento efetivamente implementado de comportamento apenas documentado. Produza: (1) mapa de módulos, (2) matriz regra de negócio → arquivo atual → teste futuro, (3) riscos de segurança e inconsistências, (4) plano de regressão funcional. Não altere código de produção nesta etapa. Use Markdown objetivo e cite caminhos de arquivos.</pre></div>
+      </article>
+
+      <article class="phase">
+        <div class="phase-head"><div class="phase-num">1</div><div class="phase-title-wrap"><h3 class="phase-title">Criação do núcleo Laravel e infraestrutura local</h3><p class="muted">Montar o novo produto em paralelo, com ambiente reprodutível e arquitetura modular explícita.</p></div><span class="tag">Foundation</span></div>
+        <div class="phase-grid">
+          <div><h4>Escopo</h4><ul><li>Criar aplicação Laravel 13+ com PHP 8.4+.</li><li>Adicionar Docker Compose para app, PostgreSQL, Redis, Mailpit e storage local.</li><li>Configurar Pint, PHPStan/Larastan, Pest, CI e convenções de módulo.</li><li>Criar módulos: Tenancy, Identity, Content, Game, Progress, Classrooms, Reports e Platform.</li><li>Definir variáveis de ambiente, secrets e configuração por ambiente.</li></ul></div>
+          <div><div class="acceptance"><strong>Critério de aceite:</strong><br>Ambiente sobe com um comando, testes executam em CI e a aplicação responde health check sem credenciais embutidas.</div></div>
+        </div>
+        <div class="prompt"><div class="prompt-label">Prompt para Codex</div><pre class="code">Crie uma nova aplicação Laravel 13+ em diretório separado do legado, preparada para PHP 8.4, PostgreSQL e Redis. Estruture-a como monólito modular com app/Domain/Tenancy, Identity, Content, Game, Progress, Classrooms, Reports e Platform. Inclua Docker Compose para PHP, Nginx, PostgreSQL, Redis e Mailpit; configure Pest, Laravel Pint, Larastan/PHPStan, health endpoint e GitHub Actions para lint + testes. Não implemente regras do jogo ainda. Documente como subir o ambiente e quais variáveis de ambiente são obrigatórias.</pre></div>
+      </article>
+
+      <article class="phase">
+        <div class="phase-head"><div class="phase-num">2</div><div class="phase-title-wrap"><h3 class="phase-title">Tenancy, domínios, identidade e autorização</h3><p class="muted">Estabelecer o contexto institucional, a identidade global e os papéis por tenant antes de migrar qualquer dado de jogo.</p></div><span class="tag">Segurança</span></div>
+        <div class="phase-grid">
+          <div><h4>Escopo</h4><ul><li>Entidades: tenants, tenant_domains, users, tenant_memberships, roles e invitations.</li><li>Resolver tenant por host, subdomínio e domínio personalizado.</li><li>Middleware de tenant obrigatório para áreas institucionais.</li><li>Políticas Laravel e auditoria de mudanças de papel.</li><li>Autenticação com Laravel Fortify/Sanctum conforme interface adotada.</li><li>RLS no PostgreSQL para tabelas tenant-scoped.</li></ul></div>
+          <div><div class="acceptance"><strong>Critério de aceite:</strong><br>Dois tenants de teste não conseguem ler ou alterar dados um do outro por UI, API, query de aplicação ou job em fila.</div></div>
+        </div>
+        <div class="prompt"><div class="prompt-label">Prompt para Codex</div><pre class="code">Implemente o módulo de multitenancy no Laravel. Crie migrations, models, factories e policies para tenants, tenant_domains, users, tenant_memberships, roles e invitations. Resolva o tenant pelo Host da requisição; nunca aceite tenant_id do cliente. Implemente middleware de contexto, testes de isolamento entre dois tenants e audit logs para mudanças de membership. Para todas as tabelas tenant-scoped criadas nesta etapa, habilite PostgreSQL RLS e crie policies baseadas em current_setting('app.tenant_id', true). Garanta que o contexto da conexão seja definido por transação/requisição e limpo ao final. Documente o desenho de segurança e suas limitações.</pre></div>
+      </article>
+
+      <article class="phase">
+        <div class="phase-head"><div class="phase-num">3</div><div class="phase-title-wrap"><h3 class="phase-title">Modelo de conteúdo versionado</h3><p class="muted">Migrar mestres, fases, desafios, itens e narrativa para um modelo publicável, auditável e personalizável por instituição.</p></div><span class="tag">Conteúdo</span></div>
+        <div class="phase-grid">
+          <div><h4>Escopo</h4><ul><li>Pacotes de conteúdo, versões, publicação e rollback.</li><li>Fases, desafios, opções, respostas, explicações, diálogos, itens e conquistas.</li><li>Conteúdo global e override por tenant sem duplicar o catálogo inteiro.</li><li>Validação de desafio por tipo e importadores de conteúdo.</li><li>Painel de rascunho, revisão e publicação.</li></ul></div>
+          <div><div class="acceptance"><strong>Critério de aceite:</strong><br>Uma instituição pode aplicar um override a um desafio sem alterar o pacote global nem afetar outro tenant.</div></div>
+        </div>
+        <div class="prompt"><div class="prompt-label">Prompt para Codex</div><pre class="code">Implemente o módulo Content com versionamento e publicação. Modele content_packages, content_versions, stages, challenges, challenge_options, dialogue_sets, item_catalog, achievements e tenant_content_overrides. Desafios precisam suportar múltipla escolha, verdadeiro/falso, completar código, encontrar erro, ordenar e arrastar tokens. Crie validação por tipo de desafio e garanta que respostas corretas nunca sejam serializadas para o cliente. Implemente testes para: publicação de versão, rollback, override por tenant e preservação do conteúdo global. Não construa a interface completa; priorize domínio, migrations, policies, resources e testes.</pre></div>
+      </article>
+
+      <article class="phase">
+        <div class="phase-head"><div class="phase-num">4</div><div class="phase-title-wrap"><h3 class="phase-title">Portabilidade do motor de jogo</h3><p class="muted">Recriar o motor de batalha como domínio puro, testado e independente da camada HTTP.</p></div><span class="tag">Core Game</span></div>
+        <div class="phase-grid">
+          <div><h4>Escopo</h4><ul><li>Agregados: Character, BattleSession, StageProgress, Inventory e Reputation.</li><li>Serviços: desafio, correção, dano, combo, especial, poções, morte súbita, recompensa e desbloqueio.</li><li>Eventos de domínio e persistência de tentativas.</li><li>Idempotência de recompensas e proteção contra repetição de requisição.</li><li>Testes de equivalência funcional em relação às regras legadas aprovadas.</li></ul></div>
+          <div><div class="acceptance"><strong>Critério de aceite:</strong><br>O mesmo conjunto de entradas gera o mesmo resultado funcional esperado: dano, HP, MP, combo, reputação, progresso, log e recompensas.</div></div>
+        </div>
+        <div class="prompt"><div class="prompt-label">Prompt para Codex</div><pre class="code">Implemente o módulo Game como domínio testável sem dependência direta de controllers. Crie serviços/ações para iniciar batalha, obter estado público, responder desafio, usar fragmento de IA, armar especial, usar poção, encerrar batalha e conceder recompensa idempotente. O gabarito deve permanecer apenas no servidor. Persista BattleSession, answer_attempts, stage_progress, inventory_entries e reputation_events com tenant_id e RLS. Escreva testes de unidade e feature para acerto, erro, combo, especial, poção, morte súbita, uso de IA, derrota, vitória e retry de mesma requisição. Use uma chave de idempotência nas ações mutáveis.</pre></div>
+      </article>
+
+      <article class="phase">
+        <div class="phase-head"><div class="phase-num">5</div><div class="phase-title-wrap"><h3 class="phase-title">Turmas, matrículas, papéis pedagógicos e relatórios</h3><p class="muted">Transformar o jogo em produto educacional institucional com gestão de grupos e leitura de aprendizagem.</p></div><span class="tag">Produto SaaS</span></div>
+        <div class="phase-grid">
+          <div><h4>Escopo</h4><ul><li>Turmas, matrículas, convites e vínculo aluno-professor.</li><li>Papéis: platform_admin, tenant_admin, teacher, content_editor e learner.</li><li>Relatórios de progresso, precisão por assunto, maestria, tempo, tentativas e engajamento.</li><li>Rankings configuráveis: individual, turma e instituição.</li><li>Exportação e limites de visibilidade por papel.</li></ul></div>
+          <div><div class="acceptance"><strong>Critério de aceite:</strong><br>Um professor visualiza apenas turmas e alunos sob sua gestão; um aluno só acessa o próprio progresso; o administrador institucional vê o agregado autorizado.</div></div>
+        </div>
+        <div class="prompt"><div class="prompt-label">Prompt para Codex</div><pre class="code">Implemente Classrooms e Reports. Crie migrations, models, policies e endpoints para classes, enrollments, teacher assignments e convites. Desenvolva consultas de relatório para progresso por fase, precisão por assunto, maestria, tentativas, uso de IA e ranking. Respeite escopo de tenant, turma e papel em todas as consultas, incluindo jobs e exports. Crie testes que tentem acesso cruzado entre professores, turmas e tenants. Para relatórios de alto custo, use jobs e cache Redis com invalidação por evento de progresso.</pre></div>
+      </article>
+
+      <article class="phase">
+        <div class="phase-head"><div class="phase-num">6</div><div class="phase-title-wrap"><h3 class="phase-title">API, frontend e experiência de jogo</h3><p class="muted">Substituir progressivamente o frontend legado por uma interface conectada ao novo backend sem comprometer o motor já validado.</p></div><span class="tag">Experiência</span></div>
+        <div class="phase-grid">
+          <div><h4>Escopo</h4><ul><li>Contrato de API versionado para jogo, perfil, inventário, mapa, ranking e administração.</li><li>Escolha de apresentação: Inertia + React ou Blade/Livewire, baseada em protótipo e produtividade.</li><li>Estado público da batalha; feedback pedagógico; acessibilidade e responsividade.</li><li>WebSockets via Laravel Reverb para eventos, ranking e notificações quando necessário.</li><li>Design system por tenant: logo, cores, domínio e configurações visuais seguras.</li></ul></div>
+          <div><div class="acceptance"><strong>Critério de aceite:</strong><br>Um fluxo completo de aluno funciona no novo frontend: entrar, criar personagem, jogar, receber feedback, concluir fase e consultar progresso.</div></div>
+        </div>
+        <div class="prompt"><div class="prompt-label">Prompt para Codex</div><pre class="code">Com base nos endpoints existentes do novo backend, implemente uma primeira vertical completa do frontend: autenticação, seleção/criação de personagem, mapa, arena de batalha, feedback do turno, inventário e perfil. Não exponha respostas corretas no payload. Faça o frontend resolver o tenant pelo domínio e carregar branding apenas do contexto atual. Inclua testes end-to-end para o fluxo de aluno e estados de erro: sessão expirada, fase bloqueada, resposta repetida e tentativa de acessar outro tenant.</pre></div>
+      </article>
+
+      <article class="phase">
+        <div class="phase-head"><div class="phase-num">7</div><div class="phase-title-wrap"><h3 class="phase-title">Migração de dados e coexistência controlada</h3><p class="muted">Mover usuários, conteúdo e progresso do legado com rastreabilidade, validação e possibilidade de reversão operacional.</p></div><span class="tag">Dados</span></div>
+        <div class="phase-grid">
+          <div><h4>Escopo</h4><ul><li>Extratores do banco legado e normalizadores de dados.</li><li>Mapeamento de IDs antigos para novos IDs.</li><li>Backfill de conteúdo, personagens, progresso, inventário e histórico de respostas.</li><li>Relatórios de reconciliação de contagem e consistência.</li><li>Modo de leitura ou dual-run para validar sem alterar o legado.</li></ul></div>
+          <div><div class="acceptance"><strong>Critério de aceite:</strong><br>Contagens e amostras críticas são reconciliadas; nenhuma migração é executada sem dry-run, log, checkpoint e relatório final.</div></div>
+        </div>
+        <div class="prompt"><div class="prompt-label">Prompt para Codex</div><pre class="code">Crie um pipeline de migração de dados do banco legado para o PostgreSQL novo. Implemente comandos Laravel idempotentes com opções --dry-run, --tenant, --batch-size e --resume-from. Migre conteúdo, usuários, personagens, inventário, progresso, conquistas, escolhas e respostas, gerando tabela de mapeamento de IDs antigos/novos. Produza relatórios de reconciliação por entidade e por tenant, com falhas detalhadas e sem expor senhas ou dados sensíveis em logs. Não execute a migração automaticamente em deploy.</pre></div>
+      </article>
+
+      <article class="phase">
+        <div class="phase-head"><div class="phase-num">8</div><div class="phase-title-wrap"><h3 class="phase-title">Segurança, observabilidade e operação</h3><p class="muted">Preparar a plataforma para uso institucional real, com rastreabilidade, monitoramento e resposta a incidentes.</p></div><span class="tag">Produção</span></div>
+        <div class="phase-grid">
+          <div><h4>Escopo</h4><ul><li>Audit logs, rastreio de jobs, métricas, alertas e health checks.</li><li>Rate limiting, proteção contra abuso, headers, CSP e gestão de sessão.</li><li>Backups, restauração testada, retenção e política de logs.</li><li>Observabilidade de contexto de tenant em logs e traces.</li><li>Testes de carga para batalhas e relatórios.</li></ul></div>
+          <div><div class="acceptance"><strong>Critério de aceite:</strong><br>Incidentes podem ser detectados, investigados e recuperados sem misturar dados de tenants; backup e restauração foram testados.</div></div>
+        </div>
+        <div class="prompt"><div class="prompt-label">Prompt para Codex</div><pre class="code">Implemente a camada de operação e segurança do Laravel: logs estruturados com tenant_id, user_id e request_id; audit logs para ações administrativas; rate limiting por IP/usuário/tenant; health checks para app, PostgreSQL, Redis e queues; configuração de CSP e headers; jobs monitorados no Horizon; e documentação de backup/restauração. Crie testes de feature para rate limiting e auditoria, e um comando de verificação que confirme que nenhuma tabela tenant-scoped esteja sem tenant_id, policy RLS ou índice adequado.</pre></div>
+      </article>
+
+      <article class="phase">
+        <div class="phase-head"><div class="phase-num">9</div><div class="phase-title-wrap"><h3 class="phase-title">Piloto, corte de tráfego e expansão</h3><p class="muted">Entrar em produção com uma instituição piloto, validar indicadores e só então ampliar a operação.</p></div><span class="tag">Go-live</span></div>
+        <div class="phase-grid">
+          <div><h4>Escopo</h4><ul><li>Tenant piloto, domínio, branding, perfis e turmas reais controladas.</li><li>Onboarding, suporte, runbook e canal de incidentes.</li><li>Indicadores: ativação, conclusão de fase, precisão, retenção, erros, latência e custo operacional.</li><li>Liberação progressiva por feature flags.</li><li>Plano de rollback e comunicação institucional.</li></ul></div>
+          <div><div class="acceptance"><strong>Critério de aceite:</strong><br>O piloto atinge metas mínimas de estabilidade e uso; não há incidente de isolamento; a operação possui playbooks e responsáveis definidos.</div></div>
+        </div>
+        <div class="prompt"><div class="prompt-label">Prompt para Codex</div><pre class="code">Prepare o produto para piloto multitenant. Implemente feature flags por tenant, seed seguro de tenant piloto, checklist de provisionamento, dashboard administrativo mínimo, métricas de ativação e uso, e um runbook em docs/operacao/. Crie testes automatizados de smoke para login, tenant resolution, batalha, progresso e relatório. Garanta que o tenant piloto possa ser habilitado/desabilitado sem afetar os demais e que o plano de rollback esteja documentado.</pre></div>
+      </article>
+    </section>
+
+    <section id="riscos">
+      <h2>7. Riscos principais e controles</h2>
+      <div class="checklist">
+        <div class="check"><b>Vazamento entre tenants</b><span>Controle: tenant resolver obrigatório, policies, RLS, testes de acesso cruzado e logs com contexto.</span></div>
+        <div class="check"><b>Reescrita com perda de regra</b><span>Controle: inventário de domínio, casos de regressão e portabilidade do motor antes do frontend.</span></div>
+        <div class="check"><b>Conteúdo inconsistente</b><span>Controle: versionamento, publicação, rollback e overrides explícitos por tenant.</span></div>
+        <div class="check"><b>Recompensa duplicada</b><span>Controle: chaves de idempotência, locks e eventos persistidos.</span></div>
+        <div class="check"><b>Relatórios caros</b><span>Controle: índices, materialização seletiva, filas Redis, cache e limites de exportação.</span></div>
+        <div class="check"><b>Exposição de gabarito</b><span>Controle: correção no servidor, resources públicos e testes de contrato de API.</span></div>
+      </div>
+      <div class="callout warning" style="margin-top:18px;"><strong>Não negociar:</strong> credenciais padrão, contas administrativas automáticas, <code>tenant_id</code> vindo do cliente, filtragem apenas no frontend e ausência de testes cruzados entre instituições são bloqueadores de produção.</div>
+    </section>
+
+    <section id="go-live">
+      <h2>8. Condições para entrada em operação</h2>
+      <p class="lead">A plataforma não deve ser liberada para múltiplas instituições apenas porque “funciona”. O go-live exige evidência técnica, dados reconciliados e operação preparada.</p>
+      <div class="grid two">
+        <article class="card"><h3>Checklist técnico</h3><ul><li>RLS ativo e coberto por testes nas tabelas tenant-scoped.</li><li>Backups automatizados e restauração testada.</li><li>Fila, cache, logs, métricas e alertas funcionais.</li><li>Sem credenciais padrão, seeds inseguros ou secrets no repositório.</li><li>Contratos de API versionados e smoke tests em deploy.</li></ul></article>
+        <article class="card"><h3>Checklist de produto</h3><ul><li>Onboarding de tenant e gestão de domínio concluídos.</li><li>Papéis e escopos de visualização validados com usuários reais.</li><li>Fluxos de aluno, professor e administrador institucional homologados.</li><li>Relatórios pedagógicos compreensíveis e exportáveis.</li><li>Runbook de suporte e incidentes disponível à equipe.</li></ul></article>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <strong>Algorithmia — Estratégia de Migração Multitenant</strong><br>
+      Documento de orientação para transformar o RPG educacional em plataforma SaaS com Laravel, PostgreSQL e Redis. A implementação deve ser conduzida por etapas, cada uma com revisão arquitetural, testes e aceite antes da próxima.
+    </footer>
+  </main>
+</body>
+</html>

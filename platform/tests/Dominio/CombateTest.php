@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Dominio;
 
+use App\Dominio\Combate\BatalhaEmMemoria;
 use App\Dominio\Combate\CorretorDeRespostas;
 use App\Dominio\Combate\MotorDeBatalha;
 use App\Dominio\Progressao\ServicoDeConquistas;
@@ -13,7 +14,6 @@ use App\Models\RespostaLog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\Suporte\BatalhaEmMemoria;
 use Tests\Suporte\Mundo;
 use Tests\Suporte\SorteioFixo;
 use Tests\TestCase;

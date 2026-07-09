@@ -1,7 +1,7 @@
 # Plano de Migração — Algorithmia → Laravel 13 + PostgreSQL
 
 **Versão:** 2.0 · **Data:** 2026-07-08
-**Substitui:** `algorithmia_estrategia_migracao_laravel_postgresql_multitenant.html` (v1.0)
+**Substitui:** [`roteiro-v1.html`](roteiro-v1.html) — o roteiro original de 10 fases, guardado como registro.
 
 ---
 

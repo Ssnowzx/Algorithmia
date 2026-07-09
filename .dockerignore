@@ -1,0 +1,52 @@
+# O contexto de build é a RAIZ do repositório (a imagem precisa de `platform/`).
+# Sem este arquivo, o Docker enviaria 2,5 GB ao daemon a cada build.
+
+.git
+.github
+.claude
+.codex
+.cursor
+.DS_Store
+
+# A arte (143 MB) é montada em leitura no runtime, não assada na imagem.
+public/img
+public/video
+
+# O jogo em PHP puro não vai para a imagem do port.
+app
+config
+database
+index.php
+.htaccess
+deploy.sh
+vendor
+tests
+phpunit.xml
+composer.json
+composer.lock
+
+# Dependências e caches reconstruíveis.
+platform/vendor
+platform/node_modules
+platform/storage/logs
+platform/storage/framework/cache
+platform/storage/framework/views
+platform/storage/framework/sessions
+platform/bootstrap/cache
+platform/.phpunit.cache
+platform/public/img
+
+# Segredos: nunca, em hipótese alguma, dentro de uma imagem.
+platform/.env
+platform/.env.producao
+platform/.env.producao.postgres
+config/db.local.php
+
+# Ferramentas, documentação e artefatos.
+tools
+docs
+openspec
+worker
+backups
+*.md
+galeria.html

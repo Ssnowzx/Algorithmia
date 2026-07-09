@@ -103,3 +103,56 @@ jobs:
 
       - name: Testes
         run: php artisan test
+
+  # A imagem de produção precisa CONSTRUIR e o jogo precisa estar jogável dentro
+  # dela. Um CI que só roda testes não pega um Dockerfile quebrado, nem uma
+  # extensão PHP que falta, nem um entrypoint que aceita APP_KEY vazio.
+  imagem:
+    name: Imagem de produção
+    runs-on: ubuntu-latest
+    needs: platform
+
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: algorithmia
+          POSTGRES_USER: algorithmia
+          POSTGRES_PASSWORD: segredo_ci
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd="pg_isready -U algorithmia -d algorithmia"
+          --health-interval=5s --health-timeout=5s --health-retries=15
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Construir a imagem
+        run: docker build --file platform/docker/php/Dockerfile --tag algorithmia:ci .
+
+      - name: O entrypoint recusa APP_KEY vazio
+        run: |
+          if docker run --rm algorithmia:ci php artisan --version; then
+            echo "::error::a imagem subiu sem APP_KEY"; exit 1
+          fi
+
+      - name: O entrypoint recusa APP_DEBUG em produção
+        run: |
+          if docker run --rm -e APP_KEY="base64:$(openssl rand -base64 32)" \
+               -e APP_ENV=production -e APP_DEBUG=true algorithmia:ci php artisan --version; then
+            echo "::error::a imagem subiu com APP_DEBUG=true em produção"; exit 1
+          fi
+
+      - name: Migrar e rodar o smoke estrutural
+        # As 14 tabelas, o driver de sessão e o APP_DEBUG valem mesmo num banco
+        # vazio. O smoke completo (que joga uma fase) precisa do conteúdo
+        # importado, e isso só existe em produção.
+        run: |
+          CHAVE="base64:$(openssl rand -base64 32)"
+          COMUM=(--rm --network host
+            -e "APP_KEY=$CHAVE" -e APP_ENV=production -e APP_DEBUG=false
+            -e DB_CONNECTION=pgsql -e DB_HOST=127.0.0.1 -e DB_PORT=5432
+            -e DB_DATABASE=algorithmia -e DB_USERNAME=algorithmia -e DB_PASSWORD=segredo_ci)
+
+          docker run "${COMUM[@]}" algorithmia:ci php artisan migrate --force
+          docker run "${COMUM[@]}" algorithmia:ci php artisan algorithmia:smoke --sem-conteudo
