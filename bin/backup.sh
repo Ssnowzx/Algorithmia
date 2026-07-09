@@ -13,6 +13,11 @@ set -euo pipefail
 RAIZ="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PLATAFORMA="${RAIZ}/platform"
 COMPOSE="docker compose -f ${PLATAFORMA}/compose.prod.yml"
+# O `compose` interpola a imagem do serviço `app` mesmo quando o comando só toca o
+# postgres — sem a variável ele recusa o arquivo inteiro. Para operações de banco a
+# tag é irrelevante; basta existir.
+export ALGORITHMIA_TAG="${ALGORITHMIA_TAG:-$(cat "${PLATAFORMA}/.deploy/tag-atual" 2>/dev/null || echo 'irrelevante')}"
+
 DESTINO="${RAIZ}/backups"
 
 PREFIXO="${1:-algorithmia}"

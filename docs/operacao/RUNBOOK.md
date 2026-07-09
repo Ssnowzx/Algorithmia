@@ -12,7 +12,7 @@ atual como host cPanel/RHEL com `httpd` e MySQL em `/home/algorithmia/public_htm
 port pressupõe uma VPS com Docker. As duas coisas não podem ser verdade ao mesmo tempo.
 
 Este runbook cobre o **caminho Docker**, que é o único verificado de ponta a ponta.
-O §8 esboça a alternativa nativa com `httpd`, e ela **não foi testada**.
+O §9 esboça a alternativa nativa com `httpd`, e ela **não foi testada**.
 
 ---
 
@@ -69,9 +69,14 @@ reprovar, ele volta sozinho para a tag anterior.
 
 ```bash
 cd platform
+export ALGORITHMIA_TAG="$(cat .deploy/tag-atual)"
+
+# `ALGORITHMIA_PULAR_OTIMIZACAO=1`: o container é efêmero e o cache de config já
+# existe na instância que está no ar. Regerá-lo aqui só gastaria tempo.
 docker compose -f compose.prod.yml run --rm --no-deps \
     -e ALGORITHMIA_PULAR_OTIMIZACAO=1 \
-    app php artisan algorithmia:importar --dry-run   # ensaia e desfaz
+    app php artisan algorithmia:importar --dry-run   # ensaia tudo e desfaz
+
 docker compose -f compose.prod.yml run --rm --no-deps \
     -e ALGORITHMIA_PULAR_OTIMIZACAO=1 \
     app php artisan algorithmia:importar             # para valer
@@ -147,7 +152,34 @@ Sugestão de cron:
 
 ---
 
-## 6. Quando algo quebra
+## 6. O que este runbook já viu quebrar
+
+Os scripts foram exercitados de ponta a ponta antes de existir produção, inclusive
+um deploy propositalmente ruim. O ensaio expôs cinco defeitos reais, todos
+corrigidos. Ficam registrados porque são o tipo de coisa que volta:
+
+1. **O gate de saúde do deploy fazia `grep -q healthy`** — e `unhealthy` casa com
+   `healthy`. O portão declarava sucesso instantaneamente, sempre.
+2. **O healthcheck do nginx usava `localhost`.** O `wget` do BusyBox resolve
+   `localhost` para `::1` antes de `127.0.0.1`, e o nginx só escuta em IPv4. O
+   container ficou `unhealthy` o tempo todo, e ninguém percebeu por causa de (1).
+3. **`set -o pipefail` + `| grep -q`**: o `grep` fecha o cano ao casar, o produtor
+   morre de SIGPIPE (141) e o `pipefail` propaga esse 141. A condição jamais era
+   verdadeira. Toda espera de prontidão abortaria após 90 s.
+4. **O rollback automático revertia e saía sem esperar.** O entrypoint leva alguns
+   segundos gerando os caches; nesse intervalo o nginx devolve 502, e o operador ia
+   dormir achando que estava tudo bem.
+5. **`bin/backup.sh` não rodava sozinho.** O `compose` interpola a imagem do serviço
+   `app` mesmo quando o comando só toca o postgres, e recusa o arquivo sem
+   `ALGORITHMIA_TAG`. O backup do cron falharia todas as noites.
+
+E o `algorithmia:smoke` se pagou antes de existir produção: na primeira execução, no
+banco de desenvolvimento, denunciou que a migration `recompensas_batalha` nunca fora
+aplicada ali.
+
+---
+
+## 7. Quando algo quebra
 
 ### O site não responde
 
@@ -155,16 +187,20 @@ Sugestão de cron:
 cd platform
 docker compose -f compose.prod.yml ps
 docker compose -f compose.prod.yml logs --tail=100 app web
-curl -s localhost/healthz     # {"status":"ok"} ou {"status":"degradado"}
+docker compose -f compose.prod.yml exec web wget -qO- http://127.0.0.1/healthz
 ```
 
 `healthz` devolve **503** quando o banco não responde. Um balanceador que só olhe
 para o `/up` do Laravel mandaria tráfego a uma instância sem banco.
 
+Use `127.0.0.1`, nunca `localhost`: o `wget` do BusyBox tenta `::1` primeiro, e o
+nginx só escuta em IPv4. Ver §6.
+
 ### O jogo responde, mas está errado
 
 ```bash
-docker compose -f compose.prod.yml exec app php artisan algorithmia:smoke
+export ALGORITHMIA_TAG="$(cat platform/.deploy/tag-atual)"
+docker compose -f platform/compose.prod.yml exec app php artisan algorithmia:smoke
 ```
 
 O smoke joga uma fase real dentro de uma transação e a desfaz. Ele checa o que um
@@ -184,7 +220,7 @@ Fragmento da IA no catálogo, e que o gabarito não vaza para o cliente.
 
 ---
 
-## 7. Coexistência e corte
+## 8. Coexistência e corte
 
 Durante a janela de corte, os dois sistemas ficam de pé:
 
@@ -203,7 +239,7 @@ ser curta e anunciada.
 
 ---
 
-## 8. Alternativa não verificada: host nativo com `httpd`
+## 9. Alternativa não verificada: host nativo com `httpd`
 
 Se a produção continuar no host cPanel do `AGENTS.md`, o Docker não entra. O caminho
 seria:

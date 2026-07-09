@@ -404,14 +404,14 @@ aplicada ali. Uma deriva de schema que teria ido para o corte em silêncio.
 atrás do nginx, gabarito não vazando, `GET` de escrita em 405, backup, ensaio de
 restauração, `deploy.sh` completo e `rollback.sh` completo.
 
-**Falta para o corte de verdade** (§7 do runbook): credenciais e acesso à VPS,
+**Falta para o corte de verdade** (§8 do runbook): credenciais e acesso à VPS,
 `.env.producao`, pôr o legado em somente leitura, apontar o DNS, e a janela de
 coexistência.
 
 **Contradição a resolver antes de tudo:** o `AGENTS.md` descreve a produção atual
 como host cPanel/RHEL com `httpd` e MySQL em `/home/algorithmia/public_html`. Este
 plano pressupõe VPS com Docker. As duas coisas não podem ser verdade ao mesmo
-tempo. O caminho nativo está esboçado no §8 do runbook e **não foi testado**.
+tempo. O caminho nativo está esboçado no §9 do runbook e **não foi testado**.
 
 **Critério de aceite:** rollback exercitado — ver abaixo.
 
