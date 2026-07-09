@@ -58,6 +58,29 @@ final class Fase extends Model
     }
 
     /**
+     * O confronto derradeiro. Derivado do tipo, e não do id 35 que o legado
+     * carrega fixo em HistoriaController — um seeder diferente moveria o id, e a
+     * tela de finais ficaria inalcançável em silêncio.
+     */
+    public static function confrontoFinal(): ?self
+    {
+        return self::query()->where('tipo', 'chefe_final')->orderBy('ordem_global')->first();
+    }
+
+    /** A fase imediatamente seguinte no mapa, se houver. */
+    public function proxima(): ?self
+    {
+        return self::query()->where('ordem_global', '>', $this->ordem_global)
+            ->orderBy('ordem_global')->first();
+    }
+
+    /** @return Collection<int,self> */
+    public static function todasOrdenadas(): Collection
+    {
+        return self::query()->orderBy('ordem_global')->get();
+    }
+
+    /**
      * Fases da região de um mestre, em ordem de mapa.
      *
      * @return Collection<int,self>

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -103,5 +105,78 @@ final class ItemDoInventario extends Model
     public static function itensDistintos(int $personagemId): int
     {
         return self::query()->where('personagem_id', $personagemId)->count();
+    }
+
+    /**
+     * Inventário com os dados do item, na ordem de exibição do jogo.
+     *
+     * O legado ordenava com `FIELD(i.tipo, 'arma', 'escudo', ...)`, que só existe
+     * no MySQL. `array_position` faz o mesmo no PostgreSQL.
+     *
+     * @return Collection<int,self>
+     */
+    public static function doPersonagem(int $personagemId): Collection
+    {
+        /** @var list<string> $ordem */
+        $ordem = config('jogo.ordem_tipos_item');
+        $lista = "'".implode("','", $ordem)."'";
+
+        return self::query()
+            ->with('item')
+            ->where('personagem_id', $personagemId)
+            ->join('itens', 'itens.id', '=', 'inventario.item_id')
+            ->orderByRaw("array_position(ARRAY[{$lista}]::text[], itens.tipo)")
+            ->orderBy('itens.nome')
+            ->select('inventario.*')
+            ->get();
+    }
+
+    /** @return BelongsTo<Item,$this> */
+    public function item(): BelongsTo
+    {
+        return $this->belongsTo(Item::class, 'item_id');
+    }
+
+    /**
+     * Equipa o item, desequipando o que ocupava o mesmo slot.
+     *
+     * Sem o desequipar em bloco, dois itens do mesmo tipo somariam bônus e o
+     * herói viraria uma pilha de espadas.
+     */
+    public static function equipar(int $personagemId, Item $item): void
+    {
+        DB::transaction(function () use ($personagemId, $item): void {
+            self::query()
+                ->where('personagem_id', $personagemId)
+                ->where('equipado', true)
+                ->whereIn('item_id', Item::query()->where('tipo', $item->tipo)->select('id'))
+                ->update(['equipado' => false]);
+
+            self::query()
+                ->where('personagem_id', $personagemId)
+                ->where('item_id', $item->id)
+                ->update(['equipado' => true]);
+        });
+    }
+
+    public static function desequipar(int $personagemId, int $itemId): void
+    {
+        self::query()
+            ->where('personagem_id', $personagemId)
+            ->where('item_id', $itemId)
+            ->update(['equipado' => false]);
+    }
+
+    /** @return list<string> tipos atualmente equipados (arma, escudo, acessorio) */
+    public static function tiposEquipados(int $personagemId): array
+    {
+        return self::query()
+            ->where('inventario.personagem_id', $personagemId)
+            ->where('inventario.equipado', true)
+            ->join('itens', 'itens.id', '=', 'inventario.item_id')
+            ->pluck('itens.tipo')
+            ->unique()
+            ->values()
+            ->all();
     }
 }

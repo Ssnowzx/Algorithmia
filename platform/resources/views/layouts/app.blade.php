@@ -18,7 +18,16 @@
             <a href="{{ route('mapa') }}" class="marca">⚔ Algorithmia</a>
             <nav>
                 <a href="{{ route('mapa') }}">Mapa</a>
+                <a href="{{ route('loja') }}">Loja</a>
+                <a href="{{ route('inventario') }}">Inventário</a>
+                <a href="{{ route('ranking') }}">Ranking</a>
                 <a href="{{ route('perfil') }}">Perfil</a>
+                <a href="{{ route('lore') }}">História</a>
+
+                @if (auth()->user()?->ehMestre())
+                    <a href="{{ route('mestre.painel') }}">Painel do Mestre</a>
+                @endif
+
                 {{-- Sair é POST: um <img src="/sair"> não deve derrubar a sessão. --}}
                 <form method="POST" action="{{ route('sair') }}" style="display:inline">
                     @csrf

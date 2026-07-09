@@ -90,6 +90,52 @@ return [
     /** Slug do Fragmento da IA Ancestral — resolvido por svg_slug, não pelo nome. */
     'item_fragmento_ia' => 'item-fragmento-ia',
 
+    'loja' => [
+        // Revenda por metade do preço. Sem o desconto, comprar e vender de volta
+        // seria uma forma gratuita de estocar ouro.
+        'fator_venda' => 0.5,
+    ],
+
+    /** Um item de cada tipo por vez; poções e especiais não ocupam slot. */
+    'tipos_equipaveis' => ['arma', 'escudo', 'acessorio'],
+
+    /** Ordem de exibição do inventário (o `FIELD()` do MySQL não existe no PostgreSQL). */
+    'ordem_tipos_item' => ['arma', 'escudo', 'acessorio', 'pocao', 'especial'],
+
+    'limite_ranking' => 50,
+
+    /** Escolhas válidas diante da IA Ancestral, e a conquista de cada desfecho. */
+    'escolhas_finais' => ['destruir', 'fundir', 'reescrever'],
+    'conquistas_de_final' => [
+        'mestre' => 'final_mestre',
+        'singularidade' => 'final_singularidade',
+        'equilibrio' => 'final_equilibrio',
+    ],
+
+    /** Limiares de reputação que definem o desfecho quando não há escolha explícita. */
+    'reputacao_final' => ['mestre' => 40, 'singularidade' => -40],
+
+    /** Reputação a partir da qual os diálogos mudam para a variante da IA. */
+    'reputacao_variante_ia' => -20,
+
+    'desafio' => [
+        'dificuldade_min' => 1,
+        'dificuldade_max' => 5,
+        'tipos' => ['multipla', 'vf', 'completar', 'erro', 'ordenar', 'arrastar'],
+        'assuntos' => ['php', 'mvc', 'sql', 'poo', 'estruturas', 'redes', 'logica', 'calculo'],
+    ],
+
+    'assuntos_rotulos' => [
+        'php' => 'PHP',
+        'mvc' => 'Arquitetura MVC',
+        'sql' => 'Banco de Dados / SQL',
+        'poo' => 'Orientação a Objetos',
+        'estruturas' => 'Estruturas de Dados',
+        'redes' => 'Redes de Computadores',
+        'logica' => 'Lógica e Algoritmos',
+        'calculo' => 'Cálculo',
+    ],
+
     /**
      * IDs das fases secundárias que concedem "arquivista_do_vazio".
      * O legado os traz fixos em ConquistaService.php:86. A importação da Fase 3

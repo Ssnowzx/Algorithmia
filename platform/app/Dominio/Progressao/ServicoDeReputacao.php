@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Dominio\Progressao;
 
+use App\Models\Escolha;
 use App\Models\Personagem;
 
 /**
@@ -32,6 +33,32 @@ final class ServicoDeReputacao
     /** Reputação negativa o aproxima do caminho da IA. */
     public function variante(Personagem $personagem): string
     {
-        return $personagem->reputacao <= -20 ? 'ia' : 'padrao';
+        return $personagem->reputacao <= (int) config('jogo.reputacao_variante_ia') ? 'ia' : 'padrao';
+    }
+
+    /**
+     * Qual dos três epílogos o jogador vê: 'mestre', 'singularidade' ou 'equilibrio'.
+     *
+     * A escolha explícita diante da IA Ancestral pesa mais que a reputação — mas
+     * não a apaga: quem manda destruir o Fragmento sem nunca ter recusado sua ajuda
+     * não recebe o final de mestre, recebe o de equilíbrio. A disciplina de uma vida
+     * inteira não se compra num clique.
+     */
+    public function finalDeterminado(Personagem $personagem): string
+    {
+        $reputacao = $personagem->reputacao;
+        $limiares = config('jogo.reputacao_final');
+
+        return match (Escolha::valor($personagem->id, 'final')) {
+            'fundir' => 'singularidade',
+            'destruir' => $reputacao >= $limiares['mestre'] ? 'mestre' : 'equilibrio',
+            'reescrever' => 'equilibrio',
+            // Sem escolha explícita, o alinhamento acumulado decide sozinho.
+            default => match (true) {
+                $reputacao >= $limiares['mestre'] => 'mestre',
+                $reputacao <= $limiares['singularidade'] => 'singularidade',
+                default => 'equilibrio',
+            },
+        };
     }
 }

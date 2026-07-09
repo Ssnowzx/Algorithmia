@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Pergunta de uma fase. `opcoes` e `resposta` são jsonb.
@@ -48,6 +49,12 @@ final class Desafio extends Model
             'dificuldade' => 'integer',
             'ordem' => 'integer',
         ];
+    }
+
+    /** @return BelongsTo<Fase,$this> */
+    public function fase(): BelongsTo
+    {
+        return $this->belongsTo(Fase::class, 'fase_id');
     }
 
     /**

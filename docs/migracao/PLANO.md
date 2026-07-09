@@ -277,13 +277,61 @@ Verificado por HTTP de verdade, contra o servidor e os dados importados: login c
 destravada, arena contra o Slime de Sintaxe, um turno por AJAX. O gabarito não aparece
 no HTML da arena nem no payload do turno.
 
-**Fica de fora, e é preciso dizer:** Loja, Inventário, Ranking, Painel do Mestre, a
-página de lore e a sequência de finais (`historia/final`, `escolherFinal`) ainda não
-foram portados. A arte (143 MB) está por symlink em `platform/public/img`; o deploy a
-copia (Fase 5).
-
 **Critério de aceite:** atingido para a vertical do aluno — entra, cria personagem,
 joga, recebe feedback, conclui e consulta o progresso, no frontend novo.
+
+### Fase 4b — Telas restantes ✅ **ENTREGUE**
+
+Loja, Inventário, Ranking, Painel do Mestre, a página de lore e a sequência dos três
+finais. **O port da camada web está completo.**
+
+Toda escrita virou POST. No legado, além do `historia/concluir` já citado,
+`loja/vender/5` transformava um item em ouro, `inventario/descartar/5` o destruía para
+sempre e `mestre/excluirFase/5` apagava a fase e seus desafios em cascata — todas por
+GET, todas alcançáveis por um `<img src>`. `SegurancaWebTest` agora percorre as onze
+rotas de escrita e exige 405 em cada uma.
+
+Regras de jogo que o port precisou preservar, e que hoje têm teste:
+
+- Revenda por metade do preço, e **o Fragmento da IA não se vende**: transformá-lo em
+  ouro faria da queda moral um negócio.
+- Equipar desequipa o mesmo slot. Sem isso, duas espadas somariam bônus.
+- Os objetivos da loja (`primeira_arma`, `arsenal_completo`, `primeira_pocao`) pagam
+  ouro uma única vez — a idempotência vem da chave primária composta das conquistas.
+- A escolha diante da IA Ancestral pesa mais que a reputação, **mas não a apaga**: quem
+  manda destruir o Fragmento sem nunca ter recusado sua ajuda recebe o final de
+  equilíbrio, não o de mestre.
+- A validação por tipo de desafio no Painel do Mestre não é burocracia: um `ordenar` sem
+  opções deixa o jogador sem nada para mover, e um índice de gabarito fora da faixa faz
+  o corretor recusar a resposta certa **para sempre**. O legado salvava os dois.
+
+Dois números mágicos do legado foram derivados dos dados em vez de repetidos:
+`HistoriaController` fixava a fase final no id 35 e a véspera na `ordem_global` 34. Agora
+o confronto se declara pelo `tipo = 'chefe_final'`, e a véspera pergunta quem é a próxima
+fase. Um seeder diferente teria deixado a tela de finais inalcançável sem nada acusar.
+
+Duas armadilhas do Laravel evitadas:
+
+1. Com `?Desafio $desafio = null` num controller, o Laravel resolve a dependência pelo
+   container e injeta um **model vazio** no lugar de `null` — criar viraria atualizar um
+   registro inexistente. Criar e editar são métodos separados.
+2. `GET /mestre/desafios/novo` casaria com `/mestre/desafios/{desafio}` e procuraria o
+   desafio de id `"novo"`. As rotas literais vêm antes, e o curinga é `whereNumber`.
+
+A `lore.php` (298 linhas) foi convertida mecanicamente: suas únicas expressões PHP eram
+14 chamadas a `asset()`. O texto dos três epílogos é cânone (`docs/codex/`) e foi para
+`config/finais.php`, não para dentro de uma view — uma mudança ali deve aparecer no diff
+como decisão narrativa, e não como ajuste de layout.
+
+Verificado por HTTP contra o servidor e os dados importados: as dez telas respondem 200,
+as quatro escritas testadas por GET respondem 405, e a tentativa de vender o Fragmento
+deixou ouro e inventário intactos.
+
+**Ainda de fora:** a arte (143 MB) está por symlink em `platform/public/img`; o deploy a
+copia (Fase 5).
+
+**Critério de aceite:** atingido — 149 testes verdes no port, 38 no legado, PHPStan
+nível 6 limpo.
 
 ### Fase 5 — Corte
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Models\ItemDoInventario;
 use App\Models\Personagem;
 use App\Models\Usuario;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -57,6 +58,78 @@ final class SegurancaWebTest extends TestCase
         // ACT + ASSERT
         $this->get('/sair')->assertMethodNotAllowed();
         $this->assertAuthenticated();
+    }
+
+    #[Test]
+    public function nenhuma_escrita_do_jogo_acontece_por_get(): void
+    {
+        // No legado, todas estas eram alcançáveis por `<img src>`: comprar gastava
+        // ouro, vender esvaziava a mochila, descartar destruía o item para sempre,
+        // e concluir gravava progresso e XP.
+
+        // ARRANGE
+        $heroi = $this->entrarComHeroi();
+        $item = $this->mundo->item('arma', ['ataque' => 3], ['preco' => 10]);
+        $this->mundo->darItem($heroi, $item);
+        $fase = $this->mundo->fase(['tipo' => 'historia', 'xp_recompensa' => 99]);
+
+        $escritas = [
+            "/loja/{$item->id}/comprar",
+            "/loja/{$item->id}/vender",
+            "/inventario/{$item->id}/equipar",
+            "/inventario/{$item->id}/desequipar",
+            "/inventario/{$item->id}/usar",
+            "/inventario/{$item->id}/descartar",
+            "/historia/{$fase->id}/concluir",
+            '/final',
+        ];
+
+        // ACT + ASSERT
+        foreach ($escritas as $uri) {
+            $resposta = $this->get($uri);
+
+            // `/final` tem um GET legítimo (a tela de escolha) que não escreve nada;
+            // as demais nem sequer respondem a GET.
+            if ($uri !== '/final') {
+                $this->assertSame(405, $resposta->status(), "{$uri} respondeu a GET");
+            }
+        }
+
+        // Nada mudou de estado.
+        $heroi->refresh();
+        $this->assertSame(50, $heroi->ouro);
+        $this->assertSame(0, $heroi->xp);
+        $this->assertSame(1, ItemDoInventario::quantidade($heroi->id, $item->id));
+        $this->assertSame(0, DB::table('progresso_fases')->count());
+    }
+
+    #[Test]
+    public function nenhuma_escrita_do_painel_do_mestre_acontece_por_get(): void
+    {
+        // `mestre/excluirFase/5` apagava a fase e seus desafios em cascata, por GET.
+
+        // ARRANGE
+        $heroi = $this->mundo->heroi('mago');
+        $usuario = Usuario::query()->findOrFail($heroi->usuario_id);
+        $usuario->update(['papel' => 'mestre']);
+        $this->actingAs($usuario);
+
+        $fase = $this->mundo->fase();
+        $desafio = $this->mundo->desafio($fase->id);
+        $item = $this->mundo->item('arma', ['ataque' => 1]);
+
+        // ACT + ASSERT
+        foreach ([
+            "/mestre/desafios/{$desafio->id}/excluir",
+            "/mestre/fases/{$fase->id}/excluir",
+            "/mestre/itens/{$item->id}/excluir",
+        ] as $uri) {
+            $this->assertSame(405, $this->get($uri)->status(), "{$uri} respondeu a GET");
+        }
+
+        $this->assertSame(1, DB::table('fases')->count());
+        $this->assertSame(1, DB::table('desafios')->count());
+        $this->assertSame(1, DB::table('itens')->count());
     }
 
     #[Test]

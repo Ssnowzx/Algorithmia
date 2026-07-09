@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -53,6 +54,21 @@ final class Personagem extends Model
     public function usuario(): BelongsTo
     {
         return $this->belongsTo(Usuario::class, 'usuario_id');
+    }
+
+    /**
+     * Heróis por nível e, em empate, por XP.
+     *
+     * @return Collection<int,self>
+     */
+    public static function ranking(?int $limite = null): Collection
+    {
+        return self::query()
+            ->with('usuario')
+            ->orderByDesc('nivel')
+            ->orderByDesc('xp')
+            ->limit($limite ?? (int) config('jogo.limite_ranking'))
+            ->get();
     }
 
     /** Atributos-base da classe, sem os bônus do equipamento. */

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -46,5 +47,38 @@ final class Item extends Model
     public static function fragmentoDaIa(): ?self
     {
         return self::query()->where('svg_slug', config('jogo.item_fragmento_ia'))->first();
+    }
+
+    public function ehFragmentoDaIa(): bool
+    {
+        return $this->svg_slug === config('jogo.item_fragmento_ia');
+    }
+
+    public function ehEquipavel(): bool
+    {
+        /** @var list<string> $equipaveis */
+        $equipaveis = config('jogo.tipos_equipaveis');
+
+        return in_array($this->tipo, $equipaveis, true);
+    }
+
+    /**
+     * O Fragmento não se vende. Ele é a tentação do jogo: transformá-lo em ouro
+     * transformaria a queda moral num negócio.
+     */
+    public function podeSerVendido(): bool
+    {
+        return ! $this->ehFragmentoDaIa();
+    }
+
+    public function valorDeVenda(): int
+    {
+        return (int) round($this->preco * (float) config('jogo.loja.fator_venda'));
+    }
+
+    /** @return Collection<int,self> */
+    public static function compraveis(): Collection
+    {
+        return self::query()->where('compravel', true)->orderBy('preco')->get();
     }
 }

@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'personagem' => App\Http\Middleware\ExigirPersonagem::class,
+            'mestre' => App\Http\Middleware\ExigirMestre::class,
         ]);
 
         $middleware->redirectGuestsTo(fn (): string => route('login'));
