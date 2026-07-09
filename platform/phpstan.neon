@@ -1,0 +1,14 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app
+        - database
+        - routes
+        - tests
+
+    # Nível 6 exige tipos declarados em tudo o que atravessa fronteira de método.
+    # É o piso para um port em que a aritmética de combate não pode escorregar
+    # entre int e float sem alguém notar.
+    level: 6

@@ -107,19 +107,48 @@ mostra a decisão.
 
 **Critério de aceite:** `vendor/bin/phpunit` verde; banco de desenvolvimento intocado.
 
-### Fase 1 — Núcleo Laravel
+### Fase 1 — Núcleo Laravel ✅ **ENTREGUE**
 
-Aplicação nova em diretório separado, sem regra de jogo.
+Aplicação nova em `platform/`, sem nenhuma regra de jogo.
 
-- Laravel 13 (requer PHP 8.3+; a VPS roda 8.4), PostgreSQL 18.
-- `docker compose` para app, PostgreSQL e Mailpit. Sem Redis.
-- Pint, Larastan, Pest ou PHPUnit, CI em GitHub Actions, health check.
-- Migrations traduzindo o schema: os **9 ENUMs** viram `CHECK` ou tabelas de domínio,
-  `AUTO_INCREMENT` vira `GENERATED … AS IDENTITY`, `TINYINT(1)` vira `boolean`,
-  `ON UPDATE CURRENT_TIMESTAMP` vira trigger ou é resolvido no Eloquent, `JSON` vira
-  `jsonb`.
+- Laravel 13.19 sobre PHP 8.5 (o framework exige 8.3+; a VPS roda 8.4).
+- `docker compose up -d` sobe PostgreSQL 18.4, um segundo PostgreSQL só para
+  testes (em `tmpfs`, porta 55433) e o Mailpit. Sem Redis. A aplicação roda no
+  host via `php artisan serve` — containerizá-la só rende algo no deploy (Fase 5).
+- Pint, Larastan em **nível 6** e PHPUnit. Ficamos no PHPUnit em vez do Pest
+  porque `pest-plugin-laravel` ainda não suporta o Laravel 13 — e porque os
+  vetores-ouro da Fase 0 já são PHPUnit, então portam quase literalmente.
+- CI com dois jobs: os vetores-ouro do legado (MySQL) e o port (PostgreSQL).
+  **Os dois precisam ficar verdes durante todo o port.**
+- `/healthz` responde 503 quando o banco cai. O `/up` que o Laravel monta sozinho
+  prova apenas que o PHP está de pé.
+- As 13 tabelas traduzidas, com os testes que travam a tradução
+  (`platform/tests/Feature/SchemaTest.php`): os 9 ENUMs viraram `CHECK`,
+  `TINYINT(1)` virou `boolean`, `JSON` virou `jsonb`, e o UNIQUE de e-mail virou um
+  índice sobre `lower(email)` — sem a extensão `citext`, que exigiria superusuário
+  no deploy.
 
-**Critério de aceite:** ambiente sobe com um comando; CI verde; nenhuma credencial no repositório.
+A suíte do port roda contra **PostgreSQL de verdade**, não contra SQLite em
+memória. Um SQLite esconderia exatamente o que a migração precisa expor.
+
+Três coisas que só apareceram porque rodamos de verdade:
+
+1. O `postgres:18` mudou a convenção do volume: o mount vai em `/var/lib/postgresql`,
+   e não mais em `.../data`. Com o caminho antigo o container sobe e morre.
+2. No PostgreSQL, um statement que falha **aborta a transação inteira** (SQLSTATE
+   `25P02`). Teste que espera mais de uma violação de constraint precisa de savepoint.
+   O MySQL era leniente.
+3. `Auth::attempt` regrava a senha quando o custo do bcrypt gravado difere do
+   configurado, e escreve na coluna de `getAuthPasswordName()` — `password` por
+   padrão. Sem sobrescrever isso para `senha_hash`, o login quebra na importação.
+
+E uma boa notícia para a Fase 3, agora provada por teste
+(`platform/tests/Feature/CompatibilidadeDeSenhaTest.php`): o `password_hash()` do
+legado é bcrypt e o `Hash::check` do Laravel o valida. **Ninguém precisa redefinir
+senha no corte.**
+
+**Critério de aceite:** atingido — `docker compose up -d` + `php artisan migrate`;
+Pint, PHPStan nível 6 e 12 testes verdes; nenhuma credencial versionada.
 
 ### Fase 2 — Port do motor
 
@@ -232,7 +261,30 @@ RLS funcionar de verdade:
 
 ---
 
-## 7. Como rodar os testes
+## 7. A tentativa anterior (Codex)
+
+Antes deste plano, um agente Codex executou o roteiro v1.0 e empurrou 73 commits
+para a `main`: uma fundação Laravel em `platform/` com tenancy, RLS, resolução de
+tenant por host e autenticação por tenant — 15.898 linhas, 127 arquivos.
+
+Ela foi descartada, e a `main` reescrita a partir de `1be0c42`. O motivo não é
+qualidade de código: é que ela construiu exatamente as duas coisas que a decisão
+de §1 removeu do escopo, e nunca tocou no que importa. `app/Domain/Game`,
+`Content` e `Progress` eram apenas arquivos `README.md` vazios. O motor de batalha
+não foi portado, e não existia um único teste sobre o legado — a Fase 0 do roteiro
+v1.0 entregava documentação, não rede de segurança. É o desalinhamento descrito
+em §2.
+
+**Nada foi perdido.** O trabalho está preservado em dois refs no GitHub:
+`codex/fundacao-multitenant` e `validate-etapa-2-0e`, ambos em `44fe948`. Quando a
+multitenancy voltar (§6), vale reler o `ResolveTenantFromHost` e o
+`DatabaseRoleProvisioner` de lá antes de escrever do zero.
+
+---
+
+## 8. Como rodar os testes
+
+### Vetores-ouro do legado (MySQL)
 
 ```bash
 composer install
@@ -246,3 +298,17 @@ vendor/bin/phpunit
 ```
 
 O bootstrap recusa qualquer `DB_NAME` que não termine em `_test`.
+
+### Port em Laravel (PostgreSQL)
+
+```bash
+cd platform
+docker compose up -d          # PostgreSQL 18 (55432) + banco de teste (55433) + Mailpit
+composer install
+cp .env.example .env && php artisan key:generate
+php artisan migrate
+
+php artisan test              # roda contra o PostgreSQL da porta 55433
+vendor/bin/pint --test
+vendor/bin/phpstan analyse --memory-limit=1G
+```

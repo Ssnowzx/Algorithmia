@@ -1,0 +1,55 @@
+# Serviços de apoio ao desenvolvimento do port.
+#
+# A aplicação em si roda no host (`php artisan serve`) — containerizá-la só
+# rende algo no deploy, e é lá que ela será empacotada (Fase 5 do PLANO.md).
+# Aqui ficam as dependências que precisam de versão fixa: o PostgreSQL, para
+# que ninguém descubra em produção que escreveu SQL que só o MySQL aceita.
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: algorithmia-postgres
+    environment:
+      POSTGRES_DB: algorithmia
+      POSTGRES_USER: algorithmia
+      POSTGRES_PASSWORD: segredo_local
+    ports:
+      - "55432:5432"
+    # O PostgreSQL 18 espera o mount em /var/lib/postgresql (e não mais em
+    # .../data), para permitir pg_upgrade --link sem cruzar mount point.
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U algorithmia -d algorithmia"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Banco separado para a suíte de testes: os testes truncam tabelas, e um
+  # engano de configuração não pode alcançar o banco de desenvolvimento.
+  postgres-test:
+    image: postgres:18-alpine
+    container_name: algorithmia-postgres-test
+    environment:
+      POSTGRES_DB: algorithmia_test
+      POSTGRES_USER: algorithmia
+      POSTGRES_PASSWORD: segredo_local
+    ports:
+      - "55433:5432"
+    tmpfs:
+      - /var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U algorithmia -d algorithmia_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: algorithmia-mailpit
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+volumes:
+  postgres-data:

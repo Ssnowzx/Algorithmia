@@ -1,0 +1,105 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Os vetores-ouro rodam contra o jogo em PHP puro, sobre MySQL. Enquanto o port
+  # não terminar, é este job que define o que "certo" significa: o motor novo tem
+  # de reproduzir estes mesmos números.
+  legado:
+    name: Motor legado (vetores-ouro)
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: raiz
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -praiz"
+          --health-interval=5s --health-timeout=5s --health-retries=15
+
+    env:
+      DB_HOST: 127.0.0.1
+      DB_USER: root
+      DB_PASS: raiz
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_mysql
+          coverage: none
+
+      - run: composer install --prefer-dist --no-progress
+
+      - name: Preparar o banco de teste
+        # schema.sql tem CREATE DATABASE/USE fixos em `algorithmia` e ignora o
+        # DB_NAME do ambiente — por isso as duas instruções são removidas aqui.
+        run: |
+          mysql -h 127.0.0.1 -uroot -praiz -e "CREATE DATABASE algorithmia_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+          sed -e '/^CREATE DATABASE IF NOT EXISTS algorithmia/,+2d' -e '/^USE algorithmia;/d' database/schema.sql \
+            | mysql -h 127.0.0.1 -uroot -praiz algorithmia_test
+
+      - run: vendor/bin/phpunit
+
+  platform:
+    name: Port Laravel (PostgreSQL)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: platform
+
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: algorithmia_test
+          POSTGRES_USER: algorithmia
+          POSTGRES_PASSWORD: segredo_local
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd="pg_isready -U algorithmia -d algorithmia_test"
+          --health-interval=5s --health-timeout=5s --health-retries=15
+
+    env:
+      # O phpunit.xml aponta para a porta 55433 do docker-compose local; as tags
+      # <env> do PHPUnit não sobrescrevem variáveis já definidas, então aqui o
+      # serviço do runner vence.
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_pgsql
+          coverage: none
+
+      - run: composer install --prefer-dist --no-progress
+
+      - name: Preparar ambiente
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Formatação (Pint)
+        run: vendor/bin/pint --test
+
+      - name: Análise estática (PHPStan nível 6)
+        run: vendor/bin/phpstan analyse --memory-limit=1G --no-progress
+
+      - name: Testes
+        run: php artisan test
