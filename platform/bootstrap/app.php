@@ -19,6 +19,24 @@ return Application::configure(basePath: dirname(__DIR__))
             'mestre' => App\Http\Middleware\ExigirMestre::class,
         ]);
 
+        // Durante a coexistência, o `httpd` do jogo antigo termina o TLS e repassa a
+        // requisição ao nginx do port. Sem confiar nesse proxy, o Laravel acha que a
+        // conexão é `http`: gera URLs `http://` e nunca envia o cookie `secure` —
+        // login em laço infinito.
+        //
+        // A lista vem do ambiente e é VAZIA por padrão. Confiar em `*` sem um proxy
+        // na frente deixaria qualquer cliente forjar `X-Forwarded-Proto`.
+        $proxies = env('TRUSTED_PROXIES');
+        if (is_string($proxies) && $proxies !== '') {
+            $middleware->trustProxies(
+                at: $proxies === '*' ? '*' : array_map(trim(...), explode(',', $proxies)),
+                headers: Request::HEADER_X_FORWARDED_FOR
+                    | Request::HEADER_X_FORWARDED_HOST
+                    | Request::HEADER_X_FORWARDED_PORT
+                    | Request::HEADER_X_FORWARDED_PROTO,
+            );
+        }
+
         $middleware->redirectGuestsTo(fn (): string => route('login'));
         $middleware->redirectUsersTo(fn (): string => route('mapa'));
     })

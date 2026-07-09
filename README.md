@@ -20,7 +20,7 @@ PostgreSQL 18**. Enquanto o corte não acontece, o repositório carrega as duas 
 | Stack | PHP puro, MVC artesanal, PDO/MySQL | Laravel 13, PostgreSQL 18 |
 | Status | **em produção** | completo; **corte não executado** |
 | Papel | plano de rollback do corte | onde o trabalho novo acontece |
-| Testes | 38 vetores-ouro | 192 testes |
+| Testes | 38 vetores-ouro | 196 testes |
 
 Os **vetores-ouro** em [`tests/`](tests/) travam o comportamento do motor de batalha —
 dano, combo, fúria da morte súbita, XP, estrelas, reputação — com números derivados à
@@ -225,7 +225,7 @@ php artisan serve
 Acesse **http://localhost:8000**. Verificação:
 
 ```bash
-php artisan test                                  # 192 testes
+php artisan test                                  # 196 testes
 vendor/bin/pint --test                            # formatação
 vendor/bin/phpstan analyse --memory-limit=1G      # nível 6
 php artisan algorithmia:smoke                     # joga uma fase real e desfaz

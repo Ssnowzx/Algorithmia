@@ -12,7 +12,7 @@
 
 O repositório tem duas bases: o **legado** (raiz, PHP puro + MySQL, em produção) e o
 **port** (`platform/`, Laravel 13 + PostgreSQL 18). Ambas com suíte verde: 38
-vetores-ouro no legado, 192 testes no port. A CI roda as duas, mais um job que
+vetores-ouro no legado, 196 testes no port. A CI roda as duas, mais um job que
 constrói a imagem de produção.
 
 Seis fases, todas na `main` (`7e516eb`..`55f3857`):
@@ -28,13 +28,19 @@ Seis fases, todas na `main` (`7e516eb`..`55f3857`):
 
 ### O que fazer a seguir
 
-1. **Resolver a contradição de host.** O `AGENTS.md` descreve a produção como
-   cPanel/RHEL com `httpd` e MySQL em `/home/algorithmia/public_html`. O port
-   pressupõe VPS com Docker. **Ninguém confirmou qual é.** Ver
-   [`RUNBOOK.md`](../operacao/RUNBOOK.md) §0 e §9 (o caminho nativo **não foi testado**).
-2. Provisionar a VPS, criar `platform/.env.producao`, pôr o legado em somente leitura.
-3. `algorithmia:importar --dry-run`, depois sem a flag. `bin/deploy.sh`. Apontar o DNS.
-4. Deixar o legado de pé, em leitura, durante a janela de coexistência — **ele é o
+**Host confirmado:** VPS com root, rodando Docker (cPanel/RHEL com root — o `httpd` do
+legado e os containers do port convivem na mesma máquina).
+
+1. Criar `platform/.env.producao`. **Definir `TRUSTED_PROXIES`** com o IP do `httpd`:
+   sem isso o cookie `secure` nunca é enviado e o jogador cai na tela de login para
+   sempre. Ver [`RUNBOOK.md`](../operacao/RUNBOOK.md) §9.
+2. Subir o port em porta alta (o `httpd` já é dono da 80) e verificá-lo pela porta,
+   sem tocar no domínio.
+3. Pôr o legado em somente leitura. `algorithmia:importar --dry-run`, depois sem a
+   flag. `bin/deploy.sh`. `algorithmia:smoke`.
+4. Trocar o vhost do `httpd` para proxy reverso. **Entrar no jogo você mesmo** — o
+   smoke não testa a sessão atrás do proxy.
+5. Deixar o legado de pé, em leitura, durante a janela de coexistência — **ele é o
    plano de rollback de verdade** nos primeiros dias.
 
 ### O que NÃO fazer

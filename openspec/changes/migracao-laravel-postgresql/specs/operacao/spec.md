@@ -99,6 +99,32 @@ a qualquer aluno que provocasse um erro.
 - **WHEN** o container é iniciado sem `APP_KEY`
 - **THEN** ele falha imediatamente, com a instrução de como gerar a chave
 
+### Requirement: Confiança em proxy reverso é explícita
+
+O app SHALL confiar em `X-Forwarded-Proto` e cabeçalhos afins **apenas** quando os
+proxies forem declarados em `TRUSTED_PROXIES`. A lista SHALL ser vazia por padrão.
+
+Durante a coexistência, o `httpd` do jogo antigo termina o TLS e repassa ao nginx do
+port. Sem confiar nesse proxy, o Laravel acha que a conexão é `http`: gera URLs
+`http://` e nunca envia o cookie `secure`. O jogador loga, o cookie não volta, e ele
+cai na tela de login. Para sempre.
+
+O nginx SHALL **não** repassar a variável `HTTPS` ao PHP a partir de
+`X-Forwarded-Proto`: o Symfony considera segura qualquer `HTTPS` não-vazia e
+diferente de `"off"`, e o valor literal `"http"` seria lido como HTTPS.
+
+#### Scenario: Sem a variável, nenhum proxy é confiado
+
+- **WHEN** `TRUSTED_PROXIES` está vazio e chega uma requisição com `X-Forwarded-Proto: https`
+- **THEN** o cabeçalho é ignorado e a conexão é tratada como insegura
+- **AND** um cliente não consegue forjar o esquema
+
+#### Scenario: Apenas o proxy declarado é obedecido
+
+- **WHEN** `TRUSTED_PROXIES` contém o IP do `httpd` e a requisição vem dele com `X-Forwarded-Proto: https`
+- **THEN** a conexão é tratada como segura e o cookie `secure` é enviado
+- **AND** a mesma requisição vinda de outro IP não altera o esquema
+
 ### Requirement: Um backup nunca restaurado não é um backup
 
 O procedimento de backup SHALL verificar o gzip e recusar um dump suspeito de tão

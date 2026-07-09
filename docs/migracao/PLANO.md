@@ -368,7 +368,7 @@ virou `COUNT(*) FILTER (WHERE …)`, já que o PostgreSQL não soma booleanos.
 **Ainda de fora:** a arte (143 MB) está por symlink em `platform/public/img`; o deploy a
 copia (Fase 5).
 
-**Critério de aceite:** atingido — 192 testes verdes no port, 38 no legado, PHPStan
+**Critério de aceite:** atingido — 196 testes verdes no port, 38 no legado, PHPStan
 nível 6 limpo.
 
 ### Fase 5 — Corte ✅ **ARTEFATOS PRONTOS E EXERCITADOS** · ⏸ **corte não executado**
@@ -404,14 +404,19 @@ aplicada ali. Uma deriva de schema que teria ido para o corte em silêncio.
 atrás do nginx, gabarito não vazando, `GET` de escrita em 405, backup, ensaio de
 restauração, `deploy.sh` completo e `rollback.sh` completo.
 
-**Falta para o corte de verdade** (§8 do runbook): credenciais e acesso à VPS,
+**Falta para o corte de verdade** (§8 e §9 do runbook): credenciais e acesso à VPS,
 `.env.producao`, pôr o legado em somente leitura, apontar o DNS, e a janela de
 coexistência.
 
-**Contradição a resolver antes de tudo:** o `AGENTS.md` descreve a produção atual
-como host cPanel/RHEL com `httpd` e MySQL em `/home/algorithmia/public_html`. Este
-plano pressupõe VPS com Docker. As duas coisas não podem ser verdade ao mesmo
-tempo. O caminho nativo está esboçado no §9 do runbook e **não foi testado**.
+**Host confirmado (2026-07-09):** VPS com root, rodando Docker. É um servidor
+RHEL/AlmaLinux estilo cPanel — mas com root, e por isso o Docker roda ali. O `httpd`
+do legado e os containers do port convivem durante o corte.
+
+**A armadilha da coexistência:** o `httpd` já é dono da porta 80. O nginx do port sobe
+numa porta alta e o `httpd` faz proxy reverso. Atrás desse proxy, o Laravel precisa de
+`TRUSTED_PROXIES` para saber que a conexão é HTTPS — sem isso, o cookie `secure` nunca
+é enviado e o jogador cai na tela de login para sempre. Ver
+[`RUNBOOK.md §9`](../operacao/RUNBOOK.md).
 
 **Critério de aceite:** rollback exercitado — ver abaixo.
 

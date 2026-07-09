@@ -9,7 +9,7 @@ O repositório tem o **legado** (raiz, PHP puro + MySQL, em produção) e o **po
 
 - **Trabalho novo vai para o `platform/`.** O legado só recebe correção urgente —
   ele é o plano de rollback do corte e será aposentado.
-- **As duas suítes ficam verdes.** 38 vetores-ouro no legado, 192 testes no port.
+- **As duas suítes ficam verdes.** 38 vetores-ouro no legado, 196 testes no port.
   A CI roda ambas.
 - **Os 38 vetores-ouro (`tests/`) são o CONTRATO do motor.** Os números esperados
   foram derivados à mão das constantes de balanceamento, não capturados de snapshot.

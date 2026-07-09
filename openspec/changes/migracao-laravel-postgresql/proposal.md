@@ -59,5 +59,6 @@ O legado permanece de pé, intocado, como plano de rollback do corte.
 - **Redesenho visual.** O CSS e o JS do jogo são reaproveitados como estão. Portar
   não é hora de mexer na identidade.
 - **O corte em produção.** Os artefatos existem e foram exercitados localmente. O
-  deploy na VPS depende de credenciais e de resolver a contradição registrada em
-  [`RUNBOOK.md §0`](../../../docs/operacao/RUNBOOK.md).
+  deploy na VPS depende de credenciais e da topologia de coexistência descrita em
+  [`RUNBOOK.md §9`](../../../docs/operacao/RUNBOOK.md) — o `httpd` do legado já é dono
+  da porta 80.

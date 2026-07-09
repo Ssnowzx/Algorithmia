@@ -1,7 +1,7 @@
 # Tasks — Migração para Laravel 13 + PostgreSQL
 
 Todas concluídas, exceto o corte em produção (§6), que depende de credenciais e da
-contradição registrada em [`RUNBOOK.md §0`](../../../docs/operacao/RUNBOOK.md).
+topologia descrita em [`RUNBOOK.md §9`](../../../docs/operacao/RUNBOOK.md).
 
 ## 1. Rede de segurança (sobre o legado, em PHP puro)
 - [x] 1.1 `composer.json` + PHPUnit 12 como dependência **só de desenvolvimento** (`index.php` não carrega o autoload)
@@ -46,6 +46,7 @@ contradição registrada em [`RUNBOOK.md §0`](../../../docs/operacao/RUNBOOK.md
 - [x] 6.5 `algorithmia:smoke` joga uma fase real numa transação e a desfaz
 - [x] 6.6 CI ganha job que constrói a imagem e prova as guardas do entrypoint
 - [x] 6.7 `docs/operacao/RUNBOOK.md`; deploy, rollback e backup exercitados localmente
-- [ ] 6.8 **Resolver a contradição de host** (`AGENTS.md` diz cPanel/`httpd`; o port pressupõe Docker)
-- [ ] 6.9 Provisionar a VPS, `.env.producao`, pôr o legado em somente leitura
-- [ ] 6.10 Importar, `bin/deploy.sh`, apontar o DNS, janela de coexistência
+- [x] 6.8 Host confirmado: VPS com root + Docker; `httpd` do legado convive na mesma máquina
+- [x] 6.9 `trustProxies` configurável por `TRUSTED_PROXIES`, vazio por padrão, travado em teste
+- [ ] 6.10 `.env.producao` na VPS (**incluindo `TRUSTED_PROXIES`**), legado em somente leitura
+- [ ] 6.11 Importar, `bin/deploy.sh`, vhost do `httpd` como proxy reverso, janela de coexistência

@@ -5,14 +5,15 @@ com sono, quando algo já deu errado.
 
 ---
 
-## 0. Antes de qualquer coisa
+## 0. O host
 
-**Uma contradição a resolver.** O [`AGENTS.md`](../../AGENTS.md) descreve a produção
-atual como host cPanel/RHEL com `httpd` e MySQL em `/home/algorithmia/public_html`. O
-port pressupõe uma VPS com Docker. As duas coisas não podem ser verdade ao mesmo tempo.
+Uma **VPS com root, rodando Docker** (confirmado pelo time em 2026-07-09). É um host
+RHEL/AlmaLinux estilo cPanel — mas com root, e por isso o Docker roda ali. O `httpd`
+do jogo antigo e os containers do port convivem na mesma máquina durante o corte.
 
-Este runbook cobre o **caminho Docker**, que é o único verificado de ponta a ponta.
-O §9 esboça a alternativa nativa com `httpd`, e ela **não foi testada**.
+**O `httpd` já é dono da porta 80.** O nginx do port publica numa porta alta
+(`ALGORITHMIA_PORTA`, padrão `8080`), e o `httpd` faz proxy reverso para ela quando o
+corte acontecer — assim o certificado TLS existente segue valendo. Ver §9.
 
 ---
 
@@ -217,38 +218,84 @@ Fragmento da IA no catálogo, e que o gabarito não vaza para o cliente.
 | Smoke: "IDs das fases secundárias" | a importação não preservou IDs — a conquista `arquivista_do_vazio` ficaria inalcançável **em silêncio** |
 | Imagens 404 | o bind-mount de `public/img` não subiu; confira o caminho no `compose.prod.yml` |
 | Código antigo servindo após deploy | não acontece: `opcache.validate_timestamps=0` numa imagem imutável. Se acontecer, alguém montou código por volume |
+| Login em laço: o jogador entra e volta à tela de login | `SESSION_SECURE_COOKIE=true` sem `TRUSTED_PROXIES` atrás do `httpd`. O Laravel acha que a conexão é `http` e não envia o cookie. Ver §9 |
+| Links e redirecionamentos saem em `http://` | idem |
 
 ---
 
-## 8. Coexistência e corte
+## 8. O corte, passo a passo
 
-Durante a janela de corte, os dois sistemas ficam de pé:
+Os dois sistemas ficam de pé na mesma VPS. A rede é o §9 — **leia antes**.
 
-1. **Antes:** dump do MySQL legado (`mysqldump`) e do PostgreSQL.
-2. Ponha o legado em **somente leitura** (revogue INSERT/UPDATE/DELETE do usuário da
-   aplicação). Assim ninguém joga no sistema velho enquanto os dados migram.
-3. `algorithmia:importar --dry-run`, depois sem a flag.
-4. `bin/deploy.sh` e `algorithmia:smoke`.
-5. Aponte o DNS/vhost de `algorithmia.tars.art.br` para o nginx do port.
-6. Deixe o legado de pé, em leitura, por uma janela combinada. **Ele é o plano de
+1. **Antes de tudo:** dump do MySQL legado (`mysqldump`) e do PostgreSQL.
+2. Suba o port em porta alta e **verifique-o pela porta**, sem tocar no domínio:
+   `bin/deploy.sh` e `algorithmia:smoke`. O legado segue atendendo os jogadores.
+3. Ponha o legado em **somente leitura** (revogue INSERT/UPDATE/DELETE do usuário da
+   aplicação). Ninguém deve jogar no sistema velho enquanto os dados migram.
+4. `algorithmia:importar --dry-run`, depois sem a flag. Confira a reconciliação.
+5. Rode `algorithmia:smoke` de novo — agora com o conteúdo real.
+6. **Só então** troque o vhost do `httpd` para o proxy reverso do §9, e configure
+   `TRUSTED_PROXIES`. Recarregue o `httpd`.
+7. Entre no jogo você mesmo: login, mapa, uma batalha. O smoke não testa a sessão
+   atrás do proxy — o §9 explica por que ela é o ponto frágil.
+8. Deixe o legado de pé, em leitura, por uma janela combinada. **Ele é o plano de
    rollback de verdade** enquanto o port não tiver rodado alguns dias.
 
-Rollback do corte: aponte o DNS de volta e devolva a escrita ao legado. Os dados que
-os jogadores criaram no port nesse intervalo **não voltam** — por isso a janela deve
-ser curta e anunciada.
+**Rollback do corte:** devolva o vhost ao legado e restaure a escrita. Os dados que os
+jogadores criaram no port nesse intervalo **não voltam** — por isso a janela deve ser
+curta e anunciada.
 
 ---
 
-## 9. Alternativa não verificada: host nativo com `httpd`
+## 9. Topologia de rede durante o corte
 
-Se a produção continuar no host cPanel do `AGENTS.md`, o Docker não entra. O caminho
-seria:
+Os dois servidores não podem escutar a porta 80 ao mesmo tempo. Durante a janela de
+corte, o `httpd` continua dono do domínio e da TLS, e repassa ao port.
 
-- PHP 8.3+ com `pdo_pgsql`, PostgreSQL 18 instalado no host.
-- Document root apontando para `platform/public` (hoje aponta para a raiz do legado).
-- `composer install --no-dev`, `php artisan migrate --force`, `php artisan optimize`.
-- **Reiniciar o `httpd` após cada deploy**, senão o OPcache serve o código antigo.
-- Copiar (não linkar) `public/img` para `platform/public/img`.
+### No `httpd`
 
-**Isto não foi testado.** Se for o caminho, ele precisa de um ensaio completo — deploy,
-smoke e rollback — antes de tocar em produção.
+```apache
+# vhost de algorithmia.tars.art.br, depois do corte
+ProxyPreserveHost On
+RequestHeader set X-Forwarded-Proto "https"
+ProxyPass        / http://127.0.0.1:8080/
+ProxyPassReverse / http://127.0.0.1:8080/
+```
+
+### No `.env.producao`
+
+```dotenv
+TRUSTED_PROXIES=127.0.0.1
+SESSION_SECURE_COOKIE=true
+APP_URL=https://algorithmia.tars.art.br
+```
+
+**Isto não é opcional.** Sem `TRUSTED_PROXIES`, o Laravel não sabe que a conexão é
+HTTPS: gera URLs `http://`, o cookie `secure` nunca é enviado de volta, e o jogador
+loga e cai na tela de login de novo — para sempre. É o tipo de bug que só aparece em
+produção, porque em desenvolvimento não há proxy nem TLS.
+
+O oposto também morde: **não use `TRUSTED_PROXIES=*`** se o nginx atender direto.
+Qualquer cliente poderia forjar `X-Forwarded-Proto` e `X-Forwarded-Host`. A variável
+é vazia por padrão, e o comportamento está travado em
+`platform/tests/Feature/ProxyReversoTest.php`.
+
+> O nginx do port **não** repassa `HTTPS` ao PHP a partir de `X-Forwarded-Proto`. O
+> Symfony considera segura qualquer variável `HTTPS` não-vazia e diferente de `"off"`
+> — o valor literal `"http"` seria lido como HTTPS. Quem decide o esquema é o Laravel,
+> pelo `trustProxies`.
+
+### Depois do corte
+
+Aposentado o legado, o nginx pode assumir a 80/443 diretamente (com a TLS migrada), e
+`TRUSTED_PROXIES` volta a ficar **vazio**.
+
+### Descobrir o IP do proxy
+
+```bash
+cd platform
+docker compose -f compose.prod.yml logs web | head    # o $remote_addr das requisições
+```
+
+Num Docker padrão no Linux, requisições vindas do `httpd` do host chegam pelo gateway
+da rede do compose, não por `127.0.0.1`. **Confira antes de assumir.**

@@ -22,7 +22,7 @@ context: |
        - app/Http/{Controllers,Middleware,Requests}/, resources/views/*.blade.php
        - config/jogo.php = balanceamento (fonte única do port).
        - config/bestiario.php e config/finais.php = cânone (não reescrever).
-       - tests/{Dominio,Feature}/ = 192 testes, contra PostgreSQL de verdade
+       - tests/{Dominio,Feature}/ = 196 testes, contra PostgreSQL de verdade
          (nunca SQLite: ele esconderia justamente o que a migração precisa expor).
        - bin/{deploy,rollback,backup,restore}.sh + docs/operacao/RUNBOOK.md
 

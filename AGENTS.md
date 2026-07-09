@@ -19,7 +19,7 @@ Antes de tocar em qualquer arquivo, saiba em qual você está.
 | Stack | PHP puro, MVC artesanal, PDO/MySQL | Laravel 13, PostgreSQL 18 |
 | Status | **em produção** | completo, **corte não executado** |
 | Papel | plano de rollback do corte | onde o trabalho novo acontece |
-| Testes | 38 vetores-ouro (`tests/`) | 192 testes (`platform/tests/`) |
+| Testes | 38 vetores-ouro (`tests/`) | 196 testes (`platform/tests/`) |
 
 **Trabalho novo vai para o `platform/`.** O legado só recebe correção urgente — ele
 será aposentado no corte.
@@ -45,15 +45,13 @@ antes de mexer no port.
 
 ## 🖥️ Ambiente de PRODUÇÃO
 
-### ⚠️ Contradição não resolvida — pergunte ao time antes de fazer deploy
+**Uma VPS com root, rodando Docker** (confirmado pelo time em 2026-07-09). Não há
+contradição com o que está escrito abaixo: é um host RHEL/AlmaLinux estilo cPanel,
+mas **com root** — e por isso o Docker roda ali. O `httpd` do legado e os containers
+do port convivem na mesma máquina durante a janela de corte.
 
-Esta seção descreve o host **do legado**. O port pressupõe uma VPS com Docker. As
-duas coisas não podem ser verdade ao mesmo tempo, e **ninguém confirmou qual é**.
-Ver [`docs/operacao/RUNBOOK.md`](docs/operacao/RUNBOOK.md) §0 e §9.
+### Legado — o que está no ar hoje
 
-### Legado (o que está no ar hoje)
-
-- **Host:** RHEL/AlmaLinux estilo cPanel.
 - **Código em:** `/home/algorithmia/public_html`
 - **Servidor web:** **`httpd`** (NÃO é `apache2`). Reiniciar / limpar o cache de
   OPcache: `sudo systemctl restart httpd` (ou o botão de restart do painel).
@@ -68,12 +66,32 @@ Ver [`docs/operacao/RUNBOOK.md`](docs/operacao/RUNBOOK.md) §0 e §9.
 > Dev local (Ubuntu/Apache, `php -S localhost:8001`) está documentado em
 > [`docs/processo/DEPLOY.md`](docs/processo/DEPLOY.md); produção usa `httpd`.
 
-### Port (quando o corte acontecer)
+### Port — Docker
 
-Docker: nginx + php-fpm + PostgreSQL. Deploy por `bin/deploy.sh`, que recusa árvore
-suja, tira um dump, migra, sobe, roda o smoke e **reverte sozinho se ele reprovar**.
-Nunca suba os containers à mão. Runbook completo em
+nginx + php-fpm + PostgreSQL 18. Deploy por `bin/deploy.sh`, que recusa árvore suja,
+tira um dump, migra, sobe, roda o smoke e **reverte sozinho se ele reprovar**. Nunca
+suba os containers à mão. Runbook completo em
 [`docs/operacao/RUNBOOK.md`](docs/operacao/RUNBOOK.md).
+
+### ⚠️ Coexistência: o `httpd` já é dono da porta 80
+
+Os dois não podem escutar a 80 ao mesmo tempo. Durante a janela de corte:
+
+- O nginx do port publica numa porta alta (`ALGORITHMIA_PORTA`, padrão `8080`).
+- O `httpd` continua atendendo o domínio e a TLS, e faz **proxy reverso** para essa
+  porta quando o corte acontecer. Assim o certificado existente segue valendo.
+
+Consequência que **quebra o login se for esquecida**: atrás do proxy, o Laravel
+precisa saber que a conexão é HTTPS. Defina `TRUSTED_PROXIES` no `.env.producao` com
+o IP do `httpd`. Sem isso, o app gera URLs `http://`, o cookie `secure` nunca é
+enviado, e o jogador cai na tela de login para sempre.
+
+Não coloque `TRUSTED_PROXIES=*` se o nginx atender direto: qualquer cliente forjaria
+`X-Forwarded-Proto`. A variável é **vazia por padrão**, e está travada em
+`platform/tests/Feature/ProxyReversoTest.php`.
+
+Depois do corte, quando o legado for aposentado, o nginx pode assumir a 80/443 — e aí
+`TRUSTED_PROXIES` volta a ficar vazio.
 
 ---
 
