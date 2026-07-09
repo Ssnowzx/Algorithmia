@@ -150,26 +150,55 @@ senha no corte.**
 **Critério de aceite:** atingido — `docker compose up -d` + `php artisan migrate`;
 Pint, PHPStan nível 6 e 12 testes verdes; nenhuma credencial versionada.
 
-### Fase 2 — Port do motor
+### Fase 2 — Port do motor ✅ **ENTREGUE**
 
-O ativo real. Portar `BatalhaService`, `RecompensaService`, `ProgressaoService`,
-`ReputacaoService`, `ConquistaService` como domínio testável, sem depender de HTTP.
+O ativo real, agora em `platform/app/Dominio/`, sem depender de HTTP nem de sessão.
 
-Os vetores-ouro da Fase 0 são reescritos em Pest contra o novo motor. **Os mesmos
-números.** Divergência é bug do port, não licença para "melhorar o balanceamento".
+- `Combate/`: `MotorDeBatalha`, `EstadoDeBatalha`, `CorretorDeRespostas`,
+  `SorteioAntiRepeticao`.
+- `Progressao/`: `ServicoDeProgressao`, `ServicoDeReputacao`, `ServicoDeConquistas`,
+  `ServicoDeRecompensa`.
+- `config/jogo.php` passa a ser a fonte única do balanceamento.
 
-Duas dívidas se pagam aqui, porque o port as expõe:
+O motor ganhou **duas costuras**, e só duas: onde a batalha é guardada
+(`RepositorioDeBatalha` — sessão em produção, memória nos testes) e como as
+perguntas são sorteadas (`SorteadorDeDesafios`). Ambas existem porque são o que
+impede um teste de medir a aritmética do combate: uma exige servidor web, a outra
+é o Mt19937 do PHP. Tudo o mais é regra, e regra é testada.
 
-1. **Idempotência da recompensa.** Hoje a proteção contra duplo-crédito é o flag
-   `recompensado` em `$_SESSION['batalha']`. `RecompensaService::conceder` chamado duas
-   vezes duplica a reputação — XP e ouro escapam só por acidente, porque são gravados
-   como valor absoluto a partir de uma linha lida antes. Está travado em
-   `tests/Motor/RecompensaTest.php::conceder_duas_vezes_duplica_a_reputacao_a_guarda_vive_na_sessao`.
-   No port isso vira chave de idempotência no banco.
-2. **IDs de fase hardcoded.** `ConquistaService.php:86` traz `$secundarias = [8, 14, 20, 32]`.
-   O port precisa preservar os IDs ou a conquista `arquivista_do_vazio` morre em silêncio.
+Os 38 vetores-ouro foram reescritos contra o motor novo, e passam com **os mesmos
+números**. Somaram-se 2 casos, e um mudou de propósito (abaixo). Para confirmar
+que a rede não é decorativa, duas mutações deliberadas em `config/jogo.php`:
+alterar `combo_bonus` de 0.25 para 0.30 quebra 3 testes; alterar `rage_max` de 4.0
+para 5.0 quebra 1.
 
-**Critério de aceite:** os vetores-ouro passam nos dois motores, com os mesmos valores.
+**A dívida da idempotência foi paga.** No legado, a guarda contra duplo-crédito é
+o flag `recompensado` de `$_SESSION['batalha']`: dura o que dura a sessão, e não
+vale nada contra duas requisições concorrentes. `RecompensaService::conceder`
+chamado duas vezes duplica a reputação — XP e ouro escapam só por acidente, por
+serem gravados como valor absoluto de uma linha lida antes. Agora cada batalha
+nasce com um `batalhaId` gerado no servidor, e a concessão o insere em
+`recompensas_batalha` antes de creditar qualquer coisa; a chave primária serializa
+a disputa no banco, não na aplicação. É a **única divergência deliberada** em
+relação ao legado, e está registrada nos dois lados:
+
+| Legado | Port |
+|---|---|
+| `conceder_duas_vezes_duplica_a_reputacao_a_guarda_vive_na_sessao` | `conceder_a_mesma_batalha_duas_vezes_nao_credita_de_novo` |
+
+Um detalhe que o port quase perdeu: `ProgressoFase::registrar` só acumula o melhor
+de sempre nas **estrelas**. `acertos`, `erros` e `usou_ia` refletem a última
+partida. Isso não é descuido — rejogar uma fase limpa apaga a mancha do Fragmento
+da IA, e é o que permite reconquistar "Puro de Coração" depois de ter cedido.
+Redenção é regra do jogo. Está travado em
+`rejogar_uma_fase_mantem_as_melhores_estrelas_mas_limpa_a_marca_da_ia`.
+
+Fica pendente para a Fase 3: `ConquistaService` referencia as fases secundárias por
+ID fixo (`[8, 14, 20, 32]`, agora em `config('jogo.fases_secundarias')`). O seeder
+**precisa preservar os IDs originais**, ou `arquivista_do_vazio` morre em silêncio.
+
+**Critério de aceite:** atingido — 40 vetores-ouro verdes no port, 38 no legado,
+PHPStan nível 6 limpo.
 
 ### Fase 3 — Dados e conteúdo
 

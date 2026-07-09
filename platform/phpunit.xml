@@ -11,6 +11,10 @@
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
         </testsuite>
+        <!-- Vetores-ouro: o contrato que o motor portado tem de reproduzir. -->
+        <testsuite name="Dominio">
+            <directory>tests/Dominio</directory>
+        </testsuite>
     </testsuites>
     <source>
         <include>
