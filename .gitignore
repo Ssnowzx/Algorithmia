@@ -16,3 +16,6 @@ tools/.venvs/
 docs/cinematics/*/frames/
 docs/cinematics/*/narracao-raw.wav
 docs/cinematics/*/*.mp4
+
+# Cache do PHPUnit (testes de caracterização)
+/.phpunit.cache/

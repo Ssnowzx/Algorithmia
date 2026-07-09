@@ -97,7 +97,7 @@ class BatalhaService
      *   (ordenados por dificuldade) seguidos do resto do pool embaralhado (reserva
      *   para o Duelo Final); 'limite' = N (o limite de ritmo que abre a morte súbita).
      */
-    private function sortearDesafios(array $personagem, array $fase): array
+    protected function sortearDesafios(array $personagem, array $fase): array
     {
         $pool = array_map(
             [Desafio::class, 'decodificar'],

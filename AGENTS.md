@@ -7,7 +7,14 @@ testes e segurança) e os docs em [`docs/desenvolvimento/`](docs/desenvolvimento
 jogadores: PARE e pergunte ao time.**
 
 O projeto é o **Algorithmia** — jogo educativo de RPG em **PHP puro** (MVC
-artesanal) + **PDO/MySQL**, sem Composer/dependências externas.
+artesanal) + **PDO/MySQL**, sem dependências externas em produção: `index.php`
+não carrega o autoload do Composer.
+
+> **Composer existe, mas só para testes.** `composer.json` traz o PHPUnit como
+> dependência de desenvolvimento, usada pelos testes de caracterização em
+> `tests/` que travam o comportamento do motor antes da migração para Laravel.
+> Rode com `vendor/bin/phpunit` (exige o banco `algorithmia_test`).
+> Ver [`docs/migracao/PLANO.md`](docs/migracao/PLANO.md).
 
 ---
 
