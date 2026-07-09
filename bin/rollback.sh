@@ -31,6 +31,10 @@ ok()   { printf '\033[32m  ✓ %s\033[0m\n' "$*"; }
 ALVO="$(cat "${ESTADO}/tag-anterior")"
 ATUAL="$(cat "${ESTADO}/tag-atual" 2>/dev/null || echo '?')"
 
+# Sem esta guarda, um rollback logo após outro seria um no-op silencioso: o script
+# "reverteria" para a versão que já está no ar e declararia sucesso.
+[[ "${ALVO}" != "${ATUAL}" ]] || erro "a tag anterior (${ALVO}) já é a que está no ar. Faça um deploy antes de reverter de novo."
+
 docker image inspect "algorithmia:${ALVO}" >/dev/null 2>&1 \
     || erro "a imagem algorithmia:${ALVO} não existe mais neste host"
 
@@ -66,4 +70,14 @@ ALGORITHMIA_TAG="${ALVO}" $COMPOSE exec -T app php artisan algorithmia:smoke \
     || erro "a versão anterior TAMBÉM reprova o smoke. Investigue o banco."
 
 printf '%s' "${ALVO}" > "${ESTADO}/tag-atual"
+
+# Não há "versão anterior à anterior" conhecida como boa. Apagar o marcador é mais
+# honesto do que deixá-lo apontando para a tag que acabou de subir — e obriga um
+# deploy antes de um novo rollback.
+rm "${ESTADO}/tag-anterior"
+printf '%s' "${ATUAL}" > "${ESTADO}/tag-rejeitada"
+
 printf '\n\033[32m✓ Rollback para %s concluído.\033[0m\n' "${ALVO}"
+printf '  A tag %s foi abandonada (registrada em .deploy/tag-rejeitada).\n' "${ATUAL}"
+printf '  Se a migration dela NÃO era aditiva, restaure o dump:\n'
+printf '    bin/restore.sh backups/pre-%s-*.sql.gz\n' "${ATUAL}"
