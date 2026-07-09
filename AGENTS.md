@@ -6,19 +6,52 @@ testes e segurança) e os docs em [`docs/desenvolvimento/`](docs/desenvolvimento
 **Leia antes de agir. Em dúvida sobre algo destrutivo ou que afete dados de
 jogadores: PARE e pergunte ao time.**
 
-O projeto é o **Algorithmia** — jogo educativo de RPG em **PHP puro** (MVC
-artesanal) + **PDO/MySQL**, sem dependências externas em produção: `index.php`
-não carrega o autoload do Composer.
-
-> **Composer existe, mas só para testes.** `composer.json` traz o PHPUnit como
-> dependência de desenvolvimento, usada pelos testes de caracterização em
-> `tests/` que travam o comportamento do motor antes da migração para Laravel.
-> Rode com `vendor/bin/phpunit` (exige o banco `algorithmia_test`).
-> Ver [`docs/migracao/PLANO.md`](docs/migracao/PLANO.md).
+O projeto é o **Algorithmia** — jogo educativo de RPG.
 
 ---
 
-## 🖥️ Ambiente de PRODUÇÃO (VPS)
+## ⚠️ Este repositório tem DUAS bases de código
+
+Antes de tocar em qualquer arquivo, saiba em qual você está.
+
+| | **Legado** (raiz) | **Port** (`platform/`) |
+|---|---|---|
+| Stack | PHP puro, MVC artesanal, PDO/MySQL | Laravel 13, PostgreSQL 18 |
+| Status | **em produção** | completo, **corte não executado** |
+| Papel | plano de rollback do corte | onde o trabalho novo acontece |
+| Testes | 38 vetores-ouro (`tests/`) | 192 testes (`platform/tests/`) |
+
+**Trabalho novo vai para o `platform/`.** O legado só recebe correção urgente — ele
+será aposentado no corte.
+
+> **Composer no legado existe só para testes.** `index.php` não carrega o autoload;
+> produção segue sem dependências. Os 38 testes de `tests/` são o **contrato** do
+> motor: o port reproduz esses números. Se um deles falhar, o port está errado —
+> não "ajuste" o teste. Rode com `vendor/bin/phpunit` (exige `algorithmia_test`).
+
+**As duas suítes ficam verdes.** A CI roda ambas.
+
+```bash
+vendor/bin/phpunit                      # legado (MySQL)
+cd platform && php artisan test         # port (PostgreSQL)
+cd platform && vendor/bin/pint --test && vendor/bin/phpstan analyse
+```
+
+Leia [`docs/migracao/PLANO.md`](docs/migracao/PLANO.md) e
+[`openspec/changes/migracao-laravel-postgresql/`](openspec/changes/migracao-laravel-postgresql/)
+antes de mexer no port.
+
+---
+
+## 🖥️ Ambiente de PRODUÇÃO
+
+### ⚠️ Contradição não resolvida — pergunte ao time antes de fazer deploy
+
+Esta seção descreve o host **do legado**. O port pressupõe uma VPS com Docker. As
+duas coisas não podem ser verdade ao mesmo tempo, e **ninguém confirmou qual é**.
+Ver [`docs/operacao/RUNBOOK.md`](docs/operacao/RUNBOOK.md) §0 e §9.
+
+### Legado (o que está no ar hoje)
 
 - **Host:** RHEL/AlmaLinux estilo cPanel.
 - **Código em:** `/home/algorithmia/public_html`
@@ -34,6 +67,13 @@ não carrega o autoload do Composer.
 
 > Dev local (Ubuntu/Apache, `php -S localhost:8001`) está documentado em
 > [`docs/processo/DEPLOY.md`](docs/processo/DEPLOY.md); produção usa `httpd`.
+
+### Port (quando o corte acontecer)
+
+Docker: nginx + php-fpm + PostgreSQL. Deploy por `bin/deploy.sh`, que recusa árvore
+suja, tira um dump, migra, sobe, roda o smoke e **reverte sozinho se ele reprovar**.
+Nunca suba os containers à mão. Runbook completo em
+[`docs/operacao/RUNBOOK.md`](docs/operacao/RUNBOOK.md).
 
 ---
 
@@ -66,12 +106,21 @@ não carrega o autoload do Composer.
    `database/migrations/AAAAMMDD-descricao.sql`. O `migrate.php` aplica cada migration
    uma única vez (tabela `migracoes_aplicadas`). Nunca altere uma migration já
    aplicada — crie outra.
-4. Nada de `rm -rf`, `sudo` destrutivo, `chmod 777`. Não commite segredos.
-5. Sem `any`/gambiarra que quebre as convenções do [`CLAUDE.md`](CLAUDE.md).
+4. **`database/schema.sql` ignora o `DB_NAME` do ambiente.** As linhas 6 e 10 têm
+   `CREATE DATABASE algorithmia` e `USE algorithmia` fixos. Rodar
+   `DB_NAME=outro php database/migrate.php --reset` derruba `outro` e depois escreve
+   em `algorithmia`. **Nunca** rode o migrador com `DB_NAME` customizado.
+5. **No port, toda migration precisa ser ADITIVA** — criar tabela, criar coluna
+   anulável, criar índice. Elas rodam contra o código velho ainda no ar, e o rollback
+   de código não desfaz schema. Remover coluna = dois deploys.
+6. Nada de `rm -rf`, `sudo` destrutivo, `chmod 777`. Não commite segredos.
+7. Sem `any`/gambiarra que quebre as convenções do [`CLAUDE.md`](CLAUDE.md).
 
 ---
 
-## ✅ Fato já RESOLVIDO — não "conserte" de novo
+## ✅ Fatos já RESOLVIDOS — não "conserte" de novo
+
+### O sorteio de perguntas
 
 O **sorteio de perguntas da batalha já é aleatório e correto**:
 `BatalhaService::sortearDesafios()` embaralha o pool da fase (`shuffle`), prioriza
@@ -92,6 +141,19 @@ Conferir (esperado ~9–14 perguntas por fase de combate, não 4–7):
 mysql -u algorithmia -p algorithmia -e "SELECT fase_id, COUNT(*) FROM desafios GROUP BY fase_id;"
 ```
 
+### Rejogar uma fase apaga a mancha da IA — de propósito
+
+`ProgressoFase::registrar` só acumula o melhor resultado nas **estrelas**. `acertos`,
+`erros` e `usou_ia` refletem a última partida. Parece bug; não é. É o que permite
+reconquistar "Puro de Coração" depois de ter cedido ao Fragmento. **Redenção é regra
+do jogo.** Está travado em teste nas duas bases.
+
+### A auditoria em `docs/auditoria/` está DESATUALIZADA
+
+É um retrato de 2026-06-18. Os dois débitos "críticos" que ela aponta —
+CSRF-via-GET em `exigirCsrf` e ausência de transação no fluxo de recompensa — **já
+foram corrigidos**. Leia o código antes de citá-la.
+
 ---
 
 ## 🚀 Deploy de atualização (fluxo padrão neste host)
@@ -110,6 +172,10 @@ sudo systemctl restart httpd
 ## 📚 Onde ler antes de agir
 
 - [`CLAUDE.md`](CLAUDE.md) — convenções de código, nomenclatura, testes e git.
-- [`docs/processo/DEPLOY.md`](docs/processo/DEPLOY.md) — deploy (com a nota de `httpd`/cPanel).
+- [`docs/migracao/PLANO.md`](docs/migracao/PLANO.md) — o port: decisões, fases, riscos.
+- [`docs/migracao/INVENTARIO.md`](docs/migracao/INVENTARIO.md) — mapa do domínio legado.
+- [`docs/operacao/RUNBOOK.md`](docs/operacao/RUNBOOK.md) — deploy, rollback, backup, corte.
+- [`openspec/changes/migracao-laravel-postgresql/`](openspec/changes/migracao-laravel-postgresql/) — proposta, design e specs do port.
+- [`docs/processo/DEPLOY.md`](docs/processo/DEPLOY.md) — deploy do **legado** (`httpd`/cPanel).
 - [`docs/desenvolvimento/`](docs/desenvolvimento/) — arquitetura, padrões, QA, releases.
-- [`README.md`](README.md) — visão geral e setup do banco.
+- [`README.md`](README.md) — visão geral e setup.

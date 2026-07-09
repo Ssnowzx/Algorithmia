@@ -4,6 +4,90 @@
 
 ---
 
+## 🗓️ Sessão 2026-07-08/09 — Migração para Laravel 13 + PostgreSQL 18 · na `main`
+
+**O port está completo. O corte em produção NÃO foi feito.**
+
+### O que existe agora
+
+O repositório tem duas bases: o **legado** (raiz, PHP puro + MySQL, em produção) e o
+**port** (`platform/`, Laravel 13 + PostgreSQL 18). Ambas com suíte verde: 38
+vetores-ouro no legado, 192 testes no port. A CI roda as duas, mais um job que
+constrói a imagem de produção.
+
+Seis fases, todas na `main` (`7e516eb`..`55f3857`):
+
+| Fase | O que entregou |
+|---|---|
+| 0 | 38 vetores-ouro sobre o **legado** — o contrato do motor |
+| 1 | Laravel 13 + PostgreSQL 18; 13 tabelas traduzidas, com teste de cada tradução |
+| 2 | Motor em `app/Dominio/`; recompensa virou idempotente por chave no banco |
+| 3 | `algorithmia:importar` — 1.306 linhas, IDs preservados, `--dry-run` real |
+| 4 + 4b | Camada web completa; toda escrita virou POST |
+| 5 | Imagem, `bin/deploy.sh` com rollback automático, backup com ensaio, `algorithmia:smoke` |
+
+### O que fazer a seguir
+
+1. **Resolver a contradição de host.** O `AGENTS.md` descreve a produção como
+   cPanel/RHEL com `httpd` e MySQL em `/home/algorithmia/public_html`. O port
+   pressupõe VPS com Docker. **Ninguém confirmou qual é.** Ver
+   [`RUNBOOK.md`](../operacao/RUNBOOK.md) §0 e §9 (o caminho nativo **não foi testado**).
+2. Provisionar a VPS, criar `platform/.env.producao`, pôr o legado em somente leitura.
+3. `algorithmia:importar --dry-run`, depois sem a flag. `bin/deploy.sh`. Apontar o DNS.
+4. Deixar o legado de pé, em leitura, durante a janela de coexistência — **ele é o
+   plano de rollback de verdade** nos primeiros dias.
+
+### O que NÃO fazer
+
+- **Não "ajuste" um vetor-ouro para fazer o port passar.** Os números foram derivados
+  à mão das constantes. Se um falha, o port está errado.
+- **Não conserte** o fato de `ProgressoFase::registrar` sobrescrever `usou_ia`.
+  Rejogar limpo apaga a mancha da IA de propósito: é o que permite reconquistar
+  "Puro de Coração". Redenção é regra do jogo.
+- **Não cite `docs/auditoria/`** sem ler o código. É um retrato de 2026-06-18 e os
+  dois débitos críticos que ela aponta já foram corrigidos.
+- **Não rode `php database/migrate.php` com `DB_NAME` customizado.** O `schema.sql`
+  tem `CREATE DATABASE algorithmia` e `USE algorithmia` fixos e ignora o ambiente.
+- **Não suba os containers de produção à mão.** Use `bin/deploy.sh`.
+
+### Armadilhas que custaram tempo (não repita)
+
+**Do port:**
+- `?Model $x = null` num controller: o Laravel injeta um model **vazio**, não `null`.
+  Separe criar/editar.
+- `GET /batalha/{fase}` engole `GET /batalha/responder` → `->whereNumber('fase')`.
+- O skeleton traz `shouldRenderJsonWhen($request->is('api/*'))`. Rotas AJAX fora de
+  `api/` recebem HTML no erro.
+- `Auth::attempt` regrava a senha na coluna de `getAuthPasswordName()` (`password`).
+- MySQL→PG: `YEARWEEK(x,3)` → `date_trunc('week',x)`; `SUM(bool)` → `COUNT(*) FILTER`;
+  `FIELD(...)` → `array_position(...)`.
+
+**Do deploy** (cinco defeitos que o ensaio expôs, todos corrigidos):
+- `grep -q healthy` casa com **`unhealthy`**. O gate era decorativo.
+- O `wget` do BusyBox resolve `localhost` como `::1`; o nginx só escuta IPv4.
+- `set -o pipefail` + `| grep -q`: o grep fecha o cano, o produtor morre de SIGPIPE
+  (141), o pipefail propaga. A condição nunca é verdadeira.
+- O rollback automático saía sem esperar prontidão → 502 silencioso.
+- `docker compose` interpola a imagem do serviço `app` mesmo em comandos que só tocam
+  o postgres → `bin/backup.sh` no cron falharia.
+
+E o `algorithmia:smoke` se pagou antes de existir produção: na primeira execução
+denunciou que a migration `recompensas_batalha` nunca fora aplicada no banco de
+desenvolvimento.
+
+### Onde ler
+
+[`docs/migracao/PLANO.md`](../migracao/PLANO.md) ·
+[`docs/migracao/INVENTARIO.md`](../migracao/INVENTARIO.md) ·
+[`docs/operacao/RUNBOOK.md`](../operacao/RUNBOOK.md) ·
+[`openspec/changes/migracao-laravel-postgresql/`](../../openspec/changes/migracao-laravel-postgresql/)
+
+> A tentativa anterior do Codex (73 commits com multitenancy e RLS) foi descartada e
+> preservada nos refs `codex/fundacao-multitenant` e `validate-etapa-2-0e` (`44fe948`).
+> Ela construiu exatamente o que a decisão de escopo removeu, e nunca portou o motor.
+
+---
+
 ## 🗓️ Sessão 2026-06-28 (cont.) — Gamificação de MECÂNICA · na `main`
 
 Quatro etapas de gamificação de **mecânica** (a apresentação já estava pronta), todas

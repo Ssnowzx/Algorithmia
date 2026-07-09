@@ -2,6 +2,44 @@
 
 Instruções específicas deste projeto (complementam as regras globais do usuário).
 
+## 🔀 Duas bases de código (REGRA PERMANENTE)
+
+O repositório tem o **legado** (raiz, PHP puro + MySQL, em produção) e o **port**
+(`platform/`, Laravel 13 + PostgreSQL 18, completo mas ainda não cortado).
+
+- **Trabalho novo vai para o `platform/`.** O legado só recebe correção urgente —
+  ele é o plano de rollback do corte e será aposentado.
+- **As duas suítes ficam verdes.** 38 vetores-ouro no legado, 192 testes no port.
+  A CI roda ambas.
+- **Os 38 vetores-ouro (`tests/`) são o CONTRATO do motor.** Os números esperados
+  foram derivados à mão das constantes de balanceamento, não capturados de snapshot.
+  Se um deles falhar, o port está errado — **nunca "ajuste" o teste**.
+- **Mudar um número de balanceamento é decisão de game design.** Ela quebra
+  vetores-ouro de propósito, e o diff tem de mostrar a intenção.
+- **No port, `pint` e `phpstan` (nível 6) ficam limpos** antes de qualquer commit.
+- **Toda migration do port é ADITIVA** — criar tabela, criar coluna anulável, criar
+  índice. Elas rodam contra o código velho ainda no ar, e o rollback de código não
+  desfaz schema. Remover coluna exige dois deploys.
+
+### Regras do jogo que já quase se perderam no port
+
+- **Rejogar uma fase sem colar apaga a mancha da IA.** `ProgressoFase::registrar` só
+  acumula o melhor nas *estrelas*; `acertos`, `erros` e `usou_ia` refletem a última
+  partida. Parece bug; é o que permite reconquistar "Puro de Coração". **Redenção é
+  regra do jogo.**
+- **A batalha nunca termina por acabarem as perguntas** — cruzado o limite de ritmo,
+  abre o Duelo Final e a fúria cresce.
+- **O Fragmento da IA não se vende.** Transformá-lo em ouro faria da queda moral um
+  negócio.
+- **O gabarito nunca sai do servidor.**
+
+Ver [`docs/migracao/PLANO.md`](docs/migracao/PLANO.md),
+[`docs/operacao/RUNBOOK.md`](docs/operacao/RUNBOOK.md) e
+[`openspec/changes/migracao-laravel-postgresql/`](openspec/changes/migracao-laravel-postgresql/).
+
+> ⚠️ A auditoria em `docs/auditoria/` é um retrato de 2026-06-18 e está
+> **desatualizada**: os débitos críticos que ela aponta já foram corrigidos.
+
 ## 🎨 Registro da evolução visual (REGRA PERMANENTE)
 
 O usuário quer **documentar a evolução do jogo através de imagens**, de forma

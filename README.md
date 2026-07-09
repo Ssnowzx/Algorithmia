@@ -10,6 +10,38 @@ Um **RPG educativo** estilo *Duolingo + JRPG*, desenvolvido em **PHP puro** com 
 
 ---
 
+## 🔀 Duas bases de código
+
+O trabalho acadêmico foi entregue, e o jogo está sendo **portado para Laravel 13 +
+PostgreSQL 18**. Enquanto o corte não acontece, o repositório carrega as duas versões.
+
+| | **Legado** (raiz) | **Port** ([`platform/`](platform/)) |
+|---|---|---|
+| Stack | PHP puro, MVC artesanal, PDO/MySQL | Laravel 13, PostgreSQL 18 |
+| Status | **em produção** | completo; **corte não executado** |
+| Papel | plano de rollback do corte | onde o trabalho novo acontece |
+| Testes | 38 vetores-ouro | 192 testes |
+
+Os **vetores-ouro** em [`tests/`](tests/) travam o comportamento do motor de batalha —
+dano, combo, fúria da morte súbita, XP, estrelas, reputação — com números derivados à
+mão das constantes de balanceamento. Eles são o contrato que o port reproduz. As duas
+suítes ficam verdes; a CI roda ambas.
+
+```bash
+vendor/bin/phpunit                 # legado (exige o banco algorithmia_test)
+cd platform && php artisan test    # port (exige o PostgreSQL do docker compose)
+```
+
+O port paga uma dívida de propósito: a recompensa de batalha virou **idempotente por
+chave no banco**. No legado, a guarda contra duplo-crédito é um flag de sessão — dura
+o que dura a sessão, e não vale nada contra duas requisições concorrentes.
+
+> **Leia antes de mexer:** [`docs/migracao/PLANO.md`](docs/migracao/PLANO.md) ·
+> [`docs/operacao/RUNBOOK.md`](docs/operacao/RUNBOOK.md) ·
+> [`openspec/changes/migracao-laravel-postgresql/`](openspec/changes/migracao-laravel-postgresql/)
+
+---
+
 ## 🎮 O Jogo
 
 Em **Algorithmia**, uma **IA Ancestral** já deu todas as respostas aos programadores — até falhar no *Grande Timeout* e quase destruir o reino. Os **Cinco Mestres** a selaram no Abismo do `/dev/null` e fundaram a Ordem do Código Limpo. Agora os Fragmentos da IA reaparecem, e você, um aprendiz da Vila Hello World, parte para treinar com os mestres.
@@ -153,6 +185,51 @@ Saída esperada: `✅ Banco 'algorithmia' pronto.` com a contagem de fases, desa
 php -S localhost:8001
 ```
 Acesse: **http://localhost:8001**
+
+### 4. Rodar os vetores-ouro (legado)
+
+```bash
+composer install
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS algorithmia_test \
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+# `schema.sql` tem CREATE DATABASE/USE fixos e ignora o DB_NAME do ambiente —
+# por isso as duas primeiras instruções são removidas aqui.
+sed -e '/^CREATE DATABASE IF NOT EXISTS algorithmia/,+2d' -e '/^USE algorithmia;/d' \
+  database/schema.sql | mysql -u root algorithmia_test
+
+vendor/bin/phpunit
+```
+
+O bootstrap recusa qualquer `DB_NAME` que não termine em `_test`: os `TRUNCATE` dos
+fixtures nunca alcançam o banco de desenvolvimento.
+
+---
+
+## 🧬 Como Executar — o port (Laravel)
+
+```bash
+cd platform
+docker compose up -d          # PostgreSQL 18 (55432) + banco de teste (55433) + Mailpit
+composer install
+cp .env.example .env && php artisan key:generate
+php artisan migrate
+
+# Importa conteúdo, contas e progresso do MySQL legado, preservando os IDs.
+php artisan algorithmia:importar --dry-run   # ensaia dentro de uma transação e desfaz
+php artisan algorithmia:importar             # para valer
+
+php artisan serve
+```
+
+Acesse **http://localhost:8000**. Verificação:
+
+```bash
+php artisan test                                  # 192 testes
+vendor/bin/pint --test                            # formatação
+vendor/bin/phpstan analyse --memory-limit=1G      # nível 6
+php artisan algorithmia:smoke                     # joga uma fase real e desfaz
+```
 
 ---
 

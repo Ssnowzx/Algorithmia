@@ -6,36 +6,55 @@ context: |
   Projeto: Algorithmia — A Lenda dos Cinco Mestres (trabalho acadêmico).
   Um jogo web de RPG/narrativa que ensina lógica e algoritmos.
 
-  Tech stack: PHP puro (sem framework), MySQL, HTML/CSS/JS vanilla.
-  Sem Composer/dependências externas no runtime PHP.
+  ATENÇÃO: o repositório tem DUAS bases de código.
 
-  Arquitetura: MVC com padrão Front Controller.
-    - index.php = ponto de entrada único. Rotas via index.php?url=controller/metodo/param.
-    - app/core/    = núcleo (Router, Controller, Model, Auth, helpers).
-    - app/models/  = modelos de dados (1 classe por entidade do domínio).
-    - app/controllers/ = controladores (1 por área: Auth, Batalha, Historia, Mapa,
-      Inventario, Loja, Ranking, Perfil, Mestre, Home).
-    - app/services/ = regras de negócio (Batalha, Conquista, Progressao, Reputacao).
-    - app/views/   = templates PHP organizados por área + layout/ (header, footer).
-    - config/      = config.php e db.php (conexão MySQL).
-    - database/    = schema.sql, seeds.sql, migrate.php.
-    - public/      = assets estáticos (css, js, img — arte em pixel art PNG).
+  1) LEGADO (raiz) — o jogo em PHP puro, MVC artesanal, PDO/MySQL. É o que está em
+     produção hoje. Não recebe funcionalidade nova; só correção urgente.
+       - index.php = front controller. Rotas via index.php?url=controller/metodo/param.
+       - app/{core,models,services,controllers,views}/, config/, database/, public/
+       - tests/ = 38 vetores-ouro (PHPUnit, dependência SÓ de desenvolvimento;
+         index.php não carrega o autoload do Composer). São o CONTRATO do motor:
+         o port reproduz esses números. Não os "ajuste" para fazer um teste passar.
 
-  Convenções de código:
+  2) PORT (platform/) — Laravel 13 + PostgreSQL 18. É onde o trabalho novo acontece.
+       - app/Dominio/{Combate,Progressao}/ = regra de jogo, sem HTTP nem sessão.
+       - app/Models/ = Eloquent, colunas em português (herdadas do legado).
+       - app/Http/{Controllers,Middleware,Requests}/, resources/views/*.blade.php
+       - config/jogo.php = balanceamento (fonte única do port).
+       - config/bestiario.php e config/finais.php = cânone (não reescrever).
+       - tests/{Dominio,Feature}/ = 192 testes, contra PostgreSQL de verdade
+         (nunca SQLite: ele esconderia justamente o que a migração precisa expor).
+       - bin/{deploy,rollback,backup,restore}.sh + docs/operacao/RUNBOOK.md
+
+  Estado: o port está completo e exercitado localmente. O CORTE em produção ainda
+  NÃO foi feito. Ver docs/migracao/PLANO.md e
+  openspec/changes/migracao-laravel-postgresql/.
+
+  Convenções de código (valem nas duas bases):
     - declare(strict_types=1) em todo PHP.
-    - Autoload manual via spl_autoload_register (core, models, services).
     - Nomes de domínio em português (Mestre, Desafio, Personagem, Inventario...).
     - Texto de sabor/UI do jogo tem tom sarcástico e ácido; explicações dos
       desafios de lógica permanecem corretas e didáticas.
     - Commits no padrão Conventional Commits, mensagens no imperativo em português.
+    - No port, Pint e Larastan (nível 6) precisam ficar limpos.
 
 # Regras por artefato — valem para Claude e Codex ao gerar propostas.
 rules:
   proposal:
-    - Manter PHP puro + MVC + MySQL; sem framework nem dependências de runtime.
-    - Respeitar as regras em docs/canon/REGRAS-DO-JOGO.md (ex.: a batalha só é vencida derrotando o inimigo).
+    - Dizer explicitamente em QUAL base a mudança entra - legado (raiz) ou port (platform/).
+    - Trabalho novo vai para o port. O legado só recebe correção urgente, com justificativa -
+      ele será aposentado no corte.
+    - Respeitar docs/canon/REGRAS-DO-JOGO.md. Exemplos que já quase se perderam no port -
+      a batalha só é vencida derrotando o inimigo; o Fragmento da IA não se vende;
+      rejogar uma fase sem colar apaga a mancha da IA (redenção é regra, não bug).
+    - Mudar um número de balanceamento é decisão de game design, não ajuste técnico.
+      Ela quebra vetores-ouro de propósito, e o diff tem de mostrar a intenção.
     - Incluir uma seção "Fora de escopo".
   design:
-    - Indicar em qual camada MVC a mudança entra (model / service / controller / view).
+    - No port, indicar a camada - Dominio / Model / Controller / view Blade / config.
+    - No legado, indicar a camada MVC - model / service / controller / view.
+    - Toda migration precisa ser ADITIVA. Elas rodam contra o código velho ainda no ar,
+      e o rollback de código não desfaz schema. Remover coluna exige dois deploys.
   tasks:
     - Tarefas pequenas e verificáveis; citar o arquivo/camada de cada passo.
+    - Toda regra de jogo nova ou alterada precisa de teste. As duas suítes ficam verdes.

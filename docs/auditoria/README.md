@@ -1,5 +1,19 @@
 # 🛡️ Auditoria Técnica — Algorithmia (Fase 1)
 
+> ## ⚠️ Este documento está DESATUALIZADO
+>
+> Ele é um retrato de **2026-06-18**. Os dois débitos que marca como críticos **já
+> foram corrigidos**:
+>
+> - **CSRF via GET** — `Controller::exigirCsrf` hoje bloqueia qualquer método que não
+>   seja POST. No port, todas as 11 rotas de escrita são POST, com teste de 405 no GET.
+> - **Sem transação no fluxo de recompensa** — `RecompensaService::conceder` envolve as
+>   sete escritas numa transação. No port, a concessão ainda ganhou uma **chave de
+>   idempotência no banco**, no lugar do flag de sessão.
+>
+> **Leia o código antes de citar esta auditoria.** As demais observações podem valer;
+> confirme cada uma.
+
 Auditoria profunda conduzida por **6 agentes especialistas em paralelo** (arquitetura/backend,
 frontend/UX, segurança, performance, organização/docs/assets, game design), com **validação
 cruzada** e consolidação por um líder técnico. Cada área tem um laudo detalhado:

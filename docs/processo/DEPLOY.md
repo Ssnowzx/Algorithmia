@@ -1,5 +1,8 @@
 # Deploy do Algorithmia — Ubuntu/Debian + Apache
 
+> **Este guia é do LEGADO** (PHP puro + MySQL). O deploy do port em Laravel está em
+> [`docs/operacao/RUNBOOK.md`](../operacao/RUNBOOK.md), e usa Docker.
+
 Guia de produção para subir o jogo numa VPS Ubuntu/Debian, servindo via Apache,
 acessível por IP (sem HTTPS). Stack: PHP 8 + PDO MySQL, sem dependências externas.
 
