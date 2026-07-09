@@ -45,8 +45,6 @@ final class Smoke extends Command
     public function handle(): int
     {
         // Estrutural: vale mesmo num banco recém-migrado, sem uma linha de conteúdo.
-        // SABOTAGEM TEMPORÁRIA — exercita o rollback automático do deploy.sh.
-        $this->verificar('Verificação sabotada de propósito', fn (): bool => false);
         $this->verificar('Banco responde', fn (): bool => DB::connection()->select('SELECT 1') !== []);
         $this->verificar('As 14 tabelas existem', $this->tabelasExistem(...));
         $this->verificar('Nenhuma fase com requisito órfão', $this->semRequisitoOrfao(...));
