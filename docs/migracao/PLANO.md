@@ -371,13 +371,49 @@ copia (Fase 5).
 **Critério de aceite:** atingido — 192 testes verdes no port, 38 no legado, PHPStan
 nível 6 limpo.
 
-### Fase 5 — Corte
+### Fase 5 — Corte ✅ **ARTEFATOS PRONTOS E EXERCITADOS** · ⏸ **corte não executado**
 
-- Provisionamento da VPS, deploy, smoke tests.
-- O legado fica de pé, em leitura, por uma janela combinada.
-- Plano de rollback escrito e testado antes do corte, não depois.
+Tudo o que o corte precisa existe e foi rodado de ponta a ponta **localmente**.
+Nada foi feito na VPS: falta credencial, e um deploy de produção não se faz sem
+alguém olhando. Runbook completo em [`docs/operacao/RUNBOOK.md`](../operacao/RUNBOOK.md).
 
-**Critério de aceite:** rollback exercitado ao menos uma vez em ambiente de teste.
+- **Imagem** (186 MB): php-fpm 8.4 alpine, `pdo_pgsql`, OPcache com
+  `validate_timestamps=0`. O `.dockerignore` derruba o contexto de build de 2,5 GB
+  para 1 KB. A arte (143 MB) fica fora da imagem, em bind-mount de leitura: assá-la
+  tornaria deploy e rollback caros para guardar arquivos que quase nunca mudam.
+- **O entrypoint recusa subir** com `APP_KEY` vazio ou `APP_DEBUG=true` em produção.
+  O `config:cache` do Laravel não valida nenhum dos dois — o primeiro só quebraria
+  no primeiro login, e o segundo entregaria um stack trace a qualquer aluno.
+- **nginx** serve a arte como estático imutável, bloqueia PHP fora do front
+  controller e nega dotfiles. Verificado: `/.env` responde 403.
+- **`bin/deploy.sh`** recusa árvore suja, faz dump, constrói, migra, sobe, espera o
+  health check e roda o smoke. Se o smoke reprovar, volta sozinho para a tag
+  anterior. A tag é o SHA do commit, então rollback não precisa de rebuild.
+- **`bin/restore.sh --ensaio`** restaura num banco descartável e confere as
+  contagens. Um backup nunca restaurado não é um backup; é uma esperança.
+- **`algorithmia:smoke`** joga uma fase real dentro de uma transação e a desfaz.
+  Checa o que um health check não checa: conteúdo importado, IDs das fases
+  secundárias preservados, Fragmento no catálogo, e que o gabarito não vaza.
+
+O smoke se pagou antes de existir produção: rodando pela primeira vez no banco de
+desenvolvimento, ele denunciou que a migration `recompensas_batalha` nunca fora
+aplicada ali. Uma deriva de schema que teria ido para o corte em silêncio.
+
+**Verificado localmente, no stack de produção real:** migrations, importação de
+1.306 linhas de dentro do container, login com a senha original, prólogo, batalha
+atrás do nginx, gabarito não vazando, `GET` de escrita em 405, backup, ensaio de
+restauração, `deploy.sh` completo e `rollback.sh` completo.
+
+**Falta para o corte de verdade** (§7 do runbook): credenciais e acesso à VPS,
+`.env.producao`, pôr o legado em somente leitura, apontar o DNS, e a janela de
+coexistência.
+
+**Contradição a resolver antes de tudo:** o `AGENTS.md` descreve a produção atual
+como host cPanel/RHEL com `httpd` e MySQL em `/home/algorithmia/public_html`. Este
+plano pressupõe VPS com Docker. As duas coisas não podem ser verdade ao mesmo
+tempo. O caminho nativo está esboçado no §8 do runbook e **não foi testado**.
+
+**Critério de aceite:** rollback exercitado — ver abaixo.
 
 ---
 
