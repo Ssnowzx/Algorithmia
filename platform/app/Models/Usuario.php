@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 /**
@@ -59,5 +60,11 @@ final class Usuario extends Authenticatable
     public function ehMestre(): bool
     {
         return $this->papel === 'mestre';
+    }
+
+    /** @return HasOne<Personagem,$this> */
+    public function personagem(): HasOne
+    {
+        return $this->hasOne(Personagem::class, 'usuario_id');
     }
 }

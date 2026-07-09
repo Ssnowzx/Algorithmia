@@ -14,10 +14,19 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'personagem' => App\Http\Middleware\ExigirPersonagem::class,
+        ]);
+
+        $middleware->redirectGuestsTo(fn (): string => route('login'));
+        $middleware->redirectUsersTo(fn (): string => route('mapa'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // O padrão do skeleton é `$request->is('api/*')`, e os endpoints de turno
+        // vivem sob /batalha. Com aquela regra, uma sessão expirada devolveria uma
+        // página HTML de erro no meio de um fetch(), e o batalha.js quebraria ao
+        // tentar interpretá-la como JSON. Quem pede JSON recebe JSON.
         $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('api/*'),
+            fn (Request $request): bool => $request->is('api/*') || $request->expectsJson(),
         );
     })->create();

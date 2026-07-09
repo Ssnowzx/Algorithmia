@@ -1,0 +1,41 @@
+{{-- Casca comum. O CSS é o mesmo do jogo em PHP puro: o port não é uma
+     oportunidade para redesenhar a identidade visual. --}}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@yield('titulo', 'Algorithmia') — A Lenda dos Cinco Mestres</title>
+
+    <link rel="stylesheet" href="{{ asset('css/tokens.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/shell.css') }}">
+    @stack('estilos')
+</head>
+<body>
+    @auth
+        <header class="topo">
+            <a href="{{ route('mapa') }}" class="marca">⚔ Algorithmia</a>
+            <nav>
+                <a href="{{ route('mapa') }}">Mapa</a>
+                <a href="{{ route('perfil') }}">Perfil</a>
+                {{-- Sair é POST: um <img src="/sair"> não deve derrubar a sessão. --}}
+                <form method="POST" action="{{ route('sair') }}" style="display:inline">
+                    @csrf
+                    <button type="submit" class="botao botao-sm botao-fantasma">Sair</button>
+                </form>
+            </nav>
+        </header>
+    @endauth
+
+    @if (session('erro'))
+        <div class="flash flash-erro" role="alert">{{ session('erro') }}</div>
+    @endif
+
+    <main class="conteudo">
+        @yield('conteudo')
+    </main>
+
+    @stack('scripts')
+</body>
+</html>

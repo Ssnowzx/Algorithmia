@@ -242,21 +242,48 @@ rollback quando o legado tem referência órfã.
 **Critério de aceite:** atingido — contagens reconciliadas; nenhuma migração roda no
 deploy; a importação é um comando explícito.
 
-### Fase 4 — Web
+### Fase 4 — Web ✅ **ENTREGUE (vertical do aluno)**
 
-As views já são PHP com HTML: o port para Blade é quase mecânico. O CSS e o JS vanilla
-seguem como estão.
+Rotas nomeadas no lugar de `?url=controller/metodo/param`. Auth e CSRF do Laravel no
+lugar de `Auth` e `Controller::exigirCsrf`. Sessão em driver `database` — o estado da
+batalha carrega o gabarito de todos os desafios e não caberia num cookie.
 
-- Rotas nomeadas substituem o `?url=controller/metodo/param`.
-- Middleware de auth e o CSRF do Laravel substituem `Auth` e `Controller::exigirCsrf`.
-  Isso fecha de graça o furo que o inventário achou: **`historia/concluir` grava
-  progresso e XP via GET, sem CSRF** (`docs/migracao/INVENTARIO.md`, §1). Os cinco
-  endpoints AJAX de batalha validam token, mas não exigem POST.
-- Sessão em driver `database`. O estado da batalha carrega o gabarito de todos os
-  desafios e não cabe num cookie.
+O `public/js/batalha.js` do legado foi reaproveitado **sem uma linha de alteração**: ele
+já era parametrizado por `window.BATALHA = {csrf, estado, urls}`. Só as URLs mudaram de
+forma. O CSS também é o mesmo. O port não é uma oportunidade para redesenhar a
+identidade visual.
 
-**Critério de aceite:** um aluno entra, cria personagem, joga uma fase, vê o feedback,
-conclui e consulta o progresso — no frontend novo.
+Os dois furos que o inventário achou estão fechados, e travados em teste:
+
+- **`historia/concluir` gravava progresso e XP por GET.** Agora é POST; o GET devolve
+  405. Bastava um `<img src>` numa página qualquer para avançar a campanha de quem
+  apenas a abriu.
+- **Os cinco endpoints AJAX de batalha validavam o token mas aceitavam qualquer
+  método.** Agora são POST. `nenhum_endpoint_de_turno_aceita_get` cobre os cinco.
+
+Três defeitos apareceram construindo:
+
+1. `GET /batalha/{fase}` engolia `GET /batalha/responder` e tentava carregar a fase de
+   id `"responder"` — 500 em vez de 405. Resolvido com `whereNumber('fase')`.
+2. O `bootstrap/app.php` do skeleton traz `shouldRenderJsonWhen($request->is('api/*'))`.
+   Como os turnos vivem sob `/batalha`, **uma sessão expirada devolveria uma página
+   HTML no meio de um `fetch()`**, e o `batalha.js` quebraria ao interpretá-la como
+   JSON. Passou a ser `|| $request->expectsJson()`.
+3. O jogo não destravava. A fase 1 é do tipo `historia`, a 2 a exige, e o
+   `HistoriaController` não existia. Portado (só `ver` e `concluir`), a campanha anda.
+
+Verificado por HTTP de verdade, contra o servidor e os dados importados: login como
+`masterboss@boss.com` com a senha original, cena do prólogo, conclusão por POST, fase 2
+destravada, arena contra o Slime de Sintaxe, um turno por AJAX. O gabarito não aparece
+no HTML da arena nem no payload do turno.
+
+**Fica de fora, e é preciso dizer:** Loja, Inventário, Ranking, Painel do Mestre, a
+página de lore e a sequência de finais (`historia/final`, `escolherFinal`) ainda não
+foram portados. A arte (143 MB) está por symlink em `platform/public/img`; o deploy a
+copia (Fase 5).
+
+**Critério de aceite:** atingido para a vertical do aluno — entra, cria personagem,
+joga, recebe feedback, conclui e consulta o progresso, no frontend novo.
 
 ### Fase 5 — Corte
 
