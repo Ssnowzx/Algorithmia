@@ -29,6 +29,20 @@ final class Conquista extends Model
         return ['secreta' => 'boolean'];
     }
 
+    /**
+     * Ids das conquistas que o personagem já obteve.
+     *
+     * @return list<int>
+     */
+    public static function obtidasIds(int $personagemId): array
+    {
+        return DB::table('conquistas_personagem')
+            ->where('personagem_id', $personagemId)
+            ->pluck('conquista_id')
+            ->map(intval(...))
+            ->all();
+    }
+
     public static function porCodigo(string $codigo): ?self
     {
         return self::query()->where('codigo', $codigo)->first();

@@ -327,10 +327,48 @@ Verificado por HTTP contra o servidor e os dados importados: as dez telas respon
 as quatro escritas testadas por GET respondem 405, e a tentativa de vender o Fragmento
 deixou ouro e inventário intactos.
 
+### Varredura de completude
+
+Uma auditoria comparando o legado com o port achou o que ainda faltava, e tudo foi
+portado:
+
+- **Os quatro serviços derivados**, que o legado nunca testou: maestria por matéria,
+  missões da semana, domínio das regiões e "Primeiros passos". Todos são lógica pura,
+  read-only, sem cron e sem tabela nova. Agora têm 34 testes.
+- **O splash** (`HomeController`). O port tinha feito `/` ser o mapa; agora `/` é a
+  vitrine para o visitante e um atalho para quem já joga.
+- **O bestiário** (23 entradas) e a **leitura do inimigo** — a lore na arena, e o chip
+  de tática no mapa que diz o que levar. Vazio para inimigos comuns, de propósito: um
+  aviso em toda fase não avisa nada.
+- **O Poder Total** na loja, com a comparação ciente de slot. O número absoluto do item
+  não diz se vale trocar; o que importa é o Poder que o herói terá depois.
+- Os scripts `som.js`, `ui.js`, `app.js` e `celebracao.js`, e a página 404.
+
+Regras de apresentação que o port precisou preservar, e que hoje têm teste:
+
+- A barra de maestria mede o **fator mais atrasado** entre acumular acertos e sustentar
+  precisão. Se medisse só os acertos, encheria enquanto a precisão despencava — uma
+  barra que mente.
+- A missão de precisão mede **volume** até o mínimo e só então precisão. Uma barra de
+  precisão cheia com duas respostas não mediria nada.
+- "Região dominada" exige 3 estrelas em cada fase principal — as secundárias, sendo
+  opcionais, não podem impedir o domínio.
+- O primeiro item dos "Primeiros passos" **já nasce concluído** (*endowed progress*), e
+  o painel some quando o herói cresce.
+- Uma conquista secreta **não revela o nome** antes de ser obtida: spoiler é o oposto de
+  recompensa.
+
+Duas traduções de SQL que não existiam no PostgreSQL: `YEARWEEK(x, 3)` virou
+`date_trunc('week', x)` (que também começa na segunda-feira) e `SUM(pf.estrelas = 3)`
+virou `COUNT(*) FILTER (WHERE …)`, já que o PostgreSQL não soma booleanos.
+
+**Auditoria final:** os 9 serviços do legado têm par no port; os 45 métodos públicos dos
+10 controllers estão cobertos por 50 rotas.
+
 **Ainda de fora:** a arte (143 MB) está por symlink em `platform/public/img`; o deploy a
 copia (Fase 5).
 
-**Critério de aceite:** atingido — 149 testes verdes no port, 38 no legado, PHPStan
+**Critério de aceite:** atingido — 192 testes verdes no port, 38 no legado, PHPStan
 nível 6 limpo.
 
 ### Fase 5 — Corte

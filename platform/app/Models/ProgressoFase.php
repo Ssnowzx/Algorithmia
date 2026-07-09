@@ -68,4 +68,13 @@ final class ProgressoFase extends Model
     {
         return self::query()->where('personagem_id', $personagemId)->where('fase_id', $faseId)->exists();
     }
+
+    /** Fases concluídas na semana ISO corrente — alimenta a missão "Avanço no Reino". */
+    public static function fasesSemana(int $personagemId): int
+    {
+        return self::query()
+            ->where('personagem_id', $personagemId)
+            ->whereRaw("date_trunc('week', concluida_em) = date_trunc('week', now())")
+            ->count();
+    }
 }

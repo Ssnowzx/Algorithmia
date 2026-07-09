@@ -42,8 +42,61 @@ return [
         'rage_max' => 4.0,
     ],
 
-    /** Acima disto, o inimigo bate pesado — usado na dica pós-derrota. */
+    /** Limiares da "leitura do inimigo": sugerem a tática sem empurrar a loja. */
+    'inimigo_hp_alto' => 150,
     'inimigo_ataque_alto' => 15,
+
+    /**
+     * Maestria por matéria. Cada faixa exige VOLUME de acertos e um PISO de
+     * precisão sustentada — não a porcentagem bruta — para que "domínio" signifique
+     * competência consistente, e não sorte com poucas respostas.
+     *
+     * [rótulo, ícone, classe de cor, mín. de acertos, piso de precisão 0..1]
+     */
+    'maestria_faixas' => [
+        ['rotulo' => 'Não iniciado', 'icone' => '○', 'cor' => 'inerte', 'min_acertos' => 0, 'piso' => 0.00],
+        ['rotulo' => 'Iniciante', 'icone' => '🌱', 'cor' => 'iniciante', 'min_acertos' => 0, 'piso' => 0.00],
+        ['rotulo' => 'Aprendiz', 'icone' => '📘', 'cor' => 'aprendiz', 'min_acertos' => 3, 'piso' => 0.00],
+        ['rotulo' => 'Praticante', 'icone' => '🔷', 'cor' => 'praticante', 'min_acertos' => 6, 'piso' => 0.60],
+        ['rotulo' => 'Especialista', 'icone' => '🎖️', 'cor' => 'especialista', 'min_acertos' => 10, 'piso' => 0.75],
+        ['rotulo' => 'Mestre', 'icone' => '👑', 'cor' => 'mestre', 'min_acertos' => 15, 'piso' => 0.85],
+    ],
+    /** A partir deste tier a matéria conta como "dominada". */
+    'maestria_tier_dominada' => 4,
+
+    /**
+     * Missões da semana: objetivos de curto prazo, derivados da atividade da semana
+     * ISO corrente. Sem cron, sem recompensa, sem persistência.
+     *
+     * metrica ∈ respostas | acertos | acertos_sem_ia | respostas_sem_ia | materias |
+     *           fases | precisao (usa 'alvo' como % e 'min' como volume mínimo)
+     */
+    'missoes_semanais' => [
+        ['codigo' => 'maratona', 'titulo' => 'Maratona de Código', 'icone' => '🏃', 'metrica' => 'respostas', 'alvo' => 20, 'desc' => 'Responda 20 desafios esta semana. O sofá que espere.'],
+        ['codigo' => 'tiro_certo', 'titulo' => 'Tiro Certeiro', 'icone' => '🎯', 'metrica' => 'acertos', 'alvo' => 15, 'desc' => 'Acerte 15 desafios. Chutar não conta como talento.'],
+        ['codigo' => 'mente_afiada', 'titulo' => 'Mente Afiada', 'icone' => '🧠', 'metrica' => 'precisao', 'alvo' => 80, 'min' => 10, 'desc' => 'Mantenha 80% de acerto em pelo menos 10 respostas. Sem desculpas.'],
+        ['codigo' => 'avanco', 'titulo' => 'Avanço no Reino', 'icone' => '🗺️', 'metrica' => 'fases', 'alvo' => 3, 'desc' => 'Conclua 3 fases. O reino não se salva sozinho.'],
+        ['codigo' => 'sem_muletas', 'titulo' => 'Sem Muletas', 'icone' => '💪', 'metrica' => 'acertos_sem_ia', 'alvo' => 10, 'desc' => 'Acerte 10 desafios sem implorar para a IA. Orgulho tem preço.'],
+        ['codigo' => 'polimata', 'titulo' => 'Polímata', 'icone' => '📚', 'metrica' => 'materias', 'alvo' => 4, 'desc' => 'Pratique 4 matérias diferentes. Variedade é tempero.'],
+        ['codigo' => 'aquecimento', 'titulo' => 'Aquecimento', 'icone' => '🔥', 'metrica' => 'respostas', 'alvo' => 8, 'desc' => 'Responda 8 desafios. O mínimo do mínimo, vai.'],
+        ['codigo' => 'disciplina', 'titulo' => 'Disciplina de Ferro', 'icone' => '⚔️', 'metrica' => 'respostas_sem_ia', 'alvo' => 12, 'desc' => 'Responda 12 desafios sem tocar na IA. Prove que tem coluna.'],
+    ],
+    'missoes_por_semana' => 3,
+
+    /**
+     * Domínio das regiões (maestria horizontal). "Dominada" exige perfeição total:
+     * todas as fases com 3 estrelas, o que significa sem erro e sem IA.
+     */
+    'regiao_faixas' => [
+        'a_explorar' => ['rotulo' => 'A explorar', 'cor' => 'inerte'],
+        'em_jornada' => ['rotulo' => 'Em jornada', 'cor' => 'jornada'],
+        'conquistada' => ['rotulo' => 'Conquistada', 'cor' => 'conquistada'],
+        'dominada' => ['rotulo' => 'Dominada', 'cor' => 'dominada'],
+    ],
+    'regiao_titulo_lenda' => 'Mestre dos Cinco',
+
+    /** O painel de "Primeiros passos" some quando o jogador passa deste nível. */
+    'onboarding_nivel_max' => 3,
 
     'progressao' => [
         'hp_por_nivel' => 15,

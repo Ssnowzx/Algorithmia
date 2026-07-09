@@ -2,13 +2,18 @@
 @section('titulo', 'Loja do Reino')
 
 @section('conteudo')
-@php use App\Support\Arte; @endphp
+@php
+    use App\Support\{Arte, LeituraDoInimigo};
+
+    $poderAtual = LeituraDoInimigo::poderTotal($atributos['ataque'], $atributos['defesa']);
+@endphp
 
 <section class="hud-heroi">
     <strong>Loja do Reino</strong>
     <span>🪙 {{ $heroi->ouro }} de ouro</span>
     <span>⚔ Ataque {{ $atributos['ataque'] }}</span>
     <span>🛡 Defesa {{ $atributos['defesa'] }}</span>
+    <span title="Ataque + Defesa totais. Veja-o subir ao equipar.">💪 Poder {{ $poderAtual }}</span>
 </section>
 
 @foreach (['sucesso', 'erro', 'info'] as $tipo)
@@ -37,15 +42,34 @@
                 </ul>
             @endif
 
-            {{-- Comparação ciente de slot: o número absoluto não diz se vale trocar. --}}
-            @if ($equipado && $equipado->id !== $item->id && $item->ehEquipavel())
+            {{-- Comparação ciente de slot: o número absoluto do item não diz se vale
+                 trocar. O que importa é o Poder que o herói terá depois. --}}
+            @if ($item->ehEquipavel())
                 @php
-                    $ganho = ($item->efeito('ataque') + $item->efeito('defesa'))
-                           - ($equipado->efeito('ataque') + $equipado->efeito('defesa'));
+                    $equipadoAtaque = $equipado?->efeito('ataque') ?? 0;
+                    $equipadoDefesa = $equipado?->efeito('defesa') ?? 0;
+
+                    $poderNovo = LeituraDoInimigo::poderTotal(
+                        $atributos['ataque'] - $equipadoAtaque + $item->efeito('ataque'),
+                        $atributos['defesa'] - $equipadoDefesa + $item->efeito('defesa'),
+                    );
+                    $delta = $poderNovo - $poderAtual;
                 @endphp
-                <p class="comparacao {{ $ganho >= 0 ? 'ganho' : 'perda' }}">
-                    {{ $ganho >= 0 ? '+' : '' }}{{ $ganho }} em relação a {{ $equipado->nome }}
-                </p>
+
+                @if (! $equipado || $equipado->id !== $item->id)
+                    <div class="cmp-poder">
+                        💪 Poder {{ $poderAtual }} → <strong>{{ $poderNovo }}</strong>
+                        <span class="cmp-delta {{ $delta >= 0 ? 'pos' : 'neg' }}">
+                            ({{ $delta > 0 ? '+' : '' }}{{ $delta }})
+                        </span>
+                    </div>
+
+                    @if ($equipado)
+                        <p class="comparacao {{ $delta >= 0 ? 'ganho' : 'perda' }}">
+                            {{ $delta >= 0 ? '+' : '' }}{{ $delta }} em relação a {{ $equipado->nome }}
+                        </p>
+                    @endif
+                @endif
             @endif
 
             <p class="preco">🪙 {{ $item->preco }}</p>

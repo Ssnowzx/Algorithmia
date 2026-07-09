@@ -140,18 +140,37 @@ final class LojaTest extends TestCase
     }
 
     #[Test]
-    public function a_loja_mostra_o_ganho_em_relacao_ao_que_esta_equipado(): void
+    public function a_loja_mostra_o_poder_que_o_heroi_teria_ao_trocar(): void
     {
-        // ARRANGE: uma espada fraca equipada, uma forte à venda.
+        // O número absoluto do item não diz se vale trocar. O que importa é o Poder
+        // (ataque + defesa) que o herói terá DEPOIS, descontando o que sai do slot.
+
+        // ARRANGE: mago (ataque 12, defesa 4) com uma espada fraca equipada.
         $heroi = $this->entrarComHeroi(['ouro' => 500]);
         $fraca = $this->mundo->item('arma', ['ataque' => 2], ['nome' => 'Espada Enferrujada', 'preco' => 10]);
         $this->mundo->item('arma', ['ataque' => 9], ['nome' => 'Lâmina do Kernel', 'preco' => 200]);
         $this->mundo->darItem($heroi, $fraca, equipado: true);
 
-        // ACT + ASSERT: +7 em relação ao que ele já usa.
+        // ACT + ASSERT: poder atual = (12+2) + 4 = 18; com a lâmina = (12+9) + 4 = 25.
         $this->get(route('loja'))->assertOk()
+            ->assertSee('💪 Poder 18')
             ->assertSee('Lâmina do Kernel')
             ->assertSee('+7 em relação a Espada Enferrujada');
+    }
+
+    #[Test]
+    public function um_item_pior_mostra_a_perda_de_poder(): void
+    {
+        // Mentir sobre a troca seria pior do que não comparar.
+
+        // ARRANGE
+        $heroi = $this->entrarComHeroi(['ouro' => 500]);
+        $forte = $this->mundo->item('arma', ['ataque' => 9], ['nome' => 'Lâmina do Kernel', 'preco' => 200]);
+        $this->mundo->item('arma', ['ataque' => 2], ['nome' => 'Espada Enferrujada', 'preco' => 10]);
+        $this->mundo->darItem($heroi, $forte, equipado: true);
+
+        // ACT + ASSERT
+        $this->get(route('loja'))->assertOk()->assertSee('-7 em relação a Lâmina do Kernel');
     }
 
     /** @param  array<string,mixed>  $sobrescritas */

@@ -11,6 +11,7 @@ use App\Dominio\Progressao\ServicoDeRecompensa;
 use App\Models\Fase;
 use App\Models\Personagem;
 use App\Models\ProgressoFase;
+use App\Support\LeituraDoInimigo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -55,6 +56,8 @@ final class BatalhaController extends Controller
             'fase' => $fase,
             'estado' => $estado->paraCliente(),
             'itensUsaveis' => $this->itensDeBatalha($heroi),
+            'intel' => LeituraDoInimigo::frase($fase->inimigo_hp, $fase->inimigo_ataque),
+            'bestiario' => config("bestiario.{$estado->inimigoSvg}"),
         ]);
     }
 

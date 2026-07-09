@@ -17,6 +17,10 @@
 @endphp
 
 <div class="arena">
+    @if ($intel !== '')
+        <div class="intel-inimigo" role="note">🧠 <span>{{ $intel }}</span></div>
+    @endif
+
     <div class="campo-batalha" id="campo" style="--fundo-bioma: url('{{ $fundo }}')">
         <div class="cena-ambiente" aria-hidden="true"></div>
         <div class="combo-indicador" id="comboInd"></div>
@@ -28,6 +32,11 @@
                      alt="{{ $estado['inimigo_nome'] }}">
             </div>
             <div class="nome-combatente">{{ $estado['inimigo_nome'] }}</div>
+
+            {{-- Lore do bestiário: o epíteto na tela, a história no tooltip. --}}
+            @if ($bestiario)
+                <div class="bestiario-titulo" title="{{ $bestiario['lore'] }}">“{{ $bestiario['titulo'] }}”</div>
+            @endif
             <div class="barra barra-hp">
                 <div class="barra-fill" id="hpInimigoFill" style="width:100%"></div>
                 <span class="barra-label" id="hpInimigoLabel">{{ $estado['inimigo_hp'] }} / {{ $estado['inimigo_hp_max'] }}</span>

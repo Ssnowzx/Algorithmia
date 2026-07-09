@@ -102,6 +102,12 @@ final class ItemDoInventario extends Model
         return ['ataque' => $ataque, 'defesa' => $defesa];
     }
 
+    /** O herói tem ao menos um item equipado? Alimenta o onboarding. */
+    public static function temEquipado(int $personagemId): bool
+    {
+        return self::query()->where('personagem_id', $personagemId)->where('equipado', true)->exists();
+    }
+
     public static function itensDistintos(int $personagemId): int
     {
         return self::query()->where('personagem_id', $personagemId)->count();

@@ -6,7 +6,7 @@
 @endpush
 
 @section('conteudo')
-@php use App\Support\Arte; @endphp
+@php use App\Support\{Arte, LeituraDoInimigo}; @endphp
 
 <section class="hud-heroi">
     <strong>{{ $heroi->nome }}</strong>
@@ -49,6 +49,15 @@
                     </span>
                 @elseif (! $no['liberada'])
                     <span class="cadeado" aria-label="Trancada">🔒</span>
+                @endif
+
+                {{-- Chip de tática: só aparece para inimigos que ameaçam de verdade.
+                     A frase inteira fica no tooltip. --}}
+                @php $tag = LeituraDoInimigo::tag($fase->inimigo_hp, $fase->inimigo_ataque); @endphp
+                @if ($tag !== '' && ! $progresso)
+                    <div class="no-tatica" title="{{ LeituraDoInimigo::frase($fase->inimigo_hp, $fase->inimigo_ataque) }}">
+                        {{ $tag }}
+                    </div>
                 @endif
 
             @if ($no['liberada'])

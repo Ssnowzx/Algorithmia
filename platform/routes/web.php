@@ -6,6 +6,7 @@ use App\Http\Controllers\AutenticacaoController;
 use App\Http\Controllers\BatalhaController;
 use App\Http\Controllers\HealthzController;
 use App\Http\Controllers\HistoriaController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\LojaController;
 use App\Http\Controllers\MapaController;
@@ -26,6 +27,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/healthz', HealthzController::class)->name('healthz');
 
+// A porta de entrada: vitrine para o visitante, atalho para quem já joga.
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
 // A lore é a vitrine da história: não exige conta.
 Route::get('/historia', [HistoriaController::class, 'lore'])->name('lore');
 
@@ -45,7 +49,7 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/personagem', [PersonagemController::class, 'criar'])->name('personagem.salvar');
 
     Route::middleware('personagem')->group(function (): void {
-        Route::get('/', [MapaController::class, 'index'])->name('mapa');
+        Route::get('/mapa', [MapaController::class, 'index'])->name('mapa');
         Route::get('/perfil', [PerfilController::class, 'index'])->name('perfil');
         Route::get('/ranking', [RankingController::class, 'index'])->name('ranking');
 

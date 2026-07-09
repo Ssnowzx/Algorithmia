@@ -45,6 +45,13 @@
         @yield('conteudo')
     </main>
 
+    {{-- Os mesmos scripts do jogo em PHP puro, na mesma ordem: som.js expõe
+         window.SOM, do qual ui.js e app.js dependem. --}}
+    <script src="{{ asset('js/som.js') }}"></script>
+    <script src="{{ asset('js/ui.js') }}"></script>
+    <script src="{{ asset('js/app.js') }}"></script>
+    <script src="{{ asset('js/celebracao.js') }}"></script>
+
     @stack('scripts')
 </body>
 </html>

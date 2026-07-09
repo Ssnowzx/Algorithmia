@@ -54,12 +54,112 @@ final class TelasRenderizamTest extends TestCase
 
         // ACT + ASSERT
         $this->get(route('mapa'))->assertOk()->assertSee('Porto da Sintaxe');
-        $this->get(route('perfil'))->assertOk()->assertSee('Desempenho por matéria');
         $this->get(route('ranking'))->assertOk()->assertSee($heroi->nome);
         $this->get(route('loja'))->assertOk();
         $this->get(route('inventario'))->assertOk()->assertSee('Espada');
         $this->get(route('historia.ver', $fase))->assertOk();
         $this->get(route('batalha.iniciar', $fase))->assertOk();
+
+        // O perfil monta cinco painéis derivados; todos precisam aparecer.
+        $this->get(route('perfil'))->assertOk()
+            ->assertSee('Maestria por matéria')
+            ->assertSee('Domínio das regiões')
+            ->assertSee('Missões da semana')
+            ->assertSee('Primeiros passos')
+            ->assertSee('Conquistas');
+    }
+
+    #[Test]
+    public function o_visitante_ve_o_splash_e_o_jogador_vai_direto_ao_mapa(): void
+    {
+        // ARRANGE
+        $this->mundo->mestre(['nome' => 'Willen Leolatto Carneiro', 'regiao' => 'Porto da Sintaxe']);
+
+        // ACT + ASSERT: vitrine para quem não tem conta.
+        $this->get(route('home'))->assertOk()
+            ->assertSee('O Reino de Algorithmia')
+            ->assertSee('Willen Leolatto Carneiro')
+            ->assertSee('Lorde Segfault');
+
+        // Quem já joga não passa pela vitrine.
+        $this->entrarComo('jogador');
+        $this->get(route('home'))->assertRedirect(route('mapa'));
+    }
+
+    #[Test]
+    public function quem_tem_conta_mas_nao_tem_heroi_e_levado_a_forja(): void
+    {
+        // ARRANGE
+        $usuario = Usuario::create(['nome' => 'Nova', 'email' => 'nova2@algorithmia.test', 'senha_hash' => 'x']);
+        $this->actingAs($usuario);
+
+        // ACT + ASSERT
+        $this->get(route('home'))->assertRedirect(route('personagem.criar'));
+    }
+
+    #[Test]
+    public function a_arena_mostra_a_lore_do_bestiario_e_a_leitura_do_inimigo(): void
+    {
+        // ARRANGE: inimigo resistente E violento dispara a intel mais dura.
+        $this->entrarComo('jogador');
+        $fase = $this->mundo->fase([
+            'inimigo_svg' => 'inimigo-slime', 'inimigo_hp' => 200, 'inimigo_ataque' => 20,
+        ]);
+        $this->mundo->desafio($fase->id);
+
+        // ACT + ASSERT
+        $arena = $this->get(route('batalha.iniciar', $fase))->assertOk();
+        $arena->assertSee('Resistente e violento');
+        $arena->assertSee(config('bestiario.inimigo-slime.titulo'));
+    }
+
+    #[Test]
+    public function um_inimigo_comum_nao_recebe_leitura_alguma(): void
+    {
+        // Um aviso em toda fase não avisa nada.
+
+        // ARRANGE
+        $this->entrarComo('jogador');
+        $fase = $this->mundo->fase(['inimigo_hp' => 60, 'inimigo_ataque' => 10]);
+        $this->mundo->desafio($fase->id);
+
+        // ACT + ASSERT
+        $this->get(route('batalha.iniciar', $fase))->assertOk()->assertDontSee('intel-inimigo');
+    }
+
+    #[Test]
+    public function o_mapa_avisa_o_que_levar_apenas_contra_inimigos_ameacadores(): void
+    {
+        // ARRANGE
+        $this->entrarComo('jogador');
+        $this->mundo->fase(['ordem_global' => 1, 'nome' => 'Slime', 'inimigo_hp' => 60, 'inimigo_ataque' => 10]);
+        $this->mundo->fase(['ordem_global' => 2, 'nome' => 'Colosso', 'inimigo_hp' => 300, 'inimigo_ataque' => 25]);
+        $this->mundo->fase(['ordem_global' => 3, 'nome' => 'Bruto', 'inimigo_hp' => 60, 'inimigo_ataque' => 25]);
+
+        // ACT + ASSERT
+        $mapa = $this->get(route('mapa'))->assertOk();
+        $mapa->assertSee('⚠ Leve ataque e defesa');  // resistente E violento
+        $mapa->assertSee('🛡 Leve defesa');            // só brutal
+        $this->assertSame(2, substr_count((string) $mapa->getContent(), 'no-tatica'), 'o Slime não recebe chip');
+    }
+
+    #[Test]
+    public function uma_conquista_secreta_nao_revela_o_nome_antes_de_ser_obtida(): void
+    {
+        // Spoiler é o oposto de recompensa.
+
+        // ARRANGE
+        $this->entrarComo('jogador');
+        \App\Models\Conquista::create([
+            'codigo' => 'arquivista_do_vazio', 'nome' => 'Arquivista do Vazio',
+            'descricao' => 'Recuperou todos os Logs do Zero.', 'secreta' => true,
+        ]);
+
+        // ACT + ASSERT
+        $this->get(route('perfil'))->assertOk()
+            ->assertSee('Conquista secreta')
+            ->assertDontSee('Arquivista do Vazio')
+            ->assertDontSee('Recuperou todos os Logs do Zero.');
     }
 
     #[Test]
