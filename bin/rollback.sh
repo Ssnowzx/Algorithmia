@@ -29,10 +29,18 @@ ok()   { printf '\033[32m  ✓ %s\033[0m\n' "$*"; }
 # Prontidão de verdade: `/healthz` através do nginx. O status do container só diz
 # que o processo subiu; o entrypoint ainda leva segundos gerando os caches.
 esperar_saudavel() {
-    local tag="$1" tentativa
+    local tag="$1" tentativa corpo
     for tentativa in $(seq 1 45); do
-        if ALGORITHMIA_TAG="${tag}" $COMPOSE exec -T web \
-             wget -qO- http://localhost/healthz 2>/dev/null | grep -q '"status":"ok"'; then
+        # Duas armadilhas evitadas aqui:
+        #  - Sem o pipe: com `set -o pipefail`, um `| grep -q` faz o grep fechar o
+        #    cano ao casar, o `docker compose exec` morre de SIGPIPE (141), e o
+        #    pipefail propaga esse 141 — a condição jamais seria verdadeira.
+        #  - 127.0.0.1, e não `localhost`: o wget do BusyBox tenta ::1 primeiro, e
+        #    este nginx só escuta em IPv4.
+        corpo="$(ALGORITHMIA_TAG="${tag}" $COMPOSE exec -T web \
+                    wget -qO- http://127.0.0.1/healthz 2>/dev/null || true)"
+
+        if [[ "${corpo}" == *'"status":"ok"'* ]]; then
             return 0
         fi
         sleep 2

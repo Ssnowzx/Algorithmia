@@ -45,7 +45,9 @@ services:
       - ../public/img:/var/www/html/public/img:ro
       - ./public:/var/www/html/public:ro
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost/healthz | grep -q '\"status\":\"ok\"'"]
+      # 127.0.0.1, e não `localhost`: o wget do BusyBox resolve `localhost` para ::1
+      # primeiro, e este nginx só escuta em IPv4. O healthcheck nunca passaria.
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/healthz | grep -q '\"status\":\"ok\"'"]
       interval: 10s
       timeout: 5s
       retries: 5
