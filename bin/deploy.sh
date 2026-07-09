@@ -31,6 +31,21 @@ erro() { printf '\033[31m✗ %s\033[0m\n' "$*" >&2; exit 1; }
 passo() { printf '\n\033[1m→ %s\033[0m\n' "$*"; }
 ok()   { printf '\033[32m  ✓ %s\033[0m\n' "$*"; }
 
+# Prontidão de verdade: `/healthz` respondendo 200 através do nginx. O status do
+# container diz apenas que o processo subiu — o entrypoint ainda leva alguns
+# segundos gerando os caches, e nesse intervalo o nginx devolve 502.
+esperar_saudavel() {
+    local tag="$1" tentativa
+    for tentativa in $(seq 1 45); do
+        if ALGORITHMIA_TAG="${tag}" $COMPOSE exec -T web \
+             wget -qO- http://localhost/healthz 2>/dev/null | grep -q '"status":"ok"'; then
+            return 0
+        fi
+        sleep 2
+    done
+    return 1
+}
+
 # ---------------------------------------------------------------- pré-condições
 passo "Verificando pré-condições"
 
@@ -81,27 +96,38 @@ ALGORITHMIA_TAG="${TAG}" $COMPOSE up -d --remove-orphans
 ok "containers no ar"
 
 # ------------------------------------------------------------------ verificação
-passo "Esperando o health check"
-for _ in $(seq 1 30); do
-    if ALGORITHMIA_TAG="${TAG}" $COMPOSE ps web --format '{{.Health}}' 2>/dev/null | grep -q healthy; then
-        ok "web saudável"
-        break
-    fi
-    sleep 2
-done
+passo "Esperando /healthz responder através do nginx"
+esperar_saudavel "${TAG}" || erro "o app não ficou saudável em 90s"
+ok "saudável"
 
 passo "Smoke: o jogo está jogável?"
 if ! ALGORITHMIA_TAG="${TAG}" $COMPOSE exec -T app php artisan algorithmia:smoke; then
     printf '\n\033[31m✗ O smoke reprovou este deploy.\033[0m\n' >&2
 
-    if [[ -n "${TAG_ANTERIOR}" ]]; then
-        printf '  Revertendo para %s…\n' "${TAG_ANTERIOR}" >&2
-        ALGORITHMIA_TAG="${TAG_ANTERIOR}" $COMPOSE up -d
-        printf '  Código revertido. O SCHEMA NÃO FOI: se a migration não era aditiva,\n' >&2
-        printf '  restaure o dump com  bin/restore.sh backups/pre-%s-*.sql.gz\n' "${TAG}" >&2
-    else
-        printf '  Não há versão anterior para reverter. Investigue antes de expor.\n' >&2
+    if [[ -z "${TAG_ANTERIOR}" ]]; then
+        printf '  Não há versão anterior para reverter. Investigue ANTES de expor.\n' >&2
+        exit 1
     fi
+
+    printf '  Revertendo para %s…\n' "${TAG_ANTERIOR}" >&2
+    ALGORITHMIA_TAG="${TAG_ANTERIOR}" $COMPOSE up -d
+
+    # Reverter e sair sem esperar deixaria o operador achando que está tudo bem
+    # enquanto o nginx ainda devolve 502 — o entrypoint leva alguns segundos.
+    if ! esperar_saudavel "${TAG_ANTERIOR}"; then
+        printf '\033[31m  ✗ A versão anterior TAMBÉM não sobe. O site está fora. Aja agora.\033[0m\n' >&2
+        exit 1
+    fi
+
+    if ! ALGORITHMIA_TAG="${TAG_ANTERIOR}" $COMPOSE exec -T app php artisan algorithmia:smoke --rasa; then
+        printf '\033[31m  ✗ A versão anterior reprova o smoke. O problema é o BANCO, não o código.\033[0m\n' >&2
+        printf '    Restaure o dump: bin/restore.sh backups/pre-%s-*.sql.gz\n' "${TAG}" >&2
+        exit 1
+    fi
+
+    printf '\033[33m  ⚠ Código revertido para %s e no ar.\033[0m\n' "${TAG_ANTERIOR}" >&2
+    printf '    O SCHEMA NÃO FOI revertido. Se a migration de %s não era aditiva,\n' "${TAG}" >&2
+    printf '    restaure o dump: bin/restore.sh backups/pre-%s-*.sql.gz\n' "${TAG}" >&2
     exit 1
 fi
 

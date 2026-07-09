@@ -20,10 +20,17 @@ services:
       - ../public/img:/var/www/html/public/img:ro
       - storage:/var/www/html/storage
     healthcheck:
-      test: ["CMD-SHELL", "php -r 'exit(0);'"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
+      # `php -r 'exit(0)'` só provaria que o binário existe. O que importa é o app
+      # conseguir falar com o banco.
+      #
+      # PDO cru, e não `artisan tinker`: bootar o framework inteiro a cada 10s só
+      # para um `SELECT 1` é caro, e um `config:cache` corrompido faria o
+      # healthcheck acusar o banco por um problema que não é dele.
+      test: ["CMD-SHELL", "php -r 'new PDO(\"pgsql:host=\".getenv(\"DB_HOST\").\";dbname=\".getenv(\"DB_DATABASE\"), getenv(\"DB_USERNAME\"), getenv(\"DB_PASSWORD\"));' || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
   web:
     image: nginx:1.27-alpine
@@ -39,9 +46,10 @@ services:
       - ./public:/var/www/html/public:ro
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost/healthz | grep -q '\"status\":\"ok\"'"]
-      interval: 15s
+      interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
 
   postgres:
     image: postgres:18-alpine

@@ -26,6 +26,20 @@ erro() { printf '\033[31m✗ %s\033[0m\n' "$*" >&2; exit 1; }
 passo() { printf '\n\033[1m→ %s\033[0m\n' "$*"; }
 ok()   { printf '\033[32m  ✓ %s\033[0m\n' "$*"; }
 
+# Prontidão de verdade: `/healthz` através do nginx. O status do container só diz
+# que o processo subiu; o entrypoint ainda leva segundos gerando os caches.
+esperar_saudavel() {
+    local tag="$1" tentativa
+    for tentativa in $(seq 1 45); do
+        if ALGORITHMIA_TAG="${tag}" $COMPOSE exec -T web \
+             wget -qO- http://localhost/healthz 2>/dev/null | grep -q '"status":"ok"'; then
+            return 0
+        fi
+        sleep 2
+    done
+    return 1
+}
+
 [[ -f "${ESTADO}/tag-anterior" ]] || erro "não há tag anterior registrada em ${ESTADO}"
 
 ALVO="$(cat "${ESTADO}/tag-anterior")"
@@ -56,14 +70,9 @@ fi
 ALGORITHMIA_TAG="${ALVO}" $COMPOSE up -d
 ok "containers na tag ${ALVO}"
 
-passo "Esperando o health check"
-for _ in $(seq 1 30); do
-    if ALGORITHMIA_TAG="${ALVO}" $COMPOSE ps web --format '{{.Health}}' 2>/dev/null | grep -q healthy; then
-        ok "web saudável"
-        break
-    fi
-    sleep 2
-done
+passo "Esperando /healthz responder através do nginx"
+esperar_saudavel "${ALVO}" || erro "a versão ${ALVO} não ficou saudável em 90s. O site está fora."
+ok "saudável"
 
 passo "Smoke"
 ALGORITHMIA_TAG="${ALVO}" $COMPOSE exec -T app php artisan algorithmia:smoke \
