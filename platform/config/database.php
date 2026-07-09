@@ -66,6 +66,26 @@ return [
             ]) : [],
         ],
 
+        /*
+         * O banco MySQL do jogo em PHP puro. Só o comando `algorithmia:importar`
+         * o usa, e só para LER: a importação nunca escreve no legado, para que o
+         * jogo antigo siga de pé durante a janela de coexistência.
+         *
+         * O driver pode ser `mariadb` na VPS; o `mysql` do Laravel fala com os dois.
+         */
+        'legado' => [
+            'driver' => 'mysql',
+            'host' => env('LEGADO_DB_HOST', '127.0.0.1'),
+            'port' => env('LEGADO_DB_PORT', '3306'),
+            'database' => env('LEGADO_DB_DATABASE', 'algorithmia'),
+            'username' => env('LEGADO_DB_USERNAME', 'root'),
+            'password' => env('LEGADO_DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+        ],
+
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),

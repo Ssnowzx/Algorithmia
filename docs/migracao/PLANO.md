@@ -200,18 +200,47 @@ ID fixo (`[8, 14, 20, 32]`, agora em `config('jogo.fases_secundarias')`). O seed
 **Critério de aceite:** atingido — 40 vetores-ouro verdes no port, 38 no legado,
 PHPStan nível 6 limpo.
 
-### Fase 3 — Dados e conteúdo
+### Fase 3 — Dados e conteúdo ✅ **ENTREGUE**
 
-Não há dado precioso: o conteúdo mora em `database/seeds.sql` e
-`database/banco-questoes/*.php`. O que existe de real é um punhado de contas.
+Um único comando, `php artisan algorithmia:importar`, copia o MySQL legado para o
+PostgreSQL. Não há seeder separado para o conteúdo: reescrever `seeds.sql` em PHP
+criaria um segundo cânone para manter, e o banco legado já é a verdade.
 
-- Seeder Laravel para mestres, fases, desafios, itens, diálogos, conquistas —
-  **preservando os IDs** (ver Fase 2, dívida 2).
-- Comando de importação das contas e do progresso do MySQL, com `--dry-run` e relatório
-  de reconciliação. Senhas: os hashes `password_hash()` do PHP são compatíveis com o
-  `Hash::check` do Laravel (bcrypt) — não é preciso resetar ninguém.
+- Conexão `legado` (somente leitura). A importação **nunca escreve no MySQL** — o
+  jogo antigo precisa seguir de pé durante a coexistência, e o rollback depende disso.
+- `--dry-run` roda a importação inteira dentro de uma transação e a desfaz. Um
+  ensaio que não exercita chaves estrangeiras nem conversão de tipos não prova nada.
+- `--truncar` para substituir; sem ele, o comando **recusa** sobrescrever um destino
+  com dados.
+- Relatório de reconciliação por tabela, mais três verificações que uma contagem
+  igual não pegaria: IDs das fases secundárias preservados, Fragmento da IA presente
+  no catálogo, nenhuma fase com requisito órfão.
+- `TINYINT(1)` → `boolean` e `JSON` → `jsonb` na travessia. `fases` é copiada em duas
+  passadas por causa da auto-referência `requisito_fase_id`.
+- Sequências reposicionadas com `setval` ao final: os IDs vieram explícitos, então
+  elas continuariam em 1 e o próximo `INSERT` colidiria.
 
-**Critério de aceite:** contagens reconciliadas por entidade; nenhuma migração roda no deploy.
+Executado contra o banco real: **1.306 linhas em 13 tabelas**, reconciliadas —
+13 usuários, 10 personagens, 5 mestres, 35 fases, 955 desafios, 132 diálogos,
+20 itens, 20 conquistas, 20 linhas de inventário, 15 de progresso, 72 respostas.
+
+Verificado sobre os dados importados, e não só sobre fixtures:
+
+- Os 955 gabaritos ficaram tipados em `jsonb` — 393 array, 163 booleano, 399 numérico.
+- A conta `masterboss@boss.com` autentica com a senha original. **Ninguém precisa
+  redefinir senha.**
+- O motor portado **venceu uma fase real em dois turnos** (Porto da Sintaxe,
+  "Variáveis e Eco", contra o Slime de Variável), sorteando 9 desafios do pool com
+  limite de ritmo 4, sem vazar gabarito para o cliente.
+
+A CI não tem o MySQL do legado, então `tests/Feature/ImportacaoDoLegadoTest.php`
+exercita o pipeline contra um legado em miniatura em SQLite. O dialeto de origem não
+é o ponto: o que se testa é a preservação de IDs, a conversão de tipos, o ensaio que
+não grava, a recusa em sobrescrever, a auto-referência das fases, e o aborto com
+rollback quando o legado tem referência órfã.
+
+**Critério de aceite:** atingido — contagens reconciliadas; nenhuma migração roda no
+deploy; a importação é um comando explícito.
 
 ### Fase 4 — Web
 
