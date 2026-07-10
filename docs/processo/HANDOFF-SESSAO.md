@@ -4,12 +4,12 @@
 
 ---
 
-## 🗓️ Sessão 2026-07-10 — Etapa E: o piloto · branch `feature/etapa-e-piloto`
+## 🗓️ Sessão 2026-07-10 — Etapa E: o piloto · na `main`
 
 **A `fundacao-multitenant` está completa (A–E).** O corte em produção continua NÃO feito —
 depende da VPS nova. **Esta sessão não fez deploy.**
 
-8 commits, na branch `feature/etapa-e-piloto` (`855e135`), **não pushados**.
+10 commits, **mergeados e pushados na `main`** (`7455c8f`). Branch apagada, árvore limpa.
 
 ### Suítes
 
@@ -75,12 +75,19 @@ não foi tocado.
 
 ### Pendências
 
-1. **Push e merge** da branch.
-2. **O corte.** Quando a VPS existir: `bash bin/checar-host.sh`, depois `RUNBOOK §10`.
-3. `content_packages` (roteiro Fase 3) — conteúdo **diferente** por instituição. Hoje toda
+1. **O corte.** Quando a VPS existir: `bash bin/checar-host.sh`, depois `RUNBOOK §10`. É a
+   única pendência que impede o port de estar no ar — e não é código.
+2. `content_packages` (roteiro Fase 3) — conteúdo **diferente** por instituição. Hoje toda
    escola começa com uma cópia do mesmo mundo, e o mestre dela o edita. Basta para o piloto.
-4. Conta **global** de usuário (roteiro v1 §5) — identidade que atravessa instituições. Sem
+3. Conta **global** de usuário (roteiro v1 §5) — identidade que atravessa instituições. Sem
    demanda. O bug de e-mail que se escondia atrás dessa "pergunta aberta" já foi corrigido.
+4. **LGPD e consentimento parental** — bloqueador antes de qualquer aluno menor de idade
+   entrar numa instituição real.
+5. Arquivar a proposta `fundacao-multitenant` no OpenSpec — **depois do corte**, não antes:
+   as specs descrevem um comportamento que ainda não está em produção.
+
+> 🏁 Placar visual das dez fases, divergências e defeitos:
+> [`docs/migracao/roteiro-v2-concluido.html`](../migracao/roteiro-v2-concluido.html).
 
 ---
 
@@ -167,8 +174,8 @@ Nenhum teste os pegaria. Ficam aqui porque voltam:
 
 O repositório tem duas bases: o **legado** (raiz, PHP puro + MySQL, em produção) e o
 **port** (`platform/`, Laravel 13 + PostgreSQL 18). Ambas com suíte verde: 38
-vetores-ouro no legado, 196 testes no port. A CI roda as duas, mais um job que
-constrói a imagem de produção.
+vetores-ouro no legado, 196 testes no port *(números da época; hoje são 53 e 377)*. A CI
+roda as duas, mais um job que constrói a imagem de produção.
 
 Seis fases, todas na `main` (`7e516eb`..`55f3857`):
 

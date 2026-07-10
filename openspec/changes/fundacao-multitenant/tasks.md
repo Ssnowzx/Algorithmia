@@ -1,5 +1,17 @@
 # Tasks — Fundação multitenant
 
+> ## ✅ Concluída — Etapas A a G, zero pendências
+>
+> **2026-07-10.** Mergeada e pushada na `main` (`7455c8f`). 377 testes no port, 53 no legado,
+> `pint` e `phpstan` nível 6 limpos. Verificada contra um clone do banco de produção, com as
+> 955 linhas reais de `desafios`.
+>
+> **Não foi arquivada ainda**, e a razão é honesta: nada disto está em produção. O jogo no ar
+> continua sendo o legado em PHP puro. Ela se arquiva — e as specs migram para
+> `openspec/specs/` — **depois do corte** (`migracao-laravel-postgresql`, tarefas 6.10 e 6.11).
+>
+> Placar visual: [`docs/migracao/roteiro-v2-concluido.html`](../../../docs/migracao/roteiro-v2-concluido.html).
+
 > **A ordem entre a Etapa B e o corte em produção não é negociável.** Ver `design.md §4`.
 
 ## A. Topologia de acesso (aditiva — pode ir antes do corte)

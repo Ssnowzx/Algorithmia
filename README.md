@@ -18,9 +18,14 @@ PostgreSQL 18**. Enquanto o corte não acontece, o repositório carrega as duas 
 | | **Legado** (raiz) | **Port** ([`platform/`](platform/)) |
 |---|---|---|
 | Stack | PHP puro, MVC artesanal, PDO/MySQL | Laravel 13, PostgreSQL 18 |
-| Status | **em produção** | completo; **corte não executado** |
+| Status | **em produção** | completo e multitenant; **corte não executado** |
 | Papel | plano de rollback do corte | onde o trabalho novo acontece |
-| Testes | 38 vetores-ouro | 196 testes |
+| Testes | 53 (38 vetores-ouro + 15 de banco) | 377 |
+
+O port isola instituições com **Row-Level Security de verdade**: a aplicação conecta com um
+papel `NOSUPERUSER`, `NOBYPASSRLS` e dono de nada, e as tabelas tenant-scoped usam
+`FORCE ROW LEVEL SECURITY`. A instituição é resolvida pelo `Host` da requisição — **nunca**
+por um parâmetro do cliente.
 
 Os **vetores-ouro** em [`tests/`](tests/) travam o comportamento do motor de batalha —
 dano, combo, fúria da morte súbita, XP, estrelas, reputação — com números derivados à
@@ -36,9 +41,12 @@ O port paga uma dívida de propósito: a recompensa de batalha virou **idempoten
 chave no banco**. No legado, a guarda contra duplo-crédito é um flag de sessão — dura
 o que dura a sessão, e não vale nada contra duas requisições concorrentes.
 
-> **Leia antes de mexer:** [`docs/migracao/PLANO.md`](docs/migracao/PLANO.md) ·
+> **Leia antes de mexer:**
+> [`docs/migracao/roteiro-v2-concluido.html`](docs/migracao/roteiro-v2-concluido.html) — o placar
+> das dez fases, o que divergiu do plano original, e os sete defeitos de isolamento que só
+> apareceram quando o código foi exercitado contra dados reais ·
 > [`docs/operacao/RUNBOOK.md`](docs/operacao/RUNBOOK.md) ·
-> [`openspec/changes/migracao-laravel-postgresql/`](openspec/changes/migracao-laravel-postgresql/)
+> [`openspec/changes/fundacao-multitenant/`](openspec/changes/fundacao-multitenant/)
 
 ---
 
@@ -225,7 +233,7 @@ php artisan serve
 Acesse **http://localhost:8000**. Verificação:
 
 ```bash
-php artisan test                                  # 196 testes
+php artisan test                                  # 377 testes
 vendor/bin/pint --test                            # formatação
 vendor/bin/phpstan analyse --memory-limit=1G      # nível 6
 php artisan algorithmia:smoke                     # joga uma fase real e desfaz

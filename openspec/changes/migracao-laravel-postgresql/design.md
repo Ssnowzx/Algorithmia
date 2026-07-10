@@ -102,8 +102,8 @@ inalcançável sem nada acusar.
 
 ## Robustez / não-regressão
 
-- **Duas suítes verdes durante todo o port**: 38 vetores-ouro sobre o legado (MySQL)
-  e 196 testes sobre o port (PostgreSQL). A CI roda as duas.
+- **Duas suítes verdes durante todo o port**: 53 testes sobre o legado (MySQL) — dos quais
+  38 são os vetores-ouro — e 377 sobre o port (PostgreSQL). A CI roda as duas.
 - **A suíte do port roda contra PostgreSQL de verdade**, não SQLite em memória. Um
   SQLite esconderia exatamente o que a migração precisa expor.
 - **`algorithmia:importar --dry-run`** executa a importação inteira numa transação e

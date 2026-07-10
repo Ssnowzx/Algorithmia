@@ -17,12 +17,31 @@ Antes de tocar em qualquer arquivo, saiba em qual você está.
 | | **Legado** (raiz) | **Port** (`platform/`) |
 |---|---|---|
 | Stack | PHP puro, MVC artesanal, PDO/MySQL | Laravel 13, PostgreSQL 18 |
-| Status | **em produção** | completo, **corte não executado** |
+| Status | **em produção** | completo e multitenant, **corte não executado** |
 | Papel | plano de rollback do corte | onde o trabalho novo acontece |
-| Testes | 38 vetores-ouro (`tests/`) | 196 testes (`platform/tests/`) |
+| Testes | 53 (`tests/`) — 38 vetores-ouro + 15 de banco | 377 (`platform/tests/`) |
 
 **Trabalho novo vai para o `platform/`.** O legado só recebe correção urgente — ele
 será aposentado no corte.
+
+### O port é multitenant — cinco regras que custaram caro
+
+A aplicação conecta com `algorithmia_app` (`NOSUPERUSER`, `NOBYPASSRLS`, dono de nada), e
+as 18 tabelas tenant-scoped têm `ENABLE` + `FORCE ROW LEVEL SECURITY`.
+
+1. **Todo índice único sobre tabela tenant-scoped precisa incluir `tenant_id`.** O RLS
+   esconde a linha da outra escola e o índice global a denuncia. Em `usuarios.email` isso
+   era **500 numa rota pública e um oráculo de existência de contas**. Rode
+   `platform/tests/Feature/IntegridadeDaTenancyTest.php` **ao criar qualquer tabela** — ele
+   é a sentinela, e reprova até você justificar a exceção nele mesmo.
+2. **Uma regra de jogo nunca se amarra a uma chave primária.** `arquivista_do_vazio` usava
+   os ids 8/14/20/32 e ficava inalcançável na segunda escola, em silêncio. Hoje usa
+   `tipo = 'secundaria'`.
+3. **`algorithmia:importar` só roda uma vez** (preserva os ids do legado; `fases.id` é PK
+   global). A segunda escola recebe conteúdo por **`algorithmia:tenant:semear`**.
+4. **Uma instituição nasce desligada**, e `algorithmia:tenant:ativar` roda o smoke dela
+   antes de ligá-la. Uma escola ativa e vazia reprova o smoke — que é o portão do deploy.
+5. **O `tenant_id` nunca vem do cliente.** Ele sai do `Host`, contra `tenant_dominios`.
 
 > **Composer no legado existe só para testes.** `index.php` não carrega o autoload;
 > produção segue sem dependências. Os 38 testes de `tests/` são o **contrato** do
@@ -37,8 +56,9 @@ cd platform && php artisan test         # port (PostgreSQL)
 cd platform && vendor/bin/pint --test && vendor/bin/phpstan analyse
 ```
 
-Leia [`docs/migracao/PLANO.md`](docs/migracao/PLANO.md) e
-[`openspec/changes/migracao-laravel-postgresql/`](openspec/changes/migracao-laravel-postgresql/)
+Leia [`docs/migracao/roteiro-v2-concluido.html`](docs/migracao/roteiro-v2-concluido.html)
+(o placar final), [`docs/migracao/PLANO.md`](docs/migracao/PLANO.md) e
+[`openspec/changes/fundacao-multitenant/`](openspec/changes/fundacao-multitenant/)
 antes de mexer no port.
 
 ---

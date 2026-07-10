@@ -5,12 +5,12 @@ Instruções específicas deste projeto (complementam as regras globais do usuá
 ## 🔀 Duas bases de código (REGRA PERMANENTE)
 
 O repositório tem o **legado** (raiz, PHP puro + MySQL, em produção) e o **port**
-(`platform/`, Laravel 13 + PostgreSQL 18, completo mas ainda não cortado).
+(`platform/`, Laravel 13 + PostgreSQL 18, completo e **multitenant**, ainda não cortado).
 
 - **Trabalho novo vai para o `platform/`.** O legado só recebe correção urgente —
   ele é o plano de rollback do corte e será aposentado.
-- **As duas suítes ficam verdes.** 38 vetores-ouro no legado, 196 testes no port.
-  A CI roda ambas.
+- **As duas suítes ficam verdes.** 53 testes no legado (38 vetores-ouro + 15 de banco)
+  e 377 no port. A CI roda ambas.
 - **Os 38 vetores-ouro (`tests/`) são o CONTRATO do motor.** Os números esperados
   foram derivados à mão das constantes de balanceamento, não capturados de snapshot.
   Se um deles falhar, o port está errado — **nunca "ajuste" o teste**.
@@ -20,6 +20,33 @@ O repositório tem o **legado** (raiz, PHP puro + MySQL, em produção) e o **po
 - **Toda migration do port é ADITIVA** — criar tabela, criar coluna anulável, criar
   índice. Elas rodam contra o código velho ainda no ar, e o rollback de código não
   desfaz schema. Remover coluna exige dois deploys.
+  *Afrouxar* uma restrição (trocar um índice único por outro mais permissivo) é seguro
+  na mesma janela: tudo o que passava continua passando.
+
+### Multitenancy — as regras que custaram caro (REGRA PERMANENTE)
+
+O port isola instituições com **Row-Level Security de verdade**: a aplicação conecta com
+`algorithmia_app` (`NOSUPERUSER`, `NOBYPASSRLS`, dono de nada), e as 18 tabelas
+tenant-scoped têm `ENABLE` + `FORCE ROW LEVEL SECURITY`.
+
+- **Todo índice único sobre tabela tenant-scoped precisa incluir `tenant_id`.** É a classe
+  de bug que mais apareceu: o RLS esconde a linha da outra escola, a aplicação conclui
+  "está livre", e o índice global a denuncia. Em `usuarios.email` isso era **500 numa rota
+  pública e um oráculo de existência de contas entre instituições**.
+  `platform/tests/Feature/IntegridadeDaTenancyTest.php` é a sentinela — **rode-o ao criar
+  qualquer tabela**. Ele reprova até você justificar a exceção, por escrito, nele mesmo.
+- **Uma regra de jogo nunca se amarra a uma chave primária.** `arquivista_do_vazio`
+  procurava as fases 8/14/20/32 por id: era inalcançável na segunda escola, em silêncio, e
+  uma quinta secundária criada pelo mestre não contava. Hoje usa `tipo = 'secundaria'`.
+- **`algorithmia:importar` só roda uma vez**, para a primeira instituição: ele preserva os
+  ids do legado, e `fases.id` é PK global. A segunda escola recebe o conteúdo por
+  **`algorithmia:tenant:semear`** — que copia o mundo com ids novos, e **nenhuma pessoa**.
+- **Uma instituição nasce desligada**, e `algorithmia:tenant:ativar` roda o smoke dela
+  antes de ligá-la. Uma escola ativa e vazia reprova o smoke, que é o portão do deploy —
+  e portanto reprova **todo deploy**.
+- **`ResolverTenant` tem de estar na lista de PRIORIDADE, antes do `Authenticate`** — e o
+  `before` é a **interface** `AuthenticatesRequests`, não a classe. Nenhum teste com
+  `actingAs()` pega isso.
 
 ### Regras do jogo que já quase se perderam no port
 
@@ -33,12 +60,17 @@ O repositório tem o **legado** (raiz, PHP puro + MySQL, em produção) e o **po
   negócio.
 - **O gabarito nunca sai do servidor.**
 
-Ver [`docs/migracao/PLANO.md`](docs/migracao/PLANO.md),
+Ver [`docs/migracao/roteiro-v2-concluido.html`](docs/migracao/roteiro-v2-concluido.html)
+(o placar final), [`docs/migracao/PLANO.md`](docs/migracao/PLANO.md),
 [`docs/operacao/RUNBOOK.md`](docs/operacao/RUNBOOK.md) e
-[`openspec/changes/migracao-laravel-postgresql/`](openspec/changes/migracao-laravel-postgresql/).
+[`openspec/changes/fundacao-multitenant/`](openspec/changes/fundacao-multitenant/).
 
 > ⚠️ A auditoria em `docs/auditoria/` é um retrato de 2026-06-18 e está
 > **desatualizada**: os débitos críticos que ela aponta já foram corrigidos.
+
+> ⚠️ O `roteiro-v1.html` é registro histórico. Ele pede Redis, API-first,
+> `content_packages` e um papel `platform_admin` — **nada disso entrou**, e cada
+> recusa está justificada em `openspec/changes/fundacao-multitenant/design.md`.
 
 ## 🎨 Registro da evolução visual (REGRA PERMANENTE)
 

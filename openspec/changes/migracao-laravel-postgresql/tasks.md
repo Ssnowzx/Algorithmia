@@ -107,10 +107,19 @@ topologia descrita em [`RUNBOOK.md §9`](../../../docs/operacao/RUNBOOK.md).
       placeholders `CHANGE_ME`), **sem credenciais padrão** (ver 6.13).
 - [ ] 7.7 Métricas e alertas — dependem de um host para onde exportá-las.
 
-## 8. Multitenancy (Fases 2, 3, 5 e 9 do roteiro v1)
-> Decidido em 2026-07-10: fazer **depois** da Fase 8. Exige proposta OpenSpec própria —
-> `tenant_id` entra nas 13 tabelas, e o corte tem de acontecer antes ou depois dela,
-> nunca no meio.
+## 8. Multitenancy (Fases 2, 3, 5 e 9 do roteiro v1) — **CONCLUÍDA**
+
+> Decidido em 2026-07-10: fazer **depois** da Fase 8. Exigiu proposta própria —
+> [`fundacao-multitenant`](../fundacao-multitenant/) —, e ela está **inteira**: Etapas A a E,
+> mais as correções F e G. O corte tinha de acontecer antes ou depois dela, nunca no meio.
+>
+> **A ordem foi invertida ao construir:** `tenant_id` entrou nas 13 tabelas **antes** do
+> corte, e não depois. A regra dos três deploys é regra de *coexistência*, e antes do corte
+> não há código velho no ar com que coexistir. Ver `fundacao-multitenant/design.md §4`.
+>
+> A Fase 3 do roteiro (`content_packages`) **não entrou**, de propósito: cada escola nova
+> recebe uma cópia editável do mundo. Conteúdo *diferente* por instituição merece proposta
+> própria.
 
 ### Bloqueado na VPS nova (o usuário vai provisioná-la do zero)
 - [ ] 6.10 `bash bin/checar-host.sh` no host novo; `.env.producao` com `TRUSTED_PROXIES`
