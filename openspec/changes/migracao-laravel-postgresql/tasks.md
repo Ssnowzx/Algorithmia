@@ -69,6 +69,12 @@ topologia descrita em [`RUNBOOK.md §9`](../../../docs/operacao/RUNBOOK.md).
       a importação abria o MySQL na rede — agora lê pelo socket Unix (`1f89eec`).
 - [x] 6.14 `bin/checar-host.sh` (somente-leitura) e `RUNBOOK §0` com os requisitos de
       uma VPS nova. O script julga a RAM, e recusa responder onde não pode saber.
+- [x] 6.15 **TLS direto** (`algorithmia-tls.conf`): numa VPS dedicada o nginx do port é
+      dono da 80/443 e `TRUSTED_PROXIES` fica vazio. O §8/§9 pressupunham o `httpd` do
+      legado na mesma máquina; sem ele o corte não tinha topologia. `RUNBOOK §10` descreve
+      o corte para host novo — o rollback vira troca de DNS, e o legado nunca sai do ar.
+      `deploy.sh`/`rollback.sh` leem `platform/.deploy/ambiente`, senão um rollback
+      devolveria o site a HTTP na 8080 sem avisar.
 
 ### Bloqueado na VPS nova (o usuário vai provisioná-la do zero)
 - [ ] 6.10 `bash bin/checar-host.sh` no host novo; `.env.producao` com `TRUSTED_PROXIES`
