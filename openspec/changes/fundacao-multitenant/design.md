@@ -80,19 +80,40 @@ direto, `$request->getHost()` é o que o nginx recebeu. **Com um proxy na frente
 de tenant se torna forjável junto. Isto liga a segurança do multitenant à correção do
 §9, e o teste de proxy reverso passa a ser um teste de isolamento.
 
-## 4. `tenant_id` nas tabelas do jogo, em três deploys
+## 4. `tenant_id` nas tabelas do jogo — antes do corte, não depois
 
-A regra do projeto é que toda migration do port é aditiva, rodando contra o código
-velho ainda no ar. `tenant_id NOT NULL` viola isso. Portanto:
+> **Revisado em 2026-07-10, depois de construir A e B. A versão anterior deste
+> parágrafo dizia o contrário, e estava errada.**
 
-1. **Deploy 1:** `ALTER TABLE … ADD COLUMN tenant_id BIGINT NULL` + índice. O código
-   velho ignora a coluna.
-2. **Deploy 2:** backfill para o tenant padrão (o Algorithmia de hoje), código novo
-   passa a escrever `tenant_id`, RLS ligada com policy que aceita `NULL` como "legado".
-3. **Deploy 3:** `SET NOT NULL`, policy deixa de aceitar `NULL`.
+O plano original mandava três deploys (`ADD COLUMN NULL` → backfill → `SET NOT NULL`) e
+só **depois** do corte. As duas coisas caem pelo mesmo motivo.
 
-Entre 1 e 3, um rollback de código continua funcionando. Depois de 3, não — e é por
-isso que 3 só acontece quando 2 está no ar há dias.
+**A regra dos três deploys existe porque migrations rodam contra o código velho ainda no
+ar.** É uma regra de coexistência. Antes do corte, o port **nunca esteve em produção**:
+não há código velho a preservar, e a coexistência não existe. Uma migration só basta.
+
+**E o argumento de risco se inverte quando se olha o rollback.**
+
+| | `tenant_id` antes do corte | `tenant_id` depois do corte |
+|---|---|---|
+| O que existe no banco do port | o que a importação trouxer | progresso real de alunos |
+| Rollback | trocar o DNS de volta ao legado, cujo MySQL está intacto | restaurar dump; perde-se o que foi jogado desde então |
+| Custo de um erro | reimportar | irreversível |
+
+O que sustentava "depois" era: *"o corte carrega o schema que existir no dia; um schema
+recém-nascido, nunca exercitado contra dados reais, dobra o risco da janela."* Isso teria
+peso se o corte não fosse ensaiado. Ele é — o `§8` e o `§10` foram percorridos ponta a
+ponta em Docker local, com as 1.306 linhas reais do legado, mais de uma vez.
+
+**Portanto: a Etapa C acontece antes do corte, numa migration.** O que ela acopla, e não
+dá para desacoplar:
+
+RLS nas tabelas do jogo ⇒ toda requisição precisa de contexto ⇒ `TENANCY_ATIVA=true` ⇒
+o host de produção precisa existir em `tenant_dominios` **antes** do primeiro pedido ⇒
+e os comandos de console (`algorithmia:smoke`, `algorithmia:importar`) precisam definir
+o contexto explicitamente, porque não têm `Host`.
+
+Esse acoplamento é a razão de C ser uma etapa, e não uma migration solta.
 
 ## 5. O que NÃO entra
 

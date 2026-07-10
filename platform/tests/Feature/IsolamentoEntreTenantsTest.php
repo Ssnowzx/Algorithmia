@@ -58,10 +58,14 @@ final class IsolamentoEntreTenantsTest extends TestCase
             DB::rollBack();
         }
 
+        // Só o que este teste criou. Apagar `tenants` inteiro levaria junto o tenant
+        // padrão, criado pela migration para herdar as linhas do jogo.
         $dono = DB::connection('pgsql_dono');
-        $dono->table('tenant_membros')->delete();
-        $dono->table('tenant_dominios')->delete();
-        $dono->table('tenants')->delete();
+        $escolas = $dono->table('tenants')->where('slug', 'like', 'escola-%')->pluck('id');
+
+        $dono->table('tenant_membros')->whereIn('tenant_id', $escolas)->delete();
+        $dono->table('tenant_dominios')->whereIn('tenant_id', $escolas)->delete();
+        $dono->table('tenants')->whereIn('id', $escolas)->delete();
         $dono->table('usuarios')->where('email', 'like', '%@escola.test')->delete();
 
         DB::beginTransaction();

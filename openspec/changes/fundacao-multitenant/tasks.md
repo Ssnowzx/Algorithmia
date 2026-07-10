@@ -29,14 +29,20 @@
       ninguém pode fazer é escrever código que nenhum teste exercita. Entra junto com a
       Etapa D, que cria essas rotas.
 
-## C. `tenant_id` nas 13 tabelas do jogo (INVASIVA — **só depois do corte**)
+## C. `tenant_id` nas 13 tabelas do jogo — **antes do corte**
 
-- [ ] C.0 **Bloqueado por:** corte em produção concluído e estável por alguns dias
-- [ ] C.1 Deploy 1 — `ADD COLUMN tenant_id BIGINT NULL` + índice, em todas as 13
-- [ ] C.2 Deploy 2 — backfill para o tenant padrão; código novo escreve; RLS aceita `NULL`
-- [ ] C.3 Reconciliação: nenhuma linha com `tenant_id` nulo, contagem por tabela
-- [ ] C.4 Deploy 3 — `SET NOT NULL`; a policy deixa de aceitar `NULL`
+> **A ordem foi invertida em 2026-07-10.** O plano dizia "só depois do corte, em três
+> deploys". Os três deploys são regra de **coexistência**, e antes do corte não há código
+> velho no ar com que coexistir. E o risco se inverte: antes do corte, o rollback é trocar
+> o DNS de volta ao legado — nada a desfazer; depois, seria uma mudança irreversível sobre
+> progresso real de alunos. Ver `design.md §4`.
+
+- [x] C.1 `ADD COLUMN tenant_id BIGINT NULL` + índice nas 13, tenant padrão e backfill
+- [ ] C.2 `SET NOT NULL`, RLS + policies nas 13, `TENANCY_ATIVA=true`
+- [ ] C.3 `algorithmia:importar` escreve `tenant_id` e define contexto
+- [ ] C.4 `algorithmia:smoke` e demais comandos de console definem contexto
 - [ ] C.5 Os 38 vetores-ouro continuam verdes, com os mesmos números
+- [ ] C.6 Ensaio do corte (§10) refeito de ponta a ponta, com tenancy ligada
 
 ## D. Turmas, papéis e relatórios (Fase 5 do roteiro v1)
 
