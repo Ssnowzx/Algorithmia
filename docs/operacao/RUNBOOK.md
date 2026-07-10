@@ -7,24 +7,48 @@ com sono, quando algo já deu errado.
 
 ## 0. O host
 
-O plano supõe uma **VPS com root, rodando Docker**: um host RHEL/AlmaLinux estilo
-cPanel, mas com root, onde o `httpd` do jogo antigo e os containers do port convivem
-na mesma máquina durante o corte.
+### O que pedir, numa VPS nova
 
-> ⚠️ **Isto foi afirmado em conversa, nunca verificado com um comando na máquina.** E o
-> [`DEPLOY.md`](../processo/DEPLOY.md) do legado descreve um host onde `a2ensite` e `ufw`
-> não existem e o site vive em `~/public_html` — a assinatura de um cPanel, onde
-> normalmente **não** há root nem Docker, e onde um vhost editado à mão é sobrescrito no
-> próximo rebuild. As duas descrições não podem estar certas ao mesmo tempo.
->
-> Antes de marcar 6.10/6.11, rode no host `bash bin/checar-host.sh` — é somente-leitura,
-> não instala nem altera nada, e responde as três perguntas de uma vez. Sem root +
-> Docker + `mod_proxy_http`, **o corte descrito aqui não roda**, e o port precisa de
-> outro plano de execução (PHP-FPM sob o cPanel, ou outra máquina).
+| | Mínimo | Por quê |
+|---|---|---|
+| Acesso | **root** | Docker, firewall, portas baixas |
+| RAM | **2 GiB** (4 GiB confortável) | o `docker build` do PHP chega perto de 1 GiB de pico; postgres + php-fpm + nginx querem ~600 MiB em repouso |
+| Disco | **20 GiB** | imagem, volumes, `backups/`, os 143 MB de arte |
+| SO | Debian/Ubuntu ou RHEL/AlmaLinux | qualquer um com Docker Engine e `compose >= 2.1.1` |
+| Rede | uma porta alta livre | o nginx do port publica nela (`ALGORITHMIA_PORTA`, padrão `8080`) |
 
-**O `httpd` já é dono da porta 80.** O nginx do port publica numa porta alta
-(`ALGORITHMIA_PORTA`, padrão `8080`), e o `httpd` faz proxy reverso para ela quando o
-corte acontecer — assim o certificado TLS existente segue valendo. Ver §9.
+**Prefira um host dedicado.** Num host compartilhado — Virtualmin, cPanel com vários
+sites, qualquer máquina com containers de outros donos — três coisas mudam, e todas já
+nos morderam:
+
+- `systemctl restart httpd` derruba **todos** os sites, não só o seu. Use `reload`.
+- A faixa `172.x` do Docker alcança os containers de **todos** os tenants. Um
+  `GRANT ... TO 'x'@'172.%'` entrega o banco dos alunos a qualquer um deles. Por isso a
+  importação lê o legado por **socket Unix** (§2).
+- Fechar uma porta no firewall pode quebrar o site de outro dono.
+
+### Antes de marcar 6.10/6.11
+
+Rode no host:
+
+```bash
+bash bin/checar-host.sh     # somente-leitura: não instala, não altera, não escreve
+```
+
+Sem **root + Docker + `compose >= 2.1.1` + `mod_proxy_http` + porta alta livre + 1 GiB
+de RAM disponível**, o corte descrito neste runbook não roda como está escrito. Onde o
+script não puder saber, ele diz que não sabe — não trate silêncio como aprovação.
+
+Se faltar só a RAM, ainda dá: construa a imagem noutra máquina e traga-a pronta, com
+`docker save algorithmia:TAG | ssh o-host 'docker load'`. Se faltar Docker ou root, o
+port precisa de outro plano de execução (PHP-FPM sob o painel), e o §8 tem de ser
+reescrito.
+
+### Durante o corte
+
+**O `httpd` do legado é dono da porta 80.** O nginx do port publica numa porta alta, e o
+`httpd` faz proxy reverso para ela — assim o certificado TLS existente segue valendo.
+Ver §9. Aposentado o legado, o nginx assume a 80/443 e `TRUSTED_PROXIES` volta a vazio.
 
 ---
 

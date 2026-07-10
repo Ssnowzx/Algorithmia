@@ -37,9 +37,19 @@ else
   echo "  ? 'ss' (iproute2) não existe aqui — não vou adivinhar. NÃO assuma que estão livres."
 fi
 
-linha "MySQL do legado — o import roda dentro de um container e precisa alcançá-lo"
-echo "  bind-address:"; (ss -lntp 2>/dev/null | grep ':3306') | sed 's/^/    /' || echo "    (3306 não encontrada)"
-echo "  ↑ se aparecer só 127.0.0.1, o container NÃO alcança o MySQL"
+linha "MySQL do legado — a importação fala com ele pelo SOCKET, não pela rede"
+SOCKET="$(mysqladmin variables 2>/dev/null | awk -F'|' '$2 ~ /^ *socket *$/ {gsub(/ /,"",$3); print $3}')"
+if [ -n "${SOCKET}" ]; then
+  echo "  ✓ socket: ${SOCKET}"
+  echo "    monte-o no container: -v ${SOCKET}:/var/run/mysqld/mysqld.sock"
+  echo "    e defina LEGADO_DB_SOCKET=/var/run/mysqld/mysqld.sock"
+else
+  echo "  ? não consegui ler o socket (precisa de credenciais):  mysqladmin variables | grep socket"
+fi
+echo "  onde a 3306 escuta hoje:"
+ss -lntp 2>/dev/null | grep ':3306' | sed 's/^/    /' || echo "    (não encontrada)"
+echo "  ↑ 0.0.0.0 = exposta à rede. NÃO abra a 3306 para importar: use o socket acima."
+echo "    Num host compartilhado, 'GRANT ... @172.%' alcança containers de outros donos."
 
 linha "Estado do banco do legado (migrations aplicadas)"
 echo "  rode, com as credenciais do site:"
@@ -48,9 +58,34 @@ echo "  esperado (6): novas-classes, assunto-calculo, marcio-lorde-segfault,"
 echo "                objetivos-loja, dedupe-itens, dedupe-mestres"
 echo "  faltando alguma → rode 'php database/migrate.php' ANTES de trancar o legado"
 
-linha "Espaço em disco (o build da imagem precisa de folga)"
+linha "Disco e RAM — a RAM é o gargalo real, não o Docker"
 df -h / 2>/dev/null | tail -1 | awk '{print "  / → "$4" livres de "$2}'
-free -h 2>/dev/null | awk '/Mem:/{print "  RAM → "$7" disponíveis de "$2}'
 
-printf '\n\033[1mVeredito:\033[0m sem "✓ docker" + "✓ daemon responde" + "✓ mod_proxy_http",\n'
-printf 'o corte com Docker descrito no RUNBOOK NÃO roda neste host.\n'
+# A RAM disponível é que decide, não a total: o host pode já estar carregando outros
+# serviços. `docker build` do PHP (composer install + extensões) chega perto de 1 GiB
+# de pico, e depois postgres + php-fpm + nginx querem uns 600 MiB em repouso.
+# `MEMINFO` só existe para os testes: `-m 512m` no docker não altera /proc/meminfo,
+# então sem esta costura os três ramos abaixo nunca seriam exercitados.
+MEMINFO="${MEMINFO:-/proc/meminfo}"
+DISP_MB="$(awk '/MemAvailable/ {printf "%d", $2/1024}' "${MEMINFO}" 2>/dev/null)"
+if [ -n "${DISP_MB}" ]; then
+  echo "  RAM → ${DISP_MB} MiB disponíveis"
+  if [ "${DISP_MB}" -lt 1024 ]; then
+    echo "  ✗ menos de 1 GiB disponível: o 'docker build' provavelmente será morto pelo OOM."
+    echo "    Saída: construa a imagem noutra máquina e traga pronta —"
+    echo "      docker save algorithmia:TAG | ssh este-host 'docker load'"
+  elif [ "${DISP_MB}" -lt 2048 ]; then
+    echo "  ⚠ entre 1 e 2 GiB: o build passa raspando. Tenha swap, ou construa fora."
+  else
+    echo "  ✓ RAM suficiente para construir e rodar."
+  fi
+  SWAP_MB="$(awk '/SwapTotal/ {printf "%d", $2/1024}' "${MEMINFO}" 2>/dev/null)"
+  echo "  swap → ${SWAP_MB:-0} MiB"
+else
+  echo "  ? sem /proc/meminfo — não vou adivinhar a RAM."
+fi
+
+printf '\n\033[1mVeredito:\033[0m o corte com Docker exige TODOS: root, "✓ docker",\n'
+printf '"✓ daemon responde", compose >= 2.1.1, "✓ mod_proxy_http", uma porta alta livre\n'
+printf 'e >= 1 GiB de RAM disponível (ou a imagem construída fora). Faltando um, o\n'
+printf 'RUNBOOK §8 não roda como está escrito.\n'
