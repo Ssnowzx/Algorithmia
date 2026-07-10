@@ -72,6 +72,7 @@ Arquivos que só existem no servidor, nunca no git:
 | `platform/.env.producao` | `APP_KEY`, senha do banco, credenciais do legado |
 | `platform/.env.producao.postgres` | `POSTGRES_*` |
 | `platform/.deploy/tag-atual` e `tag-anterior` | estado do deploy |
+| `platform/.deploy/ambiente` | portas, conf do nginx, caminho dos certificados (§10) |
 | `backups/*.sql.gz` | dumps — **contêm dados de alunos** |
 
 ---
@@ -442,3 +443,145 @@ curl -sk -o /dev/null -D - -X POST https://algorithmia.tars.art.br/entrar \
 
 Num Docker padrão no Linux, requisições vindas do `httpd` do host chegam pelo gateway
 da rede do compose, não por `127.0.0.1`. **Confira antes de assumir.**
+
+---
+
+## 10. Corte para uma VPS nova (o legado fica onde está)
+
+Este é o caminho quando o port sobe numa **máquina dedicada** e o legado continua no
+host antigo. É mais seguro que o §8: não há dois servidores disputando a porta 80, o
+`TRUSTED_PROXIES` fica **vazio** (não há proxy em quem confiar), e o rollback é uma
+troca de DNS — o legado nunca sai do ar.
+
+O §8 continua valendo para o caso em que os dois convivem na mesma máquina.
+
+### 10.1 Provisionar
+
+Requisitos no §0. Instale Docker Engine + `compose >= 2.1.1` e `git`. Clone o repo.
+
+```bash
+git clone https://github.com/Ssnowzx/Algorithmia.git /srv/algorithmia
+cd /srv/algorithmia
+cp platform/.env.producao.exemplo platform/.env.producao
+```
+
+No `.env.producao`:
+
+```dotenv
+APP_URL=https://algorithmia.exemplo.com
+TRUSTED_PROXIES=            # VAZIO. O nginx termina o TLS; não há proxy na frente.
+SESSION_SECURE_COOKIE=true
+```
+
+### 10.2 O certificado, antes do primeiro deploy
+
+A porta 80 ainda está livre — é a única janela em que o `--standalone` funciona.
+
+```bash
+certbot certonly --standalone -d algorithmia.exemplo.com
+```
+
+Renovação depois, sem parar o site (o nginx serve o desafio ACME em texto claro na
+80, e só ela — todo o resto é 301 para HTTPS):
+
+```bash
+certbot renew --webroot -w /srv/algorithmia/platform/docker/nginx/certbot \
+  --deploy-hook 'docker exec algorithmia-web-1 nginx -s reload'
+```
+
+### 10.3 A topologia, num arquivo
+
+`bin/deploy.sh` e `bin/rollback.sh` leem `platform/.deploy/ambiente`. **Escreva-o antes
+do primeiro deploy.** Sem ele, um rollback futuro devolve o site a HTTP na 8080 — e não
+avisa, porque esses são os padrões do compose.
+
+```bash
+mkdir -p platform/.deploy
+cat > platform/.deploy/ambiente <<'EOF'
+export ALGORITHMIA_PORTA=80
+export ALGORITHMIA_PORTA_TLS=443
+export ALGORITHMIA_NGINX_CONF=algorithmia-tls.conf
+export ALGORITHMIA_CERTS=/etc/letsencrypt/live/algorithmia.exemplo.com
+EOF
+```
+
+### 10.4 Subir o port, ainda sem conteúdo
+
+```bash
+bin/deploy.sh --sem-conteudo
+```
+
+O banco está vazio; a flag existe para isso, e **só para o primeiro deploy** (§2).
+Confira pelo IP, sem depender do DNS:
+
+```bash
+curl -k --resolve algorithmia.exemplo.com:443:127.0.0.1 https://algorithmia.exemplo.com/healthz
+```
+
+### 10.5 Trazer os dados — o legado nunca é exposto na rede
+
+O legado está noutra máquina. **Não abra a 3306 dele para a internet.** Traga um dump,
+restaure-o num MySQL efêmero na rede do compose, importe dali, e derrube-o.
+
+```bash
+# na máquina do legado — depois de pô-lo em somente-leitura (§8, passo 3)
+mysqldump -u USUARIO -p --single-transaction --set-gtid-purged=OFF algorithmia \
+  | gzip > legado.sql.gz
+scp legado.sql.gz nova-vps:/srv/algorithmia/
+
+# na VPS nova
+gunzip -c /srv/algorithmia/legado.sql.gz > /tmp/legado.sql
+docker run -d --name legado --network algorithmia_default \
+    -e MYSQL_ROOT_PASSWORD="$(openssl rand -hex 16)" \
+    -e MYSQL_DATABASE=algorithmia mysql:9
+# espere o `mysqladmin ping` responder, então carregue o dump e crie o leitor:
+#   CREATE USER 'algorithmia_ro'@'%' IDENTIFIED BY '<senha>';
+#   GRANT SELECT ON algorithmia.* TO 'algorithmia_ro'@'%';
+```
+
+`@'%'` aqui é aceitável, e só aqui: o container vive minutos, numa rede de compose que
+é sua, e some depois. Num host **compartilhado** isso jamais valeria — ver §0.
+
+Com `LEGADO_DB_HOST=legado` no `.env.producao`:
+
+```bash
+cd platform
+export ALGORITHMIA_TAG="$(cat .deploy/tag-atual)"
+docker compose -f compose.prod.yml run --rm --no-deps -e ALGORITHMIA_PULAR_OTIMIZACAO=1 \
+    app php artisan algorithmia:importar --dry-run    # confira a reconciliação
+docker compose -f compose.prod.yml run --rm --no-deps -e ALGORITHMIA_PULAR_OTIMIZACAO=1 \
+    app php artisan algorithmia:importar
+docker rm -f legado                                   # o efêmero morre aqui
+```
+
+> **Antes do `mysqldump`, rode `php database/migrate.php` no legado** (§8, passo 0). O
+> importador copia o estado que encontrar: um legado atrasado migra os `mestres` e
+> `itens` duplicados junto.
+
+### 10.6 Provar, ainda sem DNS
+
+```bash
+docker compose -f compose.prod.yml exec app php artisan algorithmia:smoke   # sem --sem-conteudo
+curl -k --resolve algorithmia.exemplo.com:443:127.0.0.1 https://algorithmia.exemplo.com/
+```
+
+Entre no jogo você mesmo, pelo `--resolve` ou por um `/etc/hosts` na sua máquina:
+login, mapa, uma batalha. O smoke não testa a sessão sob HTTPS.
+
+### 10.7 O corte é o DNS
+
+Baixe o TTL do registro **24h antes**. Então aponte o A/AAAA para a VPS nova.
+
+A ordem importa, e é a mesma do §8: o legado vai a **somente-leitura primeiro**, depois
+o dump, depois a importação. O que um jogador escrever no legado entre o dump e a troca
+de DNS **não chega ao port**.
+
+**Rollback:** devolva o DNS ao host antigo e restaure a escrita no legado. É por isso
+que ele fica de pé por uma janela combinada — ele é o plano de rollback de verdade. O
+que os jogadores criarem no port nesse intervalo não volta.
+
+### 10.8 Depois
+
+- `bin/backup.sh` num cron diário; `bin/restore.sh --ensaio` de tempos em tempos —
+  backup que nunca foi restaurado não é backup, é esperança.
+- `TRUSTED_PROXIES` continua vazio. Só volte a preenchê-lo se puser um proxy na frente.

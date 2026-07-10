@@ -47,8 +47,19 @@ services:
     depends_on: [app]
     ports:
       - "${ALGORITHMIA_PORTA:-8080}:80"
+      # Só serve a algo no modo TLS direto. Publicada sempre para que `deploy.sh` e
+      # `rollback.sh` não precisem de um arquivo de override — o nginx nem escuta a
+      # 443 quando a conf carregada é a de proxy reverso.
+      - "${ALGORITHMIA_PORTA_TLS:-8443}:443"
     volumes:
-      - ./docker/nginx/algorithmia.conf:/etc/nginx/conf.d/default.conf:ro
+      # `algorithmia.conf` (padrão): HTTP atrás do proxy do legado.
+      # `algorithmia-tls.conf`: o nginx é dono da 80/443 e termina o TLS. Ver §10.
+      - ./docker/nginx/${ALGORITHMIA_NGINX_CONF:-algorithmia.conf}:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/nginx/comum.conf:/etc/nginx/snippets/comum.conf:ro
+      # Vazios no modo padrão. No modo TLS, aponte ALGORITHMIA_CERTS para o
+      # `live/<dominio>` do certbot.
+      - ${ALGORITHMIA_CERTS:-./docker/nginx/certs}:/etc/nginx/certs:ro
+      - ${ALGORITHMIA_CERTBOT_WEBROOT:-./docker/nginx/certbot}:/var/www/certbot:ro
       # O nginx serve os estáticos direto do disco, sem passar pelo PHP. Precisa
       # ver os mesmos arquivos que o app.
       - ../public/img:/var/www/html/public/img:ro

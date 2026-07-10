@@ -22,6 +22,12 @@ PLATAFORMA="${RAIZ}/platform"
 ESTADO="${PLATAFORMA}/.deploy"
 COMPOSE="docker compose -f ${PLATAFORMA}/compose.prod.yml"
 
+# Topologia da máquina (portas, conf do nginx, certificados). Sem isto, um rollback
+# no host de TLS direto subiria o site de volta em HTTP na 8080 — calado, porque os
+# padrões do compose são exatamente esses. Ver RUNBOOK §10.
+# shellcheck source=/dev/null
+[[ -f "${ESTADO}/ambiente" ]] && . "${ESTADO}/ambiente"
+
 erro() { printf '\033[31m✗ %s\033[0m\n' "$*" >&2; exit 1; }
 passo() { printf '\n\033[1m→ %s\033[0m\n' "$*"; }
 ok()   { printf '\033[32m  ✓ %s\033[0m\n' "$*"; }

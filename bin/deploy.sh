@@ -26,6 +26,12 @@ PLATAFORMA="${RAIZ}/platform"
 ESTADO="${PLATAFORMA}/.deploy"
 COMPOSE="docker compose -f ${PLATAFORMA}/compose.prod.yml"
 
+# Topologia da máquina (portas, conf do nginx, certificados), se houver. Guardá-la em
+# arquivo em vez de exportá-la à mão é o que impede um `rollback.sh` de amanhã de
+# devolver o site a HTTP na 8080 sem avisar. Ver RUNBOOK §10.
+# shellcheck source=/dev/null
+[[ -f "${ESTADO}/ambiente" ]] && . "${ESTADO}/ambiente"
+
 FAZER_BACKUP=1
 # No primeiro deploy o banco está vazio: a importação só roda depois, e ela precisa
 # do container `app` de pé. O smoke completo exigiria o conteúdo que ainda não
