@@ -7,6 +7,7 @@ namespace App\Dominio\Tenancy;
 use Illuminate\Support\Facades\DB;
 use LogicException;
 use RuntimeException;
+use Throwable;
 
 /**
  * Define, para o PostgreSQL, de qual instituição é a requisição.
@@ -46,12 +47,27 @@ final class ContextoDoTenant
             $this->definirNaTransacao($tenantId);
 
             try {
-                return $trecho();
-            } finally {
-                $anterior === null
-                    ? $this->limparNaTransacao()
-                    : $this->definirNaTransacao($anterior);
+                $resultado = $trecho();
+            } catch (Throwable $erro) {
+                // **Nenhum SQL no caminho de erro.** Se `$trecho()` levantou por causa de um
+                // erro do PostgreSQL, a transação está abortada e TODO comando seguinte
+                // responde 25P02. Um `SET LOCAL` de restauro num `finally` seria esse
+                // comando: ele estouraria, e a sua exceção tomaria o lugar da original —
+                // o operador leria "current transaction is aborted" em vez do erro real.
+                //
+                // O banco não precisa de restauro aqui: o `DB::transaction()` fará ROLLBACK
+                // (ou ROLLBACK TO SAVEPOINT), e o `SET LOCAL` feito depois do savepoint
+                // morre junto. Só a cópia em memória precisa voltar, ou `atual()` mentiria.
+                $this->tenantId = $anterior;
+
+                throw $erro;
             }
+
+            $anterior === null
+                ? $this->limparNaTransacao()
+                : $this->definirNaTransacao($anterior);
+
+            return $resultado;
         });
     }
 
@@ -101,15 +117,22 @@ final class ContextoDoTenant
     }
 
     /**
-     * O tenant de um comando de console, que não tem `Host` de onde deduzi-lo.
+     * O catálogo de instituições, para os comandos de console — que não têm `Host` de onde
+     * deduzir o tenant.
      *
-     * Numa instalação de uma instituição só — que é o caso do Algorithmia hoje — a
-     * resposta é óbvia e não precisa de flag. Com duas ou mais, não há resposta óbvia, e
-     * adivinhar seria escolher em nome do operador de qual escola apagar os dados.
+     * **As três consultas abaixo usam a conexão da APLICAÇÃO, e não a do dono.** Elas liam
+     * pelo dono, "para não depender de `tenants` ter ficado sem RLS". O argumento não se
+     * sustentava: o `ResolverTenant` lê essas mesmas duas tabelas pela conexão da aplicação
+     * a cada requisição — se um dia elas ganharem RLS, o jogo inteiro para, muito antes de
+     * um comando de console. A segunda conexão não comprava isolamento nenhum.
      *
-     * A consulta usa a conexão do DONO: `tenants` é catálogo global, mas um comando roda
-     * sem contexto, e é mais honesto não depender de a tabela ter ficado sem RLS.
+     * E cobrava caro: o `ProvisionamentoDeInstituicoes` cria a instituição pela conexão da
+     * aplicação, e o `algorithmia:smoke` — que `ativar()` roda para decidir se pode ligá-la
+     * — a procurava pela do dono. Uma escola recém-criada era invisível ao comando que
+     * deveria aprová-la. Fora de uma transação isso passa despercebido, porque cada escrita
+     * comita na hora; dentro de uma, as duas conexões enxergam mundos diferentes.
      */
+
     /**
      * Todas as instituições ativas, para comandos que precisam varrê-las.
      *
@@ -117,7 +140,7 @@ final class ContextoDoTenant
      */
     public function tenantsAtivos(): array
     {
-        return DB::connection('pgsql_dono')->table('tenants')
+        return DB::table('tenants')
             ->where('ativo', true)
             ->orderBy('id')
             ->get(['id', 'slug'])
@@ -127,7 +150,7 @@ final class ContextoDoTenant
 
     public function tenantPorSlug(string $slug): int
     {
-        $id = DB::connection('pgsql_dono')->table('tenants')->where('slug', $slug)->value('id');
+        $id = DB::table('tenants')->where('slug', $slug)->value('id');
 
         if ($id === null) {
             throw new RuntimeException(sprintf('Não existe instituição com slug "%s".', $slug));
@@ -136,9 +159,14 @@ final class ContextoDoTenant
         return (int) $id;
     }
 
+    /**
+     * Numa instalação de uma instituição só — que é o caso do Algorithmia hoje — a resposta
+     * é óbvia. Com duas ou mais não há resposta óbvia, e adivinhar seria escolher em nome do
+     * operador de qual escola apagar os dados.
+     */
     public function tenantUnico(): int
     {
-        $tenants = DB::connection('pgsql_dono')->table('tenants')->orderBy('id')->pluck('id');
+        $tenants = DB::table('tenants')->orderBy('id')->pluck('id');
 
         return match ($tenants->count()) {
             0 => throw new RuntimeException('Nenhum tenant cadastrado. Rode as migrations.'),

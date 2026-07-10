@@ -206,6 +206,52 @@ final class IsolamentoEntreTenantsTest extends TestCase
         $this->assertNull($this->contexto()->atual());
     }
 
+    /**
+     * O restauro do contexto não pode rodar SQL no caminho de erro.
+     *
+     * Quando `$trecho()` levanta por causa do PostgreSQL, a transação fica abortada e todo
+     * comando seguinte responde 25P02. Um `SET LOCAL` de restauro num `finally` seria esse
+     * comando: a sua exceção substituiria a original, e quem investiga leria "current
+     * transaction is aborted" no lugar do erro que de fato aconteceu.
+     *
+     * Isto foi descoberto na Etapa E, depurando um `CHECK` violado que o `usar()` engolia.
+     */
+    #[Test]
+    public function o_erro_original_sobrevive_ao_restauro_do_contexto(): void
+    {
+        // ARRANGE: uma violação de CHECK deixa a transação do PostgreSQL abortada.
+        $this->expectException(QueryException::class);
+        $this->expectExceptionMessageMatches('/fases_tipo_check/');
+
+        // ACT + ASSERT
+        $this->contexto()->usar($this->escolaA, function (): void {
+            DB::table('fases')->insert([
+                'ordem_global' => 1, 'nome' => 'Inválida', 'tipo' => 'nao-existe',
+            ]);
+        });
+    }
+
+    #[Test]
+    public function o_contexto_em_memoria_volta_ao_anterior_quando_o_trecho_levanta(): void
+    {
+        // ARRANGE: o `TestCase` deixou o contexto no tenant padrão.
+        $antes = $this->contexto()->atual();
+        $this->assertNotNull($antes);
+
+        // ACT
+        try {
+            $this->contexto()->usar($this->escolaA, function (): void {
+                throw new LogicException('o trecho falhou');
+            });
+        } catch (LogicException) {
+            // esperado
+        }
+
+        // ASSERT: `atual()` não pode ficar apontando para a escola em que o erro ocorreu —
+        // o banco já desfez o `SET LOCAL`, e a memória tem de contar a mesma história.
+        $this->assertSame($antes, $this->contexto()->atual());
+    }
+
     #[Test]
     public function definir_contexto_fora_de_transacao_e_recusado(): void
     {
