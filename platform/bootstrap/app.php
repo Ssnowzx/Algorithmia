@@ -21,7 +21,11 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // No grupo `web`, e não global: o `/healthz` não devolve HTML e não precisa
         // gastar 16 bytes de entropia por checagem, a cada dez segundos.
+        //
+        // `ContextoDoPedido` vem antes: a auditoria e o log precisam do `request_id`,
+        // e ele tem de existir mesmo que o CSP falhe.
         $middleware->web(append: [
+            App\Http\Middleware\ContextoDoPedido::class,
             App\Http\Middleware\AplicarPoliticaDeConteudo::class,
         ]);
 

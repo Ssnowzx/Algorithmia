@@ -305,6 +305,46 @@ para o `/up` do Laravel mandaria tráfego a uma instância sem banco.
 Use `127.0.0.1`, nunca `localhost`: o `wget` do BusyBox tenta `::1` primeiro, e o
 nginx só escuta em IPv4. Ver §6.
 
+### "Sumiu uma fase" · "alguém apagou meus desafios"
+
+Toda ação do Painel do Mestre deixa registro. A trilha guarda **o que havia antes** —
+numa exclusão, é a única cópia que sobra.
+
+```bash
+export ALGORITHMIA_TAG="$(cat platform/.deploy/tag-atual)"
+docker compose -f platform/compose.prod.yml exec postgres \
+  psql -U algorithmia -d algorithmia -c "
+    SELECT created_at, autor_email, acao, alvo_id, resumo, request_id
+      FROM auditoria
+     WHERE acao LIKE '%.excluir'
+     ORDER BY created_at DESC
+     LIMIT 20;"
+```
+
+O `resumo` de um `fase.excluir` traz o nome da fase e **quantos desafios foram na
+cascata**. O de um `item.excluir` traz quantos inventários perderam o item.
+
+A trilha não tem chave estrangeira para o alvo nem para o autor, de propósito: apagar
+a fase, ou a conta de quem a apagou, não pode apagar o registro de que isso aconteceu.
+E não há `updated_at` — uma linha de auditoria que pode ser editada não é auditoria.
+
+### Ligar um relato a uma linha de log
+
+Toda resposta traz `X-Request-Id`. O mesmo valor aparece no `context` de cada linha de
+log daquela requisição e na coluna `request_id` da auditoria.
+
+```bash
+# o jogador copia o id da aba de rede do navegador, ou você o tira da auditoria
+docker compose -f platform/compose.prod.yml logs app | grep '<o-uuid>'
+```
+
+Os logs saem em JSON, uma linha por evento, com `request_id`, `usuario_id`, `ip` e
+`rota` no contexto (`LOG_STDERR_FORMATTER` no `.env.producao`). Sem isso, investigar é
+ler as linhas de trinta jogadores simultâneos intercaladas, sem nada que as separe.
+
+O identificador **nunca vem do cliente**: aceitá-lo de um cabeçalho deixaria qualquer
+um forjar a trilha, ou colidir com a de outro.
+
 ### O jogo responde, mas está errado
 
 ```bash

@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Dominio\Operacao\ServicoDeAuditoria;
 use App\Http\Requests\SalvarDesafioRequest;
 use App\Models\Desafio;
 use App\Models\Fase;
 use App\Models\Item;
+use App\Models\ItemDoInventario;
 use App\Models\Mestre;
 use App\Models\Personagem;
 use Illuminate\Http\RedirectResponse;
@@ -28,6 +30,8 @@ use Illuminate\View\View;
  */
 final class MestreController extends Controller
 {
+    public function __construct(private readonly ServicoDeAuditoria $auditoria) {}
+
     public function index(): View
     {
         return view('mestre.index', [
@@ -67,20 +71,35 @@ final class MestreController extends Controller
 
     public function desafioCriar(SalvarDesafioRequest $requisicao): RedirectResponse
     {
-        Desafio::create($requisicao->paraBanco());
+        $desafio = Desafio::create($requisicao->paraBanco());
+        $this->auditoria->registrar('desafio.criar', 'desafio', $desafio->id, [
+            'fase_id' => $desafio->fase_id,
+            'tipo' => $desafio->tipo,
+        ]);
 
         return redirect()->route('mestre.desafios')->with('sucesso', 'Desafio criado.');
     }
 
     public function desafioAtualizar(SalvarDesafioRequest $requisicao, Desafio $desafio): RedirectResponse
     {
+        $antes = $desafio->only(['fase_id', 'tipo', 'assunto', 'pergunta']);
         $desafio->update($requisicao->paraBanco());
+        $this->auditoria->registrar('desafio.atualizar', 'desafio', $desafio->id, ['antes' => $antes]);
 
         return redirect()->route('mestre.desafios')->with('sucesso', 'Desafio atualizado.');
     }
 
     public function desafioExcluir(Desafio $desafio): RedirectResponse
     {
+        // O resumo é montado ANTES do delete: depois dele não há de onde tirá-lo.
+        $this->auditoria->registrar('desafio.excluir', 'desafio', $desafio->id, [
+            'fase_id' => $desafio->fase_id,
+            'tipo' => $desafio->tipo,
+            'assunto' => $desafio->assunto,
+            // A pergunta identifica o que sumiu. O gabarito NÃO entra aqui: auditoria
+            // não é backup, e espalhar a resposta por mais uma tabela não ajuda ninguém.
+            'pergunta' => $desafio->pergunta,
+        ]);
         $desafio->delete();
 
         return redirect()->route('mestre.desafios')->with('info', 'Desafio removido.');
@@ -105,20 +124,31 @@ final class MestreController extends Controller
 
     public function faseCriar(Request $requisicao): RedirectResponse
     {
-        Fase::create($this->validarFase($requisicao, null));
+        $fase = Fase::create($this->validarFase($requisicao, null));
+        $this->auditoria->registrar('fase.criar', 'fase', $fase->id, ['nome' => $fase->nome]);
 
         return redirect()->route('mestre.fases')->with('sucesso', 'Fase criada.');
     }
 
     public function faseAtualizar(Request $requisicao, Fase $fase): RedirectResponse
     {
+        $antes = $fase->only(['nome', 'tipo', 'ordem_global']);
         $fase->update($this->validarFase($requisicao, $fase));
+        $this->auditoria->registrar('fase.atualizar', 'fase', $fase->id, ['antes' => $antes]);
 
         return redirect()->route('mestre.fases')->with('sucesso', 'Fase atualizada.');
     }
 
     public function faseExcluir(Fase $fase): RedirectResponse
     {
+        // A cascata leva os desafios junto. Contar depois devolveria zero, e o
+        // registro diria que nada se perdeu.
+        $this->auditoria->registrar('fase.excluir', 'fase', $fase->id, [
+            'nome' => $fase->nome,
+            'tipo' => $fase->tipo,
+            'ordem_global' => $fase->ordem_global,
+            'desafios_em_cascata' => Desafio::query()->where('fase_id', $fase->id)->count(),
+        ]);
         $fase->delete();
 
         return redirect()->route('mestre.fases')->with('info', 'Fase removida (e seus desafios).');
@@ -143,20 +173,29 @@ final class MestreController extends Controller
 
     public function itemCriar(Request $requisicao): RedirectResponse
     {
-        Item::create($this->validarItem($requisicao));
+        $item = Item::create($this->validarItem($requisicao));
+        $this->auditoria->registrar('item.criar', 'item', $item->id, ['nome' => $item->nome]);
 
         return redirect()->route('mestre.itens')->with('sucesso', 'Item criado.');
     }
 
     public function itemAtualizar(Request $requisicao, Item $item): RedirectResponse
     {
+        $antes = $item->only(['nome', 'tipo', 'preco']);
         $item->update($this->validarItem($requisicao));
+        $this->auditoria->registrar('item.atualizar', 'item', $item->id, ['antes' => $antes]);
 
         return redirect()->route('mestre.itens')->with('sucesso', 'Item atualizado.');
     }
 
     public function itemExcluir(Item $item): RedirectResponse
     {
+        // Ele sai do inventário de todos os heróis. Quantos, ninguém saberia depois.
+        $this->auditoria->registrar('item.excluir', 'item', $item->id, [
+            'nome' => $item->nome,
+            'tipo' => $item->tipo,
+            'inventarios_afetados' => ItemDoInventario::query()->where('item_id', $item->id)->count(),
+        ]);
         $item->delete();
 
         return redirect()->route('mestre.itens')->with('info', 'Item removido.');
