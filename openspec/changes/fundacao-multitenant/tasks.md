@@ -52,11 +52,27 @@
 
 ## D. Turmas, papéis e relatórios (Fase 5 do roteiro v1)
 
-- [ ] D.0 **Bloqueado por:** C
-- [ ] D.1 `turmas`, `matriculas`, vínculo professor-turma
-- [ ] D.2 Papéis: `platform_admin`, `tenant_admin`, `professor`, `editor`, `aluno`
-- [ ] D.3 Relatórios de progresso, precisão por assunto, maestria, uso de IA
-- [ ] D.4 Testes de acesso cruzado entre professores, turmas e tenants
+- [x] D.0 Desbloqueada: C concluída
+- [x] D.1 `turmas`, `matriculas`, `turma_professores` — todas tenant-scoped, com `FORCE RLS`
+- [x] D.2 Papéis em `usuarios.papel`: `jogador` (aluno), `professor`, `mestre` (administra a
+      escola). **`tenant_membros` removida**: com `usuarios` tenant-scoped desde a C, ela era
+      1:1 com o usuário — redundante, e uma segunda fonte de verdade para o papel.
+      **`platform_admin` NÃO entra**: ele lê através das instituições, e o RLS existe para
+      impedir exatamente isso. Se um dia for preciso, será um papel de banco, não de aplicação.
+- [x] D.3 `RelatorioDeTurma`: fases, estrelas, tentativas, precisão global e por assunto, uso
+      do Fragmento da IA. Três agregações, não uma consulta por aluno.
+- [x] D.4 Acesso cruzado: professor × outra turma da mesma escola (403), qualquer coisa de
+      outra escola (**404**, não 403 — um 403 revelaria que existe), aluno (403), professor
+      tentando administrar (403), matricular aluno de outra escola (recusado pelo `Rule::exists`
+      sob RLS).
+- [x] B.8 Auditoria de vínculo professor–turma, matrícula e criação. Entregue aqui, como
+      previsto: só faz sentido auditar uma ação que alguém pode fazer.
+
+### Pergunta aberta, registrada e não resolvida
+
+`usuarios` é tenant-scoped, divergindo do roteiro v1 §5, que os queria globais. **Duas
+escolas não podem ter o mesmo e-mail.** Reverter exige resolver a identidade no login antes
+de saber o tenant. Sem demanda, fica assim — e está escrito na migration, não só aqui.
 
 ## E. Piloto (Fase 9 do roteiro v1)
 
