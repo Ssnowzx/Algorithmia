@@ -307,6 +307,93 @@ final class ProvisionamentoDeInstituicoesTest extends TestCase
             ->assertFailed();
     }
 
+    // ------------------------------------------------- o conteúdo é de uma escola só
+
+    /**
+     * **Os ids do conteúdo são globais.** `fases.id = 8` pertence a uma instituição só, e o
+     * importador os preserva de propósito — `config('jogo.fases_secundarias')` referencia as
+     * fases secundárias pelos números 8, 14, 20 e 32.
+     *
+     * Somando: importar o mesmo conteúdo para uma segunda escola colide em `fases_pkey`, e
+     * importá-lo com ids novos deixaria a conquista `arquivista_do_vazio` inalcançável em
+     * silêncio. O RUNBOOK §10.6b mandava rodar exatamente esse comando.
+     *
+     * A recusa vem antes da importação, e com a razão — e não como violação de chave
+     * primária no meio de 1.306 linhas.
+     */
+    #[Test]
+    public function importar_para_uma_segunda_instituicao_e_recusado_com_a_razao(): void
+    {
+        // ARRANGE: a padrão tem conteúdo; a piloto, não.
+        $this->mundo->mundoDoSmoke();
+        $this->provisionamento()->provisionar('Escola Piloto', 'piloto-15', 'p15.exemplo.com');
+
+        // ACT + ASSERT: não chega a abrir o banco legado.
+        $this->artisan('algorithmia:importar', ['--tenant' => 'piloto-15'])
+            ->expectsOutputToContain('já tem o conteúdo do jogo')
+            ->expectsOutputToContain('content_packages')
+            ->assertFailed();
+    }
+
+    #[Test]
+    public function o_dry_run_para_a_segunda_instituicao_tambem_e_recusado(): void
+    {
+        // ARRANGE: um ensaio que estoura na chave primária não é um ensaio, é um susto.
+        $this->mundo->mundoDoSmoke();
+        $this->provisionamento()->provisionar('Escola Piloto', 'piloto-16', 'p16.exemplo.com');
+
+        // ACT + ASSERT
+        $this->artisan('algorithmia:importar', ['--dry-run' => true, '--tenant' => 'piloto-16'])->assertFailed();
+    }
+
+    /**
+     * A mensagem do smoke reprovado não pode mandar rodar o importador quando o importador
+     * vai recusar. Descoberto exercitando o console contra o banco de ensaio: a tela dizia
+     * "rode `algorithmia:importar --tenant=escola-piloto`", e esse comando é justamente o
+     * que o guarda acima recusa.
+     */
+    #[Test]
+    public function a_recusa_de_ativar_nao_manda_rodar_um_comando_que_vai_falhar(): void
+    {
+        // ARRANGE: a padrão já tem o conteúdo, com os ids globais.
+        $this->mundo->mundoDoSmoke();
+        $piloto = $this->provisionamento()->provisionar('Escola Piloto', 'piloto-19', 'p19.exemplo.com');
+
+        // ACT
+        try {
+            $this->provisionamento()->ativar($piloto);
+            $this->fail('a instituição vazia foi ativada');
+        } catch (InstituicaoInjogavel $erro) {
+            // ASSERT
+            $this->assertStringNotContainsString('algorithmia:importar', $erro->getMessage());
+            $this->assertStringContainsString('ids do jogo são globais', $erro->getMessage());
+            $this->assertStringContainsString('padrao', $erro->getMessage());
+        }
+    }
+
+    #[Test]
+    public function o_comando_novo_avisa_que_a_segunda_instituicao_nao_recebera_conteudo(): void
+    {
+        // ARRANGE
+        $this->mundo->mundoDoSmoke();
+
+        // ACT + ASSERT: imprimir "rode o importador" seria mandar o operador contra um erro.
+        $this->artisan('algorithmia:tenant:novo', ['nome' => 'Escola Piloto', '--host' => 'p17.exemplo.com', '--slug' => 'piloto-17'])
+            ->expectsOutputToContain('NÃO poderá receber conteúdo')
+            ->doesntExpectOutputToContain('algorithmia:importar --tenant=piloto-17')
+            ->assertSuccessful();
+    }
+
+    #[Test]
+    public function num_banco_sem_conteudo_o_comando_novo_ensina_os_dois_passos(): void
+    {
+        // ARRANGE: nenhuma instituição tem fases — é o estado de um banco recém-migrado.
+        // ACT + ASSERT
+        $this->artisan('algorithmia:tenant:novo', ['nome' => 'Escola Piloto', '--host' => 'p18.exemplo.com', '--slug' => 'piloto-18'])
+            ->expectsOutputToContain('algorithmia:importar --tenant=piloto-18')
+            ->assertSuccessful();
+    }
+
     #[Test]
     public function o_comando_listar_mostra_as_desligadas_e_a_ativacao(): void
     {

@@ -125,6 +125,30 @@ Nenhum deles tinha teste, e nenhum era visível pela leitura.
 - [x] **`SmokeMultiTenantTest` semeava um estado impossível**: instituição ativa, sem domínio.
       O fixture foi corrigido, não a verificação.
 
+### O limite que a Etapa E descobriu, e tornou honesto
+
+**Só uma instituição pode ter o conteúdo do jogo.** A chave primária de `fases` é `id`, e não
+`(tenant_id, id)`: os ids são globais. O importador os preserva de propósito, porque
+`config('jogo.fases_secundarias')` referencia as fases secundárias pelos números 8, 14, 20 e
+32. Copiar o conteúdo para a segunda escola colide em `fases_pkey`; copiá-lo com ids novos
+deixaria `arquivista_do_vazio` inalcançável, em silêncio.
+
+**O RUNBOOK §10.6b mandava rodar exatamente esse comando.** O ensaio C.6 criou uma segunda
+instituição e provou o *isolamento* — mas nunca tentou *semeá-la*. Nenhum teste pegaria: a
+suíte semeia uma escola de cada vez. Achado exercitando a E.2 contra um banco com as 955 linhas
+reais de `desafios`.
+
+Não se improvisou o `content_packages` (o `design.md §5` o deixou de fora de propósito). O que
+se fez foi tornar a falha honesta:
+
+- [x] `algorithmia:importar --tenant=<segunda>` recusa **antes de abrir o legado**, com a razão
+- [x] `algorithmia:tenant:novo` avisa, na criação, que aquela instituição não poderá ser ativada
+- [x] a recusa de `tenant:ativar` **para de sugerir** um comando que não pode funcionar
+- [x] `RUNBOOK §11.5` e `design.md §11` dizem o limite em voz alta
+
+Para o piloto **não é bloqueador**: o piloto é a escola cortada do legado, e é ela que tem o
+conteúdo. Destrava com o `content_packages` (roteiro Fase 3) — proposta própria.
+
 ### Achado registrado, e NÃO corrigido
 
 `auditoria` **não é tenant-scoped**: sem `tenant_id`, sem RLS. Hoje não vaza — nenhuma rota a

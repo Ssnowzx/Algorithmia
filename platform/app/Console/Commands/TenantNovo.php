@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Dominio\Tenancy\ConteudoPorInstituicao;
 use App\Dominio\Tenancy\ProvisionamentoDeInstituicoes;
 use App\Dominio\Tenancy\ProvisionamentoInvalido;
 use Illuminate\Console\Command;
@@ -20,7 +21,7 @@ final class TenantNovo extends Command
 
     protected $description = 'Cria uma instituição, desligada, com o seu domínio primário';
 
-    public function handle(ProvisionamentoDeInstituicoes $provisionamento): int
+    public function handle(ProvisionamentoDeInstituicoes $provisionamento, ConteudoPorInstituicao $conteudo): int
     {
         $host = (string) $this->option('host');
 
@@ -46,6 +47,19 @@ final class TenantNovo extends Command
 
         $this->info(sprintf('Instituição "%s" criada (id %d), DESLIGADA.', $tenant->slug, $tenant->id));
         $this->newLine();
+
+        // Os ids do conteúdo são globais. Se outra instituição já os tem, esta nunca poderá
+        // ser semeada — e imprimir "rode o importador" seria mandar o operador contra uma
+        // violação de chave primária. Ver `ConteudoPorInstituicao`.
+        $dona = $conteudo->instituicaoComConteudo(exceto: $tenant->id);
+
+        if ($dona !== null) {
+            $this->warn('  Ela NÃO poderá receber conteúdo, e portanto não poderá ser ativada.');
+            $this->newLine();
+            $this->line($conteudo->porQueSoUma($dona));
+
+            return self::SUCCESS;
+        }
 
         // A ordem é a razão de este comando existir. Escrevê-la aqui, na saída, é mais
         // barato do que confiar em quem lembrou de abrir o runbook.

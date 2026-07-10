@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Dominio\Tenancy\ConteudoPorInstituicao;
 use App\Dominio\Tenancy\ContextoDoTenant;
 use Illuminate\Console\Command;
 use Illuminate\Database\ConnectionInterface;
@@ -80,6 +81,20 @@ final class ImportarDoLegado extends Command
                 : $contexto->tenantUnico();
         } catch (RuntimeException $erro) {
             $this->error($erro->getMessage());
+
+            return self::FAILURE;
+        }
+
+        // Os ids do conteúdo são globais, e este comando os preserva. Importar para uma
+        // segunda instituição colidiria em `fases_pkey` no meio da cópia — e o `--dry-run`
+        // acusaria o mesmo erro, sem explicá-lo. A recusa vem antes, e com a razão.
+        $conteudo = app(ConteudoPorInstituicao::class);
+        $dona = $conteudo->instituicaoComConteudo(exceto: $tenantId);
+
+        if ($dona !== null) {
+            $this->error($conteudo->resumo($dona));
+            $this->newLine();
+            $this->line($conteudo->porQueSoUma($dona));
 
             return self::FAILURE;
         }

@@ -239,3 +239,54 @@ Corrigir não é uma migration de uma linha: as linhas escritas pelo console nas
 contexto de tenant (o operador não pertence a escola nenhuma), e uma policy que as tornasse
 visíveis a todos os tenants seria pior do que a ausência dela. Merece proposta própria, e uma
 decisão sobre onde mora a auditoria da plataforma versus a da escola.
+
+## 11. O limite que a Etapa E descobriu: uma instituição com conteúdo
+
+> Achado ao exercitar a E.2 contra um banco real, com as 955 linhas de `desafios` do legado.
+> Nenhum teste o pegaria: a suíte semeia uma escola de cada vez.
+
+**A chave primária de `fases` é `id`, e não `(tenant_id, id)`.** Os ids do conteúdo são
+globais. O `algorithmia:importar` os preserva de propósito, e o motivo está no `PLANO.md`:
+`config('jogo.fases_secundarias')` referencia as fases secundárias pelos números 8, 14, 20 e
+32, e o `ServicoDeConquistas` as procura assim.
+
+As duas coisas juntas fecham a porta:
+
+| tentativa | o que acontece |
+|---|---|
+| copiar o conteúdo para a segunda escola, com os mesmos ids | `duplicate key value violates unique constraint "fases_pkey"` |
+| copiar com ids novos | a conquista `arquivista_do_vazio` fica inalcançável naquela escola, **em silêncio** |
+
+Verificado no banco, como app role, no contexto do tenant 2:
+
+```
+BEGIN; SET LOCAL app.tenant_id = '2';
+INSERT INTO fases (id, …) VALUES (8, …);
+ERROR:  duplicate key value violates unique constraint "fases_pkey"
+```
+
+**O RUNBOOK §10.6b mandava rodar exatamente esse comando.** O ensaio do corte (C.6) criou uma
+segunda instituição e provou o *isolamento* — tenant 2 vê zero desafios —, mas nunca tentou
+*semeá-la*. Por isso ninguém tinha visto.
+
+### O que se fez agora
+
+Nada de `content_packages`: ele é uma mudança de modelo de conteúdo, o `§5` já o deixara de
+fora, e improvisá-lo aqui seria a pior hora. O que se fez foi **tornar a falha honesta**:
+
+- `algorithmia:importar --tenant=<segunda>` **recusa antes de abrir o legado**, com a razão —
+  e não com uma violação de chave primária no meio de 1.306 linhas;
+- `algorithmia:tenant:novo` **avisa, na criação**, que aquela instituição não poderá ser
+  ativada, em vez de imprimir dois passos dos quais o primeiro falha;
+- a recusa de `tenant:ativar` **para de sugerir** um comando que não pode funcionar;
+- o `RUNBOOK §11.5` diz o limite em voz alta.
+
+### O que isso significa para o produto
+
+O port isola instituições de verdade. Resolução por domínio, RLS, papéis, turmas, relatórios,
+flags e console funcionam com N escolas. **O que não funciona é dar conteúdo de jogo à
+segunda.** Para o piloto isso não é bloqueador: o piloto é a escola cortada do legado, e é ela
+que tem o conteúdo.
+
+O que destrava: identificar o conteúdo por um código tenant-scoped em vez de um id global.
+Proposta própria.

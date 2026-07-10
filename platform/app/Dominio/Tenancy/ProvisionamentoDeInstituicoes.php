@@ -32,7 +32,10 @@ use InvalidArgumentException;
  */
 final class ProvisionamentoDeInstituicoes
 {
-    public function __construct(private readonly Flags $flags) {}
+    public function __construct(
+        private readonly Flags $flags,
+        private readonly ConteudoPorInstituicao $conteudo,
+    ) {}
 
     /**
      * Uma instituição nova, **desligada**, com o seu domínio primário.
@@ -76,10 +79,34 @@ final class ProvisionamentoDeInstituicoes
         $codigo = Artisan::call('algorithmia:smoke', ['--tenant' => $tenant->slug]);
 
         if ($codigo !== 0) {
-            throw new InstituicaoInjogavel($tenant, Artisan::output());
+            throw new InstituicaoInjogavel($tenant, Artisan::output(), $this->comoConsertar($tenant));
         }
 
         $tenant->update(['ativo' => true]);
+    }
+
+    /**
+     * O que dizer a quem acabou de ver o smoke reprovar.
+     *
+     * Mandar rodar `algorithmia:importar --tenant=X` só funciona enquanto nenhuma outra
+     * instituição tem conteúdo: os ids do jogo são globais, e o importador recusa a segunda
+     * escola. Instruir o operador a rodar um comando que não pode funcionar é pior do que
+     * não instruir nada.
+     */
+    private function comoConsertar(Tenant $tenant): string
+    {
+        $dona = $this->conteudo->instituicaoComConteudo(exceto: $tenant->id);
+
+        if ($dona !== null) {
+            return sprintf(
+                'E ela NÃO pode receber conteúdo: os ids do jogo são globais, e eles pertencem à '
+                .'instituição "%s". Hoje o port serve uma instituição com conteúdo — '
+                .'ver RUNBOOK §11.5.',
+                $dona->slug,
+            );
+        }
+
+        return sprintf('Semeie o conteúdo dela: php artisan algorithmia:importar --tenant=%s', $tenant->slug);
     }
 
     /**

@@ -635,7 +635,12 @@ login, mapa, uma batalha. **O smoke não testa a sessão sob HTTPS**, e foi exat
 que se escondeu o pior bug da tenancy: o `Authenticate` rodava antes do resolvedor de
 tenant, o RLS o cegava, e o jogador logava para cair na tela de login de novo.
 
-### 10.6b Uma segunda instituição
+### 10.6b Provisionar uma instituição
+
+> ⚠️ **Leia o §11.5 antes.** Hoje o port serve **uma** instituição com conteúdo. Este
+> procedimento vale para a **primeira** — a que recebe o legado no dia do corte. Uma segunda
+> instituição pode ser provisionada, mas **não pode ser semeada nem ativada**, e o
+> `algorithmia:importar` recusa a tentativa dizendo por quê.
 
 A ordem não é negociável — **provisionar → semear → ligar** —, e agora é o código que a
 impõe, não este parágrafo. Três comandos, nesta sequência:
@@ -788,3 +793,37 @@ smoke, como sempre.
 A **ativação** é a única que responde a uma pergunta de produto. Trezentas contas e quarenta
 heróis não é um problema de adoção — é um problema na tela de criação de personagem.
 Contar contas sozinho esconderia isso.
+
+### 11.5 O limite de hoje: uma instituição com conteúdo
+
+**O port isola instituições de verdade, mas só uma delas pode ter o conteúdo do jogo.**
+
+Os ids do conteúdo são **globais**: a chave primária de `fases` é `id`, e não
+`(tenant_id, id)`. O `algorithmia:importar` preserva os ids do legado de propósito —
+`config('jogo.fases_secundarias')` referencia as fases secundárias pelos números **8, 14, 20
+e 32**, e o `ServicoDeConquistas` as procura assim. Somando as duas coisas:
+
+- copiar o conteúdo para uma segunda escola **colide em `fases_pkey`**;
+- copiá-lo com ids novos deixaria a conquista `arquivista_do_vazio` **inalcançável, em
+  silêncio**, naquela escola.
+
+Por isso `algorithmia:importar --tenant=<segunda>` **recusa**, com a explicação, antes de
+abrir o legado. E `algorithmia:tenant:novo` avisa, na hora de criar, que aquela instituição
+não poderá ser ativada.
+
+> Este parágrafo existe porque a versão anterior deste runbook mandava, no §10.6b, rodar
+> exatamente o comando que não pode funcionar. O ensaio do corte (C.6) criou uma segunda
+> instituição e provou o **isolamento** — mas nunca tentou **semeá-la**, e por isso ninguém
+> tinha visto.
+
+**O que ainda funciona com mais de uma instituição:** o isolamento (RLS), a resolução por
+domínio, os papéis, as turmas, os relatórios, as flags, o console. O que não funciona é dar
+conteúdo de jogo à segunda.
+
+**O que destrava:** o `content_packages` do roteiro v1 (Fase 3) — identificar o conteúdo por
+um código tenant-scoped em vez de um id global. É uma mudança de modelo de conteúdo, ortogonal
+à tenancy, e o [`design.md §5`](../../openspec/changes/fundacao-multitenant/design.md) já a
+deixara de fora de propósito. Ela merece proposta própria.
+
+**Para o piloto isso não é bloqueador:** o piloto é a escola que está sendo cortada do legado,
+e é ela que tem o conteúdo. As flags (§11.1) liberam as funcionalidades nela.
