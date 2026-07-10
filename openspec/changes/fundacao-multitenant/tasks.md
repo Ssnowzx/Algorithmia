@@ -38,10 +38,10 @@
 > progresso real de alunos. Ver `design.md §4`.
 
 - [x] C.1 `ADD COLUMN tenant_id BIGINT NULL` + índice nas 13, tenant padrão e backfill
-- [ ] C.2 `SET NOT NULL`, RLS + policies nas 13, `TENANCY_ATIVA=true`
-- [ ] C.3 `algorithmia:importar` escreve `tenant_id` e define contexto
-- [ ] C.4 `algorithmia:smoke` e demais comandos de console definem contexto
-- [ ] C.5 Os 38 vetores-ouro continuam verdes, com os mesmos números
+- [x] C.2 `SET NOT NULL`, RLS + policies nas 13, `TENANCY_ATIVA=true`
+- [x] C.3 `algorithmia:importar` escreve `tenant_id` e define contexto
+- [x] C.4 `algorithmia:smoke` e demais comandos de console definem contexto
+- [x] C.5 Os 38 vetores-ouro continuam verdes, com os mesmos números (suíte do legado, 53)
 - [ ] C.6 Ensaio do corte (§10) refeito de ponta a ponta, com tenancy ligada
 
 ## D. Turmas, papéis e relatórios (Fase 5 do roteiro v1)
