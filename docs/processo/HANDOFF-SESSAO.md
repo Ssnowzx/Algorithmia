@@ -9,13 +9,13 @@
 **A `fundacao-multitenant` está completa (A–E).** O corte em produção continua NÃO feito —
 depende da VPS nova. **Esta sessão não fez deploy.**
 
-6 commits, na branch `feature/etapa-e-piloto` (`4a9327e`), **não pushados**.
+8 commits, na branch `feature/etapa-e-piloto` (`855e135`), **não pushados**.
 
 ### Suítes
 
 | | Antes | Agora |
 |---|---|---|
-| Port (`platform/`) | 269 | **332** |
+| Port (`platform/`) | 269 | **377** |
 | Legado (raiz) | 53 | 53 (intacto) |
 
 `pint` e `phpstan` nível 6 limpos.
@@ -36,32 +36,51 @@ depende da VPS nova. **Esta sessão não fez deploy.**
   próprio. Sem `CONSOLE_HOST`, **as rotas não são registradas**. Métricas cross-tenant **sem
   furar o RLS**: um contexto por instituição.
 
-### Achados que valem mais que o código
+### Achados que valem mais que o código — todos corrigidos
 
-1. **Só uma instituição pode ter o conteúdo do jogo.** `fases.id` é chave primária global, e o
-   importador preserva os ids porque `config('jogo.fases_secundarias')` os referencia por
-   número. O RUNBOOK §10.6b mandava rodar um comando que colide em `fases_pkey`. Agora o código
-   recusa cedo, com a razão. Ver `RUNBOOK §11.5` e `design.md §11`. **Não é bloqueador do
-   piloto** — o piloto é a escola cortada do legado, e é ela que tem o conteúdo.
-2. **`ContextoDoTenant` não era singleton** — `atual()` mentia para quem não o definira.
-3. **O catálogo era lido pela conexão do dono**, e por isso uma escola criada pela aplicação
-   era invisível ao smoke que devia aprová-la.
-4. **O `finally` de `usar()` mascarava a exceção original** (25P02 no lugar do erro real).
-5. **`auditoria` não é tenant-scoped.** Registrado, **não corrigido** — merece proposta própria.
+Nenhum tinha teste. Todos vieram de exercitar a Etapa E contra um banco real.
+
+1. **`usuarios.email` era único global, e explorável.** O RLS escondia a conta da outra escola,
+   o `registrar` concluía "e-mail livre", o `INSERT` estourava: **500 numa rota pública**, e o
+   visitante aprendia que o e-mail existe em outra instituição. Índice virou
+   `(tenant_id, lower(email))`. Estava no `tasks.md` como "pergunta aberta, aceita" — não era
+   consequência, era bug.
+2. **`conquistas.codigo` era único global**: `arquivista_do_vazio` só podia existir numa escola.
+3. **`auditoria` não era tenant-scoped.** Policy com `IS NOT DISTINCT FROM`: `NULL` significa
+   "a plataforma", e é assim que a linha do operador convive com as das escolas.
+4. **A sessão não estava amarrada à instituição.** Impersonação não era possível (PK global de
+   `usuarios` protege por acidente), mas o estado da batalha — com o gabarito — atravessava com
+   um `SESSION_DOMAIN` compartilhado.
+5. **A segunda escola não podia ter conteúdo.** `fases.id` é PK global e o importador preserva
+   os ids; o RUNBOOK §10.6b mandava rodar o comando que colide. Resolvido com
+   `algorithmia:tenant:semear` (copia conteúdo, não pessoas, com ids novos) e com
+   `arquivista_do_vazio` deixando de referenciar as fases por id.
+6. **`ContextoDoTenant` não era singleton**; **o catálogo era lido pela conexão do dono** (uma
+   escola criada pela aplicação era invisível ao smoke que devia aprová-la); e **o `finally` de
+   `usar()` mascarava a exceção original** (25P02 no lugar do erro real).
+
+**`IntegridadeDaTenancyTest`** é a sentinela que impede a próxima: não lista tabelas, pergunta
+ao PostgreSQL quais têm `tenant_id` e exige RLS + FORCE, policy, FK e nenhum índice único que a
+ignore. Teria pego 1, 2 e 3 no dia em que nasceram.
 
 ### Verificação
 
 Além das suítes: um clone descartável do banco **pré-tenancy** (955 desafios reais) foi migrado
-para frente pelas 9 migrations, e nele rodaram o smoke completo, o ciclo do piloto e o console
-por HTTP (login, painel, recusa de ativação, flag, auditoria). O banco de ensaio foi destruído
-depois; o stack de produção local não foi tocado.
+para frente pelas 11 migrations, e nele rodaram o smoke completo, o ciclo do piloto, o console
+por HTTP (login, painel, recusa de ativação, flag, auditoria) e a **cópia de conteúdo para uma
+segunda escola**: 35 fases e 955 desafios copiados, zero ids compartilhados, 34 requisitos e 11
+`item_drop_id` religados dentro da escola certa, zero contas copiadas, e as duas escolas
+passando no smoke completo. O banco de ensaio foi destruído depois; o stack de produção local
+não foi tocado.
 
 ### Pendências
 
 1. **Push e merge** da branch.
 2. **O corte.** Quando a VPS existir: `bash bin/checar-host.sh`, depois `RUNBOOK §10`.
-3. `content_packages` (roteiro Fase 3) — o que destrava a segunda instituição com conteúdo.
-4. `auditoria` tenant-scoped.
+3. `content_packages` (roteiro Fase 3) — conteúdo **diferente** por instituição. Hoje toda
+   escola começa com uma cópia do mesmo mundo, e o mestre dela o edita. Basta para o piloto.
+4. Conta **global** de usuário (roteiro v1 §5) — identidade que atravessa instituições. Sem
+   demanda. O bug de e-mail que se escondia atrás dessa "pergunta aberta" já foi corrigido.
 
 ---
 
