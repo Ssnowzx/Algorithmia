@@ -24,9 +24,13 @@ return Application::configure(basePath: dirname(__DIR__))
         //
         // `ContextoDoPedido` vem antes: a auditoria e o log precisam do `request_id`,
         // e ele tem de existir mesmo que o CSP falhe.
+        // `ResolverTenant` vem por último: ele abre uma transação por requisição, e o
+        // que estiver depois dela roda dentro. Nada do que vem antes toca o banco.
+        // Enquanto `TENANCY_ATIVA` for falso, ele apenas passa adiante.
         $middleware->web(append: [
             App\Http\Middleware\ContextoDoPedido::class,
             App\Http\Middleware\AplicarPoliticaDeConteudo::class,
+            App\Http\Middleware\ResolverTenant::class,
         ]);
 
         // Durante a coexistência, o `httpd` do jogo antigo termina o TLS e repassa a

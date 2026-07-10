@@ -15,14 +15,19 @@
 
 ## B. Fundação de tenancy (aditiva — pode ir antes do corte)
 
-- [ ] B.1 `tenants`, `tenant_dominios`, `tenant_membros`, `convites`
-- [ ] B.2 `ENABLE` + `FORCE ROW LEVEL SECURITY` e policies por `current_setting('app.tenant_id')`
-- [ ] B.3 Middleware de resolução por `Host`; host desconhecido devolve 404, não 500
-- [ ] B.4 `SET LOCAL app.tenant_id` numa transação por requisição; contexto morre com ela
-- [ ] B.5 `tenant_id` do cliente é ignorado — teste com corpo, cabeçalho e sessão
-- [ ] B.6 `ProxyReversoTest` vira teste de isolamento: `X-Forwarded-Host` forjado não resolve tenant
-- [ ] B.7 Testes de acesso cruzado: Eloquent, query crua, comando de console
-- [ ] B.8 Auditoria de mudança de membership (reusa `ServicoDeAuditoria`)
+- [x] B.1 `tenants`, `tenant_dominios`, `tenant_membros`, `convites`
+- [x] B.2 `ENABLE` + `FORCE ROW LEVEL SECURITY` e policies por `current_setting('app.tenant_id')`
+- [x] B.3 Middleware de resolução por `Host`; host desconhecido devolve 404, não 500
+- [x] B.4 `SET LOCAL app.tenant_id` numa transação por requisição; contexto morre com ela
+- [x] B.5 `tenant_id` do cliente é ignorado. Não há **nenhum** caminho de código que o
+      leia de corpo, parâmetro ou sessão: o contexto vem só do `Host`. O vetor real é o
+      cabeçalho `X-Forwarded-Host`, e é ele que o teste ataca.
+- [x] B.6 `ProxyReversoTest` vira teste de isolamento: `X-Forwarded-Host` forjado não resolve tenant
+- [x] B.7 Testes de acesso cruzado: Eloquent, query crua, comando de console
+- [ ] B.8 Auditoria de mudança de membership — **adiada, e não esquecida**: não existe
+      ainda nenhuma rota que altere membership. Escrever a auditoria de uma ação que
+      ninguém pode fazer é escrever código que nenhum teste exercita. Entra junto com a
+      Etapa D, que cria essas rotas.
 
 ## C. `tenant_id` nas 13 tabelas do jogo (INVASIVA — **só depois do corte**)
 
