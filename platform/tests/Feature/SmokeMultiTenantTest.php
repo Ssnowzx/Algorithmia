@@ -99,6 +99,27 @@ final class SmokeMultiTenantTest extends TestCase
      * Importar para a escola errada é irreversível sem restaurar dump. Com mais de uma
      * instituição, o comando exige que o operador diga qual.
      */
+    /**
+     * Provisionar e semear são dois atos. Entre eles a escola é injogável — e o smoke,
+     * que é o portão do deploy, reprovaria todo build. Ela nasce desligada.
+     */
+    #[Test]
+    public function uma_instituicao_nova_nasce_desligada(): void
+    {
+        // ARRANGE + ACT: sem passar `ativo`.
+        DB::connection('pgsql_dono')->table('tenants')->insert([
+            'nome' => 'Rival Nova', 'slug' => 'rival-nova',
+            'created_at' => now(), 'updated_at' => now(),
+        ]);
+
+        // ASSERT
+        $ativo = DB::connection('pgsql_dono')->table('tenants')->where('slug', 'rival-nova')->value('ativo');
+        $this->assertFalse((bool) $ativo);
+
+        // …e por isso não bloqueia o deploy.
+        $this->artisan('algorithmia:smoke --sem-conteudo')->assertSuccessful();
+    }
+
     #[Test]
     public function a_importacao_recusa_adivinhar_a_instituicao(): void
     {
