@@ -14,6 +14,7 @@ use App\Http\Controllers\MestreController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\PersonagemController;
 use App\Http\Controllers\RankingController;
+use App\Http\Controllers\TurmaController;
 use App\Http\Middleware\ResolverTenant;
 use Illuminate\Support\Facades\Route;
 
@@ -104,6 +105,19 @@ Route::middleware('auth')->group(function (): void {
     // As rotas `/novo` e `/nova` vêm ANTES do curinga, e o curinga é numérico:
     // sem as duas coisas, `GET /mestre/desafios/novo` procuraria o desafio de id
     // "novo" e devolveria 404 no lugar do formulário.
+    // Turmas e relatórios. O acesso é decidido pela `TurmaPolicy`, e não por middleware:
+    // o mestre vê a escola inteira, o professor vê o que leciona, e a diferença não cabe
+    // num `->middleware('mestre')`.
+    Route::get('/turmas', [TurmaController::class, 'index'])->name('turmas.index');
+    Route::get('/turmas/{turma}', [TurmaController::class, 'ver'])
+        ->whereNumber('turma')->name('turmas.ver');
+
+    Route::post('/turmas', [TurmaController::class, 'criar'])->name('turmas.criar');
+    Route::post('/turmas/{turma}/professores', [TurmaController::class, 'vincularProfessor'])
+        ->whereNumber('turma')->name('turmas.professor.vincular');
+    Route::post('/turmas/{turma}/matriculas', [TurmaController::class, 'matricular'])
+        ->whereNumber('turma')->name('turmas.matricular');
+
     Route::middleware('mestre')->prefix('mestre')->name('mestre.')->group(function (): void {
         Route::get('/', [MestreController::class, 'index'])->name('painel');
 

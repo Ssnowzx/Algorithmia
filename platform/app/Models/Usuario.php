@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -60,6 +61,41 @@ final class Usuario extends Authenticatable
     public function ehMestre(): bool
     {
         return $this->papel === 'mestre';
+    }
+
+    public function ehProfessor(): bool
+    {
+        return $this->papel === 'professor';
+    }
+
+    /**
+     * O mestre administra a escola: ele vê todas as turmas dela. O professor vê as que
+     * leciona — e isso não se decide aqui, decide-se na `TurmaPolicy`.
+     */
+    public function podeVerRelatorios(): bool
+    {
+        return $this->ehMestre() || $this->ehProfessor();
+    }
+
+    /**
+     * `withTimestamps()` sem argumentos herda os nomes das colunas do modelo PAI, e este
+     * usa `criado_em` (e nenhum `updated_at`) porque o legado assim os batizou. O pivô,
+     * que é tabela nova, usa `created_at`/`updated_at`. Sem dizer isso aqui, o Eloquent
+     * procura `turma_professores.criado_em` e o banco responde que ela não existe.
+     *
+     * @return BelongsToMany<Turma, $this>
+     */
+    public function turmasQueLeciona(): BelongsToMany
+    {
+        return $this->belongsToMany(Turma::class, 'turma_professores', 'usuario_id', 'turma_id')
+            ->withTimestamps('created_at', 'updated_at');
+    }
+
+    /** @return BelongsToMany<Turma, $this> */
+    public function turmasEmQueEstuda(): BelongsToMany
+    {
+        return $this->belongsToMany(Turma::class, 'matriculas', 'usuario_id', 'turma_id')
+            ->withTimestamps('created_at', 'updated_at');
     }
 
     /** @return HasOne<Personagem,$this> */
