@@ -7,8 +7,13 @@
          failOnNotice="true"
          cacheDirectory=".phpunit.cache">
     <testsuites>
+        <!-- Os 38 vetores-ouro. Este número é o contrato do motor: se mudar, alguém
+             mudou uma regra do jogo. Testes de outra natureza vão em outra suíte. -->
         <testsuite name="motor">
             <directory>tests/Motor</directory>
+        </testsuite>
+        <testsuite name="seed">
+            <directory>tests/Seed</directory>
         </testsuite>
     </testsuites>
 </phpunit>

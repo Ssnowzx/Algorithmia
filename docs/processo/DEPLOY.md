@@ -128,6 +128,12 @@ sudo systemctl reload apache2
 
 > ⚠️ **`--reset` é o ÚNICO modo destrutivo** (faz `DROP DATABASE` e apaga contas e
 > progresso). O `migrate.php` sem flag **nunca** apaga dados.
+>
+> Isso passou a ser verdade em 2026-07-09. Antes, o migrador chamava o
+> `seed-conta-demo.php` incondicionalmente, e ele reescrevia a senha e apagava o
+> progresso da conta de administrador — **a cada deploy**. Hoje o seeder preserva
+> conta existente, e só `seed-conta-demo.php --forcar` a zera. Travado em
+> `tests/Seed/ContaDemoTest.php`.
 
 ### Atualizar só o banco de perguntas (sem mexer no resto)
 

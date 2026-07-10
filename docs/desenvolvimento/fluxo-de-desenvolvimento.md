@@ -22,7 +22,8 @@ Suba o servidor de desenvolvimento:
 php -S localhost:8001
 ```
 
-Login de desenvolvimento: `masterboss@boss.com` / `qwe123`.
+Login de desenvolvimento: `masterboss@boss.com`. A senha é sorteada na criação da
+conta e impressa uma vez. Para fixá-la: `DEMO_SENHA=qwe123 php database/migrate.php`.
 
 ## 2. Durante o desenvolvimento
 

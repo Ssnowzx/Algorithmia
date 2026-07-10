@@ -25,5 +25,8 @@ projeto: cita caminhos reais, patterns reais, decisoes ja tomadas.
 - **Ponto de entrada:** `index.php` — unico front controller.
 - **Banco de dados:** `php database/migrate.php` cria e atualiza; idempotente por design.
 - **Assets:** `public/img/` (servidos); historico de arte em `docs/evolucao-visual/`.
-- **Conta de desenvolvimento:** `masterboss@boss.com` / `qwe123` (papel: mestre).
+- **Conta de desenvolvimento:** `masterboss@boss.com` (papel: mestre). A senha é
+  sorteada e impressa quando a conta é criada. Para escolhê-la:
+  `DEMO_SENHA=qwe123 php database/migrate.php`. Uma instalação nova não nasce mais com
+  senha publicada neste repositório.
 - **Auditoria tecnica completa:** `docs/auditoria/README.md`.

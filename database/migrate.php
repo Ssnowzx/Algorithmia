@@ -268,8 +268,13 @@ if (!$apenasSchema) {
     echo "\n💬 Sincronizando diálogos...\n";
     executarArquivo($pdoBanco, __DIR__ . '/dialogos.sql');
 
+    // `require_once` apenas define a função. Semeamos com `forcar = false`: se a conta
+    // já existe, nada é tocado. Antes, este arquivo era executado ao ser carregado e
+    // reescrevia a senha e apagava o progresso da conta de administrador — a cada
+    // deploy, em produção.
     echo "\n🎮 Conta mestre admin (sem progresso automático)...\n";
-    require __DIR__ . '/seed-conta-demo.php';
+    require_once __DIR__ . '/seed-conta-demo.php';
+    echo semearContaDemo($pdoBanco, false), "\n";
 }
 
 echo "\nInicie o jogo com:  php -S localhost:8001\n";
