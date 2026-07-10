@@ -110,6 +110,32 @@ final class ContextoDoTenant
      * A consulta usa a conexão do DONO: `tenants` é catálogo global, mas um comando roda
      * sem contexto, e é mais honesto não depender de a tabela ter ficado sem RLS.
      */
+    /**
+     * Todas as instituições ativas, para comandos que precisam varrê-las.
+     *
+     * @return list<object{id:int,slug:string}>
+     */
+    public function tenantsAtivos(): array
+    {
+        return DB::connection('pgsql_dono')->table('tenants')
+            ->where('ativo', true)
+            ->orderBy('id')
+            ->get(['id', 'slug'])
+            ->map(fn (object $t): object => (object) ['id' => (int) $t->id, 'slug' => (string) $t->slug])
+            ->all();
+    }
+
+    public function tenantPorSlug(string $slug): int
+    {
+        $id = DB::connection('pgsql_dono')->table('tenants')->where('slug', $slug)->value('id');
+
+        if ($id === null) {
+            throw new RuntimeException(sprintf('Não existe instituição com slug "%s".', $slug));
+        }
+
+        return (int) $id;
+    }
+
     public function tenantUnico(): int
     {
         $tenants = DB::connection('pgsql_dono')->table('tenants')->orderBy('id')->pluck('id');

@@ -31,7 +31,8 @@ final class ImportarDoLegado extends Command
     protected $signature = 'algorithmia:importar
         {--dry-run : Executa tudo e desfaz ao final, apenas relatando}
         {--truncar : Esvazia as tabelas de destino antes de copiar}
-        {--lote=500 : Quantas linhas por lote de leitura}';
+        {--lote=500 : Quantas linhas por lote de leitura}
+        {--tenant= : Importa para esta instituição (slug). Sem a opção, exige que só exista uma.}';
 
     protected $description = 'Importa conteúdo, contas e progresso do MySQL legado para o PostgreSQL';
 
@@ -71,7 +72,19 @@ final class ImportarDoLegado extends Command
 
         $contexto = app(ContextoDoTenant::class);
 
-        return $contexto->usar($contexto->tenantUnico(), $this->importar(...));
+        // Importar para a escola errada é irreversível sem restaurar dump. Com mais de uma
+        // no banco, o comando exige que o operador diga qual — não adivinha.
+        try {
+            $tenantId = $this->option('tenant') !== null
+                ? $contexto->tenantPorSlug((string) $this->option('tenant'))
+                : $contexto->tenantUnico();
+        } catch (RuntimeException $erro) {
+            $this->error($erro->getMessage());
+
+            return self::FAILURE;
+        }
+
+        return $contexto->usar($tenantId, $this->importar(...));
     }
 
     private function importar(): int

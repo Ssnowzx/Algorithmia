@@ -36,7 +36,8 @@ final class Smoke extends Command
 {
     protected $signature = 'algorithmia:smoke
         {--rasa : Pula a batalha de verdade (mais rápido, prova menos)}
-        {--sem-conteudo : Pula tudo o que depende da importação (para a CI, com banco vazio)}';
+        {--sem-conteudo : Pula tudo o que depende da importação (para a CI, com banco vazio)}
+        {--tenant= : Verifica só esta instituição (slug). Sem a opção, verifica todas.}';
 
     protected $description = 'Verifica, após o deploy, que o jogo está jogável';
 
@@ -54,7 +55,44 @@ final class Smoke extends Command
 
         $contexto = app(ContextoDoTenant::class);
 
-        return $contexto->usar($contexto->tenantUnico(), $this->verificacoes(...));
+        // Sem `--tenant`, varre TODAS as instituições ativas. Pedir um `tenantUnico()`
+        // aqui faria o `bin/deploy.sh` quebrar no dia em que a segunda escola entrasse:
+        // o smoke é o portão do deploy, e um portão que só abre para um cliente não é um
+        // portão. Um deploy que deixa uma escola injogável não pode ser promovido.
+        // Um slug errado precisa virar mensagem, não stack trace: este comando roda dentro
+        // do `bin/deploy.sh`, e quem o lê está no meio de um deploy.
+        try {
+            $tenants = $this->option('tenant') !== null
+                ? [(object) ['id' => $contexto->tenantPorSlug((string) $this->option('tenant')), 'slug' => (string) $this->option('tenant')]]
+                : $contexto->tenantsAtivos();
+        } catch (RuntimeException $erro) {
+            $this->error($erro->getMessage());
+
+            return self::FAILURE;
+        }
+
+        if ($tenants === []) {
+            $this->error('Nenhuma instituição ativa. Rode as migrations.');
+
+            return self::FAILURE;
+        }
+
+        $codigo = self::SUCCESS;
+
+        foreach ($tenants as $tenant) {
+            if (count($tenants) > 1) {
+                $this->newLine();
+                $this->line("<fg=cyan>── instituição: {$tenant->slug}</>");
+            }
+
+            $this->falhas = [];
+
+            if ($contexto->usar($tenant->id, $this->verificacoes(...)) !== self::SUCCESS) {
+                $codigo = self::FAILURE;
+            }
+        }
+
+        return $codigo;
     }
 
     private function verificacoes(): int
