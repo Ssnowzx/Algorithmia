@@ -12,7 +12,12 @@
     RewriteEngine On
 
     # 1. Bloqueia diretórios sensíveis (código, dumps, metadados de agentes).
-    RewriteRule ^(database|config|app|docs|openspec|tools|\.git|\.cursor|\.codex|\.claude)(/|$) - [F,L]
+    #
+    # `tests`, `bin` e `vendor` entram porque o DocumentRoot é a raiz do projeto:
+    # sem eles, um GET /tests/bootstrap.php seria EXECUTADO pelo mod_php. Ele força
+    # DB_NAME=algorithmia_test e exige o vendor/autoload.php, que produção não tem —
+    # o resultado é um fatal error que imprime o caminho absoluto dos arquivos.
+    RewriteRule ^(database|config|app|docs|openspec|tools|tests|bin|vendor|\.git|\.cursor|\.codex|\.claude)(/|$) - [F,L]
 
     # 2. Front controller: tudo que não for arquivo/pasta real vai pro index.php.
     RewriteCond %{REQUEST_FILENAME} !-f
@@ -27,6 +32,12 @@
 
 # 4. Protege dotfiles e overrides locais de config.
 <FilesMatch "(^\.|\.local\.php$)">
+    Require all denied
+</FilesMatch>
+
+# 4b. Metadados de build na raiz. Nomeados um a um, e não pela extensão: bloquear
+#     `.json` inteiro quebraria qualquer asset futuro servido como JSON.
+<FilesMatch "^(composer\.(json|lock)|phpunit\.xml|package(-lock)?\.json)$">
     Require all denied
 </FilesMatch>
 
