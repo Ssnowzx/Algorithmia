@@ -42,7 +42,13 @@
 - [x] C.3 `algorithmia:importar` escreve `tenant_id` e define contexto
 - [x] C.4 `algorithmia:smoke` e demais comandos de console definem contexto
 - [x] C.5 Os 38 vetores-ouro continuam verdes, com os mesmos números (suíte do legado, 53)
-- [ ] C.6 Ensaio do corte (§10) refeito de ponta a ponta, com tenancy ligada
+- [x] C.6 **Ensaio do corte (§10) refeito com tenancy ligada.** Banco zerado, domínio real
+      (`escola.ensaio.test`), primeiro deploy criando o papel e o tenant padrão, importação
+      das 1.306 linhas — **todas com `tenant_id`, sem o importador mencionar a coluna** —,
+      smoke completo, campanha e batalha pelo domínio, e o isolamento provado em produção:
+      tenant 1 vê 955 desafios, tenant 2 vê zero, sem contexto vê zero.
+      Achou dois defeitos: o smoke quebraria todo deploy a partir da segunda escola, e uma
+      instituição nascia ativa e vazia — reprovando builds corretos.
 
 ## D. Turmas, papéis e relatórios (Fase 5 do roteiro v1)
 

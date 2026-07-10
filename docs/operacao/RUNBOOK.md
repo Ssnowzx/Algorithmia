@@ -520,7 +520,19 @@ No `.env.producao`:
 APP_URL=https://algorithmia.exemplo.com
 TRUSTED_PROXIES=            # VAZIO. O nginx termina o TLS; não há proxy na frente.
 SESSION_SECURE_COOKIE=true
+TENANCY_ATIVA=true
 ```
+
+> ⚠️ **O `APP_URL` precisa estar certo ANTES do primeiro `bin/deploy.sh`.**
+>
+> A migration cria a instituição padrão com o host tirado dele, e é esse host que o
+> `ResolverTenant` procura em `tenant_dominios` a cada requisição. Um `APP_URL` errado
+> produz o pior sintoma possível: **o site responde 404 com o banco cheio e o healthcheck
+> verde**. O `/healthz` fica fora do resolvedor de propósito — ele existe para dizer se o
+> banco está de pé, não de quem são os dados.
+>
+> Conserto, se já aconteceu:
+> `UPDATE tenant_dominios SET host = 'o.dominio.certo' WHERE tenant_id = 1;`
 
 ### 10.2 O certificado, antes do primeiro deploy
 
@@ -614,8 +626,41 @@ docker compose -f compose.prod.yml exec app php artisan algorithmia:smoke   # se
 curl -k --resolve algorithmia.exemplo.com:443:127.0.0.1 https://algorithmia.exemplo.com/
 ```
 
+O smoke **varre todas as instituições ativas**, uma a uma, e reprova se qualquer uma
+estiver injogável. Ele é o portão do `deploy.sh`: um deploy que deixa uma escola sem
+conteúdo não pode ser promovido. Use `--tenant=slug` para restringir.
+
 Entre no jogo você mesmo, pelo `--resolve` ou por um `/etc/hosts` na sua máquina:
-login, mapa, uma batalha. O smoke não testa a sessão sob HTTPS.
+login, mapa, uma batalha. **O smoke não testa a sessão sob HTTPS**, e foi exatamente ali
+que se escondeu o pior bug da tenancy: o `Authenticate` rodava antes do resolvedor de
+tenant, o RLS o cegava, e o jogador logava para cair na tela de login de novo.
+
+### 10.6b Uma segunda instituição
+
+A ordem não é negociável, e o `DEFAULT` da coluna a impõe:
+
+```sql
+-- 1. Provisionar. Ela nasce DESLIGADA: sem conteúdo, é injogável, e uma escola ativa e
+--    injogável reprova o smoke — ou seja, trava todos os deploys.
+INSERT INTO tenants (nome, slug) VALUES ('Escola Nova', 'escola-nova');
+INSERT INTO tenant_dominios (tenant_id, host, primario) VALUES (2, 'nova.exemplo.com', true);
+```
+
+```bash
+# 2. Semear o conteúdo dela. `--tenant` é obrigatório com mais de uma instituição:
+#    importar para a escola errada é irreversível sem restaurar dump.
+docker compose -f compose.prod.yml run --rm --no-deps app \
+    php artisan algorithmia:importar --tenant=escola-nova
+```
+
+```sql
+-- 3. Só então ligar.
+UPDATE tenants SET ativo = true WHERE slug = 'escola-nova';
+```
+
+> **`--truncar` recusa rodar com mais de uma instituição no banco.** `TRUNCATE` é uma
+> operação de tabela, não de linha: ele **ignora o RLS** e apagaria todas as escolas. A
+> policy nem seria consultada.
 
 ### 10.7 O corte é o DNS
 
