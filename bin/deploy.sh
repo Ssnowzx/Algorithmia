@@ -5,8 +5,10 @@
 # A imagem é etiquetada com o SHA do commit. Rollback é apontar a tag anterior e
 # subir de novo — sem rebuild, sem `git checkout` no servidor, sem surpresa.
 #
-#   bin/deploy.sh              # deploy do HEAD
-#   bin/deploy.sh --sem-backup # pula o dump (use só se acabou de tirar um)
+#   bin/deploy.sh                # deploy do HEAD
+#   bin/deploy.sh --sem-backup   # pula o dump (use só se acabou de tirar um)
+#   bin/deploy.sh --sem-conteudo # banco ainda vazio (só no PRIMEIRO deploy, antes
+#                                # de `algorithmia:importar` — ver RUNBOOK §2 e §8)
 #
 # ATENÇÃO ÀS MIGRATIONS
 # ---------------------
@@ -25,7 +27,18 @@ ESTADO="${PLATAFORMA}/.deploy"
 COMPOSE="docker compose -f ${PLATAFORMA}/compose.prod.yml"
 
 FAZER_BACKUP=1
-[[ "${1:-}" == "--sem-backup" ]] && FAZER_BACKUP=0
+# No primeiro deploy o banco está vazio: a importação só roda depois, e ela precisa
+# do container `app` de pé. O smoke completo exigiria o conteúdo que ainda não
+# chegou. A flag é explícita de propósito — se o deploy adivinhasse "tabela vazia,
+# então pule a checagem", um deploy que PERDEU o conteúdo passaria calado.
+SMOKE_ARGS=()
+for arg in "$@"; do
+    case "${arg}" in
+        --sem-backup)   FAZER_BACKUP=0 ;;
+        --sem-conteudo) SMOKE_ARGS+=(--sem-conteudo) ;;
+        *) printf '✗ opção desconhecida: %s\n' "${arg}" >&2; exit 1 ;;
+    esac
+done
 
 erro() { printf '\033[31m✗ %s\033[0m\n' "$*" >&2; exit 1; }
 passo() { printf '\n\033[1m→ %s\033[0m\n' "$*"; }
@@ -114,7 +127,10 @@ esperar_saudavel "${TAG}" || erro "o app não ficou saudável em 90s"
 ok "saudável"
 
 passo "Smoke: o jogo está jogável?"
-if ! ALGORITHMIA_TAG="${TAG}" $COMPOSE exec -T app php artisan algorithmia:smoke; then
+# `${a[@]+"${a[@]}"}`: no bash 3.2 (macOS), `set -u` trata a expansão de um array
+# vazio como variável não-definida e aborta. Na VPS (bash 5) passaria batido.
+if ! ALGORITHMIA_TAG="${TAG}" $COMPOSE exec -T app php artisan algorithmia:smoke \
+        ${SMOKE_ARGS[@]+"${SMOKE_ARGS[@]}"}; then
     printf '\n\033[31m✗ O smoke reprovou este deploy.\033[0m\n' >&2
 
     if [[ -z "${TAG_ANTERIOR}" ]]; then
