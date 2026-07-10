@@ -4,6 +4,67 @@
 
 ---
 
+## 🗓️ Sessão 2026-07-10 — Etapa E: o piloto · branch `feature/etapa-e-piloto`
+
+**A `fundacao-multitenant` está completa (A–E).** O corte em produção continua NÃO feito —
+depende da VPS nova. **Esta sessão não fez deploy.**
+
+6 commits, na branch `feature/etapa-e-piloto` (`4a9327e`), **não pushados**.
+
+### Suítes
+
+| | Antes | Agora |
+|---|---|---|
+| Port (`platform/`) | 269 | **332** |
+| Legado (raiz) | 53 | 53 (intacto) |
+
+`pint` e `phpstan` nível 6 limpos.
+
+### O que foi feito
+
+- **E.1 — flags por instituição.** Catálogo em `config/flags.php`; o banco (`tenants.flags`)
+  guarda só as exceções. Chave desconhecida **levanta exceção** — um `false` calado desligaria
+  a funcionalidade em produção para sempre. Cada flag é aplicada na **rota** (`flag:<chave>`,
+  404) e no **menu** (`@flag`). `turmas` nasce OFF; `ranking`, ON.
+- **E.2 — provisionamento com portão.** `algorithmia:tenant:novo|ativar|desativar|flag|listar`.
+  `ativar` **roda o smoke da instituição antes de ligá-la** e recusa a injogável. Sem
+  `--forcar`: o escape é um `UPDATE` à mão.
+- **E.3 — o smoke vai até o relatório.** Resolução do host do `APP_URL`, domínio da
+  instituição, persistência do progresso (com o `tenant_id` conferido) e o relatório de turma.
+  Nada fica no banco, e há teste contando as linhas.
+- **Console do operador** (pedido do usuário). `operadores` é catálogo global com guard
+  próprio. Sem `CONSOLE_HOST`, **as rotas não são registradas**. Métricas cross-tenant **sem
+  furar o RLS**: um contexto por instituição.
+
+### Achados que valem mais que o código
+
+1. **Só uma instituição pode ter o conteúdo do jogo.** `fases.id` é chave primária global, e o
+   importador preserva os ids porque `config('jogo.fases_secundarias')` os referencia por
+   número. O RUNBOOK §10.6b mandava rodar um comando que colide em `fases_pkey`. Agora o código
+   recusa cedo, com a razão. Ver `RUNBOOK §11.5` e `design.md §11`. **Não é bloqueador do
+   piloto** — o piloto é a escola cortada do legado, e é ela que tem o conteúdo.
+2. **`ContextoDoTenant` não era singleton** — `atual()` mentia para quem não o definira.
+3. **O catálogo era lido pela conexão do dono**, e por isso uma escola criada pela aplicação
+   era invisível ao smoke que devia aprová-la.
+4. **O `finally` de `usar()` mascarava a exceção original** (25P02 no lugar do erro real).
+5. **`auditoria` não é tenant-scoped.** Registrado, **não corrigido** — merece proposta própria.
+
+### Verificação
+
+Além das suítes: um clone descartável do banco **pré-tenancy** (955 desafios reais) foi migrado
+para frente pelas 9 migrations, e nele rodaram o smoke completo, o ciclo do piloto e o console
+por HTTP (login, painel, recusa de ativação, flag, auditoria). O banco de ensaio foi destruído
+depois; o stack de produção local não foi tocado.
+
+### Pendências
+
+1. **Push e merge** da branch.
+2. **O corte.** Quando a VPS existir: `bash bin/checar-host.sh`, depois `RUNBOOK §10`.
+3. `content_packages` (roteiro Fase 3) — o que destrava a segunda instituição com conteúdo.
+4. `auditoria` tenant-scoped.
+
+---
+
 ## 🗓️ Sessão 2026-07-09/10 — Segurança, operação e multitenancy · na `main`
 
 **O port é multitenant. O corte em produção continua NÃO feito** — depende de uma VPS nova.
