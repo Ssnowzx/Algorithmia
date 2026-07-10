@@ -88,6 +88,30 @@ topologia descrita em [`RUNBOOK.md §9`](../../../docs/operacao/RUNBOOK.md).
       schema e nunca chamava o migrador. `config/db.php` também assumia `dev` quando
       `APP_ENV` faltava — e o vhost de produção não a define.
 
+## 7. Fase 8 do roteiro v1 — segurança, observabilidade e operação
+- [x] 7.1 **Rate limiting**: `/entrar` aceitava força bruta. Dois limites (5/min por
+      e-mail+IP; 20/min por IP, contra password spraying, que o primeiro não vê).
+- [x] 7.2 **CSP com nonce**, emitido pelo PHP — o nginx não pode conhecer o nonce. Os
+      quatro `onsubmit="return confirm()"` viraram `data-confirmar` + JS externo, porque
+      nonce não alcança atributo de evento.
+- [x] 7.3 **Fontes da marca hospedadas por nós.** O teste de recursos externos revelou
+      que o port só as carregava na tela de lore: rodava com fonte de sistema em todas as
+      outras. Regressão visual silenciosa, e o IP de alunos menores ia para o Google.
+- [x] 7.4 **Trilha de auditoria** (migration aditiva). Sem FK para alvo nem autor, sem
+      `updated_at`. O `resumo` da exclusão de fase conta os desafios da cascata ANTES do
+      delete. O gabarito não entra.
+- [x] 7.5 **Logs estruturados** em JSON com `request_id`, `usuario_id`, `ip` e `rota`. O
+      mesmo id sai no `X-Request-Id` e na auditoria, e nunca vem do cliente.
+- [x] 7.6 Checklist v1 §8, itens que se aplicam: **restauração testada** (`restore.sh
+      --ensaio`), **sem segredos no repositório** (varredura em todo o histórico: só
+      placeholders `CHANGE_ME`), **sem credenciais padrão** (ver 6.13).
+- [ ] 7.7 Métricas e alertas — dependem de um host para onde exportá-las.
+
+## 8. Multitenancy (Fases 2, 3, 5 e 9 do roteiro v1)
+> Decidido em 2026-07-10: fazer **depois** da Fase 8. Exige proposta OpenSpec própria —
+> `tenant_id` entra nas 13 tabelas, e o corte tem de acontecer antes ou depois dela,
+> nunca no meio.
+
 ### Bloqueado na VPS nova (o usuário vai provisioná-la do zero)
 - [ ] 6.10 `bash bin/checar-host.sh` no host novo; `.env.producao` com `TRUSTED_PROXIES`
       **medido, não copiado**; legado em somente leitura
