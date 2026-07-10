@@ -35,10 +35,14 @@ Route::get('/historia', [HistoriaController::class, 'lore'])->name('lore');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/entrar', [AutenticacaoController::class, 'mostrarLogin'])->name('login');
-    Route::post('/entrar', [AutenticacaoController::class, 'entrar']);
+    // Os limites vivem em AppServiceProvider: 5/min por e-mail+IP e 20/min por IP.
+    // O segundo existe porque o primeiro não vê o atacante que troca de e-mail.
+    Route::post('/entrar', [AutenticacaoController::class, 'entrar'])
+        ->middleware('throttle:entrar');
 
     Route::get('/registrar', [AutenticacaoController::class, 'mostrarRegistro'])->name('registro');
-    Route::post('/registrar', [AutenticacaoController::class, 'registrar']);
+    Route::post('/registrar', [AutenticacaoController::class, 'registrar'])
+        ->middleware('throttle:registrar');
 });
 
 Route::middleware('auth')->group(function (): void {
