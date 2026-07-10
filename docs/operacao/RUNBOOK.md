@@ -109,30 +109,41 @@ O `--dry-run` roda a importação inteira dentro de uma transação e a desfaz. 
 exercita chaves estrangeiras e conversão de tipos. Um ensaio que não faz isso não
 prova nada.
 
-#### Alcançar o MySQL do host a partir do container
+#### Alcançar o MySQL do host a partir do container — pelo socket, não pela rede
 
-O legado roda no host; o `importar` roda dentro do container `app`. Três coisas
-precisam ser verdade ao mesmo tempo, e falham em silêncio separadas:
+O legado roda no host; o `importar` roda dentro do container `app`. **Monte o socket
+do MySQL no container.** Assim a importação não precisa de porta TCP aberta nenhuma:
 
-```dotenv
-LEGADO_DB_HOST=host.docker.internal   # o compose já mapeia isto para o gateway
+```bash
+docker compose -f compose.prod.yml run --rm --no-deps \
+    -e ALGORITHMIA_PULAR_OTIMIZACAO=1 \
+    -e LEGADO_DB_SOCKET=/var/run/mysqld/mysqld.sock \
+    -v /var/lib/mysql/mysql.sock:/var/run/mysqld/mysqld.sock \
+    app php artisan algorithmia:importar --dry-run
 ```
-
-1. **O nome resolve** porque `compose.prod.yml` dá ao `app` um
-   `extra_hosts: host.docker.internal:host-gateway`. Sem isso, no Linux, o nome não
-   existe (no Docker Desktop existiria, e o erro só apareceria na VPS).
-2. **O MySQL escuta na interface certa.** Um `bind-address = 127.0.0.1` no `my.cnf`
-   recusa o container. Confira com `ss -lntp | grep 3306`.
-3. **O usuário tem SELECT vindo da sub-rede do Docker.** `'algorithmia_ro'@'localhost'`
-   não serve; precisa ser `'algorithmia_ro'@'172.%'` (ou o range da sua bridge).
-
-O usuário da importação deve ter **apenas** `SELECT` — é o que torna o passo 3 do §8
-uma garantia e não uma promessa:
 
 ```sql
-CREATE USER 'algorithmia_ro'@'172.%' IDENTIFIED BY '<senha>';
-GRANT SELECT ON algorithmia.* TO 'algorithmia_ro'@'172.%';
+-- Conexão por socket casa com @'localhost'. Apenas SELECT: é o que torna o passo 3
+-- do §8 uma garantia, e não uma promessa.
+CREATE USER 'algorithmia_ro'@'localhost' IDENTIFIED BY '<senha>';
+GRANT SELECT ON algorithmia.* TO 'algorithmia_ro'@'localhost';
 ```
+
+Confirme o caminho do socket antes: `mysqladmin variables | grep '^| socket'`. Em
+RHEL/AlmaLinux costuma ser `/var/lib/mysql/mysql.sock`; em Debian,
+`/run/mysqld/mysqld.sock`.
+
+> ⚠️ **Não abra o MySQL em TCP para `172.x` só para importar.** Numa VPS dedicada
+> seria apenas feio. Num host **compartilhado** — Virtualmin, cPanel com vários sites,
+> qualquer máquina com containers de outros donos — a faixa `172.x` alcança os
+> containers de **todos** os tenants, e `GRANT ... TO 'x'@'172.%'` entrega o banco dos
+> alunos a qualquer um deles. Se você já tem `bind-address = 0.0.0.0` e a 3306 aberta
+> no firewall, isso é um incidente aberto agora, e não uma questão de deploy.
+
+Se, e só se, o host for **dedicado** e você não puder usar o socket, existe a rota TCP:
+`LEGADO_DB_HOST=host.docker.internal` (o `compose.prod.yml` mapeia o nome para o
+gateway via `extra_hosts`), com o MySQL escutando naquela interface e o `GRANT`
+restrito à sub-rede exata. É a segunda opção, não a primeira.
 
 ---
 

@@ -75,6 +75,14 @@ return [
          */
         'legado' => [
             'driver' => 'mysql',
+            // Preferir o socket: num host compartilhado, abrir o MySQL em TCP para a
+            // faixa 172.x o expõe aos containers de TODOS os outros tenants da
+            // máquina. Com o socket montado no container, a importação não precisa de
+            // porta aberta nenhuma.
+            //
+            // Vazio cai em TCP: o `hasSocket()` do Laravel exige `! empty()`, então a
+            // string vazia não vira um DSN `unix_socket=` quebrado.
+            'unix_socket' => env('LEGADO_DB_SOCKET', ''),
             'host' => env('LEGADO_DB_HOST', '127.0.0.1'),
             'port' => env('LEGADO_DB_PORT', '3306'),
             'database' => env('LEGADO_DB_DATABASE', 'algorithmia'),
