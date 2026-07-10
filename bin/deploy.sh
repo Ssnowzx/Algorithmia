@@ -93,7 +93,12 @@ ok "imagem pronta"
 
 # ------------------------------------------------------------------- migrations
 passo "Aplicando migrations (aditivas — ver o cabeçalho deste script)"
-ALGORITHMIA_TAG="${TAG}" $COMPOSE up -d postgres
+# `--wait` espera o healthcheck, não só o start. No primeiro deploy o volume está
+# vazio, o postgres roda `initdb` antes de escutar, e o `migrate` logo abaixo usa
+# `--no-deps` — que manda o compose ignorar o `depends_on: service_healthy`. Sem
+# esperar aqui, o primeiro deploy morre com "connection refused"; do segundo em
+# diante o volume já existe e o problema some.
+ALGORITHMIA_TAG="${TAG}" $COMPOSE up -d --wait postgres
 ALGORITHMIA_TAG="${TAG}" ALGORITHMIA_PULAR_OTIMIZACAO=1 \
     $COMPOSE run --rm --no-deps app php artisan migrate --force
 ok "schema atualizado"
