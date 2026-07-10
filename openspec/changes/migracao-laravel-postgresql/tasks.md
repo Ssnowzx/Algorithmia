@@ -46,7 +46,12 @@ topologia descrita em [`RUNBOOK.md §9`](../../../docs/operacao/RUNBOOK.md).
 - [x] 6.5 `algorithmia:smoke` joga uma fase real numa transação e a desfaz
 - [x] 6.6 CI ganha job que constrói a imagem e prova as guardas do entrypoint
 - [x] 6.7 `docs/operacao/RUNBOOK.md`; deploy, rollback e backup exercitados localmente
-- [x] 6.8 Host confirmado: VPS com root + Docker; `httpd` do legado convive na mesma máquina
+- [~] 6.8 ~~Host confirmado~~ — **retratado**. A "confirmação" foi conversa, não comando. O
+      host real (`server.tars.art.br`) é um **Virtualmin compartilhado** com seis tenants.
+      Tem root, Docker 29.6 e `mod_proxy_http`, mas só ~950 MiB de RAM disponíveis — o
+      `docker build` morreria de OOM. O usuário decidiu **subir uma VPS nova, do zero**;
+      os requisitos dela estão no `RUNBOOK §0`. Nada de 6.10/6.11 se decide sem
+      `bin/checar-host.sh`.
 - [x] 6.9 `trustProxies` configurável por `TRUSTED_PROXIES`, vazio por padrão, travado em teste
 - [x] 6.12 **Ensaio completo do corte (§8) em Docker local**, contra uma cópia do MySQL legado
       servida por um usuário só com `SELECT`. Achou três defeitos, todos exclusivos do
@@ -54,7 +59,20 @@ topologia descrita em [`RUNBOOK.md §9`](../../../docs/operacao/RUNBOOK.md).
       `up -d` não esperava o `initdb`; o smoke era impossível de passar com o banco vazio
       (faltava repassar `--sem-conteudo`); e o §9 prescrevia um `TRUSTED_PROXIES` errado.
       Ver `RUNBOOK.md §6`, itens 6 a 8.
-- [ ] 6.10 `.env.producao` na VPS (**incluindo `TRUSTED_PROXIES` medido, não copiado**),
-      legado em somente leitura
-- [ ] 6.11 Importar, `bin/deploy.sh --sem-conteudo`, vhost do `httpd` como proxy reverso,
-      janela de coexistência
+- [x] 6.13 **Segurança do legado, achada indo para o corte** — três defeitos, todos no
+      caminho que o corte percorre:
+      `migrate.php` chamava o seeder da conta de administrador incondicionalmente, e ele
+      reescrevia a senha (para a que está publicada no repo) e apagava progresso,
+      inventário e conquistas — **a cada deploy** (`fdb8364`);
+      o `.htaccess` não bloqueava `tests/`, `bin/`, `vendor/`, `platform/` nem `worker/`,
+      e o DocumentRoot é a raiz do projeto (`e4d9f9e`, `ab5db1d`);
+      a importação abria o MySQL na rede — agora lê pelo socket Unix (`1f89eec`).
+- [x] 6.14 `bin/checar-host.sh` (somente-leitura) e `RUNBOOK §0` com os requisitos de
+      uma VPS nova. O script julga a RAM, e recusa responder onde não pode saber.
+
+### Bloqueado na VPS nova (o usuário vai provisioná-la do zero)
+- [ ] 6.10 `bash bin/checar-host.sh` no host novo; `.env.producao` com `TRUSTED_PROXIES`
+      **medido, não copiado**; legado em somente leitura
+- [ ] 6.11 `bin/deploy.sh --sem-conteudo` → importar pelo socket → `algorithmia:smoke` →
+      vhost do `httpd` como proxy reverso → janela de coexistência. Ver `RUNBOOK §8`,
+      cujo passo 0 (pôr o banco do legado em dia) não pode ser pulado.
