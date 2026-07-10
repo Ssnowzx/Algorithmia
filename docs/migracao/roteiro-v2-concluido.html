@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Algorithmia — A migração, construída</title>
+  <style>
+    :root {
+      --bg: #080b16;
+      --panel: #10162a;
+      --panel-2: #151d36;
+      --line: rgba(175, 192, 255, .18);
+      --text: #eaf0ff;
+      --muted: #aab7d7;
+      --accent: #7c5cff;
+      --accent-2: #8ce6ff;
+      --gold: #ffce47;
+      --ok: #4ade9b;
+      --danger: #ff7b8a;
+      --code: #0a1020;
+      --shadow: 0 18px 60px rgba(0,0,0,.34);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 7% 3%, rgba(124,92,255,.23), transparent 33rem),
+        radial-gradient(circle at 94% 12%, rgba(140,230,255,.12), transparent 30rem),
+        linear-gradient(180deg, #090d1b 0%, #080b16 100%);
+      line-height: 1.55;
+    }
+    a { color: #c4bcff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, .mono { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace; font-size: .92em; }
+    code { background: var(--code); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; color: #d7e2ff; }
+    .shell { max-width: 1220px; margin: 0 auto; padding: 0 26px 72px; }
+
+    /* ---------------------------------------------------------------- topo */
+    .marca { display: flex; align-items: center; gap: 12px; padding-top: 30px; }
+    .marca img { height: 40px; width: auto; image-rendering: pixelated; }
+    .marca span { font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+
+    .hero { padding: 44px 0 44px; border-bottom: 1px solid var(--line); }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; letter-spacing: .13em; text-transform: uppercase;
+      color: var(--accent-2); font-weight: 800;
+    }
+    .eyebrow::before { content: ""; width: 30px; height: 2px; background: var(--accent-2); }
+    h1 { margin: 16px 0 16px; font-size: clamp(34px, 5vw, 66px); line-height: .98; letter-spacing: -.045em; max-width: 960px; }
+    .subtitle { max-width: 875px; font-size: 19px; color: var(--muted); margin: 0; }
+    .chips { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 24px; }
+    .chip { border: 1px solid var(--line); background: rgba(20,28,54,.72); padding: 7px 11px; border-radius: 999px; color: #dce4ff; font-size: 13px; }
+    .chip.ok { border-color: rgba(74,222,155,.45); color: #b6f2d5; }
+    .meta { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 18px; color: var(--muted); font-size: 13px; }
+
+    /* -------------------------------------------------------------- blocos */
+    .toc { margin: 30px 0 42px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 15px; background: rgba(16,22,42,.8); }
+    .toc strong { display: block; margin-bottom: 8px; color: #fff; }
+    .toc nav { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 14px; }
+
+    section { margin-top: 54px; }
+    h2 { font-size: 28px; letter-spacing: -.025em; margin: 0 0 13px; }
+    h3 { font-size: 19px; margin: 0 0 9px; }
+    .lead { color: var(--muted); max-width: 900px; }
+
+    .card {
+      border: 1px solid var(--line); border-radius: 16px; background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+      padding: 20px 22px; box-shadow: var(--shadow);
+    }
+    .grid { display: grid; gap: 16px; }
+    .two { grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+    .three { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+
+    .callout { border-left: 3px solid var(--accent); padding: 14px 18px; border-radius: 0 12px 12px 0; background: rgba(124,92,255,.09); margin: 18px 0; }
+    .callout.warning { border-left-color: var(--gold); background: rgba(255,206,71,.08); }
+    .callout.danger  { border-left-color: var(--danger); background: rgba(255,123,138,.08); }
+    .callout.success { border-left-color: var(--ok); background: rgba(74,222,155,.08); }
+    .callout h4 { margin: 0 0 6px; font-size: 14px; text-transform: uppercase; letter-spacing: .08em; color: var(--gold); }
+    .callout.success h4 { color: var(--ok); }
+    .callout.danger h4 { color: var(--danger); }
+    .callout p:last-child { margin-bottom: 0; }
+
+    /* ---------------------------------------------------------------- fases */
+    .fase { display: grid; grid-template-columns: 58px 1fr auto; gap: 16px; align-items: start;
+            border: 1px solid var(--line); border-radius: 14px; background: rgba(16,22,42,.7); padding: 16px 18px; margin-bottom: 10px; }
+    .fase .n { font-size: 26px; font-weight: 800; color: var(--accent); text-align: center; line-height: 1.2; }
+    .fase h3 { margin: 0 0 4px; font-size: 17px; }
+    .fase p { margin: 0; color: var(--muted); font-size: 14px; }
+    .badge { white-space: nowrap; font-size: 11.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+             padding: 5px 10px; border-radius: 999px; border: 1px solid; align-self: center; }
+    .b-ok    { color: #b6f2d5; border-color: rgba(74,222,155,.5);  background: rgba(74,222,155,.10); }
+    .b-op    { color: #ffe6a8; border-color: rgba(255,206,71,.5);  background: rgba(255,206,71,.10); }
+    .b-div   { color: #cfc3ff; border-color: rgba(124,92,255,.55); background: rgba(124,92,255,.12); }
+
+    /* --------------------------------------------------------------- tabela */
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
+    table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 14px; }
+    th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { background: rgba(20,28,54,.9); color: #fff; font-size: 12.5px; text-transform: uppercase; letter-spacing: .06em; }
+    tr:last-child td { border-bottom: none; }
+
+    .kpi { text-align: center; }
+    .kpi .n { font-size: 40px; font-weight: 800; letter-spacing: -.03em; color: var(--gold); line-height: 1; }
+    .kpi .l { margin-top: 6px; font-size: 13px; color: var(--muted); }
+
+    pre { background: var(--code); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; overflow-x: auto; margin: 12px 0; }
+    pre code { background: none; border: none; padding: 0; color: #cfe0ff; }
+    .runa { color: var(--accent-2); }
+
+    ul.limpa { list-style: none; padding: 0; margin: 0; }
+    ul.limpa li { padding-left: 26px; position: relative; margin-bottom: 9px; color: var(--muted); }
+    ul.limpa li::before { content: "◆"; position: absolute; left: 0; color: var(--accent); font-size: 11px; top: 4px; }
+    ul.limpa li b { color: var(--text); }
+
+    footer { margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+    footer .runa { letter-spacing: .3em; }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="marca">
+    <img src="../../public/img/ui/logos/logo-header.png" alt="Algorithmia">
+    <span>Algorithmia · Migração</span>
+  </div>
+
+  <header class="hero">
+    <div class="eyebrow">Roteiro v2 — estado final do código</div>
+    <h1>A migração está construída.</h1>
+    <p class="subtitle">
+      O Algorithmia foi portado de PHP puro + MySQL para Laravel 13 + PostgreSQL 18, e a plataforma
+      é <strong>multitenant de verdade</strong>: papel de execução sem <code>BYPASSRLS</code>,
+      <code>FORCE ROW LEVEL SECURITY</code> nas 18 tabelas tenant-scoped, e resolução de instituição pelo
+      <code>Host</code> — nunca pelo cliente. Todas as etapas de código do
+      <a href="roteiro-v1.html">roteiro v1</a> e da proposta <code>fundacao-multitenant</code>
+      estão concluídas.
+    </p>
+
+    <div class="chips">
+      <span class="chip ok">Laravel 13 · PHP 8.4</span>
+      <span class="chip ok">PostgreSQL 18</span>
+      <span class="chip ok">RLS com <code>FORCE</code></span>
+      <span class="chip ok">Multitenant por domínio</span>
+      <span class="chip ok">377 testes no port</span>
+      <span class="chip ok">53 no legado (38 vetores-ouro)</span>
+      <span class="chip ok">pint · phpstan nível 6</span>
+      <span class="chip">Sem Redis, sem filas</span>
+    </div>
+
+    <div class="meta">
+      <span>Versão 2.0 · 2026-07-10</span>
+      <span>Substitui o placar de fases do <a href="roteiro-v1.html">roteiro v1</a></span>
+      <span>Fonte da verdade: <a href="../../openspec/changes/fundacao-multitenant/tasks.md"><code>openspec/changes/fundacao-multitenant/tasks.md</code></a></span>
+    </div>
+  </header>
+
+  <div class="toc">
+    <strong>Neste documento</strong>
+    <nav>
+      <a href="#placar">1. O placar das dez fases</a>
+      <a href="#fundacao">2. A fundação multitenant, A–G</a>
+      <a href="#divergencias">3. Onde divergimos do roteiro v1</a>
+      <a href="#defeitos">4. Os sete defeitos que só apareceram contra dados reais</a>
+      <a href="#provas">5. As provas</a>
+      <a href="#falta">6. O que falta</a>
+    </nav>
+  </div>
+
+  <div class="callout danger">
+    <h4>Uma coisa não está concluída, e é a mais visível</h4>
+    <p>
+      <strong>O corte em produção não foi feito.</strong> O jogo que está no ar hoje continua sendo
+      o legado em PHP puro. O port está pronto, ensaiado de ponta a ponta em Docker com as 1.306
+      linhas reais do legado, e espera uma VPS. O corte é <em>operação</em>, não código: está escrito,
+      passo a passo, no <a href="../operacao/RUNBOOK.md">RUNBOOK §10</a>.
+    </p>
+    <p style="margin-top:8px">
+      Também ficam de fora, por decisão registrada: <strong>métricas e alertas</strong> (dependem de um
+      host para onde exportá-los) e o <strong>conteúdo versionado por instituição</strong>
+      (<code>content_packages</code>) — ver §3.
+    </p>
+  </div>
+
+  <!-- ================================================================ 1 -->
+  <section id="placar">
+    <h2>1. O placar das dez fases</h2>
+    <p class="lead">
+      As fases são as do <a href="roteiro-v1.html">roteiro v1</a>. O que mudou nelas está no §3, e
+      cada mudança tem uma razão escrita — não um esquecimento.
+    </p>
+
+    <div class="chips" style="margin: 18px 0 22px">
+      <span class="chip"><span class="badge b-ok">Concluída</span> &nbsp;o código está pronto e testado</span>
+      <span class="chip"><span class="badge b-op">Falta operação</span> &nbsp;o código está pronto; falta rodar no servidor</span>
+      <span class="chip"><span class="badge b-div">Divergiu</span> &nbsp;fizemos outra coisa, e está justificado</span>
+    </div>
+
+    <div class="fase">
+      <div class="n">0</div>
+      <div>
+        <h3>Governança técnica e inventário do domínio</h3>
+        <p>Inventário do legado e — o que o roteiro não pedia — <strong>38 vetores-ouro</strong> derivados
+           à mão das constantes de balanceamento, não capturados de snapshot. Eles são o contrato do motor.</p>
+      </div>
+      <span class="badge b-ok">Concluída</span>
+    </div>
+
+    <div class="fase">
+      <div class="n">1</div>
+      <div>
+        <h3>Núcleo Laravel e infraestrutura local</h3>
+        <p>Laravel 13, PostgreSQL 18, Docker, CI rodando as duas suítes. Duas conexões:
+           a aplicação como <code>algorithmia_app</code>, as migrations como dono.</p>
+      </div>
+      <span class="badge b-ok">Concluída</span>
+    </div>
+
+    <div class="fase">
+      <div class="n">2</div>
+      <div>
+        <h3>Tenancy, domínios, identidade e autorização</h3>
+        <p>Etapas A, B e C da <code>fundacao-multitenant</code>. <code>tenant_id</code> em 18 tabelas,
+           <code>ENABLE</code> + <code>FORCE ROW LEVEL SECURITY</code>, resolução pelo <code>Host</code>,
+           contexto por <code>SET LOCAL</code> numa transação por requisição.</p>
+      </div>
+      <span class="badge b-ok">Concluída</span>
+    </div>
+
+    <div class="fase">
+      <div class="n">3</div>
+      <div>
+        <h3>Modelo de conteúdo versionado</h3>
+        <p>Não entrou, de propósito. Uma escola nova recebe uma <strong>cópia</strong> do conteúdo, com ids
+           novos (<code>algorithmia:tenant:semear</code>), e o mestre dela a edita. Conteúdo
+           <em>diferente</em> por instituição é mudança de modelo, com proposta própria. Ver §3.</p>
+      </div>
+      <span class="badge b-div">Divergiu</span>
+    </div>
+
+    <div class="fase">
+      <div class="n">4</div>
+      <div>
+        <h3>Portabilidade do motor de jogo</h3>
+        <p>Motor de batalha, progressão, conquistas, loja, finais. Os 38 vetores-ouro passam
+           <strong>com os mesmos números</strong> nas duas bases.</p>
+      </div>
+      <span class="badge b-ok">Concluída</span>
+    </div>
+
+    <div class="fase">
+      <div class="n">5</div>
+      <div>
+        <h3>Turmas, matrículas, papéis pedagógicos e relatórios</h3>
+        <p>Etapa D. Duas fronteiras, e elas não são a mesma: entre instituições é RLS (a linha nem existe);
+           dentro da instituição é autorização (<code>TurmaPolicy</code>). Turma de outra escola devolve
+           <strong>404, não 403</strong> — um 403 revelaria que ela existe.</p>
+      </div>
+      <span class="badge b-ok">Concluída</span>
+    </div>
+
+    <div class="fase">
+      <div class="n">6</div>
+      <div>
+        <h3>API, frontend e experiência de jogo</h3>
+        <p>Todas as telas portadas, e o jogo joga. Mas <strong>não é API-first</strong>: continua um monólito
+           que serve HTML, com <code>fetch</code> só nos turnos de batalha. Uma API sem cliente que a
+           consuma é peso morto. Ver §3.</p>
+      </div>
+      <span class="badge b-div">Divergiu</span>
+    </div>
+
+    <div class="fase">
+      <div class="n">7</div>
+      <div>
+        <h3>Migração de dados e coexistência controlada</h3>
+        <p><code>algorithmia:importar</code> com <code>--dry-run</code> que executa tudo e desfaz;
+           <code>deploy.sh</code> com rollback automático quando o smoke reprova; o corte ensaiado
+           ponta a ponta em Docker, mais de uma vez.</p>
+      </div>
+      <span class="badge b-op">Falta operação</span>
+    </div>
+
+    <div class="fase">
+      <div class="n">8</div>
+      <div>
+        <h3>Segurança, observabilidade e operação</h3>
+        <p>Dois limites no login (o de e-mail+IP não vê o <em>password spraying</em>), CSP com
+           <em>nonce</em> emitido pelo PHP, trilha de auditoria isolada por instituição, logs
+           estruturados com <code>request_id</code>. <strong>Métricas e alertas ficam de fora</strong>:
+           dependem de um host para onde exportá-los.</p>
+      </div>
+      <span class="badge b-ok">Concluída</span>
+    </div>
+
+    <div class="fase">
+      <div class="n">9</div>
+      <div>
+        <h3>Piloto, corte de tráfego e expansão</h3>
+        <p>Etapa E. Feature flags por instituição, provisionamento com portão (o <code>ativar</code> roda o
+           smoke da escola <em>antes</em> de ligá-la), console do operador e indicadores de ativação e uso.
+           O corte de tráfego é o DNS — e ele espera a VPS.</p>
+      </div>
+      <span class="badge b-op">Falta operação</span>
+    </div>
+  </section>
+
+  <!-- ================================================================ 2 -->
+  <section id="fundacao">
+    <h2>2. A fundação multitenant, de A a G</h2>
+    <p class="lead">
+      A multitenancy tinha sido <strong>adiada</strong> pelo <a href="PLANO.md">PLANO v2.0</a>, de propósito:
+      sem escola interessada, <code>tenant_id</code> e RLS seriam complexidade paga adiantado. Ela voltou
+      depois que o motor existia e os 38 vetores-ouro o guardavam.
+    </p>
+
+    <div class="callout">
+      <h4>O fato medido, e ele mudou tudo</h4>
+      <p>
+        O papel <code>algorithmia</code> é <strong>superusuário</strong>, tem <strong><code>rolbypassrls</code></strong>
+        e é <strong>dono</strong> das tabelas. São três razões independentes para o RLS ser completamente inerte.
+        Ligá-lo assim entregaria a pior coisa que uma barreira de segurança pode entregar: <em>a sensação de
+        que existe</em>. Por isso a fundação começa por um papel de execução, e não por uma tabela
+        <code>tenants</code>.
+      </p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th style="width:60px">Etapa</th><th>O que entregou</th><th style="width:130px">Estado</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><b>A</b></td>
+            <td>Topologia de acesso. Papel <code>algorithmia_app</code>: <code>NOSUPERUSER</code>,
+                <code>NOBYPASSRLS</code>, dono de nada. Migrations por uma conexão separada.</td>
+            <td><span class="badge b-ok">Concluída</span></td>
+          </tr>
+          <tr>
+            <td><b>B</b></td>
+            <td>Fundação de tenancy. <code>tenants</code>, <code>tenant_dominios</code>, resolução pelo
+                <code>Host</code>, <code>SET LOCAL</code> em transação. O <code>tenant_id</code> nunca vem do cliente.</td>
+            <td><span class="badge b-ok">Concluída</span></td>
+          </tr>
+          <tr>
+            <td><b>C</b></td>
+            <td><code>tenant_id</code> nas 13 tabelas do jogo, <strong>antes do corte</strong> — a ordem do plano
+                foi invertida, e o §3 diz por quê.</td>
+            <td><span class="badge b-ok">Concluída</span></td>
+          </tr>
+          <tr>
+            <td><b>D</b></td>
+            <td>Turmas, matrículas, papéis pedagógicos e relatórios. Auditoria das ações administrativas.</td>
+            <td><span class="badge b-ok">Concluída</span></td>
+          </tr>
+          <tr>
+            <td><b>E</b></td>
+            <td>O piloto: feature flags por instituição, provisionamento com portão de smoke, console do
+                operador, indicadores de ativação e uso.</td>
+            <td><span class="badge b-ok">Concluída</span></td>
+          </tr>
+          <tr>
+            <td><b>F</b></td>
+            <td>Quatro vazamentos de isolamento, achados exercitando a E contra um banco real. Nenhum tinha
+                teste. Ver §4.</td>
+            <td><span class="badge b-ok">Corrigidos</span></td>
+          </tr>
+          <tr>
+            <td><b>G</b></td>
+            <td>A segunda instituição ganha conteúdo: <code>algorithmia:tenant:semear</code> copia o mundo com
+                ids novos, e <strong>nenhuma pessoa</strong>.</td>
+            <td><span class="badge b-ok">Concluída</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout success" style="margin-top:22px">
+      <h4>O portão que ninguém consegue contornar</h4>
+      <p>
+        Provisionar e semear são dois atos, e entre eles a escola é injogável. Uma escola <em>ativa e vazia</em>
+        reprova o <code>algorithmia:smoke</code> — que é o portão do <code>deploy.sh</code> — e portanto reprova
+        <strong>todo deploy</strong>, até alguém desconfiar. Não é hipótese: foi o que o ensaio do corte fez com
+        um build correto.
+      </p>
+      <p style="margin-top:8px">
+        Por isso <code>algorithmia:tenant:ativar</code> <strong>roda o smoke da instituição antes de ligá-la</strong>,
+        e recusa. Não há <code>--forcar</code>: um portão com botão de contornar é um portão que ninguém fecha.
+        O escape, se um dia for preciso, é um <code>UPDATE</code> escrito à mão por quem sabe o que faz.
+      </p>
+    </div>
+  </section>
+
+  <!-- ================================================================ 3 -->
+  <section id="divergencias">
+    <h2>3. Onde divergimos do roteiro v1</h2>
+    <p class="lead">
+      Cada linha aqui é uma decisão, não um esquecimento. Todas estão registradas em
+      <a href="../../openspec/changes/fundacao-multitenant/design.md"><code>design.md</code></a>.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th style="width:220px">O roteiro v1 pedia</th><th>O que se fez, e por quê</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><b>Redis</b> para cache, filas, sessões, rate limiting e tempo real</td>
+            <td>Nada disso entrou. <strong>Não há trabalho para eles.</strong> A sessão vive no PostgreSQL
+                — o estado da batalha carrega o gabarito e não cabe num cookie. Redis volta quando existir um
+                job assíncrono de verdade.</td>
+          </tr>
+          <tr>
+            <td><b>API-first</b></td>
+            <td>O port serve HTML, com <code>fetch</code> só nos turnos de batalha. Uma API sem um cliente que a
+                consuma é superfície de ataque e manutenção sem contrapartida.</td>
+          </tr>
+          <tr>
+            <td><b><code>content_packages</code></b> e versionamento de conteúdo</td>
+            <td>É mudança de <em>modelo de conteúdo</em>, ortogonal a tenancy. Cada escola nova recebe uma cópia
+                do mundo, com ids próprios, e o mestre dela a edita. Conteúdo <em>diferente</em> por instituição
+                fica para uma proposta própria.</td>
+          </tr>
+          <tr>
+            <td><b><code>platform_admin</code></b> como papel</td>
+            <td><strong>Recusado.</strong> Ele lê <em>através</em> das instituições, e o RLS existe para impedir
+                exatamente isso. O console do operador lê as métricas de todas as escolas entrando em
+                <strong>uma de cada vez</strong>, pelo mesmo caminho de uma requisição HTTP — sem conexão do dono,
+                sem <code>BYPASSRLS</code>.</td>
+          </tr>
+          <tr>
+            <td><b>Contas globais</b> ligadas às instituições por <code>tenant_memberships</code></td>
+            <td><code>usuarios</code> é tenant-scoped: uma conta pertence a uma escola. A tabela de membership
+                seria 1:1 com o usuário — redundante, e uma segunda fonte de verdade para o papel. A conta
+                <em>global</em> exige resolver a identidade antes de saber o tenant, e continua sem demanda.</td>
+          </tr>
+          <tr>
+            <td><b><code>tenant_id</code> só depois do corte</b>, em três deploys</td>
+            <td><strong>Invertido.</strong> A regra dos três deploys existe porque migrations rodam contra o código
+                velho ainda no ar — é regra de <em>coexistência</em>, e antes do corte não há código velho. E o
+                risco se inverte: antes do corte, o rollback é trocar o DNS; depois, seria irreversível sobre o
+                progresso real de alunos.</td>
+          </tr>
+          <tr>
+            <td><b>Billing e planos</b></td>
+            <td>Não há cliente.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================================================================ 4 -->
+  <section id="defeitos">
+    <h2>4. Os sete defeitos que só apareceram contra dados reais</h2>
+    <p class="lead">
+      Nenhum tinha teste. Nenhum era visível pela leitura. Todos apareceram quando o código foi exercitado
+      contra um clone do banco de produção, com as 955 linhas reais de <code>desafios</code> — e não contra
+      a suíte, que semeava uma escola de cada vez.
+    </p>
+
+    <div class="callout danger">
+      <h4>O pior: um 500 numa rota pública, e um oráculo de contas entre escolas</h4>
+      <p>
+        <code>usuarios.email</code> tinha índice único <strong>global</strong>, mas o RLS escondia a conta da
+        outra instituição. O <code>registrar</code> consultava, não via nada, concluía "e-mail livre", e o
+        <code>INSERT</code> estourava no índice.
+      </p>
+<pre><code><span class="runa">-- como algorithmia_app, no contexto da escola B:</span>
+SELECT count(*) FROM usuarios WHERE lower(email) = 'ana@escola-a.test';   --&gt;  0
+INSERT INTO usuarios (nome, email, senha_hash) VALUES ('Outra', 'ana@escola-a.test', 'y');
+ERROR:  duplicate key value violates unique constraint "usuarios_email_unique"</code></pre>
+      <p>
+        O visitante recebia <strong>500 em vez de um erro de validação</strong>, e com isso aprendia que aquele
+        e-mail existe <em>em outra instituição</em>. Enumeração de contas entre escolas, numa rota que não exige
+        conta. Estava registrado no <code>tasks.md</code> como "pergunta aberta, aceita como consequência".
+        Não era consequência: era bug.
+      </p>
+    </div>
+
+    <div class="grid two">
+      <div class="card">
+        <h3>Os três da mesma família</h3>
+        <ul class="limpa">
+          <li><b><code>usuarios.email</code></b> único global → virou <code>(tenant_id, lower(email))</code>.
+              Duas escolas podem ter o mesmo e-mail.</li>
+          <li><b><code>conquistas.codigo</code></b> único global → <code>arquivista_do_vazio</code> só podia
+              existir em <em>uma</em> escola no banco inteiro.</li>
+          <li><b><code>auditoria</code></b> sem <code>tenant_id</code> e sem RLS. A policy usa
+              <code>IS NOT DISTINCT FROM</code>: <code>NULL</code> significa "a plataforma", e é assim que a
+              linha do operador convive com as das escolas sem que nenhuma veja a outra.</li>
+        </ul>
+        <p style="color:var(--muted); font-size:14px; margin-top:14px">
+          <b>A regra:</b> o RLS esconde a linha da outra escola; um índice único global a <em>denuncia</em>.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>E os outros quatro</h3>
+        <ul class="limpa">
+          <li><b>A sessão não estava amarrada à instituição.</b> Impersonação não era possível — a chave
+              primária global de <code>usuarios</code> protege por acidente —, mas o estado da batalha,
+              <em>com o gabarito</em>, atravessava com um <code>SESSION_DOMAIN</code> compartilhado.</li>
+          <li><b>A segunda escola não podia ter conteúdo.</b> <code>fases.id</code> é chave primária global e o
+              importador preserva os ids. O RUNBOOK mandava rodar o comando que colide.</li>
+          <li><b><code>ContextoDoTenant</code> não era singleton</b>: <code>atual()</code> mentia para quem não
+              o definira.</li>
+          <li><b>O <code>finally</code> de <code>usar()</code> mascarava a exceção original.</b> Erro SQL aborta a
+              transação; o <code>SET LOCAL</code> de restauro estoura com <code>25P02</code> e toma o lugar do
+              erro real.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout success">
+      <h4>A sentinela que impede a próxima</h4>
+      <p>
+        <code>IntegridadeDaTenancyTest</code> <strong>não lista tabelas</strong>. Ele pergunta ao PostgreSQL
+        quais têm <code>tenant_id</code> e exige de todas: RLS com <code>FORCE</code>, uma policy, uma chave
+        estrangeira para <code>tenants</code>, e <strong>nenhum índice único que ignore <code>tenant_id</code></strong>.
+        Uma tabela nova sem <code>tenant_id</code> reprova a suíte até alguém justificá-la, por escrito, no
+        próprio teste.
+      </p>
+      <p style="margin-top:8px">
+        Ele teria pego os três primeiros no dia em que nasceram. Os testes anteriores não pegaram porque cada um
+        olhava para a lista de tabelas que o seu autor lembrou.
+      </p>
+    </div>
+
+    <div class="callout warning">
+      <h4>Uma regra de jogo nunca se amarra a uma chave primária</h4>
+      <p>
+        <code>arquivista_do_vazio</code> — "recuperar <em>todos</em> os Logs do Zero" — procurava as fases
+        <b>8, 14, 20 e 32</b> por id, herança do legado. Isso a tornava inalcançável numa segunda escola, em
+        silêncio, <em>e</em> fazia uma quinta fase secundária criada pelo mestre não contar. Agora são as fases de
+        <code>tipo = 'secundaria'</code> da instituição. No conteúdo do legado são exatamente aquelas quatro:
+        o jogo de ninguém muda.
+      </p>
+    </div>
+  </section>
+
+  <!-- ================================================================ 5 -->
+  <section id="provas">
+    <h2>5. As provas</h2>
+    <p class="lead">
+      Números medidos, não estimados. As duas suítes rodam na CI; a verificação de banco foi feita num clone
+      descartável do banco <em>pré-tenancy</em>, migrado para frente pelas 11 migrations.
+    </p>
+
+    <div class="grid three" style="margin-bottom:18px">
+      <div class="card kpi"><div class="n">377</div><div class="l">testes no port</div></div>
+      <div class="card kpi"><div class="n">53</div><div class="l">testes no legado<br>(38 vetores-ouro)</div></div>
+      <div class="card kpi"><div class="n">0</div><div class="l">erros de <code>phpstan</code><br>no nível 6</div></div>
+    </div>
+
+    <div class="grid two">
+      <div class="card">
+        <h3>Isolamento, provado no banco</h3>
+        <ul class="limpa">
+          <li>Sem contexto, a aplicação vê <b>zero linhas</b> — e não recebe erro. A policy filtra, não recusa.</li>
+          <li>Escrita cruzada é <b>erro</b>, não silêncio: o <code>WITH CHECK</code> a recusa.</li>
+          <li>Um <code>X-Forwarded-Host</code> forjado <b>não escolhe o tenant</b>.</li>
+          <li>O papel da aplicação não é superusuário, não tem <code>rolbypassrls</code>, e não é dono de nada.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>A cópia de conteúdo, com o mundo real</h3>
+        <ul class="limpa">
+          <li><b>35 fases e 955 desafios</b> copiados para uma escola nova.</li>
+          <li><b>Zero ids compartilhados</b> entre as duas instituições.</li>
+          <li><b>34 requisitos</b> e <b>11 <code>item_drop_id</code></b> religados dentro da escola certa; zero cruzados.</li>
+          <li><b>Zero contas copiadas</b> — uma escola nova não herda os alunos de outra.</li>
+          <li>As <b>duas escolas</b> passando no smoke completo, no mesmo banco.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:20px">
+      <h4>O smoke é o portão, e o que ele não prova o deploy promove</h4>
+      <p>
+        Ele deixou de parar na batalha — que roda em memória — e passou a percorrer o caminho do aluno:
+        o host do <code>APP_URL</code> resolve uma instituição ativa (o <em>404 com o banco cheio e o healthcheck
+        verde</em>); cada instituição tem domínio; o progresso persiste <strong>e nasce com o <code>tenant_id</code>
+        certo</strong>; e o relatório de turma responde. Tudo dentro de <em>savepoints</em> que sempre voltam — e
+        há teste contando as linhas antes e depois, porque um smoke que suja o banco não roda em produção.
+      </p>
+    </div>
+  </section>
+
+  <!-- ================================================================ 6 -->
+  <section id="falta">
+    <h2>6. O que falta</h2>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th style="width:230px">O quê</th><th>Depende de</th><th style="width:150px">É código?</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><b>O corte em produção</b></td>
+            <td>Uma VPS. Depois: <code>bash bin/checar-host.sh</code>, e então o
+                <a href="../operacao/RUNBOOK.md">RUNBOOK §10</a>, que está escrito e ensaiado.</td>
+            <td>Não — operação</td>
+          </tr>
+          <tr>
+            <td><b>Métricas e alertas</b></td>
+            <td>Um host para onde exportá-los.</td>
+            <td>Não — infraestrutura</td>
+          </tr>
+          <tr>
+            <td><b><code>content_packages</code></b></td>
+            <td>Uma escola querer conteúdo <em>diferente</em>, e não uma cópia editável. Proposta própria.</td>
+            <td>Sim, e é grande</td>
+          </tr>
+          <tr>
+            <td><b>Conta global de usuário</b></td>
+            <td>Alguém precisar estudar em duas instituições com a mesma identidade. Sem demanda.</td>
+            <td>Sim</td>
+          </tr>
+          <tr>
+            <td><b>LGPD e consentimento parental</b></td>
+            <td><strong>Bloqueador</strong> antes de qualquer aluno menor de idade entrar numa instituição real.</td>
+            <td>Sim, e jurídico</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warning" style="margin-top:22px">
+      <h4>O legado continua sendo o plano de rollback</h4>
+      <p>
+        Ele fica de pé, no ar, por uma janela combinada depois do corte. Devolver o DNS ao host antigo é o
+        rollback de verdade — e é por isso que as duas suítes continuam verdes, e que o legado ainda recebe
+        correção urgente. O que os jogadores criarem no port nesse intervalo não volta.
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    <p class="runa">&lt;/&gt;</p>
+    <p>
+      <strong>Algorithmia</strong> — A Lenda dos Cinco Mestres · Roteiro v2, 2026-07-10.<br>
+      Registro do roteiro original: <a href="roteiro-v1.html">roteiro-v1.html</a> ·
+      Plano de execução: <a href="PLANO.md">PLANO.md</a> ·
+      Operação: <a href="../operacao/RUNBOOK.md">RUNBOOK.md</a> ·
+      Especificação: <a href="../../openspec/changes/fundacao-multitenant/">openspec/changes/fundacao-multitenant/</a>
+    </p>
+    <p style="margin-top:10px">
+      Os 38 vetores-ouro são o contrato do motor. Se um deles falhar, o port está errado — nunca o teste.
+    </p>
+  </footer>
+
+</div>
+</body>
+</html>

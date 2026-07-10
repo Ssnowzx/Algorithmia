@@ -3,6 +3,11 @@
 **Versão:** 2.0 · **Data:** 2026-07-08
 **Substitui:** [`roteiro-v1.html`](roteiro-v1.html) — o roteiro original de 10 fases, guardado como registro.
 
+> 🏁 **O código está pronto.** O placar final das dez fases, o que divergiu do roteiro e por quê,
+> e os sete defeitos que só apareceram contra dados reais estão em
+> [`roteiro-v2-concluido.html`](roteiro-v2-concluido.html). **O corte em produção não foi
+> feito** — ele é operação, e mora no [`RUNBOOK §10`](../operacao/RUNBOOK.md).
+
 ---
 
 ## 1. Decisões que definem este plano

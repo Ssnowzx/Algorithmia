@@ -66,6 +66,23 @@ final class IntegridadeDaTenancyTest extends TestCase
     ];
 
     /**
+     * Tabelas que **nenhuma migration cria**: cobaias que um teste deixa para trás.
+     *
+     * `TopologiaDeAcessoTest` cria `ensaio_rls` pela conexão do dono e não a derruba — um
+     * `DROP TABLE` esperaria pelo `ACCESS EXCLUSIVE` que a transação do `RefreshDatabase`
+     * ainda segura, para sempre. O `migrate:fresh` da execução seguinte a leva junto.
+     *
+     * Sem esta lista, esta sentinela passaria **por sorte alfabética**: `Integridade…` vem
+     * antes de `Topologia…`, e a cobaia ainda não existia. Um teste cuja premissa depende da
+     * ordem em que o PHPUnit resolveu rodar não é um teste.
+     *
+     * @var array<string,string>
+     */
+    private const COBAIAS_DE_TESTE = [
+        'ensaio_rls' => 'criada por TopologiaDeAcessoTest e derrubada pelo migrate:fresh seguinte',
+    ];
+
+    /**
      * Índices únicos que NÃO mencionam `tenant_id` e ainda assim estão certos. Cada entrada é
      * uma decisão, e o comentário é a razão dela.
      *
@@ -101,7 +118,11 @@ final class IntegridadeDaTenancyTest extends TestCase
             ),
         );
 
-        return array_values(array_diff($comColuna, array_keys(self::CATALOGO_GLOBAL)));
+        return array_values(array_diff(
+            $comColuna,
+            array_keys(self::CATALOGO_GLOBAL),
+            array_keys(self::COBAIAS_DE_TESTE),
+        ));
     }
 
     #[Test]
@@ -128,6 +149,7 @@ final class IntegridadeDaTenancyTest extends TestCase
             $this->tabelasTenantScoped(),
             array_keys(self::CATALOGO_GLOBAL),
             array_keys(self::SEM_TENANT_ID),
+            array_keys(self::COBAIAS_DE_TESTE),
         );
 
         // ACT
