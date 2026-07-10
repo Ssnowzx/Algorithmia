@@ -44,12 +44,10 @@ jobs:
       - run: composer install --prefer-dist --no-progress
 
       - name: Preparar o banco de teste
-        # schema.sql tem CREATE DATABASE/USE fixos em `algorithmia` e ignora o
-        # DB_NAME do ambiente — por isso as duas instruções são removidas aqui.
-        run: |
-          mysql -h 127.0.0.1 -uroot -praiz -e "CREATE DATABASE algorithmia_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-          sed -e '/^CREATE DATABASE IF NOT EXISTS algorithmia/,+2d' -e '/^USE algorithmia;/d' database/schema.sql \
-            | mysql -h 127.0.0.1 -uroot -praiz algorithmia_test
+        # Pelo migrador de verdade, e não por um `sed` no schema.sql. O `sed` existia
+        # porque o schema fixava `CREATE DATABASE algorithmia; USE algorithmia;` e
+        # ignorava o DB_NAME — o que também tornava a CI cega para o próprio migrador.
+        run: DB_NAME=algorithmia_test php database/migrate.php --schema
 
       - run: vendor/bin/phpunit
 

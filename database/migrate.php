@@ -203,24 +203,42 @@ function aplicarMigracoes(PDO $pdo): int
 $apenasSchema = in_array('--schema', $argv, true);
 $reset        = in_array('--reset', $argv, true);
 
+// Um nome de banco vira identificador SQL, e identificador não aceita placeholder.
+// A crase não escapa crase: sem esta guarda, um DB_NAME hostil injetaria DDL.
+if (preg_match('/^[A-Za-z0-9_]+$/', DB_NAME) !== 1) {
+    fwrite(STDERR, sprintf("DB_NAME inválido: %s (use só letras, números e _)\n", DB_NAME));
+    exit(1);
+}
+$banco = '`' . DB_NAME . '`';
+
 echo "🛠  Conectando ao servidor MySQL...\n";
-$pdo = getConnection(true); // sem selecionar banco (o schema cria o banco)
+$pdo = getConnection(true); // sem selecionar banco: ele pode nem existir ainda
 
 if ($reset) {
     echo "♻️  --reset: recriando o banco DO ZERO (todas as contas e progresso serão apagados)...\n";
-    $pdo->exec('DROP DATABASE IF EXISTS ' . DB_NAME);
+    $pdo->exec("DROP DATABASE IF EXISTS {$banco}");
 }
 
-echo "📦 Executando schema.sql (CREATE IF NOT EXISTS)...\n";
-$n = executarArquivo($pdo, __DIR__ . '/schema.sql');
-echo "   {$n} instruções aplicadas.\n";
+// O `schema.sql` não traz mais `CREATE DATABASE` nem `USE`: o nome vem de DB_NAME, e
+// não de uma constante escrita no arquivo. Antes, `DB_NAME=outro php migrate.php`
+// criava as tabelas em `algorithmia` e ia aplicar as migrations no banco vazio.
+echo '📦 Garantindo o banco ' . DB_NAME . "...\n";
+$pdo->exec("CREATE DATABASE IF NOT EXISTS {$banco} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
 
 $pdoBanco = getConnection();
 
-echo "🧩 Aplicando migrações incrementais (migrations/)...\n";
-$migs = aplicarMigracoes($pdoBanco);
-echo $migs === 0 ? "   nenhuma pendente.\n" : "   {$migs} migração(ões) aplicada(s).\n";
+echo "📦 Executando schema.sql (CREATE IF NOT EXISTS)...\n";
+$n = executarArquivo($pdoBanco, __DIR__ . '/schema.sql');
+echo "   {$n} instruções aplicadas.\n";
 
+// As seeds vêm ANTES das migrations, e não depois.
+//
+// `schema.sql` + `seeds.sql` são a linha de base atual; as migrations existem para
+// trazer bancos ANTIGOS até ela. Num banco vazio elas não têm o que migrar — mas a
+// `20260624-objetivos-loja.sql` insere conquistas, com `INSERT IGNORE` "para conviver
+// com a seed". Rodando antes da seed, ela inseria primeiro, e o `INSERT` comum do
+// `seeds.sql` morria em `Duplicate entry 'primeira_arma'`. Instalar do zero era
+// impossível, e ninguém via porque a CI monta o banco só com o `schema.sql`.
 if (!$apenasSchema) {
     // Só semeia o conteúdo se o banco estiver vazio (ou em --reset). Assim,
     // rodar a migração de novo nunca apaga as contas dos jogadores.
@@ -236,8 +254,12 @@ if (!$apenasSchema) {
     }
 }
 
+echo "🧩 Aplicando migrações incrementais (migrations/)...\n";
+$migs = aplicarMigracoes($pdoBanco);
+echo $migs === 0 ? "   nenhuma pendente.\n" : "   {$migs} migração(ões) aplicada(s).\n";
+
 // Relatório rápido de contagens.
-echo "\n✅ Banco 'algorithmia' pronto.\n";
+printf("\n✅ Banco '%s' pronto.\n", DB_NAME);
 foreach (['usuarios', 'mestres', 'fases', 'desafios', 'itens', 'conquistas', 'dialogos'] as $tabela) {
     try {
         $total = (int) $pdoBanco->query("SELECT COUNT(*) FROM {$tabela}")->fetchColumn();

@@ -3,11 +3,10 @@
 --  Esquema do banco de dados (MySQL / InnoDB / utf8mb4)
 -- ============================================================
 
-CREATE DATABASE IF NOT EXISTS algorithmia
-    CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
-
-USE algorithmia;
+-- Nem `CREATE DATABASE` nem `USE`: quem cria e seleciona o banco é o `migrate.php`,
+-- a partir de `DB_NAME`. Com o nome fixo aqui, rodar o migrador contra outro banco
+-- criava as tabelas em `algorithmia` e aplicava as migrations no banco vazio — e a
+-- mensagem de erro não dizia nada sobre isso.
 
 -- Schema NÃO-DESTRUTIVO: usa CREATE TABLE IF NOT EXISTS para nunca apagar
 -- dados existentes (contas, personagens, progresso). Para zerar tudo de

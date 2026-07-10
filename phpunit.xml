@@ -12,8 +12,8 @@
         <testsuite name="motor">
             <directory>tests/Motor</directory>
         </testsuite>
-        <testsuite name="seed">
-            <directory>tests/Seed</directory>
+        <testsuite name="banco">
+            <directory>tests/Banco</directory>
         </testsuite>
     </testsuites>
 </phpunit>

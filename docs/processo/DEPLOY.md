@@ -53,7 +53,14 @@ sudo -u www-data DB_HOST=127.0.0.1 DB_NAME=algorithmia \
      php database/migrate.php
 ```
 
-Você deve ver `✅ Banco 'algorithmia' pronto.` e as contagens das tabelas.
+Você deve ver `✅ Banco 'algorithmia' pronto.` e as contagens das tabelas. O migrador
+cria o banco a partir de `DB_NAME` — desde 2026-07-09, quando o `CREATE DATABASE
+algorithmia; USE algorithmia;` saiu do `schema.sql`. Antes, apontar `DB_NAME` para
+outro banco criava as tabelas em `algorithmia` e falhava adiante.
+
+`APP_ENV` não é opcional no vhost. Sem ele, o padrão **era** `dev`, e uma falha de
+conexão imprimia host e usuário do banco na tela do jogador. Hoje o padrão é produção;
+o `SetEnv` acima só torna a intenção explícita.
 
 ## 5. Configurar o VirtualHost do Apache
 
@@ -67,6 +74,7 @@ sudo tee /etc/apache2/sites-available/algorithmia.conf > /dev/null <<'CONF'
     DocumentRoot /var/www/algorithmia
 
     SetEnv DB_HOST 127.0.0.1
+    SetEnv APP_ENV production
     SetEnv DB_NAME algorithmia
     SetEnv DB_USER algorithmia
     SetEnv DB_PASS SUA_SENHA_FORTE

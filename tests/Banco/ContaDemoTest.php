@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Algorithmia\Testes\Seed;
+namespace Algorithmia\Testes\Banco;
 
 use Algorithmia\Testes\Suporte\Mundo;
 use PHPUnit\Framework\TestCase;

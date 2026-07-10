@@ -5,7 +5,7 @@
 --  AUTO_INCREMENT são previsíveis na ordem de inserção abaixo.
 -- ============================================================
 
-USE algorithmia;
+-- Sem `USE`: o banco é escolhido pela conexão, a partir de `DB_NAME`.
 
 -- ------------------------------------------------------------
 -- USUÁRIOS

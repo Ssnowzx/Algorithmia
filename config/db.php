@@ -25,6 +25,19 @@ define('DB_PASS', getenv('DB_PASS') !== false ? getenv('DB_PASS') : '');
 define('DB_CHARSET', 'utf8mb4');
 
 /**
+ * O padrão é PRODUÇÃO — e é o ponto todo desta função.
+ *
+ * O vhost do jogo define `DB_*` e não define `APP_ENV`. Com o antigo
+ * `(getenv('APP_ENV') ?: 'dev') === 'dev'`, todo servidor se declarava
+ * desenvolvimento: uma falha de conexão imprimia a mensagem crua do PDO na tela do
+ * jogador, com host e usuário do banco. Quem quer o detalhe pede por ele.
+ */
+function ehAmbienteDeDesenvolvimento(): bool
+{
+    return in_array(getenv('APP_ENV'), ['dev', 'local', 'test'], true);
+}
+
+/**
  * Abre (e reaproveita) uma conexão PDO única para a requisição.
  *
  * @param bool $semBanco Quando verdadeiro, conecta ao servidor sem selecionar
@@ -52,12 +65,15 @@ function getConnection(bool $semBanco = false): PDO
         // Detalhe sempre no log; na tela, só mostra o erro cru em desenvolvimento
         // (a mensagem revela host/usuário/estrutura — não pode vazar em produção).
         error_log('[DB] ' . $e->getMessage());
-        $ehDev = (getenv('APP_ENV') ?: 'dev') === 'dev';
+
+        $ehDev = ehAmbienteDeDesenvolvimento();
+
         http_response_code(500);
         $detalhe = $ehDev
             ? '<p>' . htmlspecialchars($e->getMessage(), ENT_QUOTES) . '</p>
-               <p style="color:#9aa;">Verifique se o MySQL está rodando e execute <code>php database/migrate.php</code> para criar o banco <code>algorithmia</code>.</p>'
-            : '<p>O serviço está temporariamente indisponível. Tente novamente em instantes.</p>';
+               <p style="color:#9aa;">Verifique se o MySQL está rodando e execute <code>php database/migrate.php</code> para criar o banco <code>' . htmlspecialchars(DB_NAME, ENT_QUOTES) . '</code>.</p>'
+            : '<p>O serviço está temporariamente indisponível. Tente novamente em instantes.</p>
+               <p style="color:#556;font-size:.8em;">Em desenvolvimento, rode com <code>APP_ENV=dev</code> para ver o erro.</p>';
         die('<div style="background:#13132b;color:#ff6b6b;padding:2rem;font-family:monospace;border-radius:12px;margin:2rem;max-width:640px;">
             <h2>⚠️ Erro de Conexão com o Banco de Dados</h2>
             ' . $detalhe . '
