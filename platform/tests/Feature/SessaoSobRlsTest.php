@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Http\Middleware\ResolverTenant;
 use App\Models\Usuario;
+use Illuminate\Auth\Middleware\Authenticate;
+use Illuminate\Contracts\Http\Kernel;
+use Illuminate\Routing\Route as RotaDoLaravel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\RefreshDatabase;
 use Tests\TestCase;
@@ -48,24 +53,39 @@ final class SessaoSobRlsTest extends TestCase
     }
 
     /**
-     * A garantia estrutural por trás do teste acima: nada consulta o banco antes de o
-     * contexto do tenant existir. Se alguém puser um middleware que toque `usuarios`
-     * acima do resolvedor, a sessão volta a se perder — em produção, e em silêncio.
+     * A garantia estrutural, e ela olha o pipeline **reunido** — não a lista de `append`.
+     *
+     * A ordem em `bootstrap/app.php` é sugestão: o Laravel reordena tudo pela lista de
+     * prioridade, e `Authenticate` tem lugar fixo nela. Foi assim que o resolvedor foi
+     * parar depois dele, e o jogador virou visitante. Um teste que lesse a lista de
+     * `append` teria dito que estava tudo certo.
      */
     #[Test]
-    public function o_resolvedor_de_tenant_e_o_primeiro_middleware_apendado_ao_grupo_web(): void
+    public function o_resolvedor_de_tenant_roda_antes_do_authenticate(): void
     {
         // ARRANGE
-        $grupo = app(\Illuminate\Contracts\Http\Kernel::class)->getMiddlewareGroups()['web'];
+        app(Kernel::class); // sincroniza os grupos do kernel para o router
 
-        $nossos = array_values(array_filter(
-            $grupo,
-            fn (string $m): bool => str_starts_with($m, 'App\\Http\\Middleware\\')
-        ));
+        $rota = collect(Route::getRoutes()->getRoutes())
+            ->first(fn (RotaDoLaravel $r): bool => $r->getName() === 'mapa');
+
+        $this->assertNotNull($rota);
+
+        // ACT: é exatamente o que a requisição vai executar.
+        $pipeline = Route::gatherRouteMiddleware($rota);
+        $posicao = fn (string $classe): int|false => array_search($classe, $pipeline, true);
 
         // ASSERT
-        $this->assertNotEmpty($nossos);
-        $this->assertSame(\App\Http\Middleware\ResolverTenant::class, $nossos[0]);
+        $resolvedor = $posicao(ResolverTenant::class);
+        $autenticador = $posicao(Authenticate::class);
+
+        $this->assertIsInt($resolvedor, 'ResolverTenant sumiu do pipeline');
+        $this->assertIsInt($autenticador, 'Authenticate sumiu do pipeline');
+        $this->assertLessThan(
+            $autenticador,
+            $resolvedor,
+            'Authenticate consulta `usuarios`, que é tenant-scoped: sem contexto, o RLS o cega'
+        );
     }
 
     #[Test]

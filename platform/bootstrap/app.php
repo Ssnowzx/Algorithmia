@@ -24,22 +24,29 @@ return Application::configure(basePath: dirname(__DIR__))
         //
         // `ContextoDoPedido` vem antes: a auditoria e o log precisam do `request_id`,
         // e ele tem de existir mesmo que o CSP falhe.
-        // `ResolverTenant` vem PRIMEIRO, e a ordem é a regra, não a conveniência: saber de
-        // quem são os dados é a preocupação mais externa de todas. Nada pode tocar o banco
+        // A ordem aqui é sugestão, não decreto: o Laravel **reordena** o pipeline pela
+        // lista de prioridade, e `Authenticate` tem lugar fixo nela. Um `ResolverTenant`
+        // apenas apendado ao grupo `web` acabava DEPOIS do `Authenticate` — que consulta
+        // `usuarios`, tenant-scoped, sem contexto. O RLS devolvia vazio, e o jogador
+        // logava para cair na tela de login de novo. Em produção, e em silêncio.
+        //
+        // Por isso ele entra na lista de prioridade, antes do `Authenticate`. Saber de
+        // quem são os dados é a preocupação mais externa de todas: nada pode tocar o banco
         // antes de o contexto do tenant existir.
-        //
-        // Custou um bug para aprender: `ContextoDoPedido` põe o `usuario_id` no contexto
-        // do log, e para isso chama `$requisicao->user()` — uma consulta a `usuarios`, que
-        // é tenant-scoped. Rodando antes do resolvedor, ela voltava vazia sob o RLS, e o
-        // jogador logava para cair na tela de login de novo.
-        //
-        // O preço: um 404 de host desconhecido é registrado sem `request_id`, porque ele
-        // ainda não existe. Barato, perto de uma sessão que não persiste.
         $middleware->web(append: [
             App\Http\Middleware\ResolverTenant::class,
             App\Http\Middleware\ContextoDoPedido::class,
             App\Http\Middleware\AplicarPoliticaDeConteudo::class,
         ]);
+
+        // O `before` é a INTERFACE, e não a classe: a lista de prioridade do Laravel
+        // registra `AuthenticatesRequests`, não `Authenticate`. Passando a classe, o
+        // `in_array` da framework não a encontra, e o middleware vai calado para o fim da
+        // lista — que é exatamente onde ele não pode estar.
+        $middleware->prependToPriorityList(
+            before: Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests::class,
+            prepend: App\Http\Middleware\ResolverTenant::class,
+        );
 
         // Durante a coexistência, o `httpd` do jogo antigo termina o TLS e repassa a
         // requisição ao nginx do port. Sem confiar nesse proxy, o Laravel acha que a
