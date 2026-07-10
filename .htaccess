@@ -17,12 +17,28 @@
     # sem eles, um GET /tests/bootstrap.php seria EXECUTADO pelo mod_php. Ele força
     # DB_NAME=algorithmia_test e exige o vendor/autoload.php, que produção não tem —
     # o resultado é um fatal error que imprime o caminho absoluto dos arquivos.
-    RewriteRule ^(database|config|app|docs|openspec|tools|tests|bin|vendor|\.git|\.cursor|\.codex|\.claude)(/|$) - [F,L]
+    #
+    # `platform` são os 123 .php do port em Laravel. Ele roda sob Docker, atrás do
+    # seu próprio nginx, e jamais deve ser alcançado pelo Apache do legado. A regra é
+    # só de topo (`^`), então `platform/` não seria pego por `config` ou `app`.
+    #
+    # `worker` guarda o bridge do Telegram — `.mjs` não cai no FilesMatch de extensões.
+    RewriteRule ^(database|config|app|docs|openspec|tools|tests|bin|vendor|platform|worker|\.git|\.github|\.cursor|\.codex|\.claude)(/|$) - [F,L]
 
     # 2. Front controller: tudo que não for arquivo/pasta real vai pro index.php.
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>
+
+# 2b. Cinto e suspensório para as pastas de código.
+#
+# Regras de mod_rewrite NÃO são herdadas por um subdiretório que tenha o seu próprio
+# .htaccess — e `platform/public/.htaccess` é o do Laravel. Sem isto, o bloqueio da
+# regra 1 é descartado ali, e `GET /platform/public/index.php` bootaria o port sob o
+# Apache do legado. `RedirectMatch` é do mod_alias, e esse é mesclado normalmente.
+<IfModule mod_alias.c>
+    RedirectMatch 403 ^/(platform|worker|tests|bin|vendor|database|config|app|docs|openspec|tools)(/|$)
 </IfModule>
 
 # 3. Bloqueia extensões que nunca devem ser servidas como estático.
