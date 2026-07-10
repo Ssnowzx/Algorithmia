@@ -38,19 +38,39 @@ final class SmokeMultiTenantTest extends TestCase
             DB::rollBack();
         }
 
-        DB::connection('pgsql_dono')->table('tenants')->where('slug', 'like', 'rival%')->delete();
+        $dono = DB::connection('pgsql_dono');
+        $ids = $dono->table('tenants')->where('slug', 'like', 'rival%')->pluck('id');
+
+        $dono->table('tenant_dominios')->whereIn('tenant_id', $ids)->delete();
+        $dono->table('tenants')->whereIn('id', $ids)->delete();
 
         DB::beginTransaction();
 
         parent::tearDown();
     }
 
-    private function criarTenant(string $slug, bool $ativo = true): int
+    /**
+     * O domínio nasce junto, e não por capricho: desde a Etapa E.3 o smoke reprova uma
+     * instituição ATIVA sem domínio primário — ela está no ar e ninguém a alcança. Este
+     * teste semeava exatamente esse estado impossível.
+     */
+    private function criarTenant(string $slug, bool $ativo = true, bool $comDominio = true): int
     {
-        return (int) DB::connection('pgsql_dono')->table('tenants')->insertGetId([
+        $dono = DB::connection('pgsql_dono');
+
+        $id = (int) $dono->table('tenants')->insertGetId([
             'nome' => $slug, 'slug' => $slug, 'ativo' => $ativo,
             'created_at' => now(), 'updated_at' => now(),
         ]);
+
+        if ($comDominio) {
+            $dono->table('tenant_dominios')->insert([
+                'tenant_id' => $id, 'host' => "{$slug}.algorithmia.test", 'primario' => true,
+                'created_at' => now(), 'updated_at' => now(),
+            ]);
+        }
+
+        return $id;
     }
 
     #[Test]
@@ -64,6 +84,19 @@ final class SmokeMultiTenantTest extends TestCase
             ->expectsOutputToContain('padrao')
             ->expectsOutputToContain('rival')
             ->assertSuccessful();
+    }
+
+    /** Ativa e inalcançável: o deploy não pode ser promovido em cima disso. */
+    #[Test]
+    public function uma_instituicao_ativa_sem_dominio_reprova_o_deploy(): void
+    {
+        // ARRANGE
+        $this->criarTenant('rival-sem-host', comDominio: false);
+
+        // ACT + ASSERT
+        $this->artisan('algorithmia:smoke --sem-conteudo')
+            ->expectsOutputToContain('sem domínio primário')
+            ->assertFailed();
     }
 
     #[Test]

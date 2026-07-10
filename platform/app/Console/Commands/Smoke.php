@@ -10,10 +10,13 @@ use App\Dominio\Combate\MotorDeBatalha;
 use App\Dominio\Combate\SorteioAntiRepeticao;
 use App\Dominio\Progressao\ServicoDeConquistas;
 use App\Dominio\Progressao\ServicoDeReputacao;
+use App\Dominio\Relatorios\RelatorioDeTurma;
 use App\Dominio\Tenancy\ContextoDoTenant;
 use App\Models\Fase;
 use App\Models\Item;
 use App\Models\Personagem;
+use App\Models\ProgressoFase;
+use App\Models\Turma;
 use App\Models\Usuario;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -31,6 +34,12 @@ use Throwable;
  * A verificação profunda joga uma batalha de verdade dentro de uma transação e a
  * desfaz. Um smoke que não exercita o motor não prova nada — foi assim que o
  * `--dry-run` da importação pegou o que pegaria só no dia do corte.
+ *
+ * **Etapa E.3: ele passou a percorrer o caminho do aluno até o relatório.** A batalha
+ * sozinha exercitava o motor em memória e não tocava nada do que a instituição escreve:
+ * um `tenant_id` sem `DEFAULT`, uma policy de RLS mal escrita em `progresso_fases`, ou uma
+ * agregação de relatório quebrada passariam por este comando sem um arranhão — e apareceriam
+ * na primeira aula, para o professor.
  */
 final class Smoke extends Command
 {
@@ -77,6 +86,17 @@ final class Smoke extends Command
             return self::FAILURE;
         }
 
+        // Antes de qualquer instituição: o host do `APP_URL` tem de resolver uma delas.
+        // É uma checagem da instalação, e não de uma escola, e por isso roda uma vez só.
+        $this->falhas = [];
+        $this->verificar('O host do APP_URL resolve uma instituição ativa', $this->appUrlResolve(...));
+
+        if ($this->falhas !== []) {
+            $this->error('O site responderá 404 com o banco cheio. Ver RUNBOOK §10.1.');
+
+            return self::FAILURE;
+        }
+
         $codigo = self::SUCCESS;
 
         foreach ($tenants as $tenant) {
@@ -87,7 +107,7 @@ final class Smoke extends Command
 
             $this->falhas = [];
 
-            if ($contexto->usar($tenant->id, $this->verificacoes(...)) !== self::SUCCESS) {
+            if ($contexto->usar($tenant->id, fn (): int => $this->verificacoes((int) $tenant->id)) !== self::SUCCESS) {
                 $codigo = self::FAILURE;
             }
         }
@@ -95,7 +115,8 @@ final class Smoke extends Command
         return $codigo;
     }
 
-    private function verificacoes(): int
+    /** `null` quando a tenancy está desligada: não há instituição a que pertencer. */
+    private function verificacoes(?int $tenantId = null): int
     {
         // Estrutural: vale mesmo num banco recém-migrado, sem uma linha de conteúdo.
         $this->verificar('Banco responde', fn (): bool => DB::connection()->select('SELECT 1') !== []);
@@ -103,6 +124,10 @@ final class Smoke extends Command
         $this->verificar('Nenhuma fase com requisito órfão', $this->semRequisitoOrfao(...));
         $this->verificar('Sessão em banco (o gabarito não cabe num cookie)', fn (): bool => config('session.driver') === 'database');
         $this->verificar('APP_DEBUG desligado', fn (): bool => config('app.debug') === false);
+
+        if ($tenantId !== null) {
+            $this->verificar('A instituição tem domínio primário', fn (): bool => $this->temDominio($tenantId));
+        }
 
         if (! $this->option('sem-conteudo')) {
             $this->verificar('Conteúdo importado', $this->temConteudo(...));
@@ -112,6 +137,8 @@ final class Smoke extends Command
 
             if (! $this->option('rasa')) {
                 $this->verificar('O motor joga uma fase real', $this->motorJoga(...));
+                $this->verificar('O progresso do aluno persiste', fn (): bool => $this->progressoPersiste($tenantId));
+                $this->verificar('O relatório de turma responde', $this->relatorioResponde(...));
             }
         }
 
@@ -126,7 +153,7 @@ final class Smoke extends Command
         // A mensagem tem de dizer o que foi provado, não o que seria bom ter provado.
         $this->info(match (true) {
             (bool) $this->option('sem-conteudo') => 'Smoke estrutural OK — schema e configuração. O conteúdo NÃO foi verificado.',
-            (bool) $this->option('rasa') => 'Smoke raso OK — o conteúdo está lá. O motor NÃO foi exercitado.',
+            (bool) $this->option('rasa') => 'Smoke raso OK — o conteúdo está lá. Motor, progresso e relatório NÃO foram exercitados.',
             default => 'Smoke OK — o jogo está jogável.',
         });
 
@@ -201,39 +228,69 @@ final class Smoke extends Command
             ->doesntExist();
     }
 
+    // ----------------------------------------------------------- resolução de tenant
+
+    /**
+     * O pior sintoma que esta instalação sabe produzir: **404 com o banco cheio e o
+     * healthcheck verde.**
+     *
+     * A migration cria a instituição padrão com o host tirado do `APP_URL`, e é esse host
+     * que o `ResolverTenant` procura em `tenant_dominios` a cada requisição. Um `APP_URL`
+     * errado no dia do corte não quebra nada que um health check saiba ver — o `/healthz`
+     * fica fora do resolvedor de propósito. Só o jogador percebe. Ver `RUNBOOK §10.1`.
+     */
+    private function appUrlResolve(): bool
+    {
+        $host = parse_url((string) config('app.url'), PHP_URL_HOST);
+
+        if (! is_string($host) || $host === '') {
+            throw new RuntimeException('APP_URL não tem host');
+        }
+
+        // `tenants` e `tenant_dominios` são catálogo global, sem RLS — esta consulta roda
+        // antes de haver contexto, como a do próprio resolvedor.
+        $atendido = DB::table('tenant_dominios as d')
+            ->join('tenants as t', 't.id', '=', 'd.tenant_id')
+            ->whereRaw('lower(d.host) = ?', [mb_strtolower($host)])
+            ->where('t.ativo', true)
+            ->exists();
+
+        if (! $atendido) {
+            throw new RuntimeException(sprintf('nenhuma instituição ativa atende "%s"', $host));
+        }
+
+        return true;
+    }
+
+    /** Uma instituição sem domínio é inalcançável — e o resolvedor não diz por quê. */
+    private function temDominio(int $tenantId): bool
+    {
+        $tem = DB::table('tenant_dominios')
+            ->where('tenant_id', $tenantId)
+            ->where('primario', true)
+            ->exists();
+
+        if (! $tem) {
+            throw new RuntimeException('sem domínio primário: nenhum host chega nesta instituição');
+        }
+
+        return true;
+    }
+
+    // --------------------------------------------------------- o caminho do aluno
+
     /**
      * Joga uma fase real, com um herói descartável, dentro de uma transação que é
      * sempre desfeita. Nada sobra no banco.
      */
     private function motorJoga(): bool
     {
-        $fase = Fase::query()
-            ->where('tipo', 'licao')
-            ->whereHas('desafios')
-            ->orderBy('ordem_global')
-            ->first();
-
-        if ($fase === null) {
-            throw new RuntimeException('nenhuma lição com desafios');
-        }
+        $fase = $this->licaoJogavel();
 
         DB::beginTransaction();
 
         try {
-            $usuario = Usuario::create([
-                'nome' => 'Sonda do Smoke',
-                'email' => 'smoke+'.uniqid().'@algorithmia.invalid',
-                'senha_hash' => 'nao-usado',
-            ]);
-
-            // Todos os campos explícitos: `create()` não reidrata os defaults do
-            // banco, e um `nivel` nulo estoura no construtor de EstadoDeBatalha.
-            $heroi = Personagem::create([
-                'usuario_id' => $usuario->id, 'nome' => 'Sonda', 'classe' => 'mago',
-                'nivel' => 1, 'xp' => 0,
-                'hp_max' => 9999, 'hp_atual' => 9999, 'mp_max' => 99, 'mp_atual' => 99,
-                'ouro' => 0, 'reputacao' => 0, 'capitulo' => 0,
-            ]);
+            $heroi = $this->heroiDescartavel();
 
             $motor = new MotorDeBatalha(
                 new BatalhaEmMemoria,
@@ -273,5 +330,125 @@ final class Smoke extends Command
         } finally {
             DB::rollBack();
         }
+    }
+
+    /**
+     * A batalha acontece em memória. Isto aqui **escreve**, e é outra prova.
+     *
+     * `ProgressoFase::registrar` não menciona `tenant_id`: quem o preenche é o `DEFAULT` da
+     * coluna, que lê `current_setting('app.tenant_id')`. Se esse `DEFAULT` cair — numa
+     * migration futura, num `pg_dump`/restore que o perca — a inserção morre no `NOT NULL`,
+     * e um progresso gravado com o tenant errado seria pior ainda. Por isso a linha lida de
+     * volta é comparada com a instituição em que estamos.
+     */
+    private function progressoPersiste(?int $tenantId): bool
+    {
+        $fase = $this->licaoJogavel();
+
+        DB::beginTransaction();
+
+        try {
+            $heroi = $this->heroiDescartavel();
+
+            ProgressoFase::registrar($heroi->id, $fase->id, estrelas: 2, acertos: 3, erros: 1, usouIa: false);
+
+            $linha = DB::table('progresso_fases')
+                ->where('personagem_id', $heroi->id)
+                ->where('fase_id', $fase->id)
+                ->first();
+
+            if ($linha === null) {
+                throw new RuntimeException('o progresso não foi gravado');
+            }
+
+            if ((int) $linha->estrelas !== 2) {
+                throw new RuntimeException('as estrelas não sobreviveram à gravação');
+            }
+
+            if ($tenantId !== null && (int) $linha->tenant_id !== $tenantId) {
+                throw new RuntimeException('o progresso nasceu fora da instituição que o criou');
+            }
+
+            return true;
+        } finally {
+            DB::rollBack();
+        }
+    }
+
+    /**
+     * O relatório é a tela que o professor abre, e ela agrega três consultas sobre tabelas
+     * tenant-scoped. Um `tenant_id` sem `DEFAULT` em `matriculas`, uma policy de RLS mal
+     * escrita, ou uma agregação quebrada não aparecem em nenhuma verificação acima — e
+     * aparecem na primeira aula.
+     *
+     * Roda mesmo com a flag `turmas` desligada: a flag esconde uma rota, não um schema.
+     */
+    private function relatorioResponde(): bool
+    {
+        $fase = $this->licaoJogavel();
+
+        DB::beginTransaction();
+
+        try {
+            $heroi = $this->heroiDescartavel();
+
+            ProgressoFase::registrar($heroi->id, $fase->id, estrelas: 3, acertos: 5, erros: 0, usouIa: false);
+
+            // `codigo` é único por instituição e cabe em 20 caracteres.
+            $turma = Turma::create(['nome' => 'Turma do Smoke', 'codigo' => 'smoke-'.substr(uniqid(), -8)]);
+            $turma->alunos()->attach($heroi->usuario_id);
+
+            $relatorio = (new RelatorioDeTurma)->gerar($turma);
+
+            if ($relatorio['turma']['alunos'] !== 1) {
+                throw new RuntimeException('o relatório perdeu o aluno matriculado');
+            }
+
+            if (($relatorio['alunos'][0]['fases_concluidas'] ?? null) !== 1) {
+                throw new RuntimeException('o relatório não viu a fase concluída');
+            }
+
+            return true;
+        } finally {
+            DB::rollBack();
+        }
+    }
+
+    private function licaoJogavel(): Fase
+    {
+        $fase = Fase::query()
+            ->where('tipo', 'licao')
+            ->whereHas('desafios')
+            ->orderBy('ordem_global')
+            ->first();
+
+        if ($fase === null) {
+            throw new RuntimeException('nenhuma lição com desafios');
+        }
+
+        return $fase;
+    }
+
+    /**
+     * Vive dentro de uma transação que será desfeita. O HP absurdo é para que a batalha do
+     * smoke termine em vitória mesmo contra o chefe mais duro que o conteúdo tiver.
+     *
+     * Todos os campos explícitos: `create()` não reidrata os defaults do banco, e um
+     * `nivel` nulo estoura no construtor de `EstadoDeBatalha`.
+     */
+    private function heroiDescartavel(): Personagem
+    {
+        $usuario = Usuario::create([
+            'nome' => 'Sonda do Smoke',
+            'email' => 'smoke+'.uniqid().'@algorithmia.invalid',
+            'senha_hash' => 'nao-usado',
+        ]);
+
+        return Personagem::create([
+            'usuario_id' => $usuario->id, 'nome' => 'Sonda', 'classe' => 'mago',
+            'nivel' => 1, 'xp' => 0,
+            'hp_max' => 9999, 'hp_atual' => 9999, 'mp_max' => 99, 'mp_atual' => 99,
+            'ouro' => 0, 'reputacao' => 0, 'capitulo' => 0,
+        ]);
     }
 }
