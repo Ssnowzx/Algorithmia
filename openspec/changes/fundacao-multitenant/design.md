@@ -134,3 +134,108 @@ Esse acoplamento é a razão de C ser uma etapa, e não uma migration solta.
 | `X-Forwarded-Host` forjado | `ProxyReversoTest` vira teste de isolamento |
 | Backfill errado | `tenant_id` anulável por dois deploys; reconciliação por contagem |
 | Migration não-aditiva no meio do corte | Etapa B só depois do corte, e o `tasks.md` trava a ordem |
+
+## 7. O console do operador — e por que ele não contradiz a D.2
+
+> **Escrito na Etapa E, depois de o usuário pedir explicitamente a tela.** A resposta
+> inicial foi "isso exige furar o RLS, e a D.2 recusou". **Estava errada.** Há um caminho
+> que entrega o dashboard cross-tenant sem tocar na barreira, e ele estava à vista.
+
+A Etapa D.2 recusou o `platform_admin` do roteiro v1 com uma frase: *"ele lê através das
+instituições, e o RLS existe para impedir exatamente isso."* A frase continua verdadeira. O
+que ela descreve, porém, é **um papel de banco** que lê todas as escolas de uma vez, sem
+contexto. Não é a única forma de montar um painel.
+
+**O RLS garante que um pedido não enxerga fora do seu contexto. Ele nunca prometeu que o
+servidor não pode escolher o contexto** — é o servidor que o escolhe, a cada requisição, a
+partir do `Host`. Um painel que entra em cada instituição, uma de cada vez, pelo mesmo
+`ContextoDoTenant::usar()` que uma requisição HTTP usa, faz N leituras, cada uma dentro de um
+contexto declarado, cada uma sujeita às policies. `FORCE ROW LEVEL SECURITY` continua de pé.
+Não há conexão do dono. Não há `BYPASSRLS`.
+
+| | papel `platform_admin` (recusado) | `PainelDeInstituicoes` (feito) |
+|---|---|---|
+| Conexão | dono, ou papel com `BYPASSRLS` | `algorithmia_app`, o de sempre |
+| Leitura | uma consulta, sem contexto, todas as escolas | uma consulta por escola, cada uma no contexto dela |
+| Se a policy tiver um bug | ninguém percebe: o papel a ignora | o painel quebra junto com o jogo |
+| Custo | uma consulta | uma transação por instituição |
+
+O custo é real e é aceitável: com seis escolas, seis transações. Quando forem seiscentas, isto
+vira uma *materialized view* — e aí haverá medição para justificá-la.
+
+### Quem é o operador
+
+`usuarios` é tenant-scoped desde a Etapa C. Um "administrador da plataforma" dentro dela seria
+o aluno de **alguma** escola — a primeira, por acidente histórico — com poder sobre as demais.
+Por isso o operador mora em `operadores`: catálogo global, como `tenants` e `tenant_dominios`,
+sem `tenant_id` e sem RLS. Guard separado. **Um mestre não entra no console; um operador não
+entra no jogo, e não há caminho de código entre os dois.**
+
+Ele não ganha poder de banco: continua sendo `algorithmia_app`.
+
+### A porta que não existe
+
+`CONSOLE_HOST` vazio ⇒ **as rotas não são registradas**, e `/console` responde 404 em todo
+domínio. A alternativa — um middleware que compara o host — é uma linha de código que alguém
+pode remover num refactor. Uma rota que não foi registrada não tem como ser alcançada.
+
+O host do console **não** entra em `tenant_dominios`: ele não é uma instituição, e o
+`ResolverTenant` é retirado dessas rotas de propósito.
+
+### O que o console NÃO faz
+
+**Não provisiona escolas.** Criar uma escola é criar uma escola vazia, e só o
+`algorithmia:importar` sabe enchê-la — um comando que lê um dump e demora minutos. Um botão
+"criar escola" produziria uma instituição desligada e inútil, e alguém acabaria ligando-a à
+força. Provisionar mora no terminal, junto do comando que semeia.
+
+## 8. O portão da ativação
+
+Uma escola ativa e vazia reprova o `algorithmia:smoke`, que é o portão do `bin/deploy.sh` —
+e portanto reprova **todo deploy**, até alguém desconfiar. Não é hipótese: foi o que o ensaio
+do corte (C.6) fez com um build correto.
+
+O `DEFAULT false` da coluna `ativo` impede o primeiro erro. `ProvisionamentoDeInstituicoes::ativar()`
+impede o segundo: ele **roda o smoke daquela instituição antes de ligá-la**, e recusa. O
+veredito é do smoke, e não de uma checagem paralela — duas definições de "jogável" divergem no
+dia em que alguém mexer numa delas.
+
+**Não há `--forcar`.** Um portão com botão de contornar é um portão que ninguém fecha. Se um
+dia for mesmo necessário, o escape é um `UPDATE tenants SET ativo = true` escrito à mão — e
+não uma opção que a próxima pessoa copia do histórico do shell.
+
+Desligar, ao contrário, **nunca** roda o smoke: exigir que a escola esteja jogável para poder
+desligá-la trancaria por dentro exatamente a escola quebrada que se quer tirar do ar.
+
+## 9. Três defeitos que a Etapa E revelou
+
+Nenhum tinha teste; nenhum era visível pela leitura. Estão aqui porque a próxima pessoa vai
+querer saber por que estas linhas são assim.
+
+1. **`ContextoDoTenant` não era singleton.** Cada `app()` devolvia uma instância nova, e
+   `atual()` respondia `null` a quem não o definira. Só não quebrou porque ninguém lia
+   `atual()` fora de quem acabara de escrevê-lo. As flags precisam ler.
+
+2. **O catálogo (`tenants`, `tenant_dominios`) era lido pela conexão do DONO**, "para não
+   depender de ele ter ficado sem RLS". O argumento não se sustenta: o `ResolverTenant` lê
+   essas mesmas tabelas pela conexão da aplicação, a cada requisição — se um dia ganharem RLS,
+   o jogo inteiro para muito antes de um comando de console. E cobrava caro: uma escola criada
+   pela aplicação era **invisível** ao smoke que deveria aprová-la, porque as duas conexões
+   enxergam mundos diferentes dentro de uma transação.
+
+3. **O `finally` de `usar()` mascarava a exceção original.** Um erro SQL aborta a transação do
+   PostgreSQL; o `SET LOCAL` de restauro é o próximo comando, estoura com `25P02`, e a sua
+   exceção toma o lugar da real. Quem investiga lê "current transaction is aborted" no lugar do
+   erro que aconteceu. Agora o caminho de erro não roda SQL nenhum — o rollback já desfaz o
+   `SET LOCAL` —, e só a cópia em memória volta.
+
+## 10. Um achado registrado, e não corrigido
+
+**`auditoria` não é tenant-scoped**: sem `tenant_id`, sem RLS. Hoje não vaza, porque nenhuma
+rota a lê — ela só é escrita. Mas as linhas de duas escolas convivem numa tabela sem barreira,
+e a primeira tela que as mostrar vai misturá-las.
+
+Corrigir não é uma migration de uma linha: as linhas escritas pelo console nascem **sem**
+contexto de tenant (o operador não pertence a escola nenhuma), e uma policy que as tornasse
+visíveis a todos os tenants seria pior do que a ausência dela. Merece proposta própria, e uma
+decisão sobre onde mora a auditoria da plataforma versus a da escola.

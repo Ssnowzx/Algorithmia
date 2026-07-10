@@ -76,7 +76,59 @@ de saber o tenant. Sem demanda, fica assim — e está escrito na migration, nã
 
 ## E. Piloto (Fase 9 do roteiro v1)
 
-- [ ] E.0 **Bloqueado por:** D
-- [ ] E.1 Feature flags por tenant
-- [ ] E.2 Provisionamento de tenant piloto, documentado no runbook
-- [ ] E.3 Smoke que cobre resolução de tenant, batalha, progresso e relatório
+- [x] E.0 Desbloqueada: D concluída
+- [x] E.1 **Feature flags por tenant.** Catálogo em `config/flags.php`; o banco
+      (`tenants.flags` JSONB) guarda só as exceções. Chave desconhecida **levanta exceção**,
+      e não devolve `false` — um erro de digitação não pode desligar a funcionalidade em
+      silêncio, para sempre. Duas flags, e as duas têm o estado "desligada" seguro:
+      `turmas` (padrão OFF) e `ranking` (padrão ON). Cada uma é aplicada na **rota**
+      (`flag:<chave>` → 404) e no **menu** (`@flag`); o teste bate na URL sem passar pelo menu.
+      **`registro_aberto` foi considerada e recusada:** sem fluxo de convite, fechar o registro
+      deixaria a escola sem como matricular o primeiro aluno. Flag que tranca a instituição
+      não é liberação progressiva.
+- [x] E.2 **Provisionamento, e o portão da ativação.** `algorithmia:tenant:novo` cria a escola
+      desligada, com domínio, na mesma transação. `algorithmia:tenant:ativar` **roda o smoke
+      daquela instituição antes de ligá-la** e recusa uma escola injogável — a ordem
+      provisionar → semear → ligar deixa de ser prosa no runbook. Sem `--forcar`: o escape é
+      um `UPDATE` à mão. `desativar` nunca roda o smoke (trancaria por dentro a escola
+      quebrada que se quer tirar do ar). `tenant:listar` e `tenant:flag` completam. Runbook
+      §10.6b reescrito, §11 novo.
+- [x] E.3 **O smoke vai da resolução do tenant ao relatório.** Quatro verificações novas: o
+      host do `APP_URL` resolve uma instituição ativa (o 404-com-banco-cheio do §10.1, agora
+      em código); a instituição tem domínio primário (ativa e inalcançável reprova o deploy);
+      o progresso persiste **e nasce com o `tenant_id` certo** (prova o `DEFAULT` que lê
+      `current_setting`); o relatório de turma responde. Tudo em savepoints que voltam, com
+      teste contando as linhas antes e depois.
+- [x] E.4 **Console do operador** (pedido do usuário; ver `design.md §7`). `operadores` é
+      catálogo global com guard próprio; sem `CONSOLE_HOST` as rotas **não são registradas**.
+      Métricas cross-tenant sem furar o RLS: um contexto por instituição, via
+      `ContextoDoTenant::usar()`. `auditoria.autor_tipo` porque os ids de `usuarios` e
+      `operadores` colidem.
+
+### Defeitos de fundo achados construindo a Etapa E
+
+Nenhum deles tinha teste, e nenhum era visível pela leitura.
+
+- [x] **`ContextoDoTenant` não era singleton.** Cada `app()` devolvia uma instância nova, e
+      `atual()` respondia `null` a quem não o definira: o `ResolverTenant` marcava o tenant
+      numa cópia, o resto da aplicação lia outra. Nunca quebrou porque ninguém lia `atual()`
+      fora de quem acabara de escrevê-lo — e as flags precisam ler.
+- [x] **O catálogo era lido pela conexão do DONO.** "Para não depender de `tenants` ter ficado
+      sem RLS" — argumento que não se sustenta, já que o `ResolverTenant` lê essas mesmas
+      tabelas pela conexão da aplicação a cada requisição. E cobrava caro: uma escola criada
+      pela aplicação era **invisível** ao smoke que deveria aprová-la. As duas conexões
+      enxergavam mundos diferentes.
+- [x] **O `finally` de `usar()` mascarava a exceção original.** Erro SQL aborta a transação; o
+      `SET LOCAL` de restauro é o próximo comando, estoura com 25P02, e a sua exceção toma o
+      lugar da real. Agora o caminho de erro não roda SQL nenhum — o rollback já desfaz o
+      `SET LOCAL` —, e só a cópia em memória volta.
+- [x] **`SmokeMultiTenantTest` semeava um estado impossível**: instituição ativa, sem domínio.
+      O fixture foi corrigido, não a verificação.
+
+### Achado registrado, e NÃO corrigido
+
+`auditoria` **não é tenant-scoped**: sem `tenant_id`, sem RLS. Hoje não vaza — nenhuma rota a
+lê, ela é só escrita. Mas as linhas de duas escolas convivem numa tabela sem barreira, e a
+primeira tela que as mostrar as misturará. Corrigir não é uma migration: as linhas do console
+nascem **sem** contexto de tenant (o operador não está em escola nenhuma), e uma policy que as
+deixasse visíveis a todos seria pior que a ausência dela. Merece proposta própria.

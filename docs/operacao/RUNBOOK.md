@@ -637,26 +637,37 @@ tenant, o RLS o cegava, e o jogador logava para cair na tela de login de novo.
 
 ### 10.6b Uma segunda instituição
 
-A ordem não é negociável, e o `DEFAULT` da coluna a impõe:
-
-```sql
--- 1. Provisionar. Ela nasce DESLIGADA: sem conteúdo, é injogável, e uma escola ativa e
---    injogável reprova o smoke — ou seja, trava todos os deploys.
-INSERT INTO tenants (nome, slug) VALUES ('Escola Nova', 'escola-nova');
-INSERT INTO tenant_dominios (tenant_id, host, primario) VALUES (2, 'nova.exemplo.com', true);
-```
+A ordem não é negociável — **provisionar → semear → ligar** —, e agora é o código que a
+impõe, não este parágrafo. Três comandos, nesta sequência:
 
 ```bash
-# 2. Semear o conteúdo dela. `--tenant` é obrigatório com mais de uma instituição:
-#    importar para a escola errada é irreversível sem restaurar dump.
-docker compose -f compose.prod.yml run --rm --no-deps app \
-    php artisan algorithmia:importar --tenant=escola-nova
+C="docker compose -f compose.prod.yml run --rm --no-deps app php artisan"
+
+# 1. Provisionar. Ela nasce DESLIGADA, com o domínio dela. O `DEFAULT false` da coluna
+#    manda: sem conteúdo, é injogável, e uma escola ativa e injogável reprova o smoke —
+#    ou seja, trava TODOS os deploys, até alguém desconfiar de uma escola pela metade.
+$C algorithmia:tenant:novo "Escola Nova" --host=nova.exemplo.com
+
+# 2. Semear. `--tenant` é obrigatório com mais de uma instituição: importar para a escola
+#    errada é irreversível sem restaurar dump.
+$C algorithmia:importar --tenant=escola-nova
+
+# 3. Ligar. O comando roda o smoke DAQUELA instituição antes, e RECUSA ligá-la se ela
+#    estiver injogável. Não há `--forcar`.
+$C algorithmia:tenant:ativar escola-nova
 ```
 
-```sql
--- 3. Só então ligar.
-UPDATE tenants SET ativo = true WHERE slug = 'escola-nova';
+Para conferir o estado de todas, a qualquer momento:
+
+```bash
+$C algorithmia:tenant:listar
 ```
+
+> **O escape do portão é SQL, não uma flag.** Se um dia for mesmo necessário ligar uma
+> escola que o smoke reprova, o comando é
+> `UPDATE tenants SET ativo = true WHERE slug = '…'`, escrito à mão por quem sabe o que
+> está fazendo. Uma opção `--forcar` viraria a primeira coisa que a próxima pessoa copia
+> do histórico do shell, e o portão deixaria de existir.
 
 > **`--truncar` recusa rodar com mais de uma instituição no banco.** `TRUNCATE` é uma
 > operação de tabela, não de linha: ele **ignora o RLS** e apagaria todas as escolas. A
@@ -679,3 +690,101 @@ que os jogadores criarem no port nesse intervalo não volta.
 - `bin/backup.sh` num cron diário; `bin/restore.sh --ensaio` de tempos em tempos —
   backup que nunca foi restaurado não é backup, é esperança.
 - `TRUSTED_PROXIES` continua vazio. Só volte a preenchê-lo se puser um proxy na frente.
+
+---
+
+## 11. O piloto: funcionalidades, console e rollback
+
+Etapa E da [`fundacao-multitenant`](../../openspec/changes/fundacao-multitenant/), Fase 9
+do roteiro v1. Entrar em produção com uma instituição, medir, e só então ampliar.
+
+### 11.1 Liberação progressiva por instituição
+
+O catálogo de funcionalidades liberáveis mora em `platform/config/flags.php`, versionado.
+O banco (`tenants.flags`) guarda **só as exceções** — o que uma escola decidiu diferente do
+padrão do código.
+
+| flag | padrão | o que é |
+|---|---|---|
+| `turmas` | **desligada** | Turmas, matrículas e relatórios pedagógicos (Etapa D). |
+| `ranking` | ligada | Placar de heróis entre os alunos da instituição. |
+
+`turmas` nasce desligada de propósito: a funcionalidade foi construída, testada e nunca
+usada em produção. Ela se abre no piloto, e só nele.
+
+```bash
+$C algorithmia:tenant:flag escola-piloto              # lista o estado de todas
+$C algorithmia:tenant:flag escola-piloto turmas --ligar
+$C algorithmia:tenant:flag escola-piloto turmas --padrao   # devolve ao padrão do código
+```
+
+> `--padrao` **remove** a opinião da escola, em vez de gravar o valor de hoje. A diferença
+> aparece no dia em que o padrão mudar: uma escola que nunca opinou acompanha a mudança;
+> uma que gravou `false` continua desligada, como pediu.
+
+Cada flag é aplicada em dois lugares — no middleware da rota (`flag:turmas`, que devolve
+**404**) e no menu (`@flag`). Esconder o link e deixar a rota aberta seria a versão de
+apresentação do erro que a Etapa A encontrou no banco: uma barreira que só parece existir.
+
+### 11.2 O console do operador
+
+Uma tela que lista as instituições, as métricas de ativação e uso, e liga/desliga cada uma.
+
+**Ele não existe até você publicá-lo.** Com `CONSOLE_HOST` vazio — o padrão —, as rotas nem
+são registradas, e `/console` responde 404 em todo domínio.
+
+```dotenv
+# .env.producao — um host DEDICADO, que NÃO está em `tenant_dominios`.
+CONSOLE_HOST=console.algorithmia.exemplo.com
+```
+
+```bash
+$C algorithmia:operador:novo "Fulana" fulana@exemplo.com   # pede a senha, oculta
+```
+
+Não há conta padrão nem seed com senha conhecida. A senha nunca vem por argumento: um
+`--senha=` fica no histórico do shell e no `ps` de quem estiver na mesma máquina.
+
+Ponha o console atrás de um filtro de IP no nginx, se puder. E note:
+
+- O operador **não é usuário de escola nenhuma**. Guards separados: um mestre não entra no
+  console, um operador não entra no jogo.
+- Ele **não ganha poder de banco**. A aplicação segue conectando com `algorithmia_app`,
+  sujeito às policies. As métricas de cada escola são lidas entrando no contexto dela, uma
+  de cada vez — o mesmo caminho de uma requisição HTTP.
+- O console **não provisiona** escolas. Criar uma escola é criar uma escola vazia, e só o
+  `algorithmia:importar` sabe enchê-la. Provisionar mora no terminal, junto do comando que
+  semeia (§10.6b).
+
+### 11.3 Rollback do piloto
+
+Desligar uma instituição **não toca nas demais**. O domínio dela passa a devolver 404; as
+outras seguem no ar.
+
+```bash
+$C algorithmia:tenant:desativar escola-piloto
+```
+
+Desligar nunca roda o smoke: exigir que a escola esteja jogável para poder desligá-la
+trancaria por dentro exatamente a escola quebrada que se quer tirar do ar. Pelo console, o
+botão "Desligar" faz o mesmo, e pergunta antes.
+
+**O que o rollback do piloto NÃO desfaz:** o progresso que os alunos gravaram. Desligar tira
+do ar; não apaga. Para devolver a escola, `algorithmia:tenant:ativar` de novo — e ele roda o
+smoke, como sempre.
+
+### 11.4 Indicadores
+
+`algorithmia:tenant:listar` (ou o console) traz, por instituição:
+
+| indicador | o que responde |
+|---|---|
+| **ativação** | de cada cem contas criadas, quantas chegaram a criar um herói |
+| contas · heróis | tamanho bruto |
+| fases concluídas · estrelas | uso |
+| precisão | acerto global das respostas |
+| última atividade | a escola ainda está viva? |
+
+A **ativação** é a única que responde a uma pergunta de produto. Trezentas contas e quarenta
+heróis não é um problema de adoção — é um problema na tela de criação de personagem.
+Contar contas sozinho esconderia isso.

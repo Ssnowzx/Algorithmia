@@ -39,6 +39,18 @@ uma barreira de segurança pode entregar: a sensação de que existe.
 
 ## What Changes
 
+> ⚠️ **Esta seção descreve o plano de 2026-07-09. Duas coisas mudaram ao construí-lo, e as
+> letras das etapas junto.** O que valeu está em [`tasks.md`](tasks.md) e
+> [`design.md`](design.md), e é lá que se olha:
+>
+> - **A ordem foi invertida:** `tenant_id` nas 13 tabelas entrou **antes** do corte, e não
+>   depois. A regra dos três deploys é regra de *coexistência*, e antes do corte não há
+>   código velho no ar com que coexistir. O rollback, ali, é trocar o DNS. Ver `design.md §4`.
+> - **As etapas viraram cinco:** A (topologia), B (fundação), C (`tenant_id` no jogo),
+>   D (turmas e papéis), E (piloto).
+>
+> **Todas as cinco foram entregues.** O corte em produção continua pendente, à espera da VPS.
+
 Quatro etapas, e a ordem entre a segunda e o corte **não é negociável**.
 
 ### Etapa A — Topologia de acesso e fundação de tenancy (aditiva, segura)
@@ -68,6 +80,14 @@ Fase 5 do roteiro v1. Depende de B.
 ### Etapa D — Piloto, feature flags e go-live
 
 Fase 9 do roteiro v1. Depende de C.
+
+**Entregue como Etapa E**, com uma correção de rumo que vale registrar: o roteiro v1 pedia
+também um "dashboard administrativo mínimo", e a primeira leitura foi que ele exigiria o
+`platform_admin` que a Etapa D.2 recusou. **Estava errada.** O painel entra em cada
+instituição, uma de cada vez, pelo mesmo `ContextoDoTenant::usar()` de uma requisição HTTP —
+sem conexão do dono, sem `BYPASSRLS`, com as policies de pé. O que a D.2 recusou era um papel
+de banco que lê *através* das instituições, sem contexto; esse continua não existindo. Ver
+`design.md §7`.
 
 ## Impact
 
