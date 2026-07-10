@@ -7,9 +7,20 @@ com sono, quando algo já deu errado.
 
 ## 0. O host
 
-Uma **VPS com root, rodando Docker** (confirmado pelo time em 2026-07-09). É um host
-RHEL/AlmaLinux estilo cPanel — mas com root, e por isso o Docker roda ali. O `httpd`
-do jogo antigo e os containers do port convivem na mesma máquina durante o corte.
+O plano supõe uma **VPS com root, rodando Docker**: um host RHEL/AlmaLinux estilo
+cPanel, mas com root, onde o `httpd` do jogo antigo e os containers do port convivem
+na mesma máquina durante o corte.
+
+> ⚠️ **Isto foi afirmado em conversa, nunca verificado com um comando na máquina.** E o
+> [`DEPLOY.md`](../processo/DEPLOY.md) do legado descreve um host onde `a2ensite` e `ufw`
+> não existem e o site vive em `~/public_html` — a assinatura de um cPanel, onde
+> normalmente **não** há root nem Docker, e onde um vhost editado à mão é sobrescrito no
+> próximo rebuild. As duas descrições não podem estar certas ao mesmo tempo.
+>
+> Antes de marcar 6.10/6.11, rode no host `bash bin/checar-host.sh` — é somente-leitura,
+> não instala nem altera nada, e responde as três perguntas de uma vez. Sem root +
+> Docker + `mod_proxy_http`, **o corte descrito aqui não roda**, e o port precisa de
+> outro plano de execução (PHP-FPM sob o cPanel, ou outra máquina).
 
 **O `httpd` já é dono da porta 80.** O nginx do port publica numa porta alta
 (`ALGORITHMIA_PORTA`, padrão `8080`), e o `httpd` faz proxy reverso para ela quando o
@@ -278,6 +289,24 @@ Fragmento da IA no catálogo, e que o gabarito não vaza para o cliente.
 ## 8. O corte, passo a passo
 
 Os dois sistemas ficam de pé na mesma VPS. A rede é o §9 — **leia antes**.
+
+> **Pré-requisito, e não é formalidade:** o host precisa ter root, Docker com
+> `compose >= 2.1.1`, e `mod_proxy_http` no `httpd`. Num cPanel de verdade nada disso é
+> garantido, e vhost editado à mão é sobrescrito no próximo rebuild. **Verifique antes**
+> — não confie neste documento sobre o assunto, ele não roda comandos na sua máquina.
+
+0. **O legado em produção precisa estar em dia.** O importador faz `SELECT *`: ele copia
+   o estado que encontrar. Se a prod não tem as migrations do legado aplicadas, você
+   migra os bugs junto — `mestres` e `itens` duplicados, as conquistas de objetivo da
+   loja ausentes. E o `migrate.php` **escreve**, então ele tem de rodar **antes** do
+   passo 3, que tranca o banco.
+
+   ```bash
+   # na VPS, no diretório do legado, como o usuário do site
+   git pull
+   DB_HOST=… DB_NAME=… DB_USER=… DB_PASS=… php database/migrate.php   # idempotente
+   mysql -u … -e 'SELECT arquivo FROM migracoes_aplicadas ORDER BY 1;'   # espere 6
+   ```
 
 1. **Antes de tudo:** dump do MySQL legado (`mysqldump`) e do PostgreSQL.
 2. Suba o port em porta alta e **verifique-o pela porta**, sem tocar no domínio:
