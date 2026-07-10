@@ -7,10 +7,10 @@ namespace Tests\Dominio;
 use App\Dominio\Progressao\ServicoDeMissoes;
 use App\Models\ProgressoFase;
 use App\Models\RespostaLog;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\RefreshDatabase;
 use Tests\Suporte\Mundo;
 use Tests\TestCase;
 

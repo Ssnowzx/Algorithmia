@@ -7,8 +7,8 @@ namespace Tests\Feature;
 use App\Models\ItemDoInventario;
 use App\Models\Personagem;
 use App\Models\Usuario;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\RefreshDatabase;
 use Tests\Suporte\Mundo;
 use Tests\TestCase;
 

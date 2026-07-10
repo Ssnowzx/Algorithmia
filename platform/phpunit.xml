@@ -38,8 +38,12 @@
         <env name="DB_HOST" value="127.0.0.1"/>
         <env name="DB_PORT" value="55433"/>
         <env name="DB_DATABASE" value="algorithmia_test"/>
-        <env name="DB_USERNAME" value="algorithmia"/>
-        <env name="DB_PASSWORD" value="segredo_local"/>
+        <!-- A aplicação conecta com o papel de execução, sujeito ao RLS… -->
+        <env name="DB_USERNAME" value="algorithmia_app"/>
+        <env name="DB_PASSWORD" value="segredo_app"/>
+        <!-- …e as migrations, com o dono, que é quem pode criar o papel acima. -->
+        <env name="DB_DONO_USERNAME" value="algorithmia"/>
+        <env name="DB_DONO_PASSWORD" value="segredo_local"/>
         <env name="DB_URL" value=""/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>

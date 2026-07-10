@@ -12,11 +12,11 @@ use App\Dominio\Progressao\ServicoDeReputacao;
 use App\Models\Fase;
 use App\Models\ItemDoInventario;
 use App\Models\ProgressoFase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\RefreshDatabase;
 use Tests\Suporte\Mundo;
 use Tests\TestCase;
 

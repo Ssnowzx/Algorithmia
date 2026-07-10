@@ -21,6 +21,30 @@ return [
 
     'default' => env('DB_CONNECTION', 'sqlite'),
 
+    /**
+     * O papel com que a APLICAÇÃO conecta. Ele não pode ser o dono do banco: dono e
+     * superusuário ignoram as policies de RLS. Ver a migration `create_papel_de_execucao`
+     * e `openspec/changes/fundacao-multitenant/design.md`.
+     *
+     * Enquanto `DB_DONO_USERNAME` não for definido, este papel É o dono, e a migration
+     * que o criaria não faz nada — o comportamento antigo segue valendo.
+     */
+    'papel_da_aplicacao' => (static function (): string {
+        $papel = (string) env('DB_USERNAME', '');
+
+        // Um papel do PostgreSQL vira identificador SQL, e identificador não aceita
+        // placeholder: aspa dupla não escapa aspa dupla. Recusar aqui é a defesa.
+        if ($papel !== '' && preg_match('/^[A-Za-z0-9_]+$/', $papel) !== 1) {
+            throw new InvalidArgumentException(
+                sprintf('DB_USERNAME inválido: %s (use só letras, números e _)', $papel)
+            );
+        }
+
+        return $papel;
+    })(),
+
+    'senha_da_aplicacao' => (string) env('DB_PASSWORD', ''),
+
     /*
     |--------------------------------------------------------------------------
     | Database Connections
@@ -122,6 +146,31 @@ return [
             'database' => env('DB_DATABASE', 'laravel'),
             'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),
+            'charset' => env('DB_CHARSET', 'utf8'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'public',
+            'sslmode' => env('DB_SSLMODE', 'prefer'),
+        ],
+
+        /**
+         * O dono do banco: roda migrations, cria papéis, importa o legado.
+         *
+         * É superusuário (assim o `docker-entrypoint` do PostgreSQL o cria), e por isso
+         * **ignora RLS** — três vezes: por ser superusuário, por `rolbypassrls`, e por
+         * ser dono das tabelas. A aplicação NUNCA deve conectar com ele; ver
+         * `openspec/changes/fundacao-multitenant/design.md`.
+         *
+         * Os padrões apontam para as credenciais da aplicação: enquanto o `.env` não
+         * declarar `DB_DONO_*`, tudo segue como antes, e nada quebra.
+         */
+        'pgsql_dono' => [
+            'driver' => 'pgsql',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => env('DB_DATABASE', 'laravel'),
+            'username' => env('DB_DONO_USERNAME', env('DB_USERNAME', 'root')),
+            'password' => env('DB_DONO_PASSWORD', env('DB_PASSWORD', '')),
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,

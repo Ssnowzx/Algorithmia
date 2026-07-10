@@ -7,8 +7,8 @@ namespace Tests\Dominio;
 use App\Dominio\Progressao\ServicoDeOnboarding;
 use App\Dominio\Progressao\ServicoDeRegioes;
 use App\Models\ProgressoFase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\RefreshDatabase;
 use Tests\Suporte\Mundo;
 use Tests\TestCase;
 

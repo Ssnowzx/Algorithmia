@@ -10,9 +10,9 @@ use App\Models\Fase;
 use App\Models\Item;
 use App\Models\Personagem;
 use App\Models\Usuario;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestWith;
+use Tests\RefreshDatabase;
 use Tests\Suporte\Mundo;
 use Tests\TestCase;
 

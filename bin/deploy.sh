@@ -118,8 +118,14 @@ passo "Aplicando migrations (aditivas — ver o cabeçalho deste script)"
 # esperar aqui, o primeiro deploy morre com "connection refused"; do segundo em
 # diante o volume já existe e o problema some.
 ALGORITHMIA_TAG="${TAG}" $COMPOSE up -d --wait postgres
+
+# `--database=pgsql_dono`: migrations rodam como DONO do banco. A aplicação conecta com
+# um papel sem `SUPERUSER` e sem `BYPASSRLS`, que por isso não pode criar tabelas nem
+# papéis — e é justamente o que o torna sujeito às policies de RLS. No primeiro deploy
+# depois desta mudança, é esta migration que cria o papel da aplicação; sem `--database`
+# ela tentaria conectar com um papel que ainda não existe.
 ALGORITHMIA_TAG="${TAG}" ALGORITHMIA_PULAR_OTIMIZACAO=1 \
-    $COMPOSE run --rm --no-deps app php artisan migrate --force
+    $COMPOSE run --rm --no-deps app php artisan migrate --force --database=pgsql_dono
 ok "schema atualizado"
 
 # -------------------------------------------------------------------- subir app

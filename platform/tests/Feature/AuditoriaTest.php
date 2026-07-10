@@ -9,8 +9,8 @@ use App\Models\Fase;
 use App\Models\Personagem;
 use App\Models\RegistroDeAuditoria;
 use App\Models\Usuario;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\RefreshDatabase;
 use Tests\Suporte\Mundo;
 use Tests\TestCase;
 

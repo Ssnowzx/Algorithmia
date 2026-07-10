@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Dominio;
 
 use App\Dominio\Combate\SorteioAntiRepeticao;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\RefreshDatabase;
 use Tests\Suporte\Mundo;
 use Tests\TestCase;
 

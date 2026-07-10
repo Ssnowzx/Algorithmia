@@ -152,11 +152,16 @@ final class ImportarDoLegado extends Command
 
     private function esvaziar(ConnectionInterface $destino): void
     {
-        // RESTART IDENTITY zera as sequências; CASCADE alcança as tabelas que
-        // referenciam estas. `recompensas_batalha` entra junto de propósito: as
-        // batalhas recompensadas pertencem ao progresso que está sendo trocado.
+        // CASCADE alcança as tabelas que referenciam estas. `recompensas_batalha` entra
+        // junto de propósito: as batalhas recompensadas pertencem ao progresso que está
+        // sendo trocado.
+        //
+        // Sem `RESTART IDENTITY`: reiniciar a identidade exige **ser dono da sequência**,
+        // e a aplicação não é dona de nada — é o que a torna sujeita ao RLS. A cláusula
+        // era redundante de todo modo: `sincronizarSequencias()` roda logo adiante e põe
+        // cada sequência no `MAX(id)` importado, que é o valor que de fato importa.
         $tabelas = implode(', ', [...array_keys(self::TABELAS), 'recompensas_batalha']);
-        $destino->statement("TRUNCATE TABLE {$tabelas} RESTART IDENTITY CASCADE");
+        $destino->statement("TRUNCATE TABLE {$tabelas} CASCADE");
     }
 
     private function copiar(ConnectionInterface $legado, ConnectionInterface $destino, string $tabela): int
