@@ -15,23 +15,35 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $nome
  * @property string $slug
  * @property bool $ativo
+ * @property array<string,bool> $flags
  */
 final class Tenant extends Model
 {
     protected $table = 'tenants';
 
-    /** @var list<string> */
+    /**
+     * `flags` fica de fora de propósito: nenhum `fill()` vindo de requisição pode ligar
+     * funcionalidade. Quem as move é `Flags::definirNoTenant()`, e ela audita.
+     *
+     * @var list<string>
+     */
     protected $fillable = ['nome', 'slug', 'ativo'];
 
     /** @return array<string,string> */
     protected function casts(): array
     {
-        return ['ativo' => 'boolean'];
+        return ['ativo' => 'boolean', 'flags' => 'array'];
     }
 
     /** @return HasMany<TenantDominio, $this> */
     public function dominios(): HasMany
     {
         return $this->hasMany(TenantDominio::class);
+    }
+
+    /** O host pelo qual a instituição é alcançada. */
+    public function hostPrimario(): ?string
+    {
+        return $this->dominios()->orderByDesc('primario')->orderBy('id')->value('host');
     }
 }

@@ -34,6 +34,11 @@ final class TurmasEAcessoCruzadoTest extends TestCase
     {
         parent::setUp();
 
+        // A Etapa E pôs as turmas atrás de `flag:turmas`, desligada por padrão. Sem ligá-la
+        // aqui, TODA rota de turma devolveria 404 — e os testes de acesso cruzado, que
+        // esperam justamente 404, passariam pelo motivo errado.
+        $this->ligarFlag('turmas');
+
         $this->escolaB = (int) DB::connection('pgsql_dono')->table('tenants')->insertGetId([
             'nome' => 'Escola B', 'slug' => 'escola-b', 'ativo' => true,
             'created_at' => now(), 'updated_at' => now(),

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use App\Dominio\Tenancy\ContextoDoTenant;
+use App\Dominio\Tenancy\Flags;
 use App\Models\TenantDominio;
 use Closure;
 use Illuminate\Http\Request;
@@ -26,7 +27,10 @@ use Throwable;
  */
 final class ResolverTenant
 {
-    public function __construct(private readonly ContextoDoTenant $contexto) {}
+    public function __construct(
+        private readonly ContextoDoTenant $contexto,
+        private readonly Flags $flags,
+    ) {}
 
     public function handle(Request $requisicao, Closure $proximo): Response
     {
@@ -46,6 +50,11 @@ final class ResolverTenant
 
         abort_if($dominio === null, 404, 'Instituição desconhecida.');
         abort_unless($dominio->tenant?->ativo === true, 404, 'Instituição inativa.');
+
+        // As flags viajam no `Tenant` que acabamos de carregar para resolver o host. Sem
+        // esta linha, `Flags` iria buscá-lo de novo — uma consulta a mais por requisição,
+        // para ler uma coluna que já está na memória.
+        $this->flags->definir($dominio->tenant);
 
         // Uma transação por requisição. O `SET LOCAL` morre com ela — no commit, no
         // rollback, e se o processo morrer no meio. Um `SET` comum sobreviveria na

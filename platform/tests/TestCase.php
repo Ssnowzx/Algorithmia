@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests;
 
 use App\Dominio\Tenancy\ContextoDoTenant;
+use App\Dominio\Tenancy\Flags;
+use App\Models\Tenant;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\DB;
 
@@ -15,6 +17,21 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
 
         $this->definirContextoDoTenantPadrao();
+    }
+
+    /**
+     * Liga (ou desliga) uma funcionalidade para uma instituição, dentro da transação do
+     * teste.
+     *
+     * Um teste que exercita uma funcionalidade gateada precisa ligá-la **de propósito**.
+     * Sem isto, `flag:turmas` devolveria 404 em toda rota de turma — e um teste de acesso
+     * cruzado que espera 404 passaria pelo motivo errado.
+     */
+    protected function ligarFlag(string $chave, bool $valor = true, string $slug = 'padrao'): void
+    {
+        $tenant = Tenant::query()->where('slug', $slug)->firstOrFail();
+
+        app(Flags::class)->definirNoTenant($tenant, $chave, $valor);
     }
 
     /**

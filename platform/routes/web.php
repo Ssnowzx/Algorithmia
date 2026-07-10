@@ -63,7 +63,12 @@ Route::middleware('auth')->group(function (): void {
     Route::middleware('personagem')->group(function (): void {
         Route::get('/mapa', [MapaController::class, 'index'])->name('mapa');
         Route::get('/perfil', [PerfilController::class, 'index'])->name('perfil');
-        Route::get('/ranking', [RankingController::class, 'index'])->name('ranking');
+
+        // Há escola que não quer os alunos comparando notas em público. Ligado por padrão
+        // — é como o jogo está em produção hoje, e a Etapa E não muda comportamento sem
+        // que alguém peça.
+        Route::get('/ranking', [RankingController::class, 'index'])
+            ->middleware('flag:ranking')->name('ranking');
 
         // ---------------------------------------------------------- história
         Route::get('/final', [HistoriaController::class, 'final'])->name('historia.final');
@@ -105,18 +110,25 @@ Route::middleware('auth')->group(function (): void {
     // As rotas `/novo` e `/nova` vêm ANTES do curinga, e o curinga é numérico:
     // sem as duas coisas, `GET /mestre/desafios/novo` procuraria o desafio de id
     // "novo" e devolveria 404 no lugar do formulário.
-    // Turmas e relatórios. O acesso é decidido pela `TurmaPolicy`, e não por middleware:
-    // o mestre vê a escola inteira, o professor vê o que leciona, e a diferença não cabe
-    // num `->middleware('mestre')`.
-    Route::get('/turmas', [TurmaController::class, 'index'])->name('turmas.index');
-    Route::get('/turmas/{turma}', [TurmaController::class, 'ver'])
-        ->whereNumber('turma')->name('turmas.ver');
+    // Turmas e relatórios. Duas fronteiras diferentes, e as duas são necessárias:
+    //
+    //  - `flag:turmas` diz se a INSTITUIÇÃO habilitou a funcionalidade (Etapa E);
+    //  - a `TurmaPolicy` diz se ESTE usuário pode ver ESTA turma (Etapa D). Ela não cabe
+    //    num `->middleware('mestre')`: o mestre vê a escola inteira, o professor vê o que
+    //    leciona.
+    //
+    // O RLS é a terceira, e a mais externa: nada daqui atravessa a fronteira entre escolas.
+    Route::middleware('flag:turmas')->group(function (): void {
+        Route::get('/turmas', [TurmaController::class, 'index'])->name('turmas.index');
+        Route::get('/turmas/{turma}', [TurmaController::class, 'ver'])
+            ->whereNumber('turma')->name('turmas.ver');
 
-    Route::post('/turmas', [TurmaController::class, 'criar'])->name('turmas.criar');
-    Route::post('/turmas/{turma}/professores', [TurmaController::class, 'vincularProfessor'])
-        ->whereNumber('turma')->name('turmas.professor.vincular');
-    Route::post('/turmas/{turma}/matriculas', [TurmaController::class, 'matricular'])
-        ->whereNumber('turma')->name('turmas.matricular');
+        Route::post('/turmas', [TurmaController::class, 'criar'])->name('turmas.criar');
+        Route::post('/turmas/{turma}/professores', [TurmaController::class, 'vincularProfessor'])
+            ->whereNumber('turma')->name('turmas.professor.vincular');
+        Route::post('/turmas/{turma}/matriculas', [TurmaController::class, 'matricular'])
+            ->whereNumber('turma')->name('turmas.matricular');
+    });
 
     Route::middleware('mestre')->prefix('mestre')->name('mestre.')->group(function (): void {
         Route::get('/', [MestreController::class, 'index'])->name('painel');

@@ -17,6 +17,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'personagem' => App\Http\Middleware\ExigirPersonagem::class,
             'mestre' => App\Http\Middleware\ExigirMestre::class,
+
+            // `flag:turmas` — a funcionalidade que a instituição não habilitou devolve
+            // 404. Esconder o link no menu e deixar a rota aberta seria a mesma classe de
+            // erro da Etapa A: uma barreira que só parece existir.
+            'flag' => App\Http\Middleware\ExigirFlag::class,
         ]);
 
         // No grupo `web`, e não global: o `/healthz` não devolve HTML e não precisa

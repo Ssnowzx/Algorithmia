@@ -23,9 +23,21 @@
                 <a href="{{ route('mapa') }}">Mapa</a>
                 <a href="{{ route('loja') }}">Loja</a>
                 <a href="{{ route('inventario') }}">Inventário</a>
-                <a href="{{ route('ranking') }}">Ranking</a>
+
+                {{-- O menu e a rota são gateados pela MESMA flag. Esconder só o link
+                     deixaria a URL aberta — ver `ExigirFlag`. --}}
+                @flag('ranking')
+                    <a href="{{ route('ranking') }}">Ranking</a>
+                @endflag
+
                 <a href="{{ route('perfil') }}">Perfil</a>
                 <a href="{{ route('lore') }}">História</a>
+
+                @flag('turmas')
+                    @if (auth()->user()?->podeVerRelatorios())
+                        <a href="{{ route('turmas.index') }}">Turmas</a>
+                    @endif
+                @endflag
 
                 @if (auth()->user()?->ehMestre())
                     <a href="{{ route('mestre.painel') }}">Painel do Mestre</a>

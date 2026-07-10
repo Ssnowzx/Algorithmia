@@ -8,9 +8,12 @@ use App\Dominio\Combate\BatalhaEmSessao;
 use App\Dominio\Combate\RepositorioDeBatalha;
 use App\Dominio\Combate\SorteadorDeDesafios;
 use App\Dominio\Combate\SorteioAntiRepeticao;
+use App\Dominio\Tenancy\ContextoDoTenant;
+use App\Dominio\Tenancy\Flags;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -24,6 +27,14 @@ class AppServiceProvider extends ServiceProvider
         // que os vetores-ouro meçam a aritmética, e não o Mt19937 do PHP.
         $this->app->bind(RepositorioDeBatalha::class, BatalhaEmSessao::class);
         $this->app->bind(SorteadorDeDesafios::class, SorteioAntiRepeticao::class);
+
+        // Os dois guardam o estado do pedido: de qual instituição ele é, e o que ela
+        // enxerga. Sem `singleton`, cada `app()` devolvia uma instância nova e `atual()`
+        // respondia `null` a quem não a definira — o `ResolverTenant` marcava o tenant
+        // numa cópia, e o resto da aplicação lia outra. Só não quebrou até agora porque
+        // ninguém lia `atual()` fora de quem acabara de escrevê-lo.
+        $this->app->singleton(ContextoDoTenant::class);
+        $this->app->singleton(Flags::class);
     }
 
     public function boot(): void
@@ -34,6 +45,10 @@ class AppServiceProvider extends ServiceProvider
         Model::preventSilentlyDiscardingAttributes($this->app->isLocal());
 
         $this->limitarTentativasDeAutenticacao();
+
+        // `@flag('turmas') … @endflag`. A chave é validada contra `config/flags.php`:
+        // um nome errado explode, e não some do menu em silêncio.
+        Blade::if('flag', fn (string $chave): bool => $this->app->make(Flags::class)->ativa($chave));
     }
 
     /**
