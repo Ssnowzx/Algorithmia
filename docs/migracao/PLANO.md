@@ -222,7 +222,8 @@ criaria um segundo cânone para manter, e o banco legado já é a verdade.
 
 Executado contra o banco real: **1.306 linhas em 13 tabelas**, reconciliadas —
 13 usuários, 10 personagens, 5 mestres, 35 fases, 955 desafios, 132 diálogos,
-20 itens, 20 conquistas, 20 linhas de inventário, 15 de progresso, 72 respostas.
+18 itens, 20 conquistas, 20 linhas de inventário, 15 de progresso, 72 respostas,
+11 conquistas de personagem, 0 escolhas.
 
 Verificado sobre os dados importados, e não só sobre fixtures:
 

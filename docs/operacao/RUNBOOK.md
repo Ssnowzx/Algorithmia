@@ -59,12 +59,20 @@ docker run --rm -e ALGORITHMIA_PULAR_OTIMIZACAO=1 algorithmia:latest \
     php artisan key:generate --show
 # cole em APP_KEY e repita a senha em DB_PASSWORD
 
-bin/deploy.sh
+# `--sem-conteudo` SÓ aqui: o banco ainda está vazio. A importação roda logo abaixo,
+# e ela precisa do container `app` de pé — daí a ordem. Sem a flag, o smoke reprova
+# as checagens de conteúdo e o deploy aborta.
+bin/deploy.sh --sem-conteudo
 ```
 
 O `deploy.sh` faz, nesta ordem: recusa árvore suja → dump do banco → build da imagem
 → migrations → sobe os containers → espera o health check → **smoke**. Se o smoke
 reprovar, ele volta sozinho para a tag anterior.
+
+Depois de importar (abaixo), rode `bin/deploy.sh` **sem** a flag pelo menos uma vez,
+ou `algorithmia:smoke` direto: é o smoke completo que prova que o jogo está jogável.
+Do segundo deploy em diante, nunca mais use `--sem-conteudo` — ela existe para o
+banco vazio, e um deploy que perdeu o conteúdo tem de reprovar.
 
 ### Importar os dados do jogo antigo (uma vez só, no dia do corte)
 
@@ -156,8 +164,9 @@ Sugestão de cron:
 ## 6. O que este runbook já viu quebrar
 
 Os scripts foram exercitados de ponta a ponta antes de existir produção, inclusive
-um deploy propositalmente ruim. O ensaio expôs cinco defeitos reais, todos
-corrigidos. Ficam registrados porque são o tipo de coisa que volta:
+um deploy propositalmente ruim e um ensaio completo do corte (§8) contra um MySQL
+legado de mentira. Os ensaios expuseram oito defeitos reais, todos corrigidos.
+Ficam registrados porque são o tipo de coisa que volta:
 
 1. **O gate de saúde do deploy fazia `grep -q healthy`** — e `unhealthy` casa com
    `healthy`. O portão declarava sucesso instantaneamente, sempre.
@@ -173,6 +182,24 @@ corrigidos. Ficam registrados porque são o tipo de coisa que volta:
 5. **`bin/backup.sh` não rodava sozinho.** O `compose` interpola a imagem do serviço
    `app` mesmo quando o comando só toca o postgres, e recusa o arquivo sem
    `ALGORITHMIA_TAG`. O backup do cron falharia todas as noites.
+
+Os três seguintes só apareceram no ensaio do corte, porque **todos os ensaios
+anteriores rodaram sobre um volume de banco já populado.** Eram, os três, defeitos
+exclusivos do primeiro deploy — o único que a VPS ainda vai rodar:
+
+6. **`deploy.sh` esperava o postgres iniciar, não ficar pronto.** `up -d postgres`
+   volta quando o container arranca; num volume vazio ele ainda roda `initdb` antes
+   de escutar. O `migrate` da linha seguinte usa `--no-deps`, que manda o compose
+   ignorar o `depends_on: service_healthy`. Morria em `SQLSTATE[08006] connection
+   refused`. Corrigido com `up -d --wait`.
+7. **O primeiro deploy não tinha como passar no smoke.** O smoke exige conteúdo
+   importado; a importação só roda depois, e precisa do container `app` de pé. O
+   `Smoke.php` já tinha `--sem-conteudo`, mas o `deploy.sh` nunca a repassava. O §2 e
+   o §8 deste runbook descreviam, portanto, uma sequência impossível.
+8. **O §9 prescrevia `TRUSTED_PROXIES=127.0.0.1`** — e avisava, doze linhas abaixo,
+   que o request chega pelo gateway do Docker. Quem copiasse o trecho veria o jogador
+   logar e cair num `400 Bad Request`: sem confiar no proxy, o Laravel gera
+   `Location: http://…` apontando para a porta TLS. Medido no ensaio: `192.168.65.1`.
 
 E o `algorithmia:smoke` se pagou antes de existir produção: na primeira execução, no
 banco de desenvolvimento, denunciou que a migration `recompensas_batalha` nunca fora
@@ -229,11 +256,14 @@ Os dois sistemas ficam de pé na mesma VPS. A rede é o §9 — **leia antes**.
 
 1. **Antes de tudo:** dump do MySQL legado (`mysqldump`) e do PostgreSQL.
 2. Suba o port em porta alta e **verifique-o pela porta**, sem tocar no domínio:
-   `bin/deploy.sh` e `algorithmia:smoke`. O legado segue atendendo os jogadores.
+   `bin/deploy.sh --sem-conteudo`. O banco ainda está vazio, e o smoke completo só
+   passa depois do passo 4 — por isso a flag. Confira `curl http://127.0.0.1:8080/healthz`.
+   O legado segue atendendo os jogadores.
 3. Ponha o legado em **somente leitura** (revogue INSERT/UPDATE/DELETE do usuário da
    aplicação). Ninguém deve jogar no sistema velho enquanto os dados migram.
 4. `algorithmia:importar --dry-run`, depois sem a flag. Confira a reconciliação.
-5. Rode `algorithmia:smoke` de novo — agora com o conteúdo real.
+5. Rode `algorithmia:smoke` de novo — agora **sem** `--sem-conteudo`, com o conteúdo
+   real. É esta execução que exercita o motor numa fase de verdade.
 6. **Só então** troque o vhost do `httpd` para o proxy reverso do §9, e configure
    `TRUSTED_PROXIES`. Recarregue o `httpd`.
 7. Entre no jogo você mesmo: login, mapa, uma batalha. O smoke não testa a sessão
@@ -265,7 +295,13 @@ ProxyPassReverse / http://127.0.0.1:8080/
 ### No `.env.producao`
 
 ```dotenv
-TRUSTED_PROXIES=127.0.0.1
+# NÃO copie um IP daqui. Meça o seu — veja "Descobrir o IP do proxy" abaixo.
+# O `httpd` roda no host e alcança o nginx pela porta publicada: o request chega
+# ao container pelo NAT do Docker, com o endereço do GATEWAY da rede do compose
+# (172.x.0.1), e não por 127.0.0.1. Ensaiado: num Docker Desktop o valor era
+# 192.168.65.1. Se você puser 127.0.0.1, o proxy não é confiado, o Laravel acha
+# que a conexão é http, e o jogador loga e cai em Bad Request.
+TRUSTED_PROXIES=<o endereço que você mediu>
 SESSION_SECURE_COOKIE=true
 APP_URL=https://algorithmia.tars.art.br
 ```
@@ -292,9 +328,27 @@ Aposentado o legado, o nginx pode assumir a 80/443 diretamente (com a TLS migrad
 
 ### Descobrir o IP do proxy
 
+Faça **uma** requisição pelo domínio (ou pela porta alta, pelo `httpd`) e leia o
+`$remote_addr` que o nginx registrou. É a primeira coluna do log de acesso.
+
 ```bash
 cd platform
-docker compose -f compose.prod.yml logs web | head    # o $remote_addr das requisições
+curl -sk https://algorithmia.tars.art.br/ -o /dev/null   # gera uma linha de log
+docker compose -f compose.prod.yml logs web | tail -5    # o $remote_addr é a 1ª coluna
+```
+
+Ignore as linhas de `/healthz` com `User-Agent: Wget`: são o healthcheck interno do
+container, e ele **sempre** vem de `127.0.0.1`. É essa coincidência que faz alguém
+concluir, olhando o log rápido demais, que o proxy é o loopback.
+
+### Verificar que o `TRUSTED_PROXIES` pegou
+
+Um `curl` prova em dois segundos o que só apareceria com o jogo no ar:
+
+```bash
+# O Location DEVE começar com https://. Se vier http://, o proxy não está confiado.
+curl -sk -o /dev/null -D - -X POST https://algorithmia.tars.art.br/entrar \
+     -d '_token=...' -d 'email=...' -d 'password=...' | grep -i '^location:'
 ```
 
 Num Docker padrão no Linux, requisições vindas do `httpd` do host chegam pelo gateway

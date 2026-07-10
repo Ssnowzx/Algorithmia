@@ -48,5 +48,13 @@ topologia descrita em [`RUNBOOK.md §9`](../../../docs/operacao/RUNBOOK.md).
 - [x] 6.7 `docs/operacao/RUNBOOK.md`; deploy, rollback e backup exercitados localmente
 - [x] 6.8 Host confirmado: VPS com root + Docker; `httpd` do legado convive na mesma máquina
 - [x] 6.9 `trustProxies` configurável por `TRUSTED_PROXIES`, vazio por padrão, travado em teste
-- [ ] 6.10 `.env.producao` na VPS (**incluindo `TRUSTED_PROXIES`**), legado em somente leitura
-- [ ] 6.11 Importar, `bin/deploy.sh`, vhost do `httpd` como proxy reverso, janela de coexistência
+- [x] 6.12 **Ensaio completo do corte (§8) em Docker local**, contra uma cópia do MySQL legado
+      servida por um usuário só com `SELECT`. Achou três defeitos, todos exclusivos do
+      *primeiro* deploy — os ensaios anteriores rodaram sobre volume já populado:
+      `up -d` não esperava o `initdb`; o smoke era impossível de passar com o banco vazio
+      (faltava repassar `--sem-conteudo`); e o §9 prescrevia um `TRUSTED_PROXIES` errado.
+      Ver `RUNBOOK.md §6`, itens 6 a 8.
+- [ ] 6.10 `.env.producao` na VPS (**incluindo `TRUSTED_PROXIES` medido, não copiado**),
+      legado em somente leitura
+- [ ] 6.11 Importar, `bin/deploy.sh --sem-conteudo`, vhost do `httpd` como proxy reverso,
+      janela de coexistência
