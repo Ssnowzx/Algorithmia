@@ -76,6 +76,18 @@ topologia descrita em [`RUNBOOK.md §9`](../../../docs/operacao/RUNBOOK.md).
       `deploy.sh`/`rollback.sh` leem `platform/.deploy/ambiente`, senão um rollback
       devolveria o site a HTTP na 8080 sem avisar.
 
+- [x] 6.16 **Ensaio completo do §10** (corte para VPS dedicada), em Docker local: volume
+      zerado → `bin/deploy.sh --sem-conteudo` lendo `.deploy/ambiente` → importação do
+      MySQL efêmero → smoke completo → login, campanha e um turno de batalha por HTTPS,
+      com `TRUSTED_PROXIES` **vazio**. E o rollback, que preservou a 443 — sem o
+      `ambiente` o compose voltaria a `algorithmia.conf`, HTTP na 8080, calado.
+- [x] 6.17 **Legado instalável do zero.** `schema.sql` fixava `CREATE DATABASE
+      algorithmia; USE algorithmia;` e ignorava `DB_NAME`; corrigido isso, apareceu que
+      as migrations rodavam antes do `seeds.sql` e o `INSERT` da seed morria em
+      `Duplicate entry 'primeira_arma'`. A CI era cega: montava o banco com um `sed` no
+      schema e nunca chamava o migrador. `config/db.php` também assumia `dev` quando
+      `APP_ENV` faltava — e o vhost de produção não a define.
+
 ### Bloqueado na VPS nova (o usuário vai provisioná-la do zero)
 - [ ] 6.10 `bash bin/checar-host.sh` no host novo; `.env.producao` com `TRUSTED_PROXIES`
       **medido, não copiado**; legado em somente leitura

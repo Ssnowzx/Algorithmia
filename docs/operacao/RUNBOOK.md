@@ -273,6 +273,15 @@ exclusivos do primeiro deploy — o único que a VPS ainda vai rodar:
    logar e cair num `400 Bad Request`: sem confiar no proxy, o Laravel gera
    `Location: http://…` apontando para a porta TLS. Medido no ensaio: `192.168.65.1`.
 
+E um nono, que o ensaio do §10 pegou antes de existir a VPS nova:
+
+9. **O rollback teria desfeito o TLS, em silêncio.** `ALGORITHMIA_NGINX_CONF` e as
+   portas viviam só no ambiente do operador. Um `rollback.sh` no dia seguinte subiria o
+   `web` com os padrões do compose — `algorithmia.conf`, HTTP na 8080 — e o site
+   responderia `200` em texto claro, sem nada acusar. Por isso `deploy.sh` e
+   `rollback.sh` leem `platform/.deploy/ambiente` (§10.3). Verificado nos dois sentidos:
+   com o arquivo, o rollback preserva a 443; sem ele, o compose volta a `algorithmia.conf`.
+
 E o `algorithmia:smoke` se pagou antes de existir produção: na primeira execução, no
 banco de desenvolvimento, denunciou que a migration `recompensas_batalha` nunca fora
 aplicada ali.
