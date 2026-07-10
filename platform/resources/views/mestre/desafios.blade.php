@@ -31,7 +31,7 @@
 
                         {{-- Excluir é POST e confirma: no legado bastava um GET. --}}
                         <form method="POST" action="{{ route('mestre.desafio.excluir', $desafio) }}"
-                              onsubmit="return confirm('Excluir o desafio {{ $desafio->id }}?')">
+                              data-confirmar="Excluir o desafio {{ $desafio->id }}?">
                             @csrf
                             <button type="submit" class="botao botao-sm botao-fantasma">Excluir</button>
                         </form>

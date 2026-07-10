@@ -7,9 +7,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>A História de Algorithmia — A Lenda dos Cinco Mestres</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Rubik:wght@400;500;700;800&display=swap">
+{{-- Fontes da marca, servidas por nós. O CSP diz `font-src 'self'`, e o IP do
+     aluno não vai para o Google. Ver public/css/fontes.css. --}}
+<link rel="stylesheet" href="{{ asset('css/fontes.css') }}">
 <style>
   :root{
     --bg:#0a0c1a; --painel:#161a36; --borda:#2a335f; --texto:#eef0fb; --fraco:#9aa0c9;

@@ -82,7 +82,7 @@
 @endsection
 
 @push('scripts')
-<script>
+<script nonce="{{ $cspNonce }}">
     // Mesmo contrato do jogo em PHP puro, para que public/js/batalha.js seja
     // reaproveitado sem uma linha de alteração. Só as URLs mudaram de forma.
     window.BATALHA = {

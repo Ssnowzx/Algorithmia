@@ -37,7 +37,7 @@
                         <a class="botao botao-sm" href="{{ route('mestre.item.editar', $item) }}">Editar</a>
 
                         <form method="POST" action="{{ route('mestre.item.excluir', $item) }}"
-                              onsubmit="return confirm('Excluir “{{ $item->nome }}”? Ele sairá do inventário de todos os heróis.')">
+                              data-confirmar="Excluir “{{ $item->nome }}”? Ele sairá do inventário de todos os heróis.">
                             @csrf
                             <button type="submit" class="botao botao-sm botao-fantasma">Excluir</button>
                         </form>

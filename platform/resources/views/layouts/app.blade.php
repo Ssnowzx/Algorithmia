@@ -7,6 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('titulo', 'Algorithmia') — A Lenda dos Cinco Mestres</title>
 
+    {{-- Antes do resto: o `--titulo`/`--hud` do style.css dependem destas famílias.
+         O port as havia perdido em todas as telas menos a de lore. --}}
+    <link rel="stylesheet" href="{{ asset('css/fontes.css') }}">
     <link rel="stylesheet" href="{{ asset('css/tokens.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/shell.css') }}">
@@ -51,6 +54,8 @@
     <script src="{{ asset('js/ui.js') }}"></script>
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="{{ asset('js/celebracao.js') }}"></script>
+    {{-- Substitui os `onsubmit="return confirm(...)"`, que nenhum nonce de CSP alcança. --}}
+    <script src="{{ asset('js/confirmar.js') }}"></script>
 
     @stack('scripts')
 </body>

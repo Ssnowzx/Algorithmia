@@ -58,7 +58,7 @@
 
                 {{-- Descartar é destrutivo e irreversível: confirma antes. --}}
                 <form method="POST" action="{{ route('inventario.descartar', $item) }}"
-                      onsubmit="return confirm('Descartar {{ $item->nome }}? Não há volta.')">
+                      data-confirmar="Descartar {{ $item->nome }}? Não há volta.">
                     @csrf
                     <button type="submit" class="botao botao-sm botao-fantasma">Descartar</button>
                 </form>

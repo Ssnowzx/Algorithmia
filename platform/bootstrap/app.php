@@ -19,6 +19,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'mestre' => App\Http\Middleware\ExigirMestre::class,
         ]);
 
+        // No grupo `web`, e não global: o `/healthz` não devolve HTML e não precisa
+        // gastar 16 bytes de entropia por checagem, a cada dez segundos.
+        $middleware->web(append: [
+            App\Http\Middleware\AplicarPoliticaDeConteudo::class,
+        ]);
+
         // Durante a coexistência, o `httpd` do jogo antigo termina o TLS e repassa a
         // requisição ao nginx do port. Sem confiar nesse proxy, o Laravel acha que a
         // conexão é `http`: gera URLs `http://` e nunca envia o cookie `secure` —

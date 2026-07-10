@@ -95,7 +95,7 @@
 
 <script src="{{ asset('js/som.js') }}"></script>
 <script src="{{ asset('js/ui.js') }}"></script>
-<script>
+<script nonce="{{ $cspNonce }}">
     // Só o feedback sonoro dos botões de entrada — sem trilha de fundo.
     document.querySelectorAll('.home-entrada-botao, .home-login-link').forEach(function (botao) {
         botao.addEventListener('mouseenter', function () { window.SOM?.clique(); });

@@ -31,7 +31,7 @@
 
                         {{-- Apaga a fase E seus desafios em cascata. Confirma. --}}
                         <form method="POST" action="{{ route('mestre.fase.excluir', $fase) }}"
-                              onsubmit="return confirm('Excluir a fase “{{ $fase->nome }}” e TODOS os seus desafios?')">
+                              data-confirmar="Excluir a fase “{{ $fase->nome }}” e TODOS os seus desafios?">
                             @csrf
                             <button type="submit" class="botao botao-sm botao-fantasma">Excluir</button>
                         </form>
