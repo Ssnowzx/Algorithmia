@@ -637,13 +637,10 @@ tenant, o RLS o cegava, e o jogador logava para cair na tela de login de novo.
 
 ### 10.6b Provisionar uma instituição
 
-> ⚠️ **Leia o §11.5 antes.** Hoje o port serve **uma** instituição com conteúdo. Este
-> procedimento vale para a **primeira** — a que recebe o legado no dia do corte. Uma segunda
-> instituição pode ser provisionada, mas **não pode ser semeada nem ativada**, e o
-> `algorithmia:importar` recusa a tentativa dizendo por quê.
+A ordem não é negociável — **provisionar → semear → ligar** —, e é o código que a impõe, não
+este parágrafo. O `tenant:novo` imprime os passos certos; basta segui-los.
 
-A ordem não é negociável — **provisionar → semear → ligar** —, e agora é o código que a
-impõe, não este parágrafo. Três comandos, nesta sequência:
+**O passo do meio depende de haver ou não conteúdo no banco**, e a razão está no §11.5:
 
 ```bash
 C="docker compose -f compose.prod.yml run --rm --no-deps app php artisan"
@@ -653,9 +650,13 @@ C="docker compose -f compose.prod.yml run --rm --no-deps app php artisan"
 #    ou seja, trava TODOS os deploys, até alguém desconfiar de uma escola pela metade.
 $C algorithmia:tenant:novo "Escola Nova" --host=nova.exemplo.com
 
-# 2. Semear. `--tenant` é obrigatório com mais de uma instituição: importar para a escola
-#    errada é irreversível sem restaurar dump.
+# 2a. A PRIMEIRA instituição — a do corte — recebe o legado. Ele preserva os ids, porque o
+#     progresso que vem junto aponta para eles.
 $C algorithmia:importar --tenant=escola-nova
+
+# 2b. As SEGUINTES copiam o conteúdo de uma que já o tenha, com ids novos. Nenhum aluno é
+#     copiado: uma escola nova não herda os alunos de outra.
+$C algorithmia:tenant:semear escola-nova --de=padrao
 
 # 3. Ligar. O comando roda o smoke DAQUELA instituição antes, e RECUSA ligá-la se ela
 #    estiver injogável. Não há `--forcar`.
@@ -667,6 +668,9 @@ Para conferir o estado de todas, a qualquer momento:
 ```bash
 $C algorithmia:tenant:listar
 ```
+
+> **`algorithmia:importar` recusa a segunda instituição**, antes mesmo de abrir o legado, e
+> diz qual comando usar. Ele não tem como funcionar duas vezes — ver §11.5.
 
 > **O escape do portão é SQL, não uma flag.** Se um dia for mesmo necessário ligar uma
 > escola que o smoke reprova, o comando é
@@ -794,36 +798,40 @@ A **ativação** é a única que responde a uma pergunta de produto. Trezentas c
 heróis não é um problema de adoção — é um problema na tela de criação de personagem.
 Contar contas sozinho esconderia isso.
 
-### 11.5 O limite de hoje: uma instituição com conteúdo
+### 11.5 Conteúdo: a primeira escola importa, as seguintes copiam
 
-**O port isola instituições de verdade, mas só uma delas pode ter o conteúdo do jogo.**
+**Os ids do conteúdo são globais.** A chave primária de `fases` é `id`, e não
+`(tenant_id, id)`. O `algorithmia:importar` preserva os ids do legado de propósito: o
+progresso dos alunos que ele traz junto aponta para eles. **Isso só funciona uma vez** — a
+segunda importação colide em `fases_pkey`.
 
-Os ids do conteúdo são **globais**: a chave primária de `fases` é `id`, e não
-`(tenant_id, id)`. O `algorithmia:importar` preserva os ids do legado de propósito —
-`config('jogo.fases_secundarias')` referencia as fases secundárias pelos números **8, 14, 20
-e 32**, e o `ServicoDeConquistas` as procura assim. Somando as duas coisas:
+Uma escola nova, porém, não quer os alunos da primeira. Quer o **conteúdo**:
 
-- copiar o conteúdo para uma segunda escola **colide em `fases_pkey`**;
-- copiá-lo com ids novos deixaria a conquista `arquivista_do_vazio` **inalcançável, em
-  silêncio**, naquela escola.
+```bash
+$C algorithmia:tenant:semear escola-nova --de=padrao
+```
 
-Por isso `algorithmia:importar --tenant=<segunda>` **recusa**, com a explicação, antes de
-abrir o legado. E `algorithmia:tenant:novo` avisa, na hora de criar, que aquela instituição
-não poderá ser ativada.
+Ele copia mestres, itens, conquistas, fases, desafios e diálogos, **com ids novos**,
+reescrevendo as chaves estrangeiras. Nenhuma pessoa é copiada. Tudo numa transação, com
+reconciliação por contagem: se algo divergir, nada fica.
 
-> Este parágrafo existe porque a versão anterior deste runbook mandava, no §10.6b, rodar
-> exatamente o comando que não pode funcionar. O ensaio do corte (C.6) criou uma segunda
-> instituição e provou o **isolamento** — mas nunca tentou **semeá-la**, e por isso ninguém
-> tinha visto.
+> Verificado com o conteúdo real: 5 mestres, 18 itens, 20 conquistas, 35 fases, 955 desafios
+> e 132 diálogos copiados; **zero ids compartilhados** entre as duas escolas; 34 requisitos e
+> 11 `item_drop_id` religados dentro da escola certa; zero contas copiadas.
 
-**O que ainda funciona com mais de uma instituição:** o isolamento (RLS), a resolução por
-domínio, os papéis, as turmas, os relatórios, as flags, o console. O que não funciona é dar
-conteúdo de jogo à segunda.
+**Três amarras tiveram de cair para isso ser possível**, e cada uma era um defeito:
 
-**O que destrava:** o `content_packages` do roteiro v1 (Fase 3) — identificar o conteúdo por
-um código tenant-scoped em vez de um id global. É uma mudança de modelo de conteúdo, ortogonal
-à tenancy, e o [`design.md §5`](../../openspec/changes/fundacao-multitenant/design.md) já a
-deixara de fora de propósito. Ela merece proposta própria.
+| o que era | por que quebrava |
+|---|---|
+| `arquivista_do_vazio` procurava as fases **8, 14, 20 e 32** por id | a segunda escola nunca as teria: a conquista ficava inalcançável, em silêncio. E uma quinta secundária criada pelo mestre não contava. Agora são as fases de `tipo = 'secundaria'` da instituição. |
+| `conquistas.codigo` era **único global** | `arquivista_do_vazio` só podia existir em uma escola no banco inteiro. Agora o único é `(tenant_id, codigo)`. |
+| `usuarios.email` era **único global** | sob RLS, o registro não via a conta da outra escola, tentava inserir, e o índice a denunciava: **500 numa rota pública**, e um oráculo de existência de contas entre instituições. Agora o único é `(tenant_id, lower(email))`. |
 
-**Para o piloto isso não é bloqueador:** o piloto é a escola que está sendo cortada do legado,
-e é ela que tem o conteúdo. As flags (§11.1) liberam as funcionalidades nela.
+> O `RUNBOOK §10.6b` mandava, até esta correção, rodar `algorithmia:importar --tenant=` para a
+> segunda escola — um comando que não podia funcionar. O ensaio do corte (C.6) criou uma
+> segunda instituição e provou o **isolamento**, mas nunca tentou **semeá-la**, e por isso
+> ninguém tinha visto.
+
+**O que ainda não existe:** conteúdo *diferente* por instituição (o `content_packages` do
+roteiro v1, Fase 3). Hoje toda escola começa com uma cópia do mesmo mundo, e o mestre dela o
+edita a partir dali.

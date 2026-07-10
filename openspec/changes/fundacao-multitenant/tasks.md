@@ -24,10 +24,10 @@
       cabeçalho `X-Forwarded-Host`, e é ele que o teste ataca.
 - [x] B.6 `ProxyReversoTest` vira teste de isolamento: `X-Forwarded-Host` forjado não resolve tenant
 - [x] B.7 Testes de acesso cruzado: Eloquent, query crua, comando de console
-- [ ] B.8 Auditoria de mudança de membership — **adiada, e não esquecida**: não existe
-      ainda nenhuma rota que altere membership. Escrever a auditoria de uma ação que
-      ninguém pode fazer é escrever código que nenhum teste exercita. Entra junto com a
-      Etapa D, que cria essas rotas.
+- [x] B.8 Auditoria de mudança de membership — **adiada aqui, entregue na Etapa D** (ver
+      abaixo): não existia ainda nenhuma rota que alterasse membership, e escrever a
+      auditoria de uma ação que ninguém pode fazer é escrever código que nenhum teste
+      exercita.
 
 ## C. `tenant_id` nas 13 tabelas do jogo — **antes do corte**
 
@@ -68,11 +68,20 @@
 - [x] B.8 Auditoria de vínculo professor–turma, matrícula e criação. Entregue aqui, como
       previsto: só faz sentido auditar uma ação que alguém pode fazer.
 
-### Pergunta aberta, registrada e não resolvida
+### Pergunta aberta — metade dela era um bug, e foi corrigida
 
-`usuarios` é tenant-scoped, divergindo do roteiro v1 §5, que os queria globais. **Duas
-escolas não podem ter o mesmo e-mail.** Reverter exige resolver a identidade no login antes
-de saber o tenant. Sem demanda, fica assim — e está escrito na migration, não só aqui.
+`usuarios` é tenant-scoped, divergindo do roteiro v1 §5, que os queria globais.
+
+> **Registrado aqui como "duas escolas não podem ter o mesmo e-mail", e aceito como
+> consequência.** Não era consequência: era um **defeito**, e explorável. O índice
+> `usuarios_email_unique` era global, mas o RLS escondia a linha da outra escola — o
+> `registrar` concluía "e-mail livre" e o `INSERT` estourava. O visitante recebia **500 numa
+> rota pública**, e aprendia que o e-mail existe em outra instituição. Corrigido na F.2: o
+> índice virou `(tenant_id, lower(email))`, e **duas escolas podem ter o mesmo e-mail**.
+
+O que **continua aberto** é outra coisa, e bem menor: a *conta global* que o roteiro queria —
+uma identidade que atravessa instituições. Ela exige resolver quem é a pessoa antes de saber o
+tenant. Sem demanda.
 
 ## E. Piloto (Fase 9 do roteiro v1)
 
@@ -125,34 +134,56 @@ Nenhum deles tinha teste, e nenhum era visível pela leitura.
 - [x] **`SmokeMultiTenantTest` semeava um estado impossível**: instituição ativa, sem domínio.
       O fixture foi corrigido, não a verificação.
 
-### O limite que a Etapa E descobriu, e tornou honesto
+### F. Quatro defeitos de isolamento, achados exercitando a Etapa E contra dados reais
 
-**Só uma instituição pode ter o conteúdo do jogo.** A chave primária de `fases` é `id`, e não
-`(tenant_id, id)`: os ids são globais. O importador os preserva de propósito, porque
-`config('jogo.fases_secundarias')` referencia as fases secundárias pelos números 8, 14, 20 e
-32. Copiar o conteúdo para a segunda escola colide em `fases_pkey`; copiá-lo com ids novos
-deixaria `arquivista_do_vazio` inalcançável, em silêncio.
+Nenhum tinha teste. Três eram a mesma classe: uma restrição do banco que ignora `tenant_id`
+enquanto o RLS a esconde. Ver `design.md §10`.
 
-**O RUNBOOK §10.6b mandava rodar exatamente esse comando.** O ensaio C.6 criou uma segunda
-instituição e provou o *isolamento* — mas nunca tentou *semeá-la*. Nenhum teste pegaria: a
-suíte semeia uma escola de cada vez. Achado exercitando a E.2 contra um banco com as 955 linhas
-reais de `desafios`.
+- [x] F.1 **`auditoria` não era tenant-scoped.** Ganhou `tenant_id` anulável, RLS e policy com
+      `IS NOT DISTINCT FROM` — `NULL` significa "a plataforma", e é assim que a linha do
+      operador (que não pertence a escola nenhuma) coexiste com as das escolas, sem que
+      nenhuma veja a outra.
+- [x] F.2 **`usuarios.email` era único global, e isso era explorável.** Sob RLS o registro não
+      via a conta da outra escola, tentava inserir, e o índice a denunciava: **500 numa rota
+      pública** e um oráculo de existência de contas entre instituições. Índice virou
+      `(tenant_id, lower(email))`.
+- [x] F.3 **`conquistas.codigo` era único global**, e por isso `arquivista_do_vazio` só podia
+      existir em uma escola no banco inteiro. Índice virou `(tenant_id, codigo)`.
+- [x] F.4 **A sessão não estava amarrada à instituição.** `sessions` não pode ter RLS (o
+      `StartSession` roda antes do resolvedor). Impersonação não era possível — `usuarios.id` é
+      PK global, e o RLS esconde o id da outra escola —, mas o estado da batalha (com o
+      gabarito), o flash e o `intended` atravessavam com um `SESSION_DOMAIN` compartilhado. O
+      `ResolverTenant` passou a marcar a sessão e a descartar a de outro tenant.
+- [x] F.5 **`IntegridadeDaTenancyTest`**, a sentinela. Não lista tabelas: pergunta ao
+      PostgreSQL quais têm `tenant_id` e exige RLS + `FORCE`, policy, FK para `tenants` e
+      nenhum índice único que a ignore. Uma tabela nova sem `tenant_id` reprova até alguém
+      justificá-la no próprio teste. Teria pego F.1, F.2 e F.3 no dia em que nasceram.
 
-Não se improvisou o `content_packages` (o `design.md §5` o deixou de fora de propósito). O que
-se fez foi tornar a falha honesta:
+### G. O conteúdo da segunda instituição — o defeito que o runbook mandava provocar
 
-- [x] `algorithmia:importar --tenant=<segunda>` recusa **antes de abrir o legado**, com a razão
-- [x] `algorithmia:tenant:novo` avisa, na criação, que aquela instituição não poderá ser ativada
-- [x] a recusa de `tenant:ativar` **para de sugerir** um comando que não pode funcionar
-- [x] `RUNBOOK §11.5` e `design.md §11` dizem o limite em voz alta
+`fases.id` é chave primária **global**, e o importador preserva os ids do legado (o progresso
+que vem junto aponta para eles). Importar duas vezes colide em `fases_pkey` — e o `RUNBOOK
+§10.6b` mandava rodar exatamente esse comando. O ensaio C.6 criou uma segunda instituição e
+provou o *isolamento*, mas nunca tentou *semeá-la*.
 
-Para o piloto **não é bloqueador**: o piloto é a escola cortada do legado, e é ela que tem o
-conteúdo. Destrava com o `content_packages` (roteiro Fase 3) — proposta própria.
+**A resposta não foi o `content_packages`.** Uma escola nova não quer os alunos da primeira;
+quer o conteúdo.
 
-### Achado registrado, e NÃO corrigido
+- [x] G.1 `arquivista_do_vazio` deixa de referenciar as fases 8/14/20/32 **por id** e passa a
+      usar `tipo = 'secundaria'`. Corrige dois bugs: a conquista era inalcançável numa segunda
+      escola, e uma quinta secundária criada pelo mestre não contava. No conteúdo do legado o
+      comportamento é idêntico — há teste para isso.
+- [x] G.2 `algorithmia:tenant:semear <para> --de=<origem>`: copia mestres, itens, conquistas,
+      fases, desafios e diálogos com **ids novos**, reescrevendo as FKs, numa transação, com
+      reconciliação por contagem. **Nenhuma pessoa é copiada.**
+- [x] G.3 O `Smoke` verifica que as secundárias **existem**, e não que os ids do legado
+      sobreviveram — uma escola semeada tem as quatro, com outros ids. A preservação dos ids do
+      legado continua verificada onde importa: no `algorithmia:importar`.
+- [x] G.4 `importar`, `tenant:novo` e a recusa de `tenant:ativar` passam a apontar o comando
+      certo, que depende de já haver conteúdo no banco.
+- [x] G.5 Verificado com o conteúdo real: 35 fases e 955 desafios copiados, **zero ids
+      compartilhados**, 34 requisitos e 11 `item_drop_id` religados dentro da escola certa,
+      zero contas copiadas, e **as duas escolas passando no smoke completo**.
 
-`auditoria` **não é tenant-scoped**: sem `tenant_id`, sem RLS. Hoje não vaza — nenhuma rota a
-lê, ela é só escrita. Mas as linhas de duas escolas convivem numa tabela sem barreira, e a
-primeira tela que as mostrar as misturará. Corrigir não é uma migration: as linhas do console
-nascem **sem** contexto de tenant (o operador não está em escola nenhuma), e uma policy que as
-deixasse visíveis a todos seria pior que a ausência dela. Merece proposta própria.
+Fica de fora, com proposta própria: conteúdo **diferente** por instituição (`content_packages`,
+roteiro Fase 3). Hoje toda escola começa com uma cópia do mesmo mundo e o mestre a edita.

@@ -307,22 +307,17 @@ final class ProvisionamentoDeInstituicoesTest extends TestCase
             ->assertFailed();
     }
 
-    // ------------------------------------------------- o conteúdo é de uma escola só
+    // ------------------------------- o legado só é importado uma vez; o resto é cópia
 
     /**
-     * **Os ids do conteúdo são globais.** `fases.id = 8` pertence a uma instituição só, e o
-     * importador os preserva de propósito — `config('jogo.fases_secundarias')` referencia as
-     * fases secundárias pelos números 8, 14, 20 e 32.
+     * **Os ids do conteúdo são globais**, e o importador os preserva de propósito: o progresso
+     * que ele traz do legado aponta para eles. Uma segunda importação colidiria em `fases_pkey`.
      *
-     * Somando: importar o mesmo conteúdo para uma segunda escola colide em `fases_pkey`, e
-     * importá-lo com ids novos deixaria a conquista `arquivista_do_vazio` inalcançável em
-     * silêncio. O RUNBOOK §10.6b mandava rodar exatamente esse comando.
-     *
-     * A recusa vem antes da importação, e com a razão — e não como violação de chave
-     * primária no meio de 1.306 linhas.
+     * Isso não impede a segunda escola de ter conteúdo — impede que ela o receba do LEGADO. A
+     * recusa vem antes de abrir o MySQL, e aponta o comando certo.
      */
     #[Test]
-    public function importar_para_uma_segunda_instituicao_e_recusado_com_a_razao(): void
+    public function importar_para_uma_segunda_instituicao_e_recusado_e_aponta_o_semeador(): void
     {
         // ARRANGE: a padrão tem conteúdo; a piloto, não.
         $this->mundo->mundoDoSmoke();
@@ -330,8 +325,8 @@ final class ProvisionamentoDeInstituicoesTest extends TestCase
 
         // ACT + ASSERT: não chega a abrir o banco legado.
         $this->artisan('algorithmia:importar', ['--tenant' => 'piloto-15'])
-            ->expectsOutputToContain('já tem o conteúdo do jogo')
-            ->expectsOutputToContain('content_packages')
+            ->expectsOutputToContain('não pode ser importado duas vezes')
+            ->expectsOutputToContain('algorithmia:tenant:semear piloto-15 --de=padrao')
             ->assertFailed();
     }
 
@@ -347,15 +342,14 @@ final class ProvisionamentoDeInstituicoesTest extends TestCase
     }
 
     /**
-     * A mensagem do smoke reprovado não pode mandar rodar o importador quando o importador
-     * vai recusar. Descoberto exercitando o console contra o banco de ensaio: a tela dizia
-     * "rode `algorithmia:importar --tenant=escola-piloto`", e esse comando é justamente o
-     * que o guarda acima recusa.
+     * A mensagem do smoke reprovado não pode mandar rodar o importador quando o importador vai
+     * recusar. Descoberto exercitando o console contra o banco de ensaio: a tela dizia "rode
+     * `algorithmia:importar --tenant=escola-piloto`", e esse é o comando que colide.
      */
     #[Test]
-    public function a_recusa_de_ativar_nao_manda_rodar_um_comando_que_vai_falhar(): void
+    public function a_recusa_de_ativar_aponta_o_semeador_quando_ja_existe_conteudo(): void
     {
-        // ARRANGE: a padrão já tem o conteúdo, com os ids globais.
+        // ARRANGE
         $this->mundo->mundoDoSmoke();
         $piloto = $this->provisionamento()->provisionar('Escola Piloto', 'piloto-19', 'p19.exemplo.com');
 
@@ -366,26 +360,25 @@ final class ProvisionamentoDeInstituicoesTest extends TestCase
         } catch (InstituicaoInjogavel $erro) {
             // ASSERT
             $this->assertStringNotContainsString('algorithmia:importar', $erro->getMessage());
-            $this->assertStringContainsString('ids do jogo são globais', $erro->getMessage());
-            $this->assertStringContainsString('padrao', $erro->getMessage());
+            $this->assertStringContainsString('algorithmia:tenant:semear piloto-19 --de=padrao', $erro->getMessage());
         }
     }
 
     #[Test]
-    public function o_comando_novo_avisa_que_a_segunda_instituicao_nao_recebera_conteudo(): void
+    public function o_comando_novo_manda_semear_quando_ja_existe_conteudo(): void
     {
         // ARRANGE
         $this->mundo->mundoDoSmoke();
 
         // ACT + ASSERT: imprimir "rode o importador" seria mandar o operador contra um erro.
         $this->artisan('algorithmia:tenant:novo', ['nome' => 'Escola Piloto', '--host' => 'p17.exemplo.com', '--slug' => 'piloto-17'])
-            ->expectsOutputToContain('NÃO poderá receber conteúdo')
+            ->expectsOutputToContain('algorithmia:tenant:semear piloto-17 --de=padrao')
             ->doesntExpectOutputToContain('algorithmia:importar --tenant=piloto-17')
             ->assertSuccessful();
     }
 
     #[Test]
-    public function num_banco_sem_conteudo_o_comando_novo_ensina_os_dois_passos(): void
+    public function num_banco_sem_conteudo_o_comando_novo_manda_importar(): void
     {
         // ARRANGE: nenhuma instituição tem fases — é o estado de um banco recém-migrado.
         // ACT + ASSERT

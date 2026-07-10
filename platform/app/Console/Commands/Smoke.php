@@ -131,7 +131,7 @@ final class Smoke extends Command
 
         if (! $this->option('sem-conteudo')) {
             $this->verificar('Conteúdo importado', $this->temConteudo(...));
-            $this->verificar('IDs das fases secundárias preservados', $this->idsSecundariasPreservados(...));
+            $this->verificar('Fases secundárias presentes (arquivista_do_vazio alcançável)', $this->temSecundarias(...));
             $this->verificar('Fragmento da IA no catálogo', fn (): bool => Item::fragmentoDaIa() !== null);
             $this->verificar('Confronto final alcançável', fn (): bool => Fase::confrontoFinal() !== null);
 
@@ -209,15 +209,24 @@ final class Smoke extends Command
         return true;
     }
 
-    /** Sem os IDs originais, a conquista `arquivista_do_vazio` fica inalcançável em silêncio. */
-    private function idsSecundariasPreservados(): bool
+    /**
+     * Sem fases secundárias, a conquista `arquivista_do_vazio` é inalcançável — em silêncio.
+     *
+     * A verificação era sobre os **ids** 8, 14, 20 e 32, porque a conquista os referenciava.
+     * Ela não os referencia mais: são as fases de `tipo = 'secundaria'` da instituição. E
+     * tinha de deixar de ser: uma escola semeada por `algorithmia:tenant:semear` recebe ids
+     * novos, e reprovaria o smoke tendo exatamente o conteúdo certo.
+     *
+     * Que os ids do LEGADO cheguem intactos no dia do corte continua sendo verificado — pelo
+     * `algorithmia:importar`, que é quem os preserva, e pelo `ImportacaoDoLegadoTest`.
+     */
+    private function temSecundarias(): bool
     {
-        /** @var list<int> $secundarias */
-        $secundarias = config('jogo.fases_secundarias');
+        if (Fase::query()->where('tipo', 'secundaria')->doesntExist()) {
+            throw new RuntimeException('nenhuma fase secundária — arquivista_do_vazio seria inalcançável');
+        }
 
-        $encontradas = Fase::query()->whereIn('id', $secundarias)->where('tipo', 'secundaria')->count();
-
-        return $encontradas === count($secundarias);
+        return true;
     }
 
     private function semRequisitoOrfao(): bool

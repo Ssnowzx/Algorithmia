@@ -264,6 +264,12 @@ final class ConsoleDoOperadorTest extends TestCase
         $operador = $this->operador();
         $this->actingAs($operador, 'operador');
 
+        // Em produção o console roda **sem contexto de tenant**: as rotas dele saem do
+        // `ResolverTenant`. O `TestCase` deixa o contexto na instituição padrão, e sem esta
+        // linha a auditoria do operador nasceria atribuída a uma escola — o teste afirmaria
+        // algo que não acontece em produção.
+        app(ContextoDoTenant::class)->limparNaTransacao();
+
         // ACT
         $this->from($this->url())->post($this->url("/instituicoes/{$piloto->id}/ativar"))
             ->assertRedirect($this->url());
@@ -278,6 +284,9 @@ final class ConsoleDoOperadorTest extends TestCase
         $this->assertSame('operador', $linha->autor_tipo);
         $this->assertSame($operador->id, $linha->autor_id);
         $this->assertSame($operador->email, $linha->autor_email);
+
+        // E ela não pertence a escola nenhuma — o operador não é de nenhuma.
+        $this->assertNull($linha->tenant_id);
     }
 
     /** O requisito de rollback do piloto: desligá-lo não pode derrubar as outras escolas. */

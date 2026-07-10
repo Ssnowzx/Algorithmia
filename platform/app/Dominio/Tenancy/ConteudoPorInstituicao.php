@@ -8,24 +8,19 @@ use App\Models\Tenant;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Qual instituição já tem o conteúdo do jogo — e por que só uma pode ter.
+ * Quais instituições já têm o conteúdo do jogo.
  *
- * **Os ids do conteúdo são GLOBAIS.** `fases.id = 8` pertence a uma instituição só, porque
- * a chave primária é `id`, e não `(tenant_id, id)`. O `algorithmia:importar` preserva os ids
- * do legado de propósito: `config('jogo.fases_secundarias')` referencia as fases secundárias
- * pelos números 8, 14, 20 e 32, e o `ServicoDeConquistas` as procura assim. Com ids novos, a
- * conquista `arquivista_do_vazio` ficaria inalcançável — em silêncio, e para sempre.
+ * **Os ids do conteúdo são globais.** `fases.id = 8` pertence a uma instituição só, porque a
+ * chave primária é `id`, e não `(tenant_id, id)`. O `algorithmia:importar` preserva os ids do
+ * legado de propósito: o progresso que ele importa junto aponta para eles. Isso só funciona
+ * uma vez — a segunda importação colide em `fases_pkey`.
  *
- * Somando as duas coisas: importar o mesmo conteúdo para uma segunda instituição colide na
- * chave primária, e importá-lo com ids novos quebra a conquista. **Hoje o port serve uma
- * instituição com conteúdo.**
+ * Isso **não** significa que só uma escola pode ter conteúdo. Significa que a segunda não o
+ * recebe do legado, e sim de uma cópia com ids novos: o `algorithmia:tenant:semear`. Ele
+ * existe porque duas amarras foram cortadas — `arquivista_do_vazio` deixou de referenciar as
+ * fases por id, e `conquistas.codigo` deixou de ser único global.
  *
- * Isso não é um descuido da tenancy — é o `content_packages` do roteiro v1 (Fase 3), que o
- * `design.md §5` deixou de fora de propósito, por ser uma mudança de modelo de conteúdo. O
- * que era descuido é o runbook mandar rodar um comando que não pode funcionar. Ver
- * `design.md §11`.
- *
- * Esta classe existe para que a falha chegue como frase, e cedo — e não como violação de
+ * Esta classe existe para que a diferença chegue como frase, e cedo — e não como violação de
  * chave primária no meio de uma importação de 1.306 linhas.
  */
 final class ConteudoPorInstituicao
@@ -33,54 +28,58 @@ final class ConteudoPorInstituicao
     public function __construct(private readonly ContextoDoTenant $contexto) {}
 
     /**
-     * A primeira instituição que já tem conteúdo, ignorando `$exceto`.
+     * As instituições que já têm conteúdo, ignorando `$exceto`.
      *
-     * A varredura entra no contexto de cada instituição, uma de cada vez — não há leitura
-     * através do RLS aqui, como não há em `PainelDeInstituicoes`.
+     * A varredura entra no contexto de cada uma, uma de cada vez — não há leitura através do
+     * RLS aqui, como não há em `PainelDeInstituicoes`.
+     *
+     * @return list<Tenant>
      */
-    public function instituicaoComConteudo(?int $exceto = null): ?Tenant
+    public function todasComConteudo(?int $exceto = null): array
     {
+        $comConteudo = [];
+
         foreach (Tenant::query()->orderBy('id')->get() as $tenant) {
             if ($tenant->id === $exceto) {
                 continue;
             }
 
             // `fases` basta: sem ela não há lição, não há desafio, não há jogo.
-            $tem = $this->contexto->usar($tenant->id, fn (): bool => DB::table('fases')->exists());
-
-            if ($tem === true) {
-                return $tenant;
+            if ($this->contexto->usar($tenant->id, fn (): bool => DB::table('fases')->exists()) === true) {
+                $comConteudo[] = $tenant;
             }
         }
 
-        return null;
+        return $comConteudo;
+    }
+
+    public function instituicaoComConteudo(?int $exceto = null): ?Tenant
+    {
+        return $this->todasComConteudo($exceto)[0] ?? null;
     }
 
     /** Uma linha, para o `error()` — que quebra e emoldura o texto que recebe. */
     public function resumo(Tenant $dona): string
     {
-        return sprintf('A instituição "%s" já tem o conteúdo do jogo, e ele não pode ser copiado para outra.', $dona->slug);
+        return sprintf('A instituição "%s" já tem o conteúdo do jogo, e o legado não pode ser importado duas vezes.', $dona->slug);
     }
 
     /**
-     * A explicação que o operador precisa ler, no terminal, no meio da operação.
-     *
-     * Vai por `line()`, e não por `error()`: o `error()` do Laravel emoldura e reflui o
-     * texto, e um bloco de oito linhas sai picado, sem os nomes que se quer procurar depois.
+     * A explicação, e o comando certo. Vai por `line()`, e não por `error()`: o `error()` do
+     * Laravel emoldura e reflui o texto, e um bloco de oito linhas sai picado.
      */
-    public function porQueSoUma(Tenant $dona): string
+    public function porQueSoUma(Tenant $dona, string $destino): string
     {
         return implode("\n", [
-            sprintf('  Os ids do conteúdo são GLOBAIS: a fase de id 8 pertence à "%s", e só a ela.', $dona->slug),
+            '  O importador preserva os ids do legado — o progresso que ele traz aponta para eles —',
+            '  e `fases.id` é chave primária GLOBAL. Uma segunda importação colidiria em `fases_pkey`.',
             '',
-            '  O importador os preserva de propósito: `config(\'jogo.fases_secundarias\')` referencia',
-            '  as fases secundárias pelos números 8, 14, 20 e 32, e o `ServicoDeConquistas` as',
-            '  procura assim. Copiá-las colidiria em `fases_pkey`; copiá-las com ids novos deixaria',
-            '  a conquista `arquivista_do_vazio` inalcançável, em silêncio.',
+            '  Mas uma escola nova não quer os alunos da primeira: quer o CONTEÚDO. Copie-o, com',
+            '  ids novos:',
             '',
-            '  Hoje o port serve UMA instituição com conteúdo. Dar conteúdo a uma segunda exige o',
-            '  content_packages do roteiro v1 (Fase 3) — mudança de modelo de conteúdo, com proposta',
-            '  própria. Ver RUNBOOK §11.5 e design.md §11.',
+            sprintf('    php artisan algorithmia:tenant:semear %s --de=%s', $destino, $dona->slug),
+            '',
+            '  Ver RUNBOOK §11.5.',
         ]);
     }
 }

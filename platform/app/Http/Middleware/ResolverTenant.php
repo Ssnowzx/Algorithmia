@@ -56,6 +56,8 @@ final class ResolverTenant
         // para ler uma coluna que já está na memória.
         $this->flags->definir($dominio->tenant);
 
+        $this->amarrarSessaoAInstituicao($requisicao, $dominio->tenant_id);
+
         // Uma transação por requisição. O `SET LOCAL` morre com ela — no commit, no
         // rollback, e se o processo morrer no meio. Um `SET` comum sobreviveria na
         // conexão reaproveitada pelo php-fpm e entregaria os dados desta instituição à
@@ -75,5 +77,42 @@ final class ResolverTenant
 
             throw $erro;
         }
+    }
+
+    /**
+     * Uma sessão vale numa instituição, e só nela.
+     *
+     * **`sessions` não tem `tenant_id`, e não pode ter.** O `StartSession` do Laravel roda
+     * antes deste middleware — é a ordem da lista de prioridade, e ela não se inverte: o
+     * `ResolverTenant` precisa da sessão para fazer isto aqui. Uma policy de RLS em `sessions`
+     * deixaria o site sem sessão nenhuma.
+     *
+     * Então a barreira mora na própria sessão. Se ela carrega a marca de outra escola, é
+     * descartada — id novo, dados fora, CSRF novo.
+     *
+     * **O que isso protege, e o que já estava protegido.** Autenticar-se como outra pessoa não
+     * era possível: o id de `usuarios` é globalmente único, então o usuário 3 nunca existe em
+     * duas escolas, e o RLS o esconde da segunda. Mas o **resto** da sessão atravessava: o
+     * estado da batalha — que carrega o gabarito —, as mensagens de flash, o `intended`. E
+     * atravessava sem ataque nenhum no cenário mais natural que existe: um
+     * `SESSION_DOMAIN=.exemplo.com`, que é o que se escreve quando as escolas são subdomínios.
+     * O navegador manda o mesmo cookie para todas.
+     */
+    private function amarrarSessaoAInstituicao(Request $requisicao, int $tenantId): void
+    {
+        // Nem toda rota tem sessão: o `/healthz` está fora do grupo `web`.
+        if (! $requisicao->hasSession()) {
+            return;
+        }
+
+        $sessao = $requisicao->session();
+        $anterior = $sessao->get('tenant_id');
+
+        if ($anterior !== null && (int) $anterior !== $tenantId) {
+            $sessao->invalidate();
+            $sessao->regenerateToken();
+        }
+
+        $sessao->put('tenant_id', $tenantId);
     }
 }

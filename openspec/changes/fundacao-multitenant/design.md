@@ -229,34 +229,87 @@ querer saber por que estas linhas são assim.
    erro que aconteceu. Agora o caminho de erro não roda SQL nenhum — o rollback já desfaz o
    `SET LOCAL` —, e só a cópia em memória volta.
 
-## 10. Um achado registrado, e não corrigido
+## 10. Quatro defeitos de isolamento, achados e corrigidos
 
-**`auditoria` não é tenant-scoped**: sem `tenant_id`, sem RLS. Hoje não vaza, porque nenhuma
-rota a lê — ela só é escrita. Mas as linhas de duas escolas convivem numa tabela sem barreira,
-e a primeira tela que as mostrar vai misturá-las.
+> Todos vieram de exercitar a Etapa E contra um banco real. Nenhum tinha teste. Três eram a
+> **mesma classe**: uma restrição do banco que ignora `tenant_id` enquanto o RLS a esconde.
 
-Corrigir não é uma migration de uma linha: as linhas escritas pelo console nascem **sem**
-contexto de tenant (o operador não pertence a escola nenhuma), e uma policy que as tornasse
-visíveis a todos os tenants seria pior do que a ausência dela. Merece proposta própria, e uma
-decisão sobre onde mora a auditoria da plataforma versus a da escola.
+### 10.1 `auditoria` não era tenant-scoped
 
-## 11. O limite que a Etapa E descobriu: uma instituição com conteúdo
+Sem `tenant_id`, sem RLS. Não vazava — nenhuma rota a lê. Mas as linhas de duas escolas
+conviviam sem barreira, e a primeira tela que as mostrasse as misturaria.
+
+O que adiava o conserto era real: há **dois tipos de autor**, em mundos diferentes. O usuário
+de uma escola age dentro de um contexto; o operador da plataforma age fora de qualquer um — o
+`/console` roda sem `ResolverTenant`. Uma policy `tenant_id = current_setting(...)` recusaria a
+escrita do operador, porque `NULL = NULL` é NULL.
+
+A resposta é `IS NOT DISTINCT FROM`, que trata NULL como um valor:
+
+| quem escreve | contexto | `tenant_id` | quem enxerga |
+|---|---|---|---|
+| aluno, professor, mestre | a escola dele | o id da escola | só aquela escola |
+| operador da plataforma | nenhum | `NULL` | só quem está sem contexto: o console |
+
+`NULL` aqui significa **"a plataforma"**, e não "esqueceram de preencher".
+
+### 10.2 `usuarios.email` era único global — e isso era explorável
+
+```
+-- como algorithmia_app, no contexto da escola B:
+SELECT count(*) FROM usuarios WHERE lower(email) = 'ana@escola-a.test';   -->  0
+INSERT INTO usuarios (nome, email, senha_hash) VALUES ('Outra', 'ana@escola-a.test', 'y');
+ERROR:  duplicate key value violates unique constraint "usuarios_email_unique"
+```
+
+`AutenticacaoController::registrar` faz exatamente essas duas coisas, nessa ordem. Sob RLS a
+checagem devolvia "e-mail livre"; o `INSERT` estourava. O visitante recebia **500 em vez de um
+erro de validação**, e aprendia que aquele e-mail existe **em outra instituição**. Enumeração
+de contas entre escolas, numa rota que não exige conta.
+
+O índice virou `(tenant_id, lower(email))`. Isto **não** é a conta global do roteiro v1 §5 —
+aquela exige resolver a identidade antes de saber o tenant, e continua sem demanda.
+
+### 10.3 `conquistas.codigo` era único global
+
+`arquivista_do_vazio` só podia existir em **uma** escola no banco inteiro. O
+`ServicoDeConquistas` sempre a procurou por `codigo` sob RLS, ou seja, dentro da instituição:
+o único global nunca foi necessário, e sempre foi um bloqueio.
+
+### 10.4 A sessão não estava amarrada à instituição
+
+`sessions` não tem `tenant_id`, e **não pode ter**: o `StartSession` roda antes do
+`ResolverTenant` — o resolvedor precisa da sessão para fazer o que faz. Uma policy ali
+deixaria o site sem sessão nenhuma.
+
+Assumir a identidade de outra pessoa não era possível, e é bom saber por quê: `usuarios.id` é
+chave primária **global**, então o usuário 3 nunca existe em duas escolas, e o RLS o esconde da
+segunda. **A chave primária global, que causa o problema do conteúdo, aqui protege por
+acidente** — e some no dia em que os ids virarem `(tenant_id, id)`.
+
+Mas o **resto** da sessão atravessava: o estado da batalha (que carrega o gabarito), o flash, o
+`intended`, o CSRF. E sem ataque nenhum, no cenário mais natural que existe: um
+`SESSION_DOMAIN=.exemplo.com`, que é o que se escreve quando as escolas são subdomínios.
+
+O `ResolverTenant` passou a marcar a sessão com o tenant e a descartar a que vier de outro.
+
+### 10.5 O teste que impede a próxima
+
+`IntegridadeDaTenancyTest` **não lista tabelas**. Ele pergunta ao PostgreSQL quais têm
+`tenant_id` e exige de todas: RLS + `FORCE`, uma policy, uma FK para `tenants`, e nenhum índice
+único que ignore `tenant_id`. Uma tabela sem `tenant_id` reprova até alguém escrever, no
+próprio teste, por que ela pode ficar de fora.
+
+Os três defeitos acima teriam sido pegos por ele no dia em que nasceram. É o que os testes
+anteriores não faziam: cada um olhava para a lista de tabelas que o seu autor lembrou.
+
+## 11. O conteúdo: a primeira escola importa, as seguintes copiam
 
 > Achado ao exercitar a E.2 contra um banco real, com as 955 linhas de `desafios` do legado.
-> Nenhum teste o pegaria: a suíte semeia uma escola de cada vez.
+> Nenhum teste o pegaria: a suíte semeava uma escola de cada vez.
 
-**A chave primária de `fases` é `id`, e não `(tenant_id, id)`.** Os ids do conteúdo são
-globais. O `algorithmia:importar` os preserva de propósito, e o motivo está no `PLANO.md`:
-`config('jogo.fases_secundarias')` referencia as fases secundárias pelos números 8, 14, 20 e
-32, e o `ServicoDeConquistas` as procura assim.
-
-As duas coisas juntas fecham a porta:
-
-| tentativa | o que acontece |
-|---|---|
-| copiar o conteúdo para a segunda escola, com os mesmos ids | `duplicate key value violates unique constraint "fases_pkey"` |
-| copiar com ids novos | a conquista `arquivista_do_vazio` fica inalcançável naquela escola, **em silêncio** |
-
+**A chave primária de `fases` é `id`, e não `(tenant_id, id)`.** O `algorithmia:importar`
+preserva os ids do legado de propósito: o progresso que ele traz junto aponta para eles.
 Verificado no banco, como app role, no contexto do tenant 2:
 
 ```
@@ -265,28 +318,35 @@ INSERT INTO fases (id, …) VALUES (8, …);
 ERROR:  duplicate key value violates unique constraint "fases_pkey"
 ```
 
-**O RUNBOOK §10.6b mandava rodar exatamente esse comando.** O ensaio do corte (C.6) criou uma
-segunda instituição e provou o *isolamento* — tenant 2 vê zero desafios —, mas nunca tentou
-*semeá-la*. Por isso ninguém tinha visto.
+**E o RUNBOOK §10.6b mandava rodar exatamente esse comando.** O ensaio do corte (C.6) criou
+uma segunda instituição e provou o *isolamento* — tenant 2 vê zero desafios —, mas nunca tentou
+*semeá-la*.
 
-### O que se fez agora
+### A resposta não é `content_packages`
 
-Nada de `content_packages`: ele é uma mudança de modelo de conteúdo, o `§5` já o deixara de
-fora, e improvisá-lo aqui seria a pior hora. O que se fez foi **tornar a falha honesta**:
+Uma escola nova não quer os alunos da primeira. Quer o **conteúdo**. O `SemeadorDeConteudo`
+copia mestres, itens, conquistas, fases, desafios e diálogos — com **ids novos**, reescrevendo
+as chaves estrangeiras —, numa transação, com reconciliação por contagem. Nenhuma pessoa é
+copiada.
 
-- `algorithmia:importar --tenant=<segunda>` **recusa antes de abrir o legado**, com a razão —
-  e não com uma violação de chave primária no meio de 1.306 linhas;
-- `algorithmia:tenant:novo` **avisa, na criação**, que aquela instituição não poderá ser
-  ativada, em vez de imprimir dois passos dos quais o primeiro falha;
-- a recusa de `tenant:ativar` **para de sugerir** um comando que não pode funcionar;
-- o `RUNBOOK §11.5` diz o limite em voz alta.
+Para isso, três amarras caíram, e as duas primeiras eram defeitos por conta própria:
 
-### O que isso significa para o produto
+1. **`arquivista_do_vazio` procurava as fases 8, 14, 20 e 32 por id.** Herança do
+   `ConquistaService.php:86` do legado. Amarrar uma regra de jogo à chave primária do banco
+   tornava a conquista inalcançável na segunda escola — em silêncio —, **e fazia uma quinta
+   secundária criada pelo mestre não contar**. Agora são as fases de `tipo = 'secundaria'` da
+   instituição. No conteúdo do legado são exatamente aquelas quatro: o jogo de ninguém muda.
+2. **`conquistas.codigo` era único global** (ver §10.3).
+3. O `Smoke` verificava os **ids** das secundárias. Passou a verificar que elas **existem** —
+   uma escola semeada tem as quatro, com outros ids.
 
-O port isola instituições de verdade. Resolução por domínio, RLS, papéis, turmas, relatórios,
-flags e console funcionam com N escolas. **O que não funciona é dar conteúdo de jogo à
-segunda.** Para o piloto isso não é bloqueador: o piloto é a escola cortada do legado, e é ela
-que tem o conteúdo.
+Verificado com o conteúdo real: 35 fases e 955 desafios copiados, **zero ids compartilhados**,
+34 requisitos e 11 `item_drop_id` religados dentro da escola certa, zero contas copiadas, e as
+duas escolas passando no smoke completo.
 
-O que destrava: identificar o conteúdo por um código tenant-scoped em vez de um id global.
-Proposta própria.
+### O que ainda não existe
+
+Conteúdo **diferente** por instituição — o `content_packages` do roteiro v1 (Fase 3), que o
+`§5` deixou de fora de propósito. Hoje toda escola começa com uma cópia do mesmo mundo, e o
+mestre dela o edita a partir dali. Isso basta para o piloto, e a proposta própria continua de
+pé para o dia em que não bastar.

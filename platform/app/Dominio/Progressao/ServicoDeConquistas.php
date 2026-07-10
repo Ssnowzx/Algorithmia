@@ -133,15 +133,33 @@ final class ServicoDeConquistas
         return $this->conceder($personagem, 'puro_de_coracao');
     }
 
-    /** Segredo: recuperar todos os Logs do Zero, concluindo as 4 fases secundárias. */
+    /**
+     * Segredo: recuperar **todos** os Logs do Zero, concluindo as fases secundárias.
+     *
+     * **As secundárias são identificadas por `tipo`, e não por id.** Elas eram uma lista de
+     * quatro números fixos — 8, 14, 20 e 32 — herdada do `ConquistaService.php:86` do legado.
+     * Isso amarrava uma regra de jogo à chave primária do banco, e cobrava caro:
+     *
+     * - **os ids são globais**, então uma segunda instituição jamais teria a fase 8, e a
+     *   conquista ficava inalcançável nela, em silêncio;
+     * - um mestre que criasse uma quinta fase secundária pelo painel ganhava uma fase que
+     *   **não contava** — e a conquista continuava saindo com quatro.
+     *
+     * Por `tipo`, "todos os Logs do Zero" quer dizer o que a frase diz, em qualquer escola,
+     * com qualquer quantidade delas. No conteúdo do legado são exatamente aquelas quatro, e
+     * o comportamento não muda: `SELECT id FROM fases WHERE tipo = 'secundaria'` devolve
+     * 8, 14, 20 e 32.
+     *
+     * A consulta é tenant-scoped pelo RLS: só as secundárias desta instituição contam.
+     */
     private function avaliarArquivistaDoVazio(Personagem $personagem, Fase $fase): ?Conquista
     {
-        /** @var list<int> $secundarias */
-        $secundarias = config('jogo.fases_secundarias');
-
-        if (! in_array($fase->id, $secundarias, true)) {
+        if ($fase->tipo !== 'secundaria') {
             return null;
         }
+
+        /** @var list<int> $secundarias */
+        $secundarias = Fase::query()->where('tipo', 'secundaria')->pluck('id')->all();
 
         foreach ($secundarias as $faseId) {
             if (! ProgressoFase::concluiu($personagem->id, $faseId)) {

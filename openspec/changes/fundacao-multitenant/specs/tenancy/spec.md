@@ -207,3 +207,102 @@ O que o smoke não prova, o deploy promove: ele é o portão do `bin/deploy.sh`.
 
 - **WHEN** o smoke termina
 - **THEN** nenhuma linha nova permanece nas tabelas que ele escreveu
+
+### Requirement: Nenhuma restrição do banco atravessa a fronteira que o RLS desenha
+
+Toda restrição de unicidade sobre tabela tenant-scoped SHALL incluir `tenant_id`, ou ser
+composta apenas de colunas que referenciem linhas já tenant-scoped.
+
+O RLS esconde a linha da outra instituição; um índice único global a denuncia. O melhor caso é
+uma segunda instituição que não pode existir. O pior é um oráculo de existência numa rota
+pública, com 500 no lugar de um erro de validação.
+
+Toda tabela SHALL ter `tenant_id` com RLS, ou uma justificativa escrita e testada.
+
+#### Scenario: Duas instituições podem ter o mesmo e-mail
+
+- **WHEN** um visitante se registra numa instituição com um e-mail já usado em outra
+- **THEN** a conta é criada
+- **AND** ele não recebe erro nem aprende nada sobre a outra instituição
+
+#### Scenario: O e-mail continua único dentro da instituição
+
+- **WHEN** um visitante se registra com um e-mail já usado na própria instituição
+- **THEN** ele recebe um erro de validação, e não um erro de servidor
+
+#### Scenario: Uma tabela nova sem tenant_id reprova a suíte
+
+- **WHEN** uma migration cria uma tabela sem `tenant_id`
+- **THEN** a suíte falha
+- **AND** ela só passa quando alguém justificar a exceção, por escrito, no próprio teste
+
+### Requirement: A auditoria pertence a uma instituição, ou à plataforma
+
+A trilha de auditoria SHALL ser isolada por instituição. As ações do operador da plataforma —
+que não pertence a instituição alguma — SHALL ser gravadas sem instituição, e SHALL NOT ser
+visíveis a nenhuma delas.
+
+#### Scenario: Uma escola não vê a auditoria de outra, nem a da plataforma
+
+- **WHEN** uma instituição consulta a auditoria
+- **THEN** só as linhas dela retornam
+
+#### Scenario: A plataforma não vê a auditoria das escolas sem entrar em uma
+
+- **WHEN** o console consulta a auditoria sem contexto de instituição
+- **THEN** só as ações da plataforma retornam
+
+#### Scenario: Ninguém forja uma linha de auditoria em nome de outro
+
+- **WHEN** se tenta gravar auditoria em nome de uma instituição que não é a do contexto
+- **THEN** a escrita é recusada com erro
+
+### Requirement: Uma sessão vale numa instituição, e só nela
+
+O sistema SHALL marcar a sessão com a instituição que a criou, e SHALL descartar a sessão que
+chegar marcada com outra.
+
+`sessions` não pode ter RLS: a sessão é lida antes de o tenant ser resolvido. A barreira mora
+no conteúdo da sessão.
+
+#### Scenario: Uma sessão de outra instituição não autentica ninguém
+
+- **WHEN** a sessão da instituição A é apresentada no host da instituição B
+- **THEN** a requisição é de um visitante
+- **AND** a credencial que vinha na sessão não sobrevive
+
+#### Scenario: O estado da batalha não acompanha o navegador até outra instituição
+
+- **WHEN** o navegador vai do host de A para o host de B com a mesma sessão
+- **THEN** os dados da sessão de A são descartados
+
+### Requirement: Uma instituição nova recebe o conteúdo do jogo, com identidade própria
+
+O sistema SHALL permitir dar a uma instituição nova o conteúdo de outra, sem copiar pessoa
+alguma, e sem que as duas compartilhem uma linha.
+
+O importador do legado preserva os ids, e SHALL recusar rodar quando outra instituição já os
+tem — uma segunda importação colidiria na chave primária.
+
+Nenhuma regra de jogo SHALL identificar conteúdo por chave primária.
+
+#### Scenario: O conteúdo copiado não compartilha ids com a origem
+
+- **WHEN** o conteúdo de uma instituição é copiado para outra
+- **THEN** nenhuma linha é compartilhada
+- **AND** todas as chaves estrangeiras apontam para dentro da instituição de destino
+
+#### Scenario: Nenhum aluno é copiado
+
+- **WHEN** o conteúdo é copiado
+- **THEN** a instituição de destino continua sem contas, heróis e progresso
+
+#### Scenario: A conquista dos Logs do Zero é alcançável na instituição nova
+
+- **WHEN** um aluno da instituição nova conclui todas as fases secundárias dela
+- **THEN** ele recebe a conquista, embora os ids das fases sejam outros
+
+#### Scenario: Importar o legado para a segunda instituição é recusado antes de abrir o legado
+
+- **WHEN** se tenta importar o legado para uma instituição, e outra já tem conteúdo
+- **THEN** o comando falha com a razão, e aponta o comando de cópia

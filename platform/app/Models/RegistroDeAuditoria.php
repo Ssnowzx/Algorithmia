@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property array<string,mixed>|null $resumo
  * @property string|null $ip
  * @property string|null $request_id
+ * @property int|null $tenant_id NULL significa "a plataforma", e não "esqueceram de preencher"
  */
 final class RegistroDeAuditoria extends Model
 {

@@ -94,7 +94,7 @@ final class ImportarDoLegado extends Command
         if ($dona !== null) {
             $this->error($conteudo->resumo($dona));
             $this->newLine();
-            $this->line($conteudo->porQueSoUma($dona));
+            $this->line($conteudo->porQueSoUma($dona, (string) ($this->option('tenant') ?? $tenantId)));
 
             return self::FAILURE;
         }

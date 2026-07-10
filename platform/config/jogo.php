@@ -190,9 +190,16 @@ return [
     ],
 
     /**
-     * IDs das fases secundárias que concedem "arquivista_do_vazio".
-     * O legado os traz fixos em ConquistaService.php:86. A importação da Fase 3
-     * preserva os IDs originais justamente para que isto continue valendo.
+     * IDs das fases secundárias **no conteúdo do legado**. É um fato histórico, e não uma
+     * regra de jogo.
+     *
+     * O `ServicoDeConquistas` NÃO os usa mais: "todos os Logs do Zero" são as fases de
+     * `tipo = 'secundaria'` da instituição, quaisquer que sejam os ids. Amarrar a regra à
+     * chave primária tornava a conquista inalcançável numa segunda escola (os ids são
+     * globais) e fazia uma quinta secundária, criada pelo mestre, não contar.
+     *
+     * Isto sobrevive para o `algorithmia:importar`, que preserva os ids do legado — o
+     * progresso importado aponta para eles — e reconcilia a importação contra esta lista.
      */
     'fases_secundarias' => [8, 14, 20, 32],
 ];

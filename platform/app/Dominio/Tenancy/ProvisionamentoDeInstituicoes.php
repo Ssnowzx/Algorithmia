@@ -88,25 +88,21 @@ final class ProvisionamentoDeInstituicoes
     /**
      * O que dizer a quem acabou de ver o smoke reprovar.
      *
-     * Mandar rodar `algorithmia:importar --tenant=X` só funciona enquanto nenhuma outra
-     * instituição tem conteúdo: os ids do jogo são globais, e o importador recusa a segunda
-     * escola. Instruir o operador a rodar um comando que não pode funcionar é pior do que
+     * O comando não é sempre o mesmo. O importador traz o legado e **preserva os ids**, então
+     * só a primeira instituição o recebe; as seguintes copiam o conteúdo dela, com ids novos.
+     * Instruir o operador a rodar um comando que vai colidir em `fases_pkey` é pior do que
      * não instruir nada.
      */
     private function comoConsertar(Tenant $tenant): string
     {
         $dona = $this->conteudo->instituicaoComConteudo(exceto: $tenant->id);
 
-        if ($dona !== null) {
-            return sprintf(
-                'E ela NÃO pode receber conteúdo: os ids do jogo são globais, e eles pertencem à '
-                .'instituição "%s". Hoje o port serve uma instituição com conteúdo — '
-                .'ver RUNBOOK §11.5.',
-                $dona->slug,
+        return $dona === null
+            ? sprintf('Semeie o conteúdo dela: php artisan algorithmia:importar --tenant=%s', $tenant->slug)
+            : sprintf(
+                'Copie o conteúdo de "%s": php artisan algorithmia:tenant:semear %s --de=%s',
+                $dona->slug, $tenant->slug, $dona->slug,
             );
-        }
-
-        return sprintf('Semeie o conteúdo dela: php artisan algorithmia:importar --tenant=%s', $tenant->slug);
     }
 
     /**
