@@ -74,5 +74,10 @@ class AppServiceProvider extends ServiceProvider
         // Registro é mais caro de abusar e mais raro de usar: um limite só, por IP.
         RateLimiter::for('registrar', fn (Request $requisicao): Limit => Limit::perMinute(5)
             ->by((string) $requisicao->ip()));
+
+        // O console tem poucos operadores e nenhuma pressa. Um limite apertado por IP basta,
+        // e não há o problema do "password spraying": não há muitas contas a varrer.
+        RateLimiter::for('console', fn (Request $requisicao): Limit => Limit::perMinute(5)
+            ->by((string) $requisicao->ip()));
     }
 }

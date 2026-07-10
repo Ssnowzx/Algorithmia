@@ -25,4 +25,20 @@ return [
      */
     'variavel_de_sessao' => 'app.tenant_id',
 
+    /**
+     * O host do console do operador. **Vazio por padrão, e as rotas nem são registradas.**
+     *
+     * O console lê e administra todas as instituições. Publicá-lo por acidente no domínio
+     * de uma escola daria a qualquer aluno a tela de login da plataforma para atacar. Um
+     * middleware que checasse o host seria uma linha de código que alguém pode remover; uma
+     * rota que não existe não tem como ser alcançada.
+     *
+     * Ele **não** entra em `tenant_dominios`: o console não é uma instituição, e o
+     * `ResolverTenant` é retirado dessas rotas de propósito — não há tenant a resolver.
+     *
+     * Ponha um host dedicado (`console.algorithmia.exemplo.com`), com o mesmo certificado, e
+     * de preferência atrás de um filtro de IP no nginx. Ver `RUNBOOK §11`.
+     */
+    'host_do_console' => (string) env('CONSOLE_HOST', ''),
+
 ];

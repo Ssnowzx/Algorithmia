@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\AutenticacaoController;
 use App\Http\Controllers\BatalhaController;
+use App\Http\Controllers\ConsoleController;
 use App\Http\Controllers\HealthzController;
 use App\Http\Controllers\HistoriaController;
 use App\Http\Controllers\HomeController;
@@ -34,6 +35,45 @@ use Illuminate\Support\Facades\Route;
 Route::get('/healthz', HealthzController::class)
     ->name('healthz')
     ->withoutMiddleware([ResolverTenant::class]);
+
+/*
+ * O console do operador da plataforma.
+ *
+ * **Se `CONSOLE_HOST` estiver vazio, estas rotas não existem** — e `/console` responde 404
+ * em todo domínio. Um middleware que checasse o host seria uma linha que alguém pode
+ * remover; uma rota que não foi registrada não tem como ser alcançada.
+ *
+ * `withoutMiddleware(ResolverTenant)` porque o console **não é uma instituição**: o host
+ * dele não está em `tenant_dominios`, e o resolvedor devolveria 404 antes de qualquer
+ * coisa. Sem contexto de tenant, tudo o que estas rotas tocam é catálogo global —
+ * `operadores`, `tenants`, `tenant_dominios`, `sessions`, `auditoria`. As métricas de cada
+ * escola entram e saem de um contexto por vez, dentro do `PainelDeInstituicoes`.
+ */
+if (config('tenancy.host_do_console') !== '') {
+    Route::domain((string) config('tenancy.host_do_console'))
+        ->prefix('console')
+        ->name('console.')
+        ->withoutMiddleware([ResolverTenant::class])
+        ->group(function (): void {
+            Route::middleware('guest:operador')->group(function (): void {
+                Route::get('/', [ConsoleController::class, 'mostrarLogin'])->name('entrar');
+                Route::post('/', [ConsoleController::class, 'entrar'])->middleware('throttle:console');
+            });
+
+            Route::middleware('auth:operador')->group(function (): void {
+                Route::get('/instituicoes', [ConsoleController::class, 'painel'])->name('painel');
+
+                Route::post('/instituicoes/{tenant}/ativar', [ConsoleController::class, 'ativar'])
+                    ->whereNumber('tenant')->name('ativar');
+                Route::post('/instituicoes/{tenant}/desativar', [ConsoleController::class, 'desativar'])
+                    ->whereNumber('tenant')->name('desativar');
+                Route::post('/instituicoes/{tenant}/flag', [ConsoleController::class, 'flag'])
+                    ->whereNumber('tenant')->name('flag');
+
+                Route::post('/sair', [ConsoleController::class, 'sair'])->name('sair');
+            });
+        });
+}
 
 // A porta de entrada: vitrine para o visitante, atalho para quem já joga.
 Route::get('/', [HomeController::class, 'index'])->name('home');

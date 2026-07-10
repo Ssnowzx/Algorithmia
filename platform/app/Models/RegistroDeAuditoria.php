@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @property int $id
  * @property int|null $autor_id
+ * @property string|null $autor_tipo
  * @property string|null $autor_email
  * @property string $acao
  * @property string $alvo_tipo
@@ -29,6 +30,9 @@ final class RegistroDeAuditoria extends Model
     /** @var list<string> */
     protected $fillable = [
         'autor_id',
+        // Os ids de `usuarios` e `operadores` colidem: o aluno 3 e o operador 3 são
+        // pessoas diferentes. Sem esta coluna, a linha não sabe dizer quem agiu.
+        'autor_tipo',
         'autor_email',
         'acao',
         'alvo_tipo',

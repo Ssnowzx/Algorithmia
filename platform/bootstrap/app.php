@@ -71,8 +71,20 @@ return Application::configure(basePath: dirname(__DIR__))
             );
         }
 
-        $middleware->redirectGuestsTo(fn (): string => route('login'));
-        $middleware->redirectUsersTo(fn (): string => route('mapa'));
+        // O console tem porta própria. Sem estas duas linhas, um operador sem sessão que
+        // abrisse `/console/instituicoes` cairia na tela de login DO JOGO — que, no host do
+        // console, não resolve instituição nenhuma e responde 404.
+        $middleware->redirectGuestsTo(
+            fn (Request $requisicao): string => $requisicao->routeIs('console.*')
+                ? route('console.entrar')
+                : route('login'),
+        );
+
+        $middleware->redirectUsersTo(
+            fn (Request $requisicao): string => $requisicao->routeIs('console.*')
+                ? route('console.painel')
+                : route('mapa'),
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // O padrão do skeleton é `$request->is('api/*')`, e os endpoints de turno

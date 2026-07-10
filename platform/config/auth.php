@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\Operador;
 use App\Models\Usuario;
 
 return [
@@ -44,6 +45,20 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        /**
+         * Quem administra a plataforma, e não uma escola.
+         *
+         * Guard separado, e não um papel em `usuarios`: desde a Etapa C uma conta pertence
+         * a exatamente uma instituição, e o RLS a esconde das demais. Um "admin da
+         * plataforma" dentro de `usuarios` seria um aluno de alguma escola com poder sobre
+         * as outras. Um mestre não entra no console; um operador não entra no jogo. Não há
+         * caminho de código entre os dois.
+         */
+        'operador' => [
+            'driver' => 'session',
+            'provider' => 'operadores',
+        ],
     ],
 
     /*
@@ -69,10 +84,10 @@ return [
             'model' => env('AUTH_MODEL', Usuario::class),
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        'operadores' => [
+            'driver' => 'eloquent',
+            'model' => Operador::class,
+        ],
     ],
 
     /*
