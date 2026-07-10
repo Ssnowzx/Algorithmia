@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Dominio\Tenancy\ContextoDoTenant;
 use Illuminate\Console\Command;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Facades\DB;
+use RuntimeException;
 use Throwable;
 
 /**
@@ -59,6 +61,20 @@ final class ImportarDoLegado extends Command
     ];
 
     public function handle(): int
+    {
+        // Um comando de console não tem `Host` de onde deduzir o tenant. Sem contexto,
+        // `destinoEstaPronto()` contaria zero linhas num banco cheio — e a importação
+        // sobrescreveria em silêncio o que julgasse inexistente.
+        if (! config('tenancy.ativo')) {
+            return $this->importar();
+        }
+
+        $contexto = app(ContextoDoTenant::class);
+
+        return $contexto->usar($contexto->tenantUnico(), $this->importar(...));
+    }
+
+    private function importar(): int
     {
         $ensaio = (bool) $this->option('dry-run');
         $legado = DB::connection('legado');
@@ -152,6 +168,18 @@ final class ImportarDoLegado extends Command
 
     private function esvaziar(ConnectionInterface $destino): void
     {
+        // `TRUNCATE` **ignora** o RLS — ele é uma operação de tabela, não de linha. Com
+        // duas instituições no banco, `--truncar` apagaria as duas. A policy não
+        // protegeria: ela nem é consultada.
+        $tenants = DB::connection('pgsql_dono')->table('tenants')->count();
+
+        if ($tenants > 1) {
+            throw new RuntimeException(sprintf(
+                '--truncar apagaria as %d instituições do banco: TRUNCATE ignora RLS. Recusado.',
+                $tenants
+            ));
+        }
+
         // CASCADE alcança as tabelas que referenciam estas. `recompensas_batalha` entra
         // junto de propósito: as batalhas recompensadas pertencem ao progresso que está
         // sendo trocado.

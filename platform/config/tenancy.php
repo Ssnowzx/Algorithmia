@@ -5,16 +5,16 @@ declare(strict_types=1);
 return [
 
     /**
-     * Enquanto for `false`, o resolvedor de tenant não faz nada e o jogo roda como
-     * hoje: uma instituição só, sem `app.tenant_id`, sem transação por requisição.
+     * Ligado na Etapa C.2, junto com o RLS nas 13 tabelas do jogo. Desligá-lo agora não
+     * é uma opção de conveniência: sem contexto, o `DEFAULT` de `tenant_id` devolve NULL,
+     * o `NOT NULL` derruba toda inserção, e as policies escondem toda leitura. O jogo
+     * simplesmente não roda.
      *
-     * Ligar isto é trabalho da **Etapa C** — quando as 13 tabelas do jogo tiverem
-     * `tenant_id` e RLS. Ligar antes disso não quebraria nada, e também não protegeria
-     * nada: as tabelas do jogo continuariam abertas.
+     * A variável existe para o caminho inverso: um banco anterior à C.2, num rollback.
      *
      * Ver `openspec/changes/fundacao-multitenant/`.
      */
-    'ativo' => (bool) env('TENANCY_ATIVA', false),
+    'ativo' => (bool) env('TENANCY_ATIVA', true),
 
     /**
      * O nome da variável de sessão do PostgreSQL que carrega o tenant da requisição.

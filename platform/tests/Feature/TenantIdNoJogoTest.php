@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Dominio\Tenancy\ContextoDoTenant;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use PHPUnit\Framework\Attributes\Test;
@@ -12,9 +14,11 @@ use Tests\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * Etapa C.1: a coluna existe e está preenchida, mas ainda não manda. O `SET NOT NULL` e
- * as policies vêm na migration seguinte — a fronteira é deliberada, e estes testes a
- * travam nos dois lados.
+ * Etapas C.1 e C.2: a coluna existe, é obrigatória, e manda.
+ *
+ * O que torna a C.2 barata é o `DEFAULT` da coluna: ele lê `app.tenant_id`, e uma linha
+ * nova herda o tenant da requisição que a criou. Nenhuma linha do código de inserção do
+ * jogo mudou. O que a torna segura é o `NOT NULL`: sem contexto, a inserção falha alto.
  */
 final class TenantIdNoJogoTest extends TestCase
 {
@@ -71,40 +75,79 @@ final class TenantIdNoJogoTest extends TestCase
             ->where('tenant_id', $tenant->id)->where('host', $host)->count());
     }
 
-    /**
-     * A coluna ainda é anulável de propósito. Quem a tornar obrigatória sem backfill
-     * quebra o deploy no meio, com metade do schema aplicado — este teste é o aviso.
-     */
+    /** C.2: a coluna deixou de ser anulável. Sem backfill, este `ALTER` teria falhado. */
     #[Test]
-    public function a_coluna_ainda_e_anulavel_e_o_backfill_e_quem_a_preenche(): void
+    #[TestWith(['fases'])]
+    #[TestWith(['usuarios'])]
+    #[TestWith(['respostas_log'])]
+    public function a_coluna_e_obrigatoria(string $tabela): void
     {
         // ARRANGE + ACT
         $coluna = DB::selectOne(
-            "SELECT is_nullable FROM information_schema.columns
-              WHERE table_name = 'fases' AND column_name = 'tenant_id'"
+            'SELECT is_nullable FROM information_schema.columns
+              WHERE table_name = ? AND column_name = ?',
+            [$tabela, 'tenant_id']
         );
 
         // ASSERT
-        $this->assertSame('YES', $coluna->is_nullable);
+        $this->assertSame('NO', $coluna->is_nullable);
     }
 
     /**
-     * A lacuna que a Etapa C.2 fecha, escrita como teste para que ninguém a esqueça.
-     *
-     * Hoje o jogo insere linhas sem `tenant_id`, e o banco aceita. Nada as protege: uma
-     * `fase` órfã pertence a todo mundo e a ninguém. Quando o `NOT NULL` e as policies
-     * entrarem, este teste passa a falhar — e essa falha é a definição de pronto.
+     * O que torna a C.2 barata: nenhuma linha do código de inserção mudou. O `DEFAULT`
+     * da coluna lê `app.tenant_id`, e uma linha nova herda o tenant da requisição que a
+     * criou. É o `TestCase` quem define esse contexto aqui.
      */
     #[Test]
-    public function hoje_ainda_se_insere_linha_sem_tenant_e_e_exatamente_isso_que_falta(): void
+    public function uma_linha_nova_herda_o_tenant_do_contexto_sem_ninguem_passar_o_id(): void
     {
-        // ARRANGE + ACT
+        // ARRANGE
+        $padrao = (int) DB::connection('pgsql_dono')->table('tenants')->where('slug', 'padrao')->value('id');
+
+        // ACT: repare que `tenant_id` não aparece.
         $id = DB::table('mestres')->insertGetId([
-            'nome' => 'Órfão', 'titulo' => 't', 'disciplina' => 'd',
+            'nome' => 'Herdeiro', 'titulo' => 't', 'disciplina' => 'd',
             'regiao' => 'r', 'svg_slug' => 's', 'ordem' => 99,
         ]);
 
         // ASSERT
-        $this->assertNull(DB::table('mestres')->where('id', $id)->value('tenant_id'));
+        $this->assertSame($padrao, (int) DB::table('mestres')->where('id', $id)->value('tenant_id'));
+    }
+
+    /**
+     * E o que a torna segura: sem contexto, a inserção **falha**. Uma linha órfã
+     * pertenceria a todo mundo e a ninguém — falhar alto é o comportamento desejado.
+     */
+    #[Test]
+    public function sem_contexto_nenhuma_linha_nova_entra(): void
+    {
+        // ARRANGE
+        app(ContextoDoTenant::class)->limparNaTransacao();
+
+        // ACT + ASSERT
+        $this->expectException(QueryException::class);
+
+        DB::table('mestres')->insert([
+            'nome' => 'Órfão', 'titulo' => 't', 'disciplina' => 'd',
+            'regiao' => 'r', 'svg_slug' => 's', 'ordem' => 99,
+        ]);
+    }
+
+    #[Test]
+    #[TestWith(['fases'])]
+    #[TestWith(['desafios'])]
+    #[TestWith(['usuarios'])]
+    public function a_tabela_tem_rls_ligado_e_forcado(string $tabela): void
+    {
+        // ARRANGE + ACT: `FORCE` é o que faz a policy valer também para o dono.
+        $classe = DB::selectOne(
+            'SELECT relrowsecurity AS rls, relforcerowsecurity AS forcado
+               FROM pg_class WHERE relname = ? AND relnamespace = \'public\'::regnamespace',
+            [$tabela]
+        );
+
+        // ASSERT
+        $this->assertTrue((bool) $classe->rls);
+        $this->assertTrue((bool) $classe->forcado);
     }
 }

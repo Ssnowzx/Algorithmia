@@ -63,10 +63,13 @@ final class IsolamentoEntreTenantsTest extends TestCase
         $dono = DB::connection('pgsql_dono');
         $escolas = $dono->table('tenants')->where('slug', 'like', 'escola-%')->pluck('id');
 
+        // A ordem obedece às chaves estrangeiras. `usuarios` referencia `tenants` com
+        // `ON DELETE RESTRICT` desde a C.2 — apagar a escola antes das contas é recusado,
+        // e de propósito: ninguém apaga o progresso de uma instituição por engano.
         $dono->table('tenant_membros')->whereIn('tenant_id', $escolas)->delete();
         $dono->table('tenant_dominios')->whereIn('tenant_id', $escolas)->delete();
-        $dono->table('tenants')->whereIn('id', $escolas)->delete();
         $dono->table('usuarios')->where('email', 'like', '%@escola.test')->delete();
+        $dono->table('tenants')->whereIn('id', $escolas)->delete();
 
         DB::beginTransaction();
 
@@ -96,8 +99,10 @@ final class IsolamentoEntreTenantsTest extends TestCase
     {
         $dono = DB::connection('pgsql_dono');
 
+        // `usuarios` virou tenant-scoped na C.2. A conexão do dono é superusuário e passa
+        // pelas policies, mas não pelo `NOT NULL`: o `DEFAULT` lê um contexto que ela não tem.
         $usuarioId = (int) $dono->table('usuarios')->insertGetId([
-            'nome' => 'Aluno', 'email' => $email, 'senha_hash' => 'x',
+            'nome' => 'Aluno', 'email' => $email, 'senha_hash' => 'x', 'tenant_id' => $tenantId,
         ]);
 
         return (int) $dono->table('tenant_membros')->insertGetId([
@@ -119,6 +124,10 @@ final class IsolamentoEntreTenantsTest extends TestCase
         // ARRANGE
         $this->membroDe($this->escolaA, 'a@escola.test');
         $this->membroDe($this->escolaB, 'b@escola.test');
+
+        // O `TestCase` deixa o contexto no tenant padrão, para que o resto da suíte
+        // enxergue o próprio mundo. Aqui queremos a ausência de contexto.
+        $this->contexto()->limparNaTransacao();
 
         // ACT + ASSERT: nenhuma linha, e nenhum erro. A policy filtra, não recusa.
         $this->assertSame(0, TenantMembro::query()->count());
@@ -177,6 +186,7 @@ final class IsolamentoEntreTenantsTest extends TestCase
         // ARRANGE
         $usuarioId = (int) DB::connection('pgsql_dono')->table('usuarios')->insertGetId([
             'nome' => 'Intruso', 'email' => 'i@escola.test', 'senha_hash' => 'x',
+            'tenant_id' => $this->escolaA,
         ]);
         $this->contexto()->definirNaTransacao($this->escolaA);
 

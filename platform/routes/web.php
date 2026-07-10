@@ -14,6 +14,7 @@ use App\Http\Controllers\MestreController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\PersonagemController;
 use App\Http\Controllers\RankingController;
+use App\Http\Middleware\ResolverTenant;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,7 +26,13 @@ use Illuminate\Support\Facades\Route;
  * item para sempre. Todas alcançáveis por um `<img src>`.
  */
 
-Route::get('/healthz', HealthzController::class)->name('healthz');
+// Fora do `ResolverTenant`: ele consulta `tenant_dominios` para descobrir a instituição,
+// e com o banco fora essa consulta explode ANTES de o healthcheck poder dizer 503. O
+// container ficaria `unhealthy` por 500, e o deploy leria "o app morreu" em vez de "o
+// banco caiu" — que é justamente a distinção que este endpoint existe para fazer.
+Route::get('/healthz', HealthzController::class)
+    ->name('healthz')
+    ->withoutMiddleware([ResolverTenant::class]);
 
 // A porta de entrada: vitrine para o visitante, atalho para quem já joga.
 Route::get('/', [HomeController::class, 'index'])->name('home');

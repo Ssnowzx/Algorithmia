@@ -6,6 +6,7 @@ namespace App\Dominio\Tenancy;
 
 use Illuminate\Support\Facades\DB;
 use LogicException;
+use RuntimeException;
 
 /**
  * Define, para o PostgreSQL, de qual instituição é a requisição.
@@ -33,20 +34,34 @@ final class ContextoDoTenant
     public function usar(int $tenantId, callable $trecho): mixed
     {
         return DB::transaction(function () use ($tenantId, $trecho) {
+            // Restaurar o anterior, e não limpar.
+            //
+            // `DB::transaction()` aninhada vira SAVEPOINT, e um `SET LOCAL` feito dentro
+            // dele **sobrevive** ao `RELEASE`: o escopo do `SET LOCAL` é a transação, não
+            // o savepoint. Se este método apenas limpasse ao sair, tudo o que rodasse
+            // depois dele — dentro da mesma transação — ficaria cego. Fora de aninhamento
+            // o anterior é vazio, e restaurar equivale a limpar.
+            $anterior = $this->doBanco();
+
             $this->definirNaTransacao($tenantId);
 
             try {
                 return $trecho();
             } finally {
-                // Limpar explicitamente, e não confiar no fim da transação.
-                //
-                // `DB::transaction()` aninhada vira SAVEPOINT, e um `SET LOCAL` feito
-                // dentro dele **sobrevive** ao `RELEASE`: o escopo do `SET LOCAL` é a
-                // transação, não o savepoint. Sem esta linha, um trecho aninhado
-                // deixaria o contexto de A ligado para o código que vem depois dele.
-                $this->limparNaTransacao();
+                $anterior === null
+                    ? $this->limparNaTransacao()
+                    : $this->definirNaTransacao($anterior);
             }
         });
+    }
+
+    /** O tenant que a conexão carrega agora, segundo o próprio PostgreSQL. */
+    private function doBanco(): ?int
+    {
+        $variavel = (string) config('tenancy.variavel_de_sessao');
+        $valor = DB::selectOne('SELECT NULLIF(current_setting(?, true), \'\') AS v', [$variavel])?->v;
+
+        return $valor === null ? null : (int) $valor;
     }
 
     /** `''` vira NULL na policy (`NULLIF`), e NULL não casa com `tenant_id` nenhum. */
@@ -83,5 +98,29 @@ final class ContextoDoTenant
     public function atual(): ?int
     {
         return $this->tenantId;
+    }
+
+    /**
+     * O tenant de um comando de console, que não tem `Host` de onde deduzi-lo.
+     *
+     * Numa instalação de uma instituição só — que é o caso do Algorithmia hoje — a
+     * resposta é óbvia e não precisa de flag. Com duas ou mais, não há resposta óbvia, e
+     * adivinhar seria escolher em nome do operador de qual escola apagar os dados.
+     *
+     * A consulta usa a conexão do DONO: `tenants` é catálogo global, mas um comando roda
+     * sem contexto, e é mais honesto não depender de a tabela ter ficado sem RLS.
+     */
+    public function tenantUnico(): int
+    {
+        $tenants = DB::connection('pgsql_dono')->table('tenants')->orderBy('id')->pluck('id');
+
+        return match ($tenants->count()) {
+            0 => throw new RuntimeException('Nenhum tenant cadastrado. Rode as migrations.'),
+            1 => (int) $tenants->first(),
+            default => throw new RuntimeException(sprintf(
+                'Há %d tenants. Um comando de console não escolhe por você — passe --tenant.',
+                $tenants->count()
+            )),
+        };
     }
 }

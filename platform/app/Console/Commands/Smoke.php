@@ -10,6 +10,7 @@ use App\Dominio\Combate\MotorDeBatalha;
 use App\Dominio\Combate\SorteioAntiRepeticao;
 use App\Dominio\Progressao\ServicoDeConquistas;
 use App\Dominio\Progressao\ServicoDeReputacao;
+use App\Dominio\Tenancy\ContextoDoTenant;
 use App\Models\Fase;
 use App\Models\Item;
 use App\Models\Personagem;
@@ -43,6 +44,20 @@ final class Smoke extends Command
     private array $falhas = [];
 
     public function handle(): int
+    {
+        // Um comando de console não tem `Host` de onde deduzir o tenant, e sem contexto
+        // toda consulta às tabelas do jogo devolve zero linhas — o smoke reprovaria
+        // dizendo "conteúdo não importado" contra um banco cheio.
+        if (! config('tenancy.ativo')) {
+            return $this->verificacoes();
+        }
+
+        $contexto = app(ContextoDoTenant::class);
+
+        return $contexto->usar($contexto->tenantUnico(), $this->verificacoes(...));
+    }
+
+    private function verificacoes(): int
     {
         // Estrutural: vale mesmo num banco recém-migrado, sem uma linha de conteúdo.
         $this->verificar('Banco responde', fn (): bool => DB::connection()->select('SELECT 1') !== []);
