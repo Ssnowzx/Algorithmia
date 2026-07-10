@@ -29,8 +29,16 @@ padrão da imagem, e ele é perfeitamente adequado enquanto não há multitenanc
   `FORCE ROW LEVEL SECURITY`. O `FORCE` é cinto-e-suspensório: se um dia alguém
   conectar a aplicação com o dono por engano, as policies continuam valendo.
 - Duas conexões no `config/database.php`: `pgsql` (a aplicação, como `algorithmia_app`)
-  e `pgsql_dono` (migrations e `algorithmia:importar`). O `deploy.sh` já roda o migrate
-  num container separado; ele passa a usar a conexão do dono.
+  e `pgsql_dono` (migrations). O `deploy.sh` já roda o migrate num container separado;
+  ele passa `--database=pgsql_dono`.
+
+> **Corrigido depois de implementar.** O plano dizia que `algorithmia:importar` também
+> usaria o dono. Não usa: o único obstáculo era o `RESTART IDENTITY` do `TRUNCATE`, que
+> exige *ser dono da sequência* — e era redundante, porque `sincronizarSequencias()` já
+> punha cada sequência no `MAX(id)` importado. Removida a cláusula, a importação roda
+> como a aplicação, e continuará rodando enquanto as tabelas do jogo não tiverem RLS.
+> Na **Etapa C** isso muda: ou a importação passa a definir `app.tenant_id`, ou ela
+> assume a conexão do dono. A decisão fica para lá, com o teste que a força.
 
 **Verificação obrigatória, e ela é um teste:** conectado como `algorithmia_app`, sem
 `app.tenant_id` definido, um `SELECT * FROM tenant_membros` devolve **zero linhas** —

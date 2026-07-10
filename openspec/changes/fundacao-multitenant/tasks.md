@@ -4,11 +4,14 @@
 
 ## A. Topologia de acesso (aditiva — pode ir antes do corte)
 
-- [ ] A.1 Provar que o RLS é inerte hoje: teste que falha porque o papel atual vê tudo
-- [ ] A.2 Papel `algorithmia_app`: `NOSUPERUSER NOBYPASSRLS`, sem `OWNER`, com `GRANT`
-- [ ] A.3 Conexão `pgsql_dono` para migrations; `deploy.sh` e `algorithmia:importar` a usam
-- [ ] A.4 `.env.producao.exemplo`: `DB_USERNAME` da aplicação vs `DB_DONO_*`
-- [ ] A.5 O teste de A.1 passa a exigir zero linhas sem contexto — e passa
+- [x] A.1 Provar que o RLS é inerte hoje: teste que falha porque o papel atual vê tudo
+- [x] A.2 Papel `algorithmia_app`: `NOSUPERUSER NOBYPASSRLS`, sem `OWNER`, com `GRANT`
+- [x] A.3 Conexão `pgsql_dono` para migrations; `deploy.sh` passa `--database=pgsql_dono`.
+      **A importação NÃO precisou dela**: bastou tirar o `RESTART IDENTITY` do `TRUNCATE`
+      (que exige ser dono da sequência) — `sincronizarSequencias()` já fazia o trabalho.
+      Ela volta ao tema na Etapa C, quando o RLS alcançar as tabelas do jogo.
+- [x] A.4 `.env.producao.exemplo`: `DB_USERNAME` da aplicação vs `DB_DONO_*`
+- [x] A.5 O teste de A.1 passa a exigir zero linhas sem contexto — e passa
 
 ## B. Fundação de tenancy (aditiva — pode ir antes do corte)
 
