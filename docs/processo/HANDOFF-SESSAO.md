@@ -4,6 +4,81 @@
 
 ---
 
+## 🗓️ Sessão 2026-07-09/10 — Segurança, operação e multitenancy · na `main`
+
+**O port é multitenant. O corte em produção continua NÃO feito** — depende de uma VPS nova.
+
+33 commits, todos pushados (`c1067c9`). Cada um foi deployado e verificado contra o stack
+local de produção, não só contra os testes.
+
+### Suítes
+
+| | Antes | Agora |
+|---|---|---|
+| Port (`platform/`) | 196 | **269** |
+| Legado (raiz) | 38 | **53** (38 vetores-ouro + 15 de banco) |
+
+`pint` e `phpstan` nível 6 limpos. Os 38 vetores-ouro seguem com **os mesmos números**.
+
+### O que foi feito
+
+**Fase 8 do roteiro v1 (segurança e operação):** rate limiting no login (dois limites — o
+de e-mail+IP não vê o *password spraying*), CSP com nonce emitido pelo PHP (o nginx não
+conhece o nonce), fontes da marca hospedadas por nós, trilha de auditoria e logs
+estruturados com `request_id`.
+
+**Fundação multitenant** (`openspec/changes/fundacao-multitenant/`), Etapas **A, B, C e D**:
+
+- **A** — a aplicação deixa de conectar com o papel que ignora o RLS. Medido antes de
+  escrever: `algorithmia` é superusuário, tem `rolbypassrls` **e** é dono das tabelas — três
+  razões independentes para as policies serem inertes. Nasce `algorithmia_app`.
+- **B** — `tenants`, `tenant_dominios`, `convites`; resolução por `Host`; contexto por
+  `SET LOCAL` numa transação por requisição.
+- **C** — `tenant_id` nas 13 tabelas do jogo, com um `DEFAULT` que lê o contexto: nenhuma
+  linha do código de inserção mudou. **A ordem foi invertida em relação ao plano** — ver
+  `design.md §4`: os três deploys são regra de coexistência, e antes do corte não há código
+  velho no ar.
+- **D** — turmas, matrículas, professor, `RelatorioDeTurma`, `TurmaPolicy`.
+
+### Bugs que só apareceram jogando o jogo
+
+Nenhum teste os pegaria. Ficam aqui porque voltam:
+
+1. **`migrate.php` destruía a conta de administrador a cada deploy** — reescrevia a senha
+   (para a que está publicada no repo) e apagava progresso, inventário e conquistas.
+2. **O port tinha perdido as fontes da marca** em todas as telas menos a de lore.
+3. **O `Authenticate` rodava antes do resolvedor de tenant.** O RLS o cegava, e o jogador
+   logava para cair na tela de login. `actingAs()` não passa por sessão nem por HTTP. A
+   correção não é reordenar o grupo `web` (o Laravel reordena pela lista de prioridade) —
+   é `prependToPriorityList`, usando a **interface** `AuthenticatesRequests`.
+4. **O smoke quebraria todo deploy a partir da segunda escola**, porque resolvia o "tenant
+   único". Ele é o portão do `deploy.sh`.
+5. **`/healthz` passou a devolver 500 em vez de 503** com o banco fora, até sair do resolvedor.
+
+### O que fazer a seguir
+
+1. **Etapa E** — piloto: feature flags por tenant, provisionamento documentado, smoke de
+   resolução de tenant. É a última da proposta.
+2. **O corte.** Quando a VPS existir: `bash bin/checar-host.sh`, e então `RUNBOOK §10`
+   (VPS dedicada, rollback por DNS). O `§8` continua valendo para coexistência na mesma
+   máquina. O `§10` já foi ensaiado ponta a ponta **com tenancy** — um ensaio sem RLS não
+   provaria mais nada.
+3. **Pergunta aberta**, registrada na migration `create_turmas`: `usuarios` é tenant-scoped,
+   então **duas escolas não podem ter o mesmo e-mail**.
+
+### Cuidados
+
+- `platform/.env.producao` da máquina local tem valores de **ensaio**
+  (`APP_URL=https://escola.ensaio.test:8443`, `LEGADO_DB_HOST=legado`). Na VPS, partir de
+  `.env.producao.exemplo`.
+- **O `APP_URL` precisa estar certo antes do primeiro `bin/deploy.sh`**: a migration cria o
+  tenant padrão com o host dele. Errado → o site responde 404 com o banco cheio e o
+  healthcheck verde.
+- **Uma instituição nasce desligada.** Provisionar → semear → `UPDATE tenants SET ativo = true`.
+- **`TRUNCATE` ignora RLS.** `algorithmia:importar --truncar` recusa rodar com mais de uma escola.
+
+---
+
 ## 🗓️ Sessão 2026-07-08/09 — Migração para Laravel 13 + PostgreSQL 18 · na `main`
 
 **O port está completo. O corte em produção NÃO foi feito.**
