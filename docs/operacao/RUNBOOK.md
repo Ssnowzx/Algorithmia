@@ -98,6 +98,31 @@ O `--dry-run` roda a importação inteira dentro de uma transação e a desfaz. 
 exercita chaves estrangeiras e conversão de tipos. Um ensaio que não faz isso não
 prova nada.
 
+#### Alcançar o MySQL do host a partir do container
+
+O legado roda no host; o `importar` roda dentro do container `app`. Três coisas
+precisam ser verdade ao mesmo tempo, e falham em silêncio separadas:
+
+```dotenv
+LEGADO_DB_HOST=host.docker.internal   # o compose já mapeia isto para o gateway
+```
+
+1. **O nome resolve** porque `compose.prod.yml` dá ao `app` um
+   `extra_hosts: host.docker.internal:host-gateway`. Sem isso, no Linux, o nome não
+   existe (no Docker Desktop existiria, e o erro só apareceria na VPS).
+2. **O MySQL escuta na interface certa.** Um `bind-address = 127.0.0.1` no `my.cnf`
+   recusa o container. Confira com `ss -lntp | grep 3306`.
+3. **O usuário tem SELECT vindo da sub-rede do Docker.** `'algorithmia_ro'@'localhost'`
+   não serve; precisa ser `'algorithmia_ro'@'172.%'` (ou o range da sua bridge).
+
+O usuário da importação deve ter **apenas** `SELECT` — é o que torna o passo 3 do §8
+uma garantia e não uma promessa:
+
+```sql
+CREATE USER 'algorithmia_ro'@'172.%' IDENTIFIED BY '<senha>';
+GRANT SELECT ON algorithmia.* TO 'algorithmia_ro'@'172.%';
+```
+
 ---
 
 ## 3. Deploy do dia a dia

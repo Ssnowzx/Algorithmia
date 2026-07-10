@@ -11,6 +11,15 @@ services:
     image: algorithmia:${ALGORITHMIA_TAG:?defina ALGORITHMIA_TAG (use bin/deploy.sh)}
     restart: unless-stopped
     env_file: [.env.producao]
+    # No dia do corte, `algorithmia:importar` roda aqui dentro e precisa alcançar o
+    # MySQL legado, que vive no host. O Docker Desktop resolve `host.docker.internal`
+    # sozinho; no Linux da VPS, não — sem esta linha o import morre em "host
+    # desconhecido". `host-gateway` faz o nome apontar para o gateway da bridge.
+    #
+    # Não basta: o MySQL do legado precisa escutar nessa interface (não só em
+    # 127.0.0.1) e conceder SELECT ao usuário vindo da sub-rede do Docker. Ver §8.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       postgres:
         condition: service_healthy
