@@ -197,7 +197,7 @@ Ha 4 arquivos `.DS_Store` no disco (raiz, `docs/`, `public/`, `public/img/`). Ja
 | `public/img/atores/mestre-willen.{png,webp}` | Idem | SEGURO |
 | `docs/galeria/` (4 arquivos) | MD5 identico a `evolucao-visual/v1-pixel-art/_galeria-contact-sheets/` | SEGURO |
 | `Xiax-Plano-de-Produto-EdTech-v1.1.pdf` | Documento externo sem relacao com o codigo | PRECISA-CONFIRMAR |
-| `historia.html` | Possivel prototipo obsoleto — verificar se ha valor narrativo | PRECISA-CONFIRMAR |
+| `historia.html` | ✅ Resolvido: virou rota MVC `historia/lore` (view + preview estático gerado) | RESOLVIDO |
 | `docs/HANDOFF-SESSAO.md` (arquivar, nao deletar) | Informacao historica — versionar em `docs/handoffs/` | PRECISA-CONFIRMAR |
 
 ---
